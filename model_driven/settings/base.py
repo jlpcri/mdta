@@ -19,13 +19,42 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
+# LDAP Settings
+import ldap
+from django_auth_ldap.config import LDAPSearch
+LOGIN_URL = '/model_driven/'
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'django_auth_ldap.backend.LDAPBackend',
+)
+
+AUTH_LDAP_SERVER_URI = "ldap://10.27.116.51"
+AUTH_LDAP_BIND_DN = "cn=LDAP Query\\, Domino Server, OU=Service Accounts,DC=corp,DC=westworlds,DC=com"
+AUTH_LDAP_BIND_PASSWORD = "Qu3ryLd@p"
+AUTH_LDAP_USER_SEARCH = LDAPSearch('DC=corp,DC=westworlds,DC=com',
+                                   ldap.SCOPE_SUBTREE, "(samaccountname=%(user)s)")
+
+AUTH_LDAP_CACHE_GROUPS = True
+AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
+AUTH_LDAP_CONNECTION_OPTIONS = {
+    ldap.OPT_REFERRALS: 0
+}
+
+AUTH_LDAP_USER_ATTR_MAP = {
+    'first_name': 'givenname',
+    'last_name': 'sn',
+    'email': 'mail'
+}
+
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'i-63gs#hou6ja0rxqpn7+jyrzp_m2(o0#cyh!#=z76^(c6oxkq'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -39,7 +68,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'model_driven.apps.core',
+    'model_driven.apps.help',
     'model_driven.apps.projects',
+    'model_driven.apps.users',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -110,7 +141,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Chicago'
 
 USE_I18N = True
 
@@ -122,4 +153,4 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = 'http://apps.qaci01.wic.west.com/static/'
