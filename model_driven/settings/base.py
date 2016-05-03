@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'model_driven.apps.core',
+    'model_driven.apps.graphs',
     'model_driven.apps.help',
     'model_driven.apps.projects',
     'model_driven.apps.users',
@@ -148,6 +149,12 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+SESSION_COOKIE_NAME = 'modelDrivenSessionId'
+# Age of session cookies, in seconds
+SESSION_COOKIE_AGE = 43200  # 12 hours
+# Save the session data on every request
+SESSION_SAVE_EVERY_REQUEST = True
 
 
 # Static files (CSS, JavaScript, Images)
