@@ -25,5 +25,5 @@ urlpatterns = [
     url(r'^model_driven/users/', include('model_driven.apps.users.urls', namespace='users')),
     url(r'model_driven/help/', include('model_driven.apps.help.urls', namespace='help')),
 
-    url(r'^admin/', admin.site.urls),
+    url(r'^admin/', include(admin.site.urls)),
 ]

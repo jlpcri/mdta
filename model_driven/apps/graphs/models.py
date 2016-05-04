@@ -20,9 +20,9 @@ class NodeType(models.Model):
     # HostRequest: status, host_key, data_sent
     # HostResponse: host_key, xml_tag_key, xml_tag_value, xml_sequence_number
     # Segment: segment_group, segment_name
-    keys = ArrayField(models.CharField(max_length=50), null=True)
+    keys = ArrayField(models.CharField(max_length=50), null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0}: {1}'.format(self.name, self.keys)
 
 
@@ -33,9 +33,9 @@ class EdgeType(models.Model):
     name = models.CharField(max_length=50, unique=True, default='')
 
     # Keys of Edge property data
-    keys = ArrayField(models.CharField(max_length=50), null=True)
+    keys = ArrayField(models.CharField(max_length=50), null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0}: {1}'.format(self.name, self.keys)
 
 
@@ -50,9 +50,9 @@ class Node(models.Model):
     name = models.TextField()
 
     # Property for the Node, Keys are from NodeType
-    data = HStoreField()
+    data = HStoreField(null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0}: {1}: {2}'.format(self.name, self.project.name, self.type.name)
 
 
@@ -67,9 +67,9 @@ class Edge(models.Model):
     to_node = models.ForeignKey(Node, related_name='to_node')
 
     # Property for the Node, Keys are from EdgeType
-    data = HStoreField()
+    data = HStoreField(null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0}: {1}: {2}'.format(self.name, self.project.name, self.type.name)
 
 
