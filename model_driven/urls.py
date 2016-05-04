@@ -20,9 +20,10 @@ from model_driven.apps.core.views import landing
 
 urlpatterns = [
     url(r'^model_driven/$', landing, name='landing'),
-    # url(r'^model_driven/projects/', include('model_driven.apps.projects.urls', namespace='projects')),
+    url(r'^model_driven/projects/', include('model_driven.apps.projects.urls', namespace='projects')),
+    url(r'^model_driven/graphs/', include('model_driven.apps.graphs.urls', namespace='graphs')),
     url(r'^model_driven/users/', include('model_driven.apps.users.urls', namespace='users')),
-    # url(r'model_driven/help/', include('model_driven.apps.help.urls', namespace='help')),
+    url(r'model_driven/help/', include('model_driven.apps.help.urls', namespace='help')),
 
     url(r'^admin/', admin.site.urls),
 ]

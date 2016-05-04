@@ -3,5 +3,5 @@ from django.shortcuts import render
 
 
 @login_required
-def projects(request):
-    return render(request, 'projects/projects.html')
+def help(request):
+    return render(request, 'help/help.html')

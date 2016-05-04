@@ -121,9 +121,10 @@
             {% if user.is_authenticated %}
                 <div class="collapse navbar-collapse" id="main-navbar">
                     <ul class="nav navbar-nav">
-                        <li{% if active == 'home' %} class="list-group-item-info" {% endif %}><a href="{% url 'users:home' %}"><i class="fa fa-home fa-fw"></i> Home </a></li>
-                        <li{% if active == 'projects' %} class="list-group-item-info" {% endif %}><a href="#"><i class="fa fa-sitemap fa-fw"></i> Projects</a> </li>
-                        <li{% if active == 'help' %} class="list-group-item-info" {% endif %}><a href="#"><i class="fa fa-thumbs-o-up"></i> Help</a> </li>
+                        <li{% if active == 'home' %} class="active" {% endif %}><a href="{% url 'users:home' %}"><i class="fa fa-home fa-fw"></i> Home </a></li>
+                        <li{% if active == 'projects' %} class="active" {% endif %}><a href="{% url 'projects:projects' %}"><i class="fa fa-sitemap fa-fw"></i> Projects</a> </li>
+                        <li{% if active == 'graphs' %} class="active" {% endif %}><a href="{% url 'graphs:graphs' %}"><i class="fa fa-sitemap fa-fw"></i> Graphs</a> </li>
+                        <li{% if active == 'help' %} class="active" {% endif %}><a href="{% url 'help:help' %}"><i class="fa fa-thumbs-o-up"></i> Help</a> </li>
                     </ul>
 
                     <ul class="nav navbar-nav navbar-right">
