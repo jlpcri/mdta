@@ -1,9 +1,41 @@
 {% extends 'core/base.html' %}
+{% load staticfiles %}
 
 {% block title %} Home {% endblock %}
 
 {% block body %}
     <div class="container">
-        <h1>Home</h1>
+        <div class="row" style="margin-bottom: 10px;">
+            <h1>Model-Driven Testing Automation</h1>
+        </div>
+        <div class="row">
+            <div class="col-xs-6">
+                <li><h4>Model Partially Represents Design: </h4></li>
+                    <ul>
+                        Models can be used to represent the desired behavior
+                        of a System Under Test (SUT), or to represent testing strategies
+                        and a test environment. A model describing a SUT is usually an abstract,
+                        partial presentation of the SUT's desired behavior.
+                    </ul>
+                <li><h4>Reusable Abstract Tests: </h4></li>
+                    <ul>
+                        Test cases derived from such a model are functional tests
+                        on the same level of abstraction as the model.
+                        An executable test suite needs to be derived from
+                        a corresponding abstract test suite.
+                    </ul>
+                <li><h4>Custom Executable Tests: </h4></li>
+                    <ul>
+                        The executable test suite can communicate directly
+                        with the system under test.
+                        This is achieved by mapping the abstract test cases to
+                        concrete test cases suitable for execution.
+                    </ul>
+            </div>
+            <div class="col-xs-1"></div>
+            <div class="col-xs-5">
+                <img src="{% static 'model_driven/model_driven.jpg' %}">
+            </div>
+        </div>
     </div>
 {% endblock %}
