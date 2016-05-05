@@ -1,0 +1,88 @@
+<!-- Project New Modal -->
+<div class="modal fade newProject" id="project-new-modal">
+    <div class="modal-dialog">
+        <form action="{% url 'projects:project_new' %}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4 class="modal-title">Project New</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    {{ project_new_form }}
+                    <br>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div id="newProjectErrMessage">&nbsp;</div>
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                </div>
+                <div class="modal-footer">
+                    <input id="project_new" class="btn btn-primary" type="submit" value="New Project">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- Project Edit Modal -->
+<div class="modal fade editProject" id="project-edit-modal">
+    <div class="modal-dialog">
+        <form method="post" action="{% url 'projects:project_edit' %}">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="editProjectName">Name:</label>
+                            <input type="text" class="form-control input-sm" name="editProjectName" id="editProjectName">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="editProjectLead">Lead:</label>
+                            <select id="editProjectLead" name="editProjectLead" class="form-control">
+                                {% for lead in hrs %}
+                                    <option value="{{ lead.id }}">{{ lead.user.first_name }} {{ lead.user.last_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="editProjectWorker">Worker:</label>
+                            <select multiple id="editProjectWorker" name="editProjectWorker" class="form-control">
+                                {% for worker in hrs %}
+                                    <option value="{{ worker.id }}">{{ worker.user.first_name }} {{ worker.user.last_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-xs-10">
+                            <div id="editProjectErrMessage">&nbsp;</div>
+                        </div>
+                        <div class="col-xs-1">
+                            <input type="hidden" name="editProjectId">
+                        </div>
+                    </div>
+                </div>
+                {% csrf_token %}
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary param-save">Save changes</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

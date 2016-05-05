@@ -163,3 +163,9 @@ SESSION_SAVE_EVERY_REQUEST = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = 'http://apps.qaci01.wic.west.com/static/'
+
+# Messages error tag
+from django.contrib.messages import constants as messages
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger'
+}
