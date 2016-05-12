@@ -4,5 +4,7 @@ from model_driven.apps.graphs import views
 
 urlpatterns = [
     url(r'^$', views.graphs, name='graphs'),
+    url(r'^node_type_new/$', views.node_type_new, name='node_type_new'),
+    url(r'^edge_type_new/$', views.edge_type_new, name='edge_type_new'),
 
 ]

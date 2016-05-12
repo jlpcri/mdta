@@ -1,9 +1,45 @@
 {% extends 'core/base.html' %}
 
-{% block title %} Home {% endblock %}
+{% block title %} Graphs {% endblock %}
+
+{% block subnav %}
+    <div class="container" style="margin-top: 10px;">
+        <div class="row">
+            <small>
+                <i class="fa fa-pencil fa=lg"></i> Create a <a href="#" data-toggle="modal" data-target="#node-type-new-modal">New Node Type</a> |
+                <a href="#" data-toggle="modal" data-target="#edge-type-new-modal">New Edge Type</a>
+            </small>
+        </div>
+        <div class="row" style="margin-top: 10px;">
+            <ul id="subnav-tabs" class="nav nav-tabs">
+                <li><a href="#projects" data-toggle="tab">Project Lists</a> </li>
+                <li><a href="#node_types" data-toggle="tab">Node Types</a> </li>
+                <li><a href="#edge_types" data-toggle="tab">Edge Types</a> </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
 
 {% block body %}
-    <div class="container">
-        <h1>Graphs</h1>
+    <div class="tab-content">
+        <div class="tab-pane" id="projects">
+            {% include 'graphs/projects.html' %}
+        </div>
+
+        <div class="tab-pane" id="node_types">
+            {% include 'graphs/node_types.html' %}
+        </div>
+
+        <div class="tab-pane" id="edge_types">
+            {% include 'graphs/edge_types.html' %}
+        </div>
     </div>
+
+    {% include 'graphs/graphs_modal.html' %}
+{% endblock %}
+
+{% block footer %}
+    <script>
+        {% include 'graphs/graphs.js' %}
+    </script>
 {% endblock %}
