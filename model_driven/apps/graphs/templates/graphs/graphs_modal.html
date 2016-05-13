@@ -30,6 +30,54 @@
     </div>
 </div>
 
+
+<!-- Node Type Edit Modal -->
+<div class="modal fade editNodeType" id="node-type-edit-modal">
+    <div class="modal-dialog">
+        <form action="{% url 'graphs:node_type_edit' %}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4 class="modal-title"></h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="editNodeTypeName">Name:</label>
+                            <input type="text" class="form-control input-sm" name="editNodeTypeName" id="editNodeTypeName">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="editNodeTypeKeys">Keys:</label>
+                            <input type="text" class="form-control input-sm" name="editNodeTypeKeys" id="editNodeTypeKeys">
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-xs-10">
+                            <div id="editNodeTypeErrMessage">&nbsp;</div>
+                        </div>
+                        <div class="col-xs-1">
+                            <input type="hidden" name="editNodeTypeId">
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                </div>
+                <div class="modal-footer">
+                    <input id="node_type_edit" class="btn btn-primary" type="submit" value="Save Node Type">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
 <!-- Edge Type New Modal -->
 <div class="modal fade newEdgeType" id="edge-type-new-modal">
     <div class="modal-dialog">

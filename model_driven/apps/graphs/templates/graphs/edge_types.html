@@ -1,5 +1,28 @@
 {% block body %}
     <div class="container">
-        Edge
+        {% if edge_types %}
+            <div class="row">
+                <div class="col-xs-9 table-responsive">
+                    <table class="table table-striped table-hover table-condensed table-bordered">
+                        <thead>
+                            <tr>
+                                <td class="col-xs-2"><strong>Name</strong></td>
+                                <td class="col-xs-2"><strong>keys</strong></td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for edge_type in edge_types %}
+                                <tr>
+                                    <td><a href="#">{{ edge_type.name|title }}</a></td>
+                                    <td>{{ edge_type.keys }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {% else %}
+            No Edge Type
+        {% endif %}
     </div>
 {% endblock %}
