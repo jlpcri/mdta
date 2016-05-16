@@ -57,6 +57,13 @@ class Node(models.Model):
     def __str__(self):
         return '{0}: {1}: {2}'.format(self.name, self.project.name, self.type.name)
 
+    @property
+    def hierarchy(self):
+        if self.parent:
+            return self.parent.hierarchy + 1
+        else:
+            return 0
+
 
 class Edge(models.Model):
     """
