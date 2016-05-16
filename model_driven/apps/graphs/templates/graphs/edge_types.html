@@ -2,18 +2,23 @@
     <div class="container">
         {% if edge_types %}
             <div class="row">
-                <div class="col-xs-9 table-responsive">
+                <div class="col-xs-12 table-responsive">
                     <table class="table table-striped table-hover table-condensed table-bordered">
                         <thead>
                             <tr>
                                 <td class="col-xs-2"><strong>Name</strong></td>
-                                <td class="col-xs-2"><strong>keys</strong></td>
+                                <td class="col-xs-10"><strong>keys</strong></td>
                             </tr>
                         </thead>
                         <tbody>
                             {% for edge_type in edge_types %}
                                 <tr>
-                                    <td><a href="#">{{ edge_type.name|title }}</a></td>
+                                    <td><a href="#edge-type-edit-modal" data-toggle="modal"
+                                           data-edge-type-id="{{ edge_type.id }}"
+                                           data-edge-type-name="{{ edge_type.name }}"
+                                           data-edge-type-keys="{{ edge_type.keys|join:", " }}">
+                                        {{ edge_type.name }}</a>
+                                    </td>
                                     <td>{{ edge_type.keys }}</td>
                                 </tr>
                             {% endfor %}

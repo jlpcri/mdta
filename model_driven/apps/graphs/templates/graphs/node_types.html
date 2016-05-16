@@ -2,12 +2,12 @@
     <div class="container">
         {% if node_types %}
             <div class="row">
-                <div class="col-xs-9 table-responsive">
+                <div class="col-xs-12 table-responsive">
                     <table class="table table-striped table-hover table-condensed table-bordered">
                         <thead>
                             <tr>
                                 <td class="col-xs-2"><strong>Name</strong></td>
-                                <td class="col-xs-2"><strong>keys</strong></td>
+                                <td class="col-xs-10"><strong>keys</strong></td>
                             </tr>
                         </thead>
                         <tbody>
@@ -17,7 +17,7 @@
                                            data-node-type-id="{{ node_type.id }}"
                                            data-node-type-name="{{ node_type.name }}"
                                            data-node-type-keys="{{ node_type.keys|join:", " }}">
-                                        {{ node_type.name|title }}</a>
+                                        {{ node_type.name }}</a>
                                     </td>
                                     <td>{{ node_type.keys }}</td>
                                 </tr>
