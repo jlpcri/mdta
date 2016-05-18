@@ -18,6 +18,6 @@ function load_keys_from_type_contents(item_id){
             contents += '<div class=\'col-xs-2\'><label>{0}: </label> <input name=\'{0}\'/></div>'.format(data[k]);
         });
         //console.log(contents)
-        $('#node-new-data-input').html(contents)
+        $('#project-node-new-data-input').html(contents)
     })
 }

@@ -46,7 +46,7 @@ def node_type_edit(request):
 
 
 @login_required
-def node_new(request, project_id):
+def project_node_new(request, project_id):
     # project = get_object_or_404(Project, pk=project_id)
     if request.method == 'GET':
         form = NodeNewForm(project_id=project_id)
@@ -72,7 +72,7 @@ def node_new(request, project_id):
         'project_id': project_id
     }
 
-    return render(request, 'graphs/node_new.html', context)
+    return render(request, 'graphs/project_node_new.html', context)
 
 
 @login_required
