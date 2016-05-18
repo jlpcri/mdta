@@ -28,13 +28,12 @@ class NodeNewForm(ModelForm):
 
     class Meta:
         model = Node
-        fields = ['project', 'type', 'parent', 'name', 'data']
+        fields = ['project', 'type', 'parent', 'name']
         widgets = {
             'project': forms.Select(attrs={'class': 'form-control'}),
             'type': forms.Select(attrs={'class': 'form-control'}),
             'parent': forms.Select(attrs={'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'data': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
 

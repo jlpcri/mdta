@@ -1,3 +1,4 @@
+import json
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
@@ -49,8 +50,22 @@ def node_new(request, project_id):
     # project = get_object_or_404(Project, pk=project_id)
     if request.method == 'GET':
         form = NodeNewForm(project_id=project_id)
+    elif request.method == 'POST':
+        data = {}
+        form = NodeNewForm(request.POST, project_id=project_id)
+        if form.is_valid():
+            node = form.save(commit=False)
+            for key in node.type.keys:
+                data[key] = request.POST.get(key, '')
+            node.data = data
+            node.save()
+
+            messages.success(request, 'Node is added.')
+            return redirect('graphs:graphs')
+        else:
+            messages.error(request, 'Error')
     else:
-        form = NodeNewForm(request.POST)
+        form = ''
 
     context = {
         'form': form,
@@ -93,3 +108,16 @@ def edge_new(request):
 @login_required
 def edge_edit(request):
     pass
+
+
+def get_keys_from_type(request):
+    id = request.GET.get('id', '')
+    type = request.GET.get('type', '')
+    if type == 'node':
+        item = get_object_or_404(NodeType, pk=id)
+    else:
+        item = get_object_or_404(EdgeType, pk=id)
+
+    data = item.keys
+
+    return HttpResponse(json.dumps(data), content_type='application/json')

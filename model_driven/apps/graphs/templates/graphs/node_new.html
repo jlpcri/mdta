@@ -6,12 +6,23 @@
             <div class="row">
                 {{ form }}
             </div>
-            {% csrf_token %}
+            <br>
+            <legend>Node Property:</legend>
+            <div class="row" style="margin-top: 10px;">
+                <div id="node-new-data-input"></div>
+            </div>
 
+            {% csrf_token %}
             <div class="row" style="margin-top: 20px;">
                 <input id="node_new" class="btn btn-primary" type="submit" value="New Node">
                 <a href="{% url 'graphs:graphs' %}" class="btn btn-default" >Cancel</a>
             </div>
         </form>
     </div>
+{% endblock %}
+
+{% block footer %}
+    <script>
+        {% include 'graphs/node.js' %}
+    </script>
 {% endblock %}

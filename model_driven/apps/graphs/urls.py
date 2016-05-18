@@ -11,4 +11,6 @@ urlpatterns = [
     url(r'^edge_type_new/$', views.edge_type_new, name='edge_type_new'),
     url(r'^edge_type_edit/$', views.edge_type_edit, name='edge_type_edit'),
 
+    url(r'^get_keys_from_type/$', views.get_keys_from_type, name='get_keys_from_type'),
+
 ]

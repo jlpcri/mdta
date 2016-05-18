@@ -55,7 +55,7 @@ class Node(models.Model):
     data = HStoreField(null=True, blank=True)
 
     def __str__(self):
-        return '{0}: {1}: {2}'.format(self.name, self.project.name, self.type.name)
+        return '{0}: {1}: {2}'.format(self.project.name, self.name, self.type.name)
 
     @property
     def hierarchy(self):
@@ -80,6 +80,6 @@ class Edge(models.Model):
     data = HStoreField(null=True, blank=True)
 
     def __str__(self):
-        return '{0}: {1}: {2}'.format(self.name, self.project.name, self.type.name)
+        return '{0}: {1}: {2}'.format(self.project.name, self.name, self.type.name)
 
 
