@@ -18,3 +18,10 @@ class Project(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def nodes(self):
+        return len(self.node_set.all())
+
+    @property
+    def edges(self):
+        return len(self.edge_set.all())

@@ -8,7 +8,7 @@ from model_driven.apps.graphs.utils import node_or_edge_type_edit, node_or_edit_
 
 from model_driven.apps.projects.models import Project
 from .models import NodeType, EdgeType
-from .forms import NodeTypeNewForm, EdgeTypeNewForm
+from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm
 
 
 @login_required
@@ -17,6 +17,7 @@ def graphs(request):
         'projects': Project.objects.all(),
         'node_types': NodeType.objects.order_by('name'),
         'edge_types': EdgeType.objects.order_by('name'),
+
         'node_type_new_form': NodeTypeNewForm(),
         'edge_type_new_form': EdgeTypeNewForm(),
     }
@@ -44,6 +45,27 @@ def node_type_edit(request):
 
 
 @login_required
+def node_new(request, project_id):
+    # project = get_object_or_404(Project, pk=project_id)
+    if request.method == 'GET':
+        form = NodeNewForm(project_id=project_id)
+    else:
+        form = NodeNewForm(request.POST)
+
+    context = {
+        'form': form,
+        'project_id': project_id
+    }
+
+    return render(request, 'graphs/node_new.html', context)
+
+
+@login_required
+def node_edit(request):
+    pass
+
+
+@login_required
 def edge_type_new(request):
     if request.method == 'POST':
         form = EdgeTypeNewForm(request.POST)
@@ -61,3 +83,13 @@ def edge_type_edit(request):
         node_or_edge_type_edit(request, edge_type)
 
         return redirect('graphs:graphs')
+
+
+@login_required
+def edge_new(request):
+    pass
+
+
+@login_required
+def edge_edit(request):
+    pass

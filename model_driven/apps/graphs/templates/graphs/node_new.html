@@ -1,0 +1,17 @@
+{% extends 'core/base.html' %}
+
+{% block body %}
+    <div class="container">
+        <form action="{% url 'graphs:node_new' project_id %}" method="post">
+            <div class="row">
+                {{ form }}
+            </div>
+            {% csrf_token %}
+
+            <div class="row" style="margin-top: 20px;">
+                <input id="node_new" class="btn btn-primary" type="submit" value="New Node">
+                <a href="{% url 'graphs:graphs' %}" class="btn btn-default" >Cancel</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

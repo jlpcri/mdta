@@ -71,11 +71,12 @@ class Edge(models.Model):
     """
     project = models.ForeignKey(Project)
     type = models.ForeignKey(EdgeType)
+    name = models.TextField(default='')
 
     from_node = models.ForeignKey(Node, related_name='from_node')
     to_node = models.ForeignKey(Node, related_name='to_node')
 
-    # Property for the Node, Keys are from EdgeType
+    # Property for the Edge, Keys are from EdgeType
     data = HStoreField(null=True, blank=True)
 
     def __str__(self):
