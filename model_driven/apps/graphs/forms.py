@@ -45,3 +45,27 @@ class EdgeTypeNewForm(ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'keys': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
+
+class EdgeNewForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        project_id = kwargs.pop('project_id')
+        super(EdgeNewForm, self).__init__(*args, **kwargs)
+        if project_id:
+            self.fields['project'].queryset = Project.objects.filter(pk=project_id)
+            self.fields['from_node'].queryset = Node.objects.filter(project__id=project_id)
+            self.fields['to_node'].queryset = Node.objects.filter(project__id=project_id)
+
+            for field_name in ['project', 'from_node', 'to_node', 'type']:
+                self.fields[field_name].empty_label = None
+
+    class Meta:
+        model = Edge
+        fields = ['project', 'type', 'from_node', 'to_node', 'name']
+        widgets = {
+            'project': forms.Select(attrs={'class': 'form-control'}),
+            'type': forms.Select(attrs={'class': 'form-control'}),
+            'from_node': forms.Select(attrs={'class': 'form-control'}),
+            'to_node': forms.Select(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+        }

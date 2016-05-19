@@ -9,7 +9,7 @@ from model_driven.apps.graphs.utils import node_or_edge_type_edit, node_or_edit_
 
 from model_driven.apps.projects.models import Project
 from .models import NodeType, EdgeType
-from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm
+from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeNewForm
 
 
 @login_required
@@ -47,7 +47,6 @@ def node_type_edit(request):
 
 @login_required
 def project_node_new(request, project_id):
-    # project = get_object_or_404(Project, pk=project_id)
     if request.method == 'GET':
         form = NodeNewForm(project_id=project_id)
     elif request.method == 'POST':
@@ -63,7 +62,7 @@ def project_node_new(request, project_id):
             messages.success(request, 'Node is added.')
             return redirect('graphs:graphs')
         else:
-            messages.error(request, 'Error')
+            messages.error(request, 'Node new Error')
     else:
         form = ''
 
@@ -101,8 +100,32 @@ def edge_type_edit(request):
 
 
 @login_required
-def edge_new(request):
-    pass
+def project_edge_new(request, project_id):
+    if request.method == 'GET':
+        form = EdgeNewForm(project_id=project_id)
+    elif request.method == 'POST':
+        data = {}
+        form = EdgeNewForm(request.POST, project_id=project_id)
+        if form.is_valid():
+            edge = form.save(commit=False)
+            for key in edge.type.keys:
+                data[key] = request.POST.get(key, '')
+            edge.data = data
+            edge.save()
+
+            messages.success(request, 'Edge is added.')
+            return redirect('graphs:graphs')
+        else:
+            messages.error(request, 'Edge new Error')
+    else:
+        form = ''
+
+    context = {
+        'form': form,
+        'project_id': project_id
+    }
+
+    return render(request, 'graphs/project_edge_new.html', context)
 
 
 @login_required

@@ -19,7 +19,7 @@
                                         <a href="{% url 'graphs:project_node_new' project.id %}"> new</a>
                                     </td>
                                     <td>{{ project.edges|default:0 }} |
-                                        <a href="#"> new</a>
+                                        <a href="{% url 'graphs:project_edge_new' project.id %}"> new</a>
                                     </td>
                                 </tr>
                             {% endfor %}
