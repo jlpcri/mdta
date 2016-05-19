@@ -22,13 +22,13 @@ class NodeNewForm(ModelForm):
         super(NodeNewForm, self).__init__(*args, **kwargs)
         if project_id:
             self.fields['project'].queryset = Project.objects.filter(pk=project_id)
-            self.fields['parent'].queryset = Node.objects.filter(project__id=project_id)
+            # self.fields['parent'].queryset = Node.objects.filter(project__id=project_id)
             for field_name in ['project', 'parent', 'type']:
                 self.fields[field_name].empty_label = None
 
     class Meta:
         model = Node
-        fields = ['project', 'type', 'parent', 'name']
+        fields = ['type', 'name']
         widgets = {
             'project': forms.Select(attrs={'class': 'form-control'}),
             'type': forms.Select(attrs={'class': 'form-control'}),
@@ -61,7 +61,7 @@ class EdgeNewForm(ModelForm):
 
     class Meta:
         model = Edge
-        fields = ['project', 'type', 'from_node', 'to_node', 'name']
+        fields = ['type', 'from_node', 'to_node', 'name']
         widgets = {
             'project': forms.Select(attrs={'class': 'form-control'}),
             'type': forms.Select(attrs={'class': 'form-control'}),
