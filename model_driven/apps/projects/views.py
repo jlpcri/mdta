@@ -1,7 +1,9 @@
+import json
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .models import Project
@@ -38,15 +40,15 @@ def project_edit(request):
         project_id = request.POST.get('editProjectId', '')
         project_name = request.POST.get('editProjectName', '')
         project_lead = request.POST.get('editProjectLead', '')
-        project_worker = request.POST.getlist('editProjectWorker', '')
+        project_members = request.POST.getlist('editProjectMembers', '')
 
         project = get_object_or_404(Project, pk=project_id)
         try:
             project.name = project_name
             project.lead = get_object_or_404(HumanResource, pk=project_lead)
-            project.worker.clear()
-            for hr_id in project_worker:
-                project.worker.add(hr_id)
+            project.members.clear()
+            for hr_id in project_members:
+                project.members.add(hr_id)
 
             project.save()
             messages.success(request, 'Project is updated')
@@ -54,3 +56,14 @@ def project_edit(request):
             messages.error(request, 'Edit Project Errors found')
 
         return redirect('projects:projects')
+
+
+def fetch_project_members(request):
+    data = []
+    id = request.GET.get('id', '')
+    project = get_object_or_404(Project, pk=id)
+
+    for member in project.members.all():
+        data.append(member.id)
+
+    return HttpResponse(json.dumps(data), content_type='application/json')

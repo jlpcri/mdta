@@ -59,10 +59,10 @@
                     </div>
                     <div class="row">
                         <div class="col-xs-12">
-                            <label for="editProjectWorker">Worker:</label>
-                            <select multiple id="editProjectWorker" name="editProjectWorker" class="form-control">
-                                {% for worker in hrs %}
-                                    <option value="{{ worker.id }}">{{ worker.user.first_name }} {{ worker.user.last_name }}</option>
+                            <label for="editProjectMembers">Members:</label>
+                            <select multiple id="editProjectMembers" name="editProjectMembers" class="form-control">
+                                {% for member in hrs %}
+                                    <option value="{{ member.id }}">{{ member.user.first_name }} {{ member.user.last_name }}</option>
                                 {% endfor %}
                             </select>
                         </div>

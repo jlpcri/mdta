@@ -11,5 +11,5 @@ class ProjectNewForm(ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'lead': forms.Select(attrs={'class': 'form-control'}),
-            'worker': forms.SelectMultiple(attrs={'class': 'form-control'})
+            'members': forms.SelectMultiple(attrs={'class': 'form-control'})
         }
