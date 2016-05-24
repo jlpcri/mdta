@@ -6,8 +6,8 @@ from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
-from .models import Project
-from .forms import ProjectNewForm
+from .models import Project, Module
+from .forms import ProjectNewForm, ModuleNewForm
 from model_driven.apps.users.models import HumanResource
 
 
@@ -16,6 +16,7 @@ def projects(request):
     context = {
         'projects': Project.objects.all(),
         'project_new_form': ProjectNewForm(),
+        'module_new_form': ModuleNewForm(),
         'hrs': HumanResource.objects.all(),
     }
     return render(request, 'projects/projects.html', context)
@@ -72,4 +73,30 @@ def fetch_project_members(request):
 @login_required
 def module_new(request):
     if request.method == 'POST':
-        pass
+        form = ModuleNewForm(request.POST)
+        if form.is_valid():
+            module = form.save()
+            messages.success(request, 'Module \'{0}\' is added to \'{1}\''.format(module.name, module.project.name))
+        else:
+            messages.error(request, 'Errors found.')
+
+        return redirect('projects:projects')
+
+
+@login_required
+def module_edit(request):
+    if request.method == 'POST':
+        module_id = request.POST.get('editModuleId', '')
+        module_name = request.POST.get('editModuleName', '')
+        module_project = request.POST.get('editModuleProject', '')
+
+        module = get_object_or_404(Module, pk=module_id)
+        try:
+            module.name = module_name
+            module.project.id = module_project
+            module.save()
+            messages.success(request, 'Module is saved.')
+        except Exception as e:
+            messages.error(request, str(e))
+
+        return redirect('projects:projects')

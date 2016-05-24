@@ -16,6 +16,9 @@ class Project(models.Model):
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         return self.name
 
@@ -29,6 +32,10 @@ class Project(models.Model):
         # return len(self.edge_set.all())
         return 0
 
+    @property
+    def modules(self):
+        return self.module_set.all()
+
 
 class Module(models.Model):
     """
@@ -36,6 +43,9 @@ class Module(models.Model):
     """
     name = models.CharField(max_length=50, default='')
     project = models.ForeignKey(Project)
+
+    class Meta:
+        unique_together = ('project', 'name',)
 
     def __str__(self):
         return '{0}: {1}'.format(self.project.name, self.name)

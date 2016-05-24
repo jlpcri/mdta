@@ -18,4 +18,8 @@ class ProjectNewForm(ModelForm):
 class ModuleNewForm(ModelForm):
     class Meta:
         model = Module
-        exclude = ['created', 'updated']
+        exclude = []
+        widgets = {
+            'project': forms.Select(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+        }
