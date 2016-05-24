@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 
-from .models import Project
+from .models import Project, Module
 
 
 class ProjectNewForm(ModelForm):
@@ -13,3 +13,9 @@ class ProjectNewForm(ModelForm):
             'lead': forms.Select(attrs={'class': 'form-control'}),
             'members': forms.SelectMultiple(attrs={'class': 'form-control'})
         }
+
+
+class ModuleNewForm(ModelForm):
+    class Meta:
+        model = Module
+        exclude = ['created', 'updated']

@@ -67,3 +67,9 @@ def fetch_project_members(request):
         data.append(member.id)
 
     return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@login_required
+def module_new(request):
+    if request.method == 'POST':
+        pass

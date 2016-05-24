@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.postgres.fields import HStoreField, ArrayField
 
-from model_driven.apps.projects.models import Project
+from model_driven.apps.projects.models import Project, Module
 
 
 class NodeType(models.Model):
@@ -41,12 +41,12 @@ class EdgeType(models.Model):
         return '{0}: {1}'.format(self.name, self.keys)
 
 
-class Module(models.Model):
-    """
-    Modules per project
-    """
-    name = models.CharField(max_length=50, default='')
-    project = models.ForeignKey(Project)
+# class Module(models.Model):
+#     """
+#     Modules per project
+#     """
+#     name = models.CharField(max_length=50, default='')
+#     project = models.ForeignKey(Project)
 
 
 class Node(models.Model):
