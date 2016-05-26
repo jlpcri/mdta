@@ -1,5 +1,5 @@
 __author__ = 'sliu'
-from model_driven.settings.base import *
+from mdta.settings.base import *
 
 DEBUG = True
 

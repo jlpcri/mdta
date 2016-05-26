@@ -1,7 +1,7 @@
 from django.contrib.postgres.fields import ArrayField, HStoreField
 from django.db import models
 
-from model_driven.apps.users.models import HumanResource
+from mdta.apps.users.models import HumanResource
 
 
 class Project(models.Model):

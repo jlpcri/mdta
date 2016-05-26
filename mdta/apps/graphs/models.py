@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.postgres.fields import HStoreField, ArrayField
 
-from model_driven.apps.projects.models import Project, Module
+from mdta.apps.projects.models import Project, Module
 
 
 class NodeType(models.Model):

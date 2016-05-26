@@ -5,9 +5,9 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from model_driven.apps.graphs.utils import node_or_edge_type_edit, node_or_edit_type_new
+from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edit_type_new
 
-from model_driven.apps.projects.models import Project
+from mdta.apps.projects.models import Project
 from .models import NodeType, EdgeType
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeNewForm
 

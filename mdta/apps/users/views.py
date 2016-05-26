@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect, get_object_or_404
 
-from model_driven.apps.users.models import HumanResource
+from mdta.apps.users.models import HumanResource
 
 
 def user_is_superuser(user):

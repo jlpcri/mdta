@@ -1,4 +1,4 @@
-"""model_driven URL Configuration
+"""mdta URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/1.9/topics/http/urls/
@@ -16,14 +16,14 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
-from model_driven.apps.core.views import landing
+from mdta.apps.core.views import landing
 
 urlpatterns = [
-    url(r'^model_driven/$', landing, name='landing'),
-    url(r'^model_driven/projects/', include('model_driven.apps.projects.urls', namespace='projects')),
-    url(r'^model_driven/graphs/', include('model_driven.apps.graphs.urls', namespace='graphs')),
-    url(r'^model_driven/users/', include('model_driven.apps.users.urls', namespace='users')),
-    url(r'model_driven/help/', include('model_driven.apps.help.urls', namespace='help')),
+    url(r'^mdta/$', landing, name='landing'),
+    url(r'^mdta/projects/', include('mdta.apps.projects.urls', namespace='projects')),
+    url(r'^mdta/graphs/', include('mdta.apps.graphs.urls', namespace='graphs')),
+    url(r'^mdta/users/', include('mdta.apps.users.urls', namespace='users')),
+    url(r'mdta/help/', include('mdta.apps.help.urls', namespace='help')),
 
     url(r'^admin/', include(admin.site.urls)),
 ]

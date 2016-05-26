@@ -1,6 +1,6 @@
 from django.conf.urls import url
 
-from model_driven.apps.users import views
+from mdta.apps.users import views
 
 urlpatterns = [
     url(r'^home/$', views.home, name='home'),

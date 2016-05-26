@@ -3,7 +3,7 @@ from django.forms import ModelForm
 
 
 from .models import NodeType, Node, EdgeType, Edge
-from model_driven.apps.projects.models import Project
+from mdta.apps.projects.models import Project
 
 
 class NodeTypeNewForm(ModelForm):
