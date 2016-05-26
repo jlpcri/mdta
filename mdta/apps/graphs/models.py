@@ -41,14 +41,6 @@ class EdgeType(models.Model):
         return '{0}: {1}'.format(self.name, self.keys)
 
 
-# class Module(models.Model):
-#     """
-#     Modules per project
-#     """
-#     name = models.CharField(max_length=50, default='')
-#     project = models.ForeignKey(Project)
-
-
 class Node(models.Model):
     """
     Node in Model driven Graph represents Transfers, Prompts, DBRequests etc.
@@ -62,7 +54,7 @@ class Node(models.Model):
     updated = models.DateTimeField(auto_now=True, db_index=True)
 
     # Property for the Node, Keys are from NodeType
-    data = HStoreField(null=True, blank=True)
+    property = HStoreField(null=True, blank=True)
 
     def __str__(self):
         return '{0}: {1}: {2}'.format(self.project.name, self.name, self.type.name)
@@ -85,7 +77,7 @@ class Edge(models.Model):
     to_node = models.ForeignKey(Node, related_name='to_node')
 
     # Property for the Edge, Keys are from EdgeType
-    data = HStoreField(null=True, blank=True)
+    property = HStoreField(null=True, blank=True)
 
     def __str__(self):
         return '{0}: {1}: {2}'.format(self.project.name, self.name, self.type.name)
