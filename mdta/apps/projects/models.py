@@ -23,14 +23,23 @@ class Project(models.Model):
         return self.name
 
     @property
-    def nodes(self):
-        # return len(self.node_set.all())
-        return 0
+    def nodes_count(self):
+        n = 0
+        for module in self.module_set.all():
+            n += len(module.node_set.all())
+        return n
 
     @property
-    def edges(self):
-        # return len(self.edge_set.all())
-        return 0
+    def edges_count(self):
+        n = 0
+        for module in self.module_set.all():
+            for node in module.node_set.all():
+                n += node.edges
+        return n
+
+    @property
+    def modules_count(self):
+        return len(self.module_set.all())
 
     @property
     def modules(self):

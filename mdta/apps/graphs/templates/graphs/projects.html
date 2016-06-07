@@ -7,6 +7,7 @@
                         <thead>
                             <tr>
                                 <td class="col-xs-2"><strong>Name</strong></td>
+                                <td class="col-xs-2"><strong>Modules</strong></td>
                                 <td class="col-xs-2"><strong>Nodes</strong></td>
                                 <td class="col-xs-2"><strong>Edges</strong></td>
                             </tr>
@@ -15,10 +16,11 @@
                             {% for project in projects %}
                                 <tr>
                                     <td><a href="#">{{ project.name }}</a></td>
-                                    <td>{{ project.nodes|default:0 }} |
+                                    <td>{{ project.modules_count|default:0 }}</td>
+                                    <td>{{ project.nodes_count|default:0 }} |
                                         <a href="{% url 'graphs:project_node_new' project.id %}"> new</a>
                                     </td>
-                                    <td>{{ project.edges|default:0 }} |
+                                    <td>{{ project.edges_count|default:0 }} |
                                         <a href="{% url 'graphs:project_edge_new' project.id %}"> new</a>
                                     </td>
                                 </tr>

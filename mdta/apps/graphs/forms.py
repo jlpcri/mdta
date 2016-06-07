@@ -50,18 +50,16 @@ class EdgeNewForm(ModelForm):
         project_id = kwargs.pop('project_id')
         super(EdgeNewForm, self).__init__(*args, **kwargs)
         if project_id:
-            self.fields['module'].queryset = Module.objects.filter(project__id=project_id)
             self.fields['from_node'].queryset = Node.objects.filter(module__project__id=project_id)
             self.fields['to_node'].queryset = Node.objects.filter(module__project__id=project_id)
 
-            for field_name in ['module', 'from_node', 'to_node', 'type']:
+            for field_name in ['from_node', 'to_node', 'type']:
                 self.fields[field_name].empty_label = None
 
     class Meta:
         model = Edge
-        fields = ['module', 'type', 'from_node', 'to_node', 'name']
+        fields = ['type', 'from_node', 'to_node', 'name']
         widgets = {
-            'module': forms.Select(attrs={'class': 'form-control'}),
             'type': forms.Select(attrs={'class': 'form-control'}),
             'from_node': forms.Select(attrs={'class': 'form-control'}),
             'to_node': forms.Select(attrs={'class': 'form-control'}),

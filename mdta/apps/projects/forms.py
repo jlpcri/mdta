@@ -16,6 +16,10 @@ class ProjectNewForm(ModelForm):
 
 
 class ModuleNewForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(ModuleNewForm, self).__init__(*args, **kwargs)
+        self.fields['project'].empty_label = None
+
     class Meta:
         model = Module
         fields = ['project', 'name']

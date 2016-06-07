@@ -54,17 +54,23 @@ class Node(models.Model):
     updated = models.DateTimeField(auto_now=True, db_index=True)
 
     # Property for the Node, Keys are from NodeType
-    property = HStoreField(null=True, blank=True)
+    properties = HStoreField(null=True, blank=True)
 
     def __str__(self):
         return '{0}: {1}: {2}'.format(self.module, self.name, self.type.name)
 
+    @property
+    def edges(self):
+        if self.from_node:
+            return len(self.from_node.all())
+        else:
+            return 0
+
 
 class Edge(models.Model):
     """
-    Edge between two Nodes to represent the relation of them
+    Edge between two Nodes (Same Project) to represent the relation of them
     """
-    module = models.ForeignKey(Module)
     type = models.ForeignKey(EdgeType)
 
     name = models.TextField(default='')
@@ -77,9 +83,9 @@ class Edge(models.Model):
     to_node = models.ForeignKey(Node, related_name='to_node')
 
     # Property for the Edge, Keys are from EdgeType
-    property = HStoreField(null=True, blank=True)
+    properties = HStoreField(null=True, blank=True)
 
     def __str__(self):
-        return '{0}: {1}: {2}'.format(self.module, self.name, self.type.name)
+        return '{0}: {1}: {2}'.format(self.from_node.module.project.name, self.name, self.type.name)
 
 
