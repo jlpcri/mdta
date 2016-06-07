@@ -10,7 +10,7 @@
     <style type="text/css">
         #module_in_project {
             width: auto;
-            height: 400px;
+            height: auto;
             border: 1px solid lightgray;
         }
     </style>
@@ -36,6 +36,8 @@
 
 {% block footer %}
     <script>
+        var nodes = {{ network_nodes|safe }};
+        var edges = {{ network_edges|safe }};
         {% include 'graphs/project_detail.js' %}
     </script>
 {% endblock %}

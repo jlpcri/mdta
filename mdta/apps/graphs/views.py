@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edit_type_new
 
 from mdta.apps.projects.models import Project
-from .models import NodeType, EdgeType
+from .models import NodeType, EdgeType, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeNewForm
 
 
@@ -149,10 +149,29 @@ def get_keys_from_type(request):
 
 @login_required
 def project_detail(request, project_id):
+    network_nodes = []
+    network_edges = []
     project = get_object_or_404(Project, pk=project_id)
+    for m in project.modules:
+        network_nodes.append({
+            'id': m.name,
+            'label': m.name
+        })
+
+    project_edges = Edge.objects.filter(from_node__module__project=project,
+                                        to_node__module__project=project)
+    for edge in project_edges:
+        if edge.from_node.module != edge.to_node.module:
+            network_edges.append({
+                'to': edge.to_node.module.name,
+                'from': edge.from_node.module.name,
+                'label': edge.name
+            })
 
     context = {
-        'project': project
+        'project': project,
+        'network_nodes': json.dumps(network_nodes),
+        'network_edges': json.dumps(network_edges)
     }
 
     return render(request, 'graphs/project_detail.html', context)
