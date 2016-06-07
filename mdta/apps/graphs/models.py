@@ -57,7 +57,7 @@ class Node(models.Model):
     property = HStoreField(null=True, blank=True)
 
     def __str__(self):
-        return '{0}: {1}: {2}'.format(self.project.name, self.name, self.type.name)
+        return '{0}: {1}: {2}'.format(self.module, self.name, self.type.name)
 
 
 class Edge(models.Model):
@@ -80,6 +80,6 @@ class Edge(models.Model):
     property = HStoreField(null=True, blank=True)
 
     def __str__(self):
-        return '{0}: {1}: {2}'.format(self.project.name, self.name, self.type.name)
+        return '{0}: {1}: {2}'.format(self.module, self.name, self.type.name)
 
 

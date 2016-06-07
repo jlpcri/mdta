@@ -14,7 +14,7 @@
                         <tbody>
                             {% for project in projects %}
                                 <tr>
-                                    <td><a href="#">{{ project.name|title }}</a></td>
+                                    <td><a href="#">{{ project.name }}</a></td>
                                     <td>{{ project.nodes|default:0 }} |
                                         <a href="{% url 'graphs:project_node_new' project.id %}"> new</a>
                                     </td>

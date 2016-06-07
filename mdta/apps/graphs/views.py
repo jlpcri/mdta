@@ -62,6 +62,7 @@ def project_node_new(request, project_id):
             messages.success(request, 'Node is added.')
             return redirect('graphs:graphs')
         else:
+            print(form.errors)
             messages.error(request, 'Node new Error')
     else:
         form = ''
