@@ -46,7 +46,7 @@ def node_type_edit(request):
 
 
 @login_required
-def project_node_new(request, project_id):
+def node_new(request, project_id):
     if request.method == 'GET':
         form = NodeNewForm(project_id=project_id)
     elif request.method == 'POST':
@@ -72,7 +72,7 @@ def project_node_new(request, project_id):
         'project_id': project_id
     }
 
-    return render(request, 'graphs/project_node_new.html', context)
+    return render(request, 'graphs/node_new.html', context)
 
 
 @login_required
@@ -101,7 +101,7 @@ def edge_type_edit(request):
 
 
 @login_required
-def project_edge_new(request, project_id):
+def edge_new(request, project_id):
     if request.method == 'GET':
         form = EdgeNewForm(project_id=project_id)
     elif request.method == 'POST':
@@ -126,7 +126,7 @@ def project_edge_new(request, project_id):
         'project_id': project_id
     }
 
-    return render(request, 'graphs/project_edge_new.html', context)
+    return render(request, 'graphs/edge_new.html', context)
 
 
 @login_required
@@ -145,3 +145,14 @@ def get_keys_from_type(request):
     data = item.keys
 
     return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@login_required
+def project_detail(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    context = {
+        'project': project
+    }
+
+    return render(request, 'graphs/project_detail.html', context)

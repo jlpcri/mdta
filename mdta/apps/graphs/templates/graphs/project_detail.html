@@ -1,0 +1,20 @@
+{% extends 'core/base.html' %}
+
+{% block title %} Project Detail {% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-9">
+                <h2>Graph: Modules in Project</h2>
+            </div>
+            <div class="col-xs-3">
+                <ul>
+                    {% for m in project.modules %}
+                        <li>{{ m.name }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}
