@@ -34,7 +34,8 @@ var options = {
     edges: {
         style: 'arrow',
         color: '#000',
-        length: 190
+        length: 190,
+        arrows: 'to, from',
     },
     width: '100%',
     height: '400px'
