@@ -1,12 +1,27 @@
 {% extends 'core/base.html' %}
+{% load staticfiles %}
 
 {% block title %} Project Detail {% endblock %}
+
+{% block extrahead %}
+    <script type="text/javascript" src="{% static 'common/visjs/4.16.1/vis-network.min.js' %}"></script>
+    <link type="text/css" href="{% static 'common/visjs/4.16.1/vis.css' %}">
+
+    <style type="text/css">
+        #module_in_project {
+            width: auto;
+            height: 400px;
+            border: 1px solid lightgray;
+        }
+    </style>
+{% endblock%}
 
 {% block body %}
     <div class="container">
         <div class="row">
             <div class="col-xs-9">
                 <h2>Graph: Modules in Project</h2>
+                <div id="module_in_project"></div>
             </div>
             <div class="col-xs-3">
                 <ul>
@@ -17,4 +32,10 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block footer %}
+    <script>
+        {% include 'graphs/project_detail.js' %}
+    </script>
 {% endblock %}
