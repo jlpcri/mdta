@@ -73,7 +73,7 @@ def node_new(request, project_id):
         'project_id': project_id
     }
 
-    return render(request, 'graphs/node_new.html', context)
+    return render(request, 'graphs/project/node_new.html', context)
 
 
 @login_required
@@ -127,7 +127,7 @@ def edge_new(request, project_id):
         'project_id': project_id
     }
 
-    return render(request, 'graphs/edge_new.html', context)
+    return render(request, 'graphs/project/edge_new.html', context)
 
 
 @login_required
@@ -180,7 +180,7 @@ def project_detail(request, project_id):
         'network_edges': json.dumps(network_edges)
     }
 
-    return render(request, 'graphs/project_detail.html', context)
+    return render(request, 'graphs/project/project_detail.html', context)
 
 
 @login_required

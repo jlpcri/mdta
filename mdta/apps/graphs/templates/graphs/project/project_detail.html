@@ -50,7 +50,7 @@
             </div>
         </div>
 
-        {% include 'graphs/project_detail_modal.html' %}
+        {% include 'graphs/project/project_detail_modal.html' %}
     </div>
 {% endblock %}
 
@@ -58,6 +58,6 @@
     <script>
         var nodes = {{ network_nodes|safe }};
         var edges = {{ network_edges|safe }};
-        {% include 'graphs/project_detail.js' %}
+        {% include 'graphs/project/project_detail.js' %}
     </script>
 {% endblock %}
