@@ -10,6 +10,7 @@ from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edit_type_new
 from mdta.apps.projects.models import Project
 from .models import NodeType, EdgeType, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeNewForm
+from mdta.apps.projects.forms import ModuleNewForm
 
 
 @login_required
@@ -165,13 +166,47 @@ def project_detail(request, project_id):
             network_edges.append({
                 'to': edge.to_node.module.name,
                 'from': edge.from_node.module.name,
-                'label': edge.name
+                # 'label': edge.name
             })
+
+    # Remove duplicate edge between two modules
+    network_edges = [dict(t) for t in set([tuple(d.items()) for d in network_edges])]
 
     context = {
         'project': project,
+        'module_new_form': ModuleNewForm(project_id=project.id),
+
         'network_nodes': json.dumps(network_nodes),
         'network_edges': json.dumps(network_edges)
     }
 
     return render(request, 'graphs/project_detail.html', context)
+
+
+@login_required
+def module_new(request, project_id):
+    if request.method == 'POST':
+        form = ModuleNewForm(request.POST)
+        if form.is_valid():
+            module = form.save()
+            messages.success(request, 'Module \'{0}\' is added to \'{1}\''.format(module.name, module.project.name))
+        else:
+            print(form.errors)
+            messages.error(request, 'Errors found.')
+
+        return redirect('graphs:project_detail', project_id)
+
+
+@login_required
+def module_detail(request, module_id):
+    pass
+
+
+@login_required
+def module_edit(request, module_id):
+    pass
+
+
+@login_required
+def module_delete(request, module_id):
+    pass
