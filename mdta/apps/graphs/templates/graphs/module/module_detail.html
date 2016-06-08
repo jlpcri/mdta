@@ -1,7 +1,7 @@
 {% extends 'core/base.html' %}
 {% load staticfiles %}
 
-{% block title %} Project Detail {% endblock %}
+{% block title %} Module Detail {% endblock %}
 
 {% block extrahead %}
     <script type="text/javascript" src="{% static 'common/visjs/4.16.1/vis-network.min.js' %}"></script>
@@ -20,12 +20,12 @@
     <div class="container">
         <div class="row">
             <div class="col-xs-9">
-                <h4>{{ project.name }}</h4>
-                <a href="#" data-toggle="modal" data-target="#module-new-modal" class="btn btn-default pull-right">New Module</a>
-                <div id="module_in_project"></div>
+                <h4>{{ module.project.name }} - {{ module.name }}</h4>
+                <a href="#" data-toggle="modal" data-target="#node-new-modal" class="btn btn-default pull-right">New Node</a>
+                <div id="node_in_module"></div>
             </div>
             <div class="col-xs-3">
-                <h4>Modules:</h4>
+                <h4>Nodes:</h4>
                 <table class="table table-hover table-condensed">
                     <thead>
                         <tr>
@@ -34,13 +34,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for item in project.modules %}
+                        {% for item in module.nodes %}
                             <tr>
-                                <td><a href="{% url 'graphs:module_detail' item.id %}">{{ item.name }}</a></td>
+                                <td>{{ item.name }}</td>
                                 <td>
-                                    <a href="#module-edit-modal" data-toggle="modal" class="btn btn-primary btn-xs"
-                                        data-module-id="{{ item.id }}"
-                                        data-module-name="{{ item.name }}"
+                                    <a href="#node-edit-modal" data-toggle="modal" class="btn btn-primary btn-xs"
+                                        data-node-id="{{ item.id }}"
+                                        data-node-name="{{ item.name }}"
                                         ><i class="fa fa-edit"></i> </a>
                                 </td>
                             <tr></tr>
@@ -50,7 +50,7 @@
             </div>
         </div>
 
-        {% include 'graphs/project/project_detail_modal.html' %}
+        {% include 'graphs/module/module_detail_modal.html' %}
     </div>
 {% endblock %}
 
@@ -58,6 +58,6 @@
     <script>
         var nodes = {{ network_nodes|safe }};
         var edges = {{ network_edges|safe }};
-        {% include 'graphs/project/project_detail.js' %}
+        {% include 'graphs/module/module_detail.js' %}
     </script>
 {% endblock %}

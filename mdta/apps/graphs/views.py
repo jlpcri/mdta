@@ -199,7 +199,12 @@ def module_new(request, project_id):
 
 @login_required
 def module_detail(request, module_id):
-    pass
+    module = get_object_or_404(Module, pk=module_id)
+    context = {
+        'module': module
+    }
+
+    return render(request, 'graphs/module/module_detail.html', context)
 
 
 @login_required

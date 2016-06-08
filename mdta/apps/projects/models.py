@@ -59,6 +59,10 @@ class Module(models.Model):
     def __str__(self):
         return '{0}: {1}'.format(self.project.name, self.name)
 
+    @property
+    def nodes(self):
+        return self.node_set.all()
+
 
 class TestCaseHistory(models.Model):
     """
