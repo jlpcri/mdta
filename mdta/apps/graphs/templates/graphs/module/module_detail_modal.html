@@ -1,10 +1,72 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
+<!-- Node New Modal -->
+<div class="modal fade newNode" id="node-new-modal">
+    <div class="modal-dialog">
+        <form action="{% url 'graphs:project_new_node' module.id %}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4 class="modal-title">Node New</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    {{ node_new_form }}
+                    <br>
+                    <div class="row">
+                        <div id="module-new-node-properties"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div id="newNodeErrMessage">&nbsp;</div>
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                </div>
+                <div class="modal-footer">
+                    <input id="node_new" class="btn btn-primary" type="submit" value="New Node">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
-</body>
-</html>
+<!-- Node Edit Modal -->
+<div class="modal fade editNode" id="node-edit-modal">
+    <div class="modal-dialog">
+        <form method="post" action="#">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="editNodeName">Name:</label>
+                            <input type="text" class="form-control input-sm" name="editNodeName" id="editNodeName">
+                        </div>
+                    </div>
+
+                    <br>
+                    <div class="row">
+                        <div class="col-xs-10">
+                            <div id="editNodeErrMessage">&nbsp;</div>
+                        </div>
+                        <div class="col-xs-1">
+                            <input type="hidden" name="editNodeId">
+                        </div>
+                    </div>
+                </div>
+                {% csrf_token %}
+                <div class="modal-footer">
+                    <button type="submit" name="node_save" class="btn btn-primary param-save">Save</button>
+                    <button type="submit" name="node_delete" class="btn btn-danger param-delete">Delete</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

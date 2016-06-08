@@ -18,10 +18,10 @@
                                     <td><a href="{% url 'graphs:project_detail' project.id %}">{{ project.name }}</a></td>
                                     <td>{{ project.modules_count|default:0 }}</td>
                                     <td>{{ project.nodes_count|default:0 }} |
-                                        <a href="{% url 'graphs:node_new' project.id %}"> new</a>
+                                        <a href="{% url 'graphs:project_new_node' project.id %}"> new</a>
                                     </td>
                                     <td>{{ project.edges_count|default:0 }} |
-                                        <a href="{% url 'graphs:edge_new' project.id %}"> new</a>
+                                        <a href="{% url 'graphs:project_new_edge' project.id %}"> new</a>
                                     </td>
                                 </tr>
                             {% endfor %}

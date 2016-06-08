@@ -1,8 +1,6 @@
 import json
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ValidationError
-from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edit_type_new
@@ -47,7 +45,7 @@ def node_type_edit(request):
 
 
 @login_required
-def node_new(request, project_id):
+def project_new_node(request, project_id):
     if request.method == 'GET':
         form = NodeNewForm(project_id=project_id)
     elif request.method == 'POST':
@@ -102,7 +100,7 @@ def edge_type_edit(request):
 
 
 @login_required
-def edge_new(request, project_id):
+def project_new_edge(request, project_id):
     if request.method == 'GET':
         form = EdgeNewForm(project_id=project_id)
     elif request.method == 'POST':
@@ -200,8 +198,30 @@ def module_new(request, project_id):
 @login_required
 def module_detail(request, module_id):
     module = get_object_or_404(Module, pk=module_id)
+    network_nodes = []
+    network_edges = []
+
+    for n in module.nodes:
+        network_nodes.append({
+            'id': n.name,
+            'label': n.name
+        })
+
+    module_edges = Edge.objects.filter(from_node__module=module,
+                                       to_node__module=module)
+    for edge in module_edges:
+        network_edges.append({
+            'to': edge.to_node.name,
+            'from': edge.from_node.name
+        })
+
     context = {
-        'module': module
+        'module': module,
+        'node_new_form': NodeNewForm(module_id=module_id),
+        'edge_new_form': EdgeNewForm(module_id=module_id),
+
+        'network_nodes': json.dumps(network_nodes),
+        'network_edges': json.dumps(network_edges)
     }
 
     return render(request, 'graphs/module/module_detail.html', context)
@@ -230,4 +250,11 @@ def module_edit(request, project_id):
         return redirect('graphs:project_detail', project_id)
 
 
+@login_required
+def module_new_node(request, module_id):
+    pass
 
+
+@login_required
+def module_edit_node(request, module_id):
+    pass

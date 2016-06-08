@@ -20,9 +20,17 @@
     <div class="container">
         <div class="row">
             <div class="col-xs-9">
-                <h4>{{ project.name }}</h4>
-                <a href="#" data-toggle="modal" data-target="#module-new-modal" class="btn btn-default pull-right">New Module</a>
-                <div id="module_in_project"></div>
+                <div class="row">
+                    <div class="col-xs-6">
+                        <h4>{{ project.name }}</h4>
+                    </div>
+                    <div class="col-xs-3 pull-right">
+                        <a href="#" data-toggle="modal" data-target="#module-new-modal" class="btn btn-default">New Module</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div id="module_in_project" style="margin-top: 10px;"></div>
+                </div>
             </div>
             <div class="col-xs-3">
                 <h4>Modules:</h4>
