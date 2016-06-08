@@ -1,6 +1,25 @@
 /**
  * Created by sliu on 6/7/16.
  */
+
+$('.editModule').on('show.bs.modal', function(e){
+    var module_id = $(e.relatedTarget).data('module-id'),
+        module_name = $(e.relatedTarget).data('module-name');
+
+    $(e.currentTarget).find('input[name="editModuleId"]').val(module_id);
+    $(e.currentTarget).find('input[name="editModuleName"]').val(module_name);
+    $('.editModule .modal-title').html('Module Edit/Delete');
+});
+
+$('.editModule form').on('submit', function(){
+    var module_name = $('#editModuleName').val();
+
+    if (module_name == ''){
+        showErrMsg('#editModuleErrMessage', 'Name is Empty');
+        return false;
+    }
+});
+
 //// create an array with nodes
 //var nodes = new vis.DataSet([
 //    {id: 1, label: 'Node 1'},
@@ -30,10 +49,10 @@ var data = {
 var options = {
     nodes: {
         shape: 'ellipse',
-        fontSize: 10
+        //fontSize: 10
     },
     edges: {
-        style: 'arrow',
+        //style: 'arrow',
         color: '#000',
         length: 190,
         arrows: 'to'

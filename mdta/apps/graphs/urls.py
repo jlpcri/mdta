@@ -17,7 +17,6 @@ urlpatterns = [
     url(r'^module_detail/(?P<module_id>\d+)/$', views.module_detail, name='module_detail'),
     url(r'^(?P<project_id>\d+)/module_new/$', views.module_new, name='module_new'),
     url(r'^(?P<project_id>\d+)/module_edit/$', views.module_edit, name='module_edit'),
-    url(r'^(?P<project_id>\d+)/module_delete/$', views.module_delete, name='module_delete'),
 
     url(r'^get_keys_from_type/$', views.get_keys_from_type, name='get_keys_from_type'),
 

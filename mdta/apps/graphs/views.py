@@ -7,7 +7,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edit_type_new
 
-from mdta.apps.projects.models import Project
+from mdta.apps.projects.models import Project, Module
 from .models import NodeType, EdgeType, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeNewForm
 from mdta.apps.projects.forms import ModuleNewForm
@@ -203,10 +203,26 @@ def module_detail(request, module_id):
 
 
 @login_required
-def module_edit(request, module_id):
-    pass
+def module_edit(request, project_id):
+    if request.method == 'POST':
+        module_id = request.POST.get('editModuleId', '')
+        module = get_object_or_404(Module, pk=module_id)
+
+        if 'module_save' in request.POST:
+            module_name = request.POST.get('editModuleName', '')
+
+            try:
+                module.name = module_name
+                module.save()
+                messages.success(request, 'Module is saved.')
+            except Exception as e:
+                messages.error(request, str(e))
+
+        if 'module_delete' in request.POST:
+            module.delete()
+            messages.success(request, 'Module is deleted.')
+
+        return redirect('graphs:project_detail', project_id)
 
 
-@login_required
-def module_delete(request, module_id):
-    pass
+
