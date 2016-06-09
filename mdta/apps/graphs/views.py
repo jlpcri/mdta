@@ -315,9 +315,15 @@ def module_node_new(request, module_id):
     :return:
     """
     if request.method == 'POST':
+        properties = {}
         form = NodeNewForm(request.POST)
         if form.is_valid():
-            node = form.save()
+            node = form.save(commit=False)
+            for key in node.type.keys:
+                properties[key] = request.POST.get(key, '')
+            node.properties = properties
+            node.save()
+
             messages.success(request, 'Node is Added')
         else:
             print(form.errors)

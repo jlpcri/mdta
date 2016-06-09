@@ -56,6 +56,9 @@ class Node(models.Model):
     # Property for the Node, Keys are from NodeType
     properties = HStoreField(null=True, blank=True)
 
+    class Meta:
+        unique_together = ('module', 'name',)
+
     def __str__(self):
         return '{0}: {1}: {2}'.format(self.module, self.name, self.type.name)
 

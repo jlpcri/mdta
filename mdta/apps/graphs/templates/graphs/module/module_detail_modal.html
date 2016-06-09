@@ -1,5 +1,5 @@
 <!-- Node New Modal -->
-<div class="modal fade newNode" id="node-new-modal">
+<div class="modal fade moduleNodeNew" id="node-new-modal">
     <div class="modal-dialog">
         <form action="{% url 'graphs:module_node_new' module.id %}" method="post">
             <div class="modal-content">
@@ -15,11 +15,12 @@
                     {{ node_new_form }}
                     <br>
                     <div class="row">
-                        <div id="module-new-node-properties"></div>
+                        <h5>&nbsp;&nbsp;&nbsp;&nbsp;Node Properties:</h5>
+                        <div id="module-node-new-properties"></div>
                     </div>
                     <div class="row">
                         <div class="col-xs-12">
-                            <div id="newNodeErrMessage">&nbsp;</div>
+                            <div id="moduleNodeNewErrMessage">&nbsp;</div>
                         </div>
                     </div>
                     {% csrf_token %}
@@ -34,7 +35,7 @@
 </div>
 
 <!-- Node Edit Modal -->
-<div class="modal fade editNode" id="node-edit-modal">
+<div class="modal fade moduleNodeEdit" id="node-edit-modal">
     <div class="modal-dialog">
         <form method="post" action="{% url 'graphs:module_node_edit' module.id %}">
             <div class="modal-content">
@@ -45,18 +46,18 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-xs-12">
-                            <label for="editNodeName">Name:</label>
-                            <input type="text" class="form-control input-sm" name="editNodeName" id="editNodeName">
+                            <label for="moduleNodeEditName">Name:</label>
+                            <input type="text" class="form-control input-sm" name="moduleNodeEditName" id="moduleNodeEditName">
                         </div>
                     </div>
 
                     <br>
                     <div class="row">
                         <div class="col-xs-10">
-                            <div id="editNodeErrMessage">&nbsp;</div>
+                            <div id="moduleNodeEditErrMessage">&nbsp;</div>
                         </div>
                         <div class="col-xs-1">
-                            <input type="hidden" name="editNodeId">
+                            <input type="hidden" name="moduleNodeEditId">
                         </div>
                     </div>
                 </div>
