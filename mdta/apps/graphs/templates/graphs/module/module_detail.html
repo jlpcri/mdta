@@ -1,0 +1,72 @@
+{% extends 'core/base.html' %}
+{% load staticfiles %}
+
+{% block title %} Module Detail {% endblock %}
+
+{% block extrahead %}
+    <script type="text/javascript" src="{% static 'common/visjs/4.16.1/vis-network.min.js' %}"></script>
+    <link type="text/css" href="{% static 'common/visjs/4.16.1/vis.css' %}">
+
+    <style type="text/css">
+        #node_in_module {
+            width: auto;
+            height: auto;
+            border: 1px solid lightgray;
+        }
+    </style>
+{% endblock%}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-9">
+                <div class="row">
+                    <div class="col-xs-6">
+                        <h4>{{ module.project.name }} - {{ module.name }}</h4>
+                    </div>
+                    <div class="col-xs-3 pull-right">
+                        <a href="#" data-toggle="modal" data-target="#node-new-modal" class="btn btn-default">New Node</a>
+                        <a href="#" data-toggle="modal" data-target="#edge-new-modal" class="btn btn-default">New Edge</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div id="node_in_module" style="margin-top: 10px;"></div>
+                </div>
+            </div>
+            <div class="col-xs-3">
+                <h4>Nodes:</h4>
+                <table class="table table-hover table-condensed">
+                    <thead>
+                        <tr>
+                            <td class="col-xs-9">Name</td>
+                            <td class="col-xs-3">Edition</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in module.nodes %}
+                            <tr>
+                                <td>{{ item.name }}</td>
+                                <td>
+                                    <a href="#node-edit-modal" data-toggle="modal" class="btn btn-primary btn-xs"
+                                        data-node-id="{{ item.id }}"
+                                        data-node-name="{{ item.name }}"
+                                        ><i class="fa fa-edit"></i> </a>
+                                </td>
+                            <tr></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% include 'graphs/module/module_detail_modal.html' %}
+    </div>
+{% endblock %}
+
+{% block footer %}
+    <script>
+        var nodes = {{ network_nodes|safe }};
+        var edges = {{ network_edges|safe }};
+        {% include 'graphs/module/module_detail.js' %}
+    </script>
+{% endblock %}

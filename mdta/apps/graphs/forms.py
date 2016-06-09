@@ -18,12 +18,16 @@ class NodeTypeNewForm(ModelForm):
 
 class NodeNewForm(ModelForm):
     def __init__(self, *args, **kwargs):
-        project_id = kwargs.pop('project_id')
+        project_id = kwargs.pop('project_id', '')
+        module_id = kwargs.pop('module_id', '')
         super(NodeNewForm, self).__init__(*args, **kwargs)
         if project_id:
             self.fields['module'].queryset = Module.objects.filter(project__id=project_id)
             for field_name in ['module', 'type']:
                 self.fields[field_name].empty_label = None
+        if module_id:
+            self.fields['module'].queryset = Module.objects.filter(pk=module_id)
+            self.fields['module'].empty_label = None
 
     class Meta:
         model = Node
@@ -47,7 +51,8 @@ class EdgeTypeNewForm(ModelForm):
 
 class EdgeNewForm(ModelForm):
     def __init__(self, *args, **kwargs):
-        project_id = kwargs.pop('project_id')
+        project_id = kwargs.pop('project_id', '')
+        module_id = kwargs.pop('module_id', '')
         super(EdgeNewForm, self).__init__(*args, **kwargs)
         if project_id:
             self.fields['from_node'].queryset = Node.objects.filter(module__project__id=project_id)

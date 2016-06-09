@@ -4,7 +4,7 @@
 
 {% block body %}
     <div class="container">
-        <form action="{% url 'graphs:edge_new' project_id %}" method="post" class="projectEdgeNew">
+        <form action="{% url 'graphs:project_new_edge' project_id %}" method="post" class="projectEdgeNew">
             <div class="row">
                 {{ form }}
             </div>
@@ -25,6 +25,6 @@
 
 {% block footer %}
     <script>
-        {% include 'graphs/node_edge.js' %}
+        {% include 'graphs/project/node_edge.js' %}
     </script>
 {% endblock %}
