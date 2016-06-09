@@ -13,6 +13,11 @@ from mdta.apps.projects.forms import ModuleNewForm
 
 @login_required
 def graphs(request):
+    """
+    View of apps/graphs, include projects list, node type, edge type
+    :param request:
+    :return:
+    """
     context = {
         'projects': Project.objects.all(),
         'node_types': NodeType.objects.order_by('name'),
@@ -26,6 +31,11 @@ def graphs(request):
 
 @login_required
 def node_type_new(request):
+    """
+    Add new NodeType from apps/graphs
+    :param request:
+    :return:
+    """
     if request.method == 'POST':
         form = NodeTypeNewForm(request.POST)
         node_or_edit_type_new(request, form)
@@ -35,6 +45,11 @@ def node_type_new(request):
 
 @login_required
 def node_type_edit(request):
+    """
+    Edit NodeType from apps/graphs
+    :param request:
+    :return:
+    """
     id = request.POST.get('editNodeTypeId', '')
     node_type = get_object_or_404(NodeType, pk=id)
 
@@ -45,7 +60,13 @@ def node_type_edit(request):
 
 
 @login_required
-def project_new_node(request, project_id):
+def project_node_new(request, project_id):
+    """
+    Add new Node from apps/graphs
+    :param request:
+    :param project_id:
+    :return:
+    """
     if request.method == 'GET':
         form = NodeNewForm(project_id=project_id)
     elif request.method == 'POST':
@@ -75,12 +96,12 @@ def project_new_node(request, project_id):
 
 
 @login_required
-def node_edit(request):
-    pass
-
-
-@login_required
 def edge_type_new(request):
+    """
+    Add new EdgeType from apps/graphs
+    :param request:
+    :return:
+    """
     if request.method == 'POST':
         form = EdgeTypeNewForm(request.POST)
         node_or_edit_type_new(request, form)
@@ -90,6 +111,11 @@ def edge_type_new(request):
 
 @login_required
 def edge_type_edit(request):
+    """
+    Edit EdgeType from apps/graphs
+    :param request:
+    :return:
+    """
     id = request.POST.get('editEdgeTypeId', '')
     edge_type = get_object_or_404(EdgeType, pk=id)
 
@@ -100,7 +126,13 @@ def edge_type_edit(request):
 
 
 @login_required
-def project_new_edge(request, project_id):
+def project_edge_new(request, project_id):
+    """
+    Add new Edge from apps/graphs
+    :param request:
+    :param project_id:
+    :return:
+    """
     if request.method == 'GET':
         form = EdgeNewForm(project_id=project_id)
     elif request.method == 'POST':
@@ -128,12 +160,12 @@ def project_new_edge(request, project_id):
     return render(request, 'graphs/project/edge_new.html', context)
 
 
-@login_required
-def edge_edit(request):
-    pass
-
-
 def get_keys_from_type(request):
+    """
+    Fetch keys from NodeType/EdgeType for Node/Edge properties
+    :param request:
+    :return:
+    """
     id = request.GET.get('id', '')
     type = request.GET.get('type', '')
     if type == 'node':
@@ -148,6 +180,12 @@ def get_keys_from_type(request):
 
 @login_required
 def project_detail(request, project_id):
+    """
+    Project detail, include graphical representation: modules in this project
+    :param request:
+    :param project_id:
+    :return:
+    """
     network_nodes = []
     network_edges = []
     project = get_object_or_404(Project, pk=project_id)
@@ -182,7 +220,13 @@ def project_detail(request, project_id):
 
 
 @login_required
-def module_new(request, project_id):
+def project_module_new(request, project_id):
+    """
+    Add new module from project view
+    :param request:
+    :param project_id:
+    :return:
+    """
     if request.method == 'POST':
         form = ModuleNewForm(request.POST)
         if form.is_valid():
@@ -196,7 +240,13 @@ def module_new(request, project_id):
 
 
 @login_required
-def module_detail(request, module_id):
+def project_module_detail(request, module_id):
+    """
+    Module detail from project view, include graphical representation of Nodes in this module
+    :param request:
+    :param module_id:
+    :return:
+    """
     module = get_object_or_404(Module, pk=module_id)
     network_nodes = []
     network_edges = []
@@ -228,7 +278,13 @@ def module_detail(request, module_id):
 
 
 @login_required
-def module_edit(request, project_id):
+def project_module_edit(request, project_id):
+    """
+    Edit module from project view, include Edition/Deletion
+    :param request:
+    :param project_id:
+    :return:
+    """
     if request.method == 'POST':
         module_id = request.POST.get('editModuleId', '')
         module = get_object_or_404(Module, pk=module_id)
@@ -251,10 +307,53 @@ def module_edit(request, project_id):
 
 
 @login_required
-def module_new_node(request, module_id):
+def module_node_new(request, module_id):
+    """
+    Add new node from module view
+    :param request:
+    :param module_id:
+    :return:
+    """
+    if request.method == 'POST':
+        form = NodeNewForm(request.POST)
+        if form.is_valid():
+            node = form.save()
+            messages.success(request, 'Node is Added')
+        else:
+            print(form.errors)
+            messages.error(request, 'Module new node error.')
+
+        return redirect('graphs:project_module_detail', module_id)
+
+
+@login_required
+def module_node_edit(request, module_id):
+    """
+    Edit node from module view
+    :param request:
+    :param module_id:
+    :return:
+    """
     pass
 
 
 @login_required
-def module_edit_node(request, module_id):
+def module_edge_new(request, module_id):
+    """
+    Add new edge from module view
+    :param request:
+    :param module_id:
+    :return:
+    """
+    pass
+
+
+@login_required
+def module_edge_edit(request, module_id):
+    """
+    Edit edge from module view
+    :param request:
+    :param module_id:
+    :return:
+    """
     pass

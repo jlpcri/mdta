@@ -1,7 +1,7 @@
 <!-- Module New Modal -->
 <div class="modal fade newModule" id="module-new-modal">
     <div class="modal-dialog">
-        <form action="{% url 'graphs:module_new' project.id %}" method="post">
+        <form action="{% url 'graphs:project_module_new' project.id %}" method="post">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
@@ -33,7 +33,7 @@
 <!-- Module Edit Modal -->
 <div class="modal fade editModule" id="module-edit-modal">
     <div class="modal-dialog">
-        <form method="post" action="{% url 'graphs:module_edit' project.id %}">
+        <form method="post" action="{% url 'graphs:project_module_edit' project.id %}">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
