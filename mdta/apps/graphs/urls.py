@@ -10,7 +10,7 @@ urlpatterns = [
 
     url(r'^edge_type_new/$', views.edge_type_new, name='edge_type_new'),
     url(r'^edge_type_edit/$', views.edge_type_edit, name='edge_type_edit'),
-    url(r'^(?P<project_id>\d+)/project_edge_new/$', views.project_node_new, name='project_edge_new'),
+    url(r'^(?P<project_id>\d+)/project_edge_new/$', views.project_edge_new, name='project_edge_new'),
 
     url(r'^project_detail/(?P<project_id>\d+)/$', views.project_detail, name='project_detail'),
 

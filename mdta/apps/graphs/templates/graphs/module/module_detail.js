@@ -2,8 +2,6 @@
  * Created by sliu on 6/8/16.
  */
 
-
-
 $('.moduleNodeNew form').on('submit', function(){
     var name = $('.moduleNodeNew #id_name').val();
     if (name == ''){
@@ -16,6 +14,15 @@ $('.moduleNodeNew #id_type').on('change', function(){
     var item_id = $(this).find('option:selected').val(),
         location = '#module-node-new-properties';
     load_keys_from_node_edge_type(item_id, location, 'node');
+});
+
+$('.moduleNodeEdit').on('show.bs.modal', function(e){
+    var node_id = $(e.relatedTarget).data('node-id'),
+        node_name = $(e.relatedTarget).data('node-name');
+
+    $(e.currentTarget).find('input[name="moduleNodeEditId"]').val(node_id);
+    $(e.currentTarget).find('input[name="moduleNodeEditName"]').val(node_name);
+    $('.moduleNodeEdit .modal-title').html('Node Edit/Delete');
 });
 
 function load_keys_from_node_edge_type(item_id, location, type){

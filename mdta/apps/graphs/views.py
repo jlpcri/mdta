@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edit_type_new
 
 from mdta.apps.projects.models import Project, Module
-from .models import NodeType, EdgeType, Edge
+from .models import NodeType, EdgeType, Node, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeNewForm
 from mdta.apps.projects.forms import ModuleNewForm
 
@@ -340,7 +340,24 @@ def module_node_edit(request, module_id):
     :param module_id:
     :return:
     """
-    pass
+    if request.method == 'POST':
+        node_id = request.POST.get('moduleNodeEditId', '')
+        node = get_object_or_404(Node, pk=node_id)
+
+        if 'node_save' in request.POST:
+            node_name = request.POST.get('moduleNodeEditName', '')
+            try:
+                node.name = node_name
+                node.save()
+                messages.success(request, 'Node is saved.')
+            except Exception as e:
+                messages.error(request, str(e))
+
+        if 'node_delete' in request.POST:
+            node.delete()
+            messages.success(request, 'Node is deleted.')
+
+        return redirect('graphs:project_module_detail', module_id)
 
 
 @login_required
