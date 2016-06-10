@@ -36,7 +36,9 @@ $('.moduleNodeEdit').on('show.bs.modal', function(e){
     $('.moduleNodeEdit .modal-title').html('Node Edit/Delete');
 
     //load_keys_from_node_edge_type(node_type_id, node_properties_location, 'node');
-    show_properties_for_node_edit(node_properties, node_properties_location);
+    if (node_properties != 'None') {
+        show_properties_for_node_edit(node_properties, node_properties_location);
+    }
 });
 
 $('.moduleNodeEdit #moduleNodeEditType').on('change', function(){

@@ -43,7 +43,7 @@ class Project(models.Model):
 
     @property
     def modules(self):
-        return self.module_set.all()
+        return self.module_set.order_by('name')
 
 
 class Module(models.Model):
@@ -61,7 +61,16 @@ class Module(models.Model):
 
     @property
     def nodes(self):
-        return self.node_set.all()
+        return self.node_set.order_by('name')
+
+    @property
+    def edges(self):
+        data = []
+        for node in self.nodes:
+            data += node.from_node.all()
+            data += node.to_node.all()
+
+        return data
 
 
 class TestCaseHistory(models.Model):
