@@ -2,6 +2,13 @@
  * Created by sliu on 6/8/16.
  */
 
+$('.moduleNodeNew').on('show.bs.modal', function(){
+    var node_type_id = $('.moduleNodeNew #id_type').find('option:selected').val(),
+        node_properties_location = '#module-node-new-properties';
+
+    load_keys_from_node_edge_type(node_type_id, node_properties_location, 'node');
+});
+
 $('.moduleNodeNew form').on('submit', function(){
     var name = $('.moduleNodeNew #id_name').val();
     if (name == ''){
@@ -11,18 +18,41 @@ $('.moduleNodeNew form').on('submit', function(){
 });
 
 $('.moduleNodeNew #id_type').on('change', function(){
-    var item_id = $(this).find('option:selected').val(),
+    var type_id = $(this).find('option:selected').val(),
         location = '#module-node-new-properties';
-    load_keys_from_node_edge_type(item_id, location, 'node');
+    load_keys_from_node_edge_type(type_id, location, 'node');
 });
 
 $('.moduleNodeEdit').on('show.bs.modal', function(e){
     var node_id = $(e.relatedTarget).data('node-id'),
-        node_name = $(e.relatedTarget).data('node-name');
+        node_type_id = $(e.relatedTarget).data('node-type-id'),
+        node_name = $(e.relatedTarget).data('node-name'),
+        node_properties = $(e.relatedTarget).data('node-properties'),
+        node_properties_location = '#module-node-edit-properties';
 
     $(e.currentTarget).find('input[name="moduleNodeEditId"]').val(node_id);
+    $(e.currentTarget).find('select').val(node_type_id);
     $(e.currentTarget).find('input[name="moduleNodeEditName"]').val(node_name);
     $('.moduleNodeEdit .modal-title').html('Node Edit/Delete');
+
+    //load_keys_from_node_edge_type(node_type_id, node_properties_location, 'node');
+    show_properties_for_node_edit(node_properties, node_properties_location);
+});
+
+$('.moduleNodeEdit #moduleNodeEditType').on('change', function(){
+    var type_id = $(this).find('option:selected').val(),
+        location = '#module-node-edit-properties';
+
+    load_keys_from_node_edge_type(type_id, location, 'node');
+});
+
+$('.moduleNodeEdit form').on('submit', function(){
+    var name = $('#moduleNodeEditName').val();
+
+    if (name == ''){
+        showErrMsg('#moduleNodeEditErrMessage', 'Name is Empty');
+        return false;
+    }
 });
 
 function load_keys_from_node_edge_type(item_id, location, type){
@@ -40,14 +70,22 @@ function load_keys_from_node_edge_type(item_id, location, type){
     })
 }
 
+function show_properties_for_node_edit(properties, location){
+    //console.log(properties)
+    var t = properties.replace(/'/g, '\"'),
+        data = $.parseJSON(t),
+        contents = '';
+    $.each(data, function(k, v){
+        contents += '<div class=\'row\' style=\'margin-top: 10px;\'>';
+        contents += '<div class=\'col-xs-1\'></div>';
+        contents += '<div class=\'col-xs-4\'><label>{0}: </label></div>'.format(k);
+        contents += '<div class=\'col-xs-7\'><input name=\'{0}\' value=\'{1}\'/></div>'.format(k, v);
+        contents += '</div>';
+    });
+    $(location).html(contents);
+}
+
 $(document).ready(function(){
-    var node_type_id = $('.moduleNodeNew #id_type').find('option:selected').val(),
-        node_location = '#module-node-new-properties';
-
-    if (node_type_id) {
-        load_keys_from_node_edge_type(node_type_id, node_location, 'node');
-    }
-
     draw_module_graph();
 });
 

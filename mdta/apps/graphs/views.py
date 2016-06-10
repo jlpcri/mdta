@@ -269,6 +269,8 @@ def project_module_detail(request, module_id):
         'module': module,
         'node_new_form': NodeNewForm(module_id=module_id),
         'edge_new_form': EdgeNewForm(module_id=module_id),
+        'node_types': NodeType.objects.all(),
+        # 'edge_types': EdgeType.objects.all(),
 
         'network_nodes': json.dumps(network_nodes),
         'network_edges': json.dumps(network_edges)
@@ -345,9 +347,17 @@ def module_node_edit(request, module_id):
         node = get_object_or_404(Node, pk=node_id)
 
         if 'node_save' in request.POST:
+            properties = {}
             node_name = request.POST.get('moduleNodeEditName', '')
+            node_type_id = request.POST.get('moduleNodeEditType', '')
+            node_type = get_object_or_404(NodeType, pk=node_type_id)
+            for key in node_type.keys:
+                properties[key] = request.POST.get(key, '')
+
             try:
                 node.name = node_name
+                node.type = node_type
+                node.properties = properties
                 node.save()
                 messages.success(request, 'Node is saved.')
             except Exception as e:
@@ -368,7 +378,22 @@ def module_edge_new(request, module_id):
     :param module_id:
     :return:
     """
-    pass
+    if request.method == 'POST':
+        properties = {}
+        form = EdgeNewForm(request.POST)
+        if form.is_valid():
+            edge = form.save(commit=False)
+            for key in edge.type.keys:
+                properties[key] = request.POST.get(key, '')
+
+            edge.properties = properties
+            edge.save()
+            messages.success(request, 'Edge is added.')
+        else:
+            print(form.errors)
+            messages.error(request, 'Nodule new edge error.')
+
+        return redirect('graphs:project_module_detail', module_id)
 
 
 @login_required

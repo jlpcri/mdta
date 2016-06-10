@@ -46,12 +46,25 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-xs-12">
-                            <label for="moduleNodeEditName">Name:</label>
-                            <input type="text" class="form-control input-sm" name="moduleNodeEditName" id="moduleNodeEditName">
+                            <label for="moduleNodeEditType">Type:</label>
+                            <select class="form-control" id="moduleNodeEditType" name="moduleNodeEditType">
+                                {% for item in node_types %}
+                                    <option value="{{ item.id }}">{{ item }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                     </div>
-
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="moduleNodeEditName">Name:</label>
+                            <input type="text" class="form-control" name="moduleNodeEditName" id="moduleNodeEditName">
+                        </div>
+                    </div>
                     <br>
+                    <div class="row">
+                        <h5>&nbsp;&nbsp;&nbsp;&nbsp;Node Properties:</h5>
+                        <div id="module-node-edit-properties"></div>
+                    </div>
                     <div class="row">
                         <div class="col-xs-10">
                             <div id="moduleNodeEditErrMessage">&nbsp;</div>
@@ -65,6 +78,80 @@
                 <div class="modal-footer">
                     <button type="submit" name="node_save" class="btn btn-primary param-save">Save</button>
                     <button type="submit" name="node_delete" class="btn btn-danger param-delete">Delete</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edge New Modal -->
+<div class="modal fade moduleEdgeNew" id="edge-new-modal">
+    <div class="modal-dialog">
+        <form action="{% url 'graphs:module_edge_new' module.id %}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4 class="modal-title">Edge New</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    {{ edge_new_form }}
+                    <br>
+                    <div class="row">
+                        <h5>&nbsp;&nbsp;&nbsp;&nbsp;Edge Properties:</h5>
+                        <div id="module-edge-new-properties"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div id="moduleEdgeNewErrMessage">&nbsp;</div>
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                </div>
+                <div class="modal-footer">
+                    <input id="edge_new" class="btn btn-primary" type="submit" value="New Edge">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edge Edit Modal -->
+<div class="modal fade moduleEdgeEdit" id="edge-edit-modal">
+    <div class="modal-dialog">
+        <form method="post" action="{% url 'graphs:module_edge_edit' module.id %}">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title"></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="moduleEdgeEditName">Name:</label>
+                            <input type="text" class="form-control input-sm" name="moduleEdgeEditName" id="moduleEdgeEditName">
+                        </div>
+                    </div>
+
+                    <br>
+                    <div class="row">
+                        <div class="col-xs-10">
+                            <div id="moduleEdgeEditErrMessage">&nbsp;</div>
+                        </div>
+                        <div class="col-xs-1">
+                            <input type="hidden" name="moduleEdgeEditId">
+                        </div>
+                    </div>
+                </div>
+                {% csrf_token %}
+                <div class="modal-footer">
+                    <button type="submit" name="edge_save" class="btn btn-primary param-save">Save</button>
+                    <button type="submit" name="edge_delete" class="btn btn-danger param-delete">Delete</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                 </div>
             </div>
