@@ -70,7 +70,7 @@ class Module(models.Model):
             data += node.from_node.all()
             data += node.to_node.all()
 
-        return data
+        return set(data)  # remove duplicate edges
 
 
 class TestCaseHistory(models.Model):

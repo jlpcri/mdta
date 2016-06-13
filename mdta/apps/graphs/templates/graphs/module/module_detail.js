@@ -57,6 +57,55 @@ $('.moduleNodeEdit form').on('submit', function(){
     }
 });
 
+$('.moduleEdgeNew').on('show.bs.modal', function(){
+    var edge_type_id = $('.moduleEdgeNew #id_type').find('option:selected').val(),
+        edge_properties_location = '#module-edge-new-properties';
+
+    load_keys_from_node_edge_type(edge_type_id, edge_properties_location, 'edge');
+});
+
+$('.moduleEdgeNew form').on('submit', function(){
+    var name = $('.moduleEdgeNew #id_name').val();
+    if (name == ''){
+        showErrMsg('#moduleEdgeNewErrMessage', 'Name is Empty.');
+        return false;
+    }
+});
+
+$('.moduleEdgeNew #id_type').on('change', function(){
+    var edge_type_id = $(this).find('option:selected').val(),
+        location = '#module-edge-new-properties';
+
+    load_keys_from_node_edge_type(edge_type_id, location, 'edge');
+});
+
+$('.moduleEdgeEdit').on('show.bs.modal', function(e){
+    var edge_id = $(e.relatedTarget).data('edge-id'),
+        edge_type_id = $(e.relatedTarget).data('edge-type-id'),
+        edge_name = $(e.relatedTarget).data('edge-name'),
+        edge_from = $(e.relatedTarget).data('edge-from'),
+        edge_to = $(e.relatedTarget).data('edge-to'),
+        edge_properties = $(e.relatedTarget).data('edge-properties'),
+        edge_properties_location = '#module-edge-edit-properties';
+
+    $(e.currentTarget).find('input[name="moduleEdgeEditId"]').val(edge_id);
+    $(e.currentTarget).find('input[name="moduleEdgeEditName"]').val(edge_name);
+    $(e.currentTarget).find('select[name="moduleEdgeEditType"]').val(edge_type_id);
+    $(e.currentTarget).find('select[name="moduleEdgeEditFromNode"]').val(edge_from);
+    $(e.currentTarget).find('select[name="moduleEdgeEditToNode"]').val(edge_to);
+
+    if (! $.isEmptyObject(edge_properties) && edge_properties != 'None'){
+        show_properties_for_node_edit(edge_properties, edge_properties_location);
+    }
+});
+
+$('.moduleEdgeEdit #moduleEdgeEditType').on('change', function(){
+    var edge_type_id = $(this).find('option:selected').val(),
+        location = '#module-edge-edit-properties';
+
+    load_keys_from_node_edge_type(edge_type_id, location, 'edge');
+});
+
 function load_keys_from_node_edge_type(item_id, location, type){
     $.getJSON("{% url 'graphs:get_keys_from_type' %}?id={0}&type={1}".format(item_id, type)).done(function(data){
         var contents = '';

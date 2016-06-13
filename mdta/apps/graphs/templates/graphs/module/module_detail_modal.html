@@ -128,17 +128,50 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title"></h4>
+                    <h4 class="modal-title">Edge Edit/Delete</h4>
                 </div>
                 <div class="modal-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="moduleEdgeEditType">Type:</label>
+                            <select class="form-control" id="moduleEdgeEditType" name="moduleEdgeEditType">
+                                {% for item in edge_types %}
+                                    <option value="{{ item.id }}">{{ item }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="moduleEdgeEditFromNode">FromNode:</label>
+                            <select class="form-control" id="moduleEdgeEditFromNode" name="moduleEdgeEditFromNode">
+                                {% for item in module_nodes %}
+                                    <option value="{{ item.id }}">{{ item }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="moduleEdgeEditToNode">ToNode:</label>
+                            <select class="form-control" id="moduleEdgeEditToNode" name="moduleEdgeEditToNode">
+                                {% for item in module_nodes %}
+                                    <option value="{{ item.id }}">{{ item }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
                     <div class="row">
                         <div class="col-xs-12">
                             <label for="moduleEdgeEditName">Name:</label>
                             <input type="text" class="form-control input-sm" name="moduleEdgeEditName" id="moduleEdgeEditName">
                         </div>
                     </div>
-
                     <br>
+                    <div class="row">
+                        <h5>&nbsp;&nbsp;&nbsp;&nbsp;Edge Properties:</h5>
+                        <div id="module-edge-edit-properties"></div>
+                    </div>
                     <div class="row">
                         <div class="col-xs-10">
                             <div id="moduleEdgeEditErrMessage">&nbsp;</div>

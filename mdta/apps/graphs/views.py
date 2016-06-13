@@ -270,7 +270,8 @@ def project_module_detail(request, module_id):
         'node_new_form': NodeNewForm(module_id=module_id),
         'edge_new_form': EdgeNewForm(module_id=module_id),
         'node_types': NodeType.objects.all(),
-        # 'edge_types': EdgeType.objects.all(),
+        'edge_types': EdgeType.objects.all(),
+        'module_nodes': module.node_set.all(),
 
         'network_nodes': json.dumps(network_nodes),
         'network_edges': json.dumps(network_edges)
@@ -404,4 +405,29 @@ def module_edge_edit(request, module_id):
     :param module_id:
     :return:
     """
-    pass
+    if request.method == 'POST':
+        edge_id = request.POST.get('moduleEdgeEditId', '')
+        edge = get_object_or_404(Edge, pk=edge_id)
+
+        if 'edge_save' in request.POST:
+            properties = {}
+            edge_name = request.POST.get('moduleEdgeEditName', '')
+            edge_type_id = request.POST.get('moduleEdgeEditType', '')
+            edge_type = get_object_or_404(EdgeType, pk=edge_type_id)
+            for key in edge_type.keys:
+                properties[key] = request.POST.get(key, '')
+
+            try:
+                edge.name = edge_name
+                edge.type = edge_type
+                edge.properties = properties
+                edge.save()
+                messages.success(request, 'Edge is saved.')
+            except Exception as e:
+                messages.error(request, str(e))
+
+        if 'edge_delete' in request.POST:
+            edge.delete()
+            messages.success(request, 'Edge is deleted.')
+
+        return redirect('graphs:project_module_detail', module_id)
