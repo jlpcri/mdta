@@ -45,7 +45,13 @@
                     <tbody>
                         {% for item in module.nodes %}
                             <tr>
-                                <td>{{ item.name }}</td>
+                                <td>
+                                    <a href="#node-detail-modal" data-toggle="modal"
+                                        data-node-id="{{ item.id }}"
+                                        data-node-name="{{ item.name }}"
+                                        data-node-edges="{{ item.edges }}">
+                                        {{ item.name }}</a>
+                                </td>
                                 <td>
                                     <a href="#node-edit-modal" data-toggle="modal" class="btn btn-primary btn-xs"
                                         data-node-id="{{ item.id }}"
@@ -77,6 +83,7 @@
                                         data-edge-name="{{ item.name }}"
                                         data-edge-from="{{ item.from_node.id }}"
                                         data-edge-to="{{ item.to_node.id }}"
+                                        data-edge-priority="{{ item.priority }}"
                                         data-edge-properties="{{ item.properties }}"
                                         ><i class="fa fa-edit"></i> </a>
                                 </td>

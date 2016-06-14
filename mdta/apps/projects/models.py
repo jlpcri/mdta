@@ -34,7 +34,7 @@ class Project(models.Model):
         n = 0
         for module in self.module_set.all():
             for node in module.node_set.all():
-                n += node.edges
+                n += node.edges_count
         return n
 
     @property

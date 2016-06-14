@@ -57,6 +57,15 @@ $('.moduleNodeEdit form').on('submit', function(){
     }
 });
 
+$('.moduleNodeDetail').on('show.bs.modal', function(e){
+    var node_id = $(e.relatedTarget).data('node-id'),
+        node_name = $(e.relatedTarget).data('node-name'),
+        node_edges = $(e.relatedTarget).data('node-edges');
+
+    $('.moduleNodeDetail .modal-title').html('Node Detail - {0}'.format(node_name));
+    $('.moduleNodeDetail .modal-body').html(node_edges);
+});
+
 $('.moduleEdgeNew').on('show.bs.modal', function(){
     var edge_type_id = $('.moduleEdgeNew #id_type').find('option:selected').val(),
         edge_properties_location = '#module-edge-new-properties';
@@ -85,6 +94,7 @@ $('.moduleEdgeEdit').on('show.bs.modal', function(e){
         edge_name = $(e.relatedTarget).data('edge-name'),
         edge_from = $(e.relatedTarget).data('edge-from'),
         edge_to = $(e.relatedTarget).data('edge-to'),
+        edge_priority = $(e.relatedTarget).data('edge-priority'),
         edge_properties = $(e.relatedTarget).data('edge-properties'),
         edge_properties_location = '#module-edge-edit-properties';
 
@@ -93,6 +103,7 @@ $('.moduleEdgeEdit').on('show.bs.modal', function(e){
     $(e.currentTarget).find('select[name="moduleEdgeEditType"]').val(edge_type_id);
     $(e.currentTarget).find('select[name="moduleEdgeEditFromNode"]').val(edge_from);
     $(e.currentTarget).find('select[name="moduleEdgeEditToNode"]').val(edge_to);
+    $(e.currentTarget).find('select[name="moduleEdgeEditPriority"]').val(edge_priority);
 
     if (! $.isEmptyObject(edge_properties) && edge_properties != 'None'){
         show_properties_for_node_edit(edge_properties, edge_properties_location);

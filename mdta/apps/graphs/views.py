@@ -271,7 +271,8 @@ def project_module_detail(request, module_id):
         'edge_new_form': EdgeNewForm(module_id=module_id),
         'node_types': NodeType.objects.all(),
         'edge_types': EdgeType.objects.all(),
-        'module_nodes': module.node_set.all(),
+
+        'edge_priority': Edge.PRIORITY_CHOICES,
 
         'network_nodes': json.dumps(network_nodes),
         'network_edges': json.dumps(network_edges)
@@ -412,14 +413,26 @@ def module_edge_edit(request, module_id):
         if 'edge_save' in request.POST:
             properties = {}
             edge_name = request.POST.get('moduleEdgeEditName', '')
+
             edge_type_id = request.POST.get('moduleEdgeEditType', '')
             edge_type = get_object_or_404(EdgeType, pk=edge_type_id)
+
+            edge_from = request.POST.get('moduleEdgeEditFromNode', '')
+            from_node = get_object_or_404(Node, pk=edge_from)
+            edge_to = request.POST.get('moduleEdgeEditToNode', '')
+            to_node = get_object_or_404(Node, pk=edge_to)
+
+            edge_priority = request.POST.get('moduleEdgeEditPriority', '')
+
             for key in edge_type.keys:
                 properties[key] = request.POST.get(key, '')
 
             try:
                 edge.name = edge_name
                 edge.type = edge_type
+                edge.from_node = from_node
+                edge.to_node = to_node
+                edge.priority = edge_priority
                 edge.properties = properties
                 edge.save()
                 messages.success(request, 'Edge is saved.')

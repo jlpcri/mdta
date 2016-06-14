@@ -63,21 +63,38 @@ class Node(models.Model):
         return '{0}: {1}: {2}'.format(self.module, self.name, self.type.name)
 
     @property
-    def edges(self):
+    def edges_count(self):
         if self.from_node:
             return len(self.from_node.all())
         else:
             return 0
+
+    @property
+    def edges(self):
+        data = []
+        if self.from_node:
+            for item in self.from_node.order_by('priority'):
+                data.append([item.name, item.priority, item.to_node.name])
+
+        return data
 
 
 class Edge(models.Model):
     """
     Edge between two Nodes (Same Project) to represent the relation of them
     """
+    PRIORITY_CHOICES = (
+        (0, 0),
+        (1, 1),
+        (2, 2),
+        (3, 3),
+        (4, 4),
+        (5, 5)
+    )
     type = models.ForeignKey(EdgeType)
 
     name = models.TextField(default='')
-    priority = models.SmallIntegerField(default=0)
+    priority = models.SmallIntegerField(choices=PRIORITY_CHOICES, default=0)
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
