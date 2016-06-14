@@ -49,7 +49,35 @@
                                 <td>
                                     <a href="#node-edit-modal" data-toggle="modal" class="btn btn-primary btn-xs"
                                         data-node-id="{{ item.id }}"
+                                        data-node-type-id="{{ item.type.id }}"
                                         data-node-name="{{ item.name }}"
+                                        data-node-properties="{{ item.properties }}"
+                                        ><i class="fa fa-edit"></i> </a>
+                                </td>
+                            <tr></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <h4>Edges:</h4>
+                <table class="table table-hover table-condensed">
+                    <thead>
+                        <tr>
+                            <td class="col-xs-9">Name</td>
+                            <td class="col-xs-3">Edition</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in module.edges %}
+                            <tr>
+                                <td>{{ item.name }}</td>
+                                <td>
+                                    <a href="#edge-edit-modal" data-toggle="modal" class="btn btn-primary btn-xs"
+                                        data-edge-id="{{ item.id }}"
+                                        data-edge-type-id="{{ item.type.id }}"
+                                        data-edge-name="{{ item.name }}"
+                                        data-edge-from="{{ item.from_node.id }}"
+                                        data-edge-to="{{ item.to_node.id }}"
+                                        data-edge-properties="{{ item.properties }}"
                                         ><i class="fa fa-edit"></i> </a>
                                 </td>
                             <tr></tr>

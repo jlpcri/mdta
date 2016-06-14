@@ -23,11 +23,11 @@ class NodeNewForm(ModelForm):
         super(NodeNewForm, self).__init__(*args, **kwargs)
         if project_id:
             self.fields['module'].queryset = Module.objects.filter(project__id=project_id)
-            for field_name in ['module', 'type']:
-                self.fields[field_name].empty_label = None
-        if module_id:
+        elif module_id:
             self.fields['module'].queryset = Module.objects.filter(pk=module_id)
-            self.fields['module'].empty_label = None
+
+        for field_name in ['module', 'type']:
+            self.fields[field_name].empty_label = None
 
     class Meta:
         model = Node
@@ -57,9 +57,12 @@ class EdgeNewForm(ModelForm):
         if project_id:
             self.fields['from_node'].queryset = Node.objects.filter(module__project__id=project_id)
             self.fields['to_node'].queryset = Node.objects.filter(module__project__id=project_id)
+        elif module_id:
+            self.fields['from_node'].queryset = Node.objects.filter(module__id=module_id)
+            self.fields['to_node'].queryset = Node.objects.filter(module__id=module_id)
 
-            for field_name in ['from_node', 'to_node', 'type']:
-                self.fields[field_name].empty_label = None
+        for field_name in ['from_node', 'to_node', 'type']:
+            self.fields[field_name].empty_label = None
 
     class Meta:
         model = Edge

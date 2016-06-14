@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edit_type_new
 
 from mdta.apps.projects.models import Project, Module
-from .models import NodeType, EdgeType, Edge
+from .models import NodeType, EdgeType, Node, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeNewForm
 from mdta.apps.projects.forms import ModuleNewForm
 
@@ -269,6 +269,9 @@ def project_module_detail(request, module_id):
         'module': module,
         'node_new_form': NodeNewForm(module_id=module_id),
         'edge_new_form': EdgeNewForm(module_id=module_id),
+        'node_types': NodeType.objects.all(),
+        'edge_types': EdgeType.objects.all(),
+        'module_nodes': module.node_set.all(),
 
         'network_nodes': json.dumps(network_nodes),
         'network_edges': json.dumps(network_edges)
@@ -315,9 +318,15 @@ def module_node_new(request, module_id):
     :return:
     """
     if request.method == 'POST':
+        properties = {}
         form = NodeNewForm(request.POST)
         if form.is_valid():
-            node = form.save()
+            node = form.save(commit=False)
+            for key in node.type.keys:
+                properties[key] = request.POST.get(key, '')
+            node.properties = properties
+            node.save()
+
             messages.success(request, 'Node is Added')
         else:
             print(form.errors)
@@ -334,7 +343,32 @@ def module_node_edit(request, module_id):
     :param module_id:
     :return:
     """
-    pass
+    if request.method == 'POST':
+        node_id = request.POST.get('moduleNodeEditId', '')
+        node = get_object_or_404(Node, pk=node_id)
+
+        if 'node_save' in request.POST:
+            properties = {}
+            node_name = request.POST.get('moduleNodeEditName', '')
+            node_type_id = request.POST.get('moduleNodeEditType', '')
+            node_type = get_object_or_404(NodeType, pk=node_type_id)
+            for key in node_type.keys:
+                properties[key] = request.POST.get(key, '')
+
+            try:
+                node.name = node_name
+                node.type = node_type
+                node.properties = properties
+                node.save()
+                messages.success(request, 'Node is saved.')
+            except Exception as e:
+                messages.error(request, str(e))
+
+        if 'node_delete' in request.POST:
+            node.delete()
+            messages.success(request, 'Node is deleted.')
+
+        return redirect('graphs:project_module_detail', module_id)
 
 
 @login_required
@@ -345,7 +379,22 @@ def module_edge_new(request, module_id):
     :param module_id:
     :return:
     """
-    pass
+    if request.method == 'POST':
+        properties = {}
+        form = EdgeNewForm(request.POST)
+        if form.is_valid():
+            edge = form.save(commit=False)
+            for key in edge.type.keys:
+                properties[key] = request.POST.get(key, '')
+
+            edge.properties = properties
+            edge.save()
+            messages.success(request, 'Edge is added.')
+        else:
+            print(form.errors)
+            messages.error(request, 'Nodule new edge error.')
+
+        return redirect('graphs:project_module_detail', module_id)
 
 
 @login_required
@@ -356,4 +405,29 @@ def module_edge_edit(request, module_id):
     :param module_id:
     :return:
     """
-    pass
+    if request.method == 'POST':
+        edge_id = request.POST.get('moduleEdgeEditId', '')
+        edge = get_object_or_404(Edge, pk=edge_id)
+
+        if 'edge_save' in request.POST:
+            properties = {}
+            edge_name = request.POST.get('moduleEdgeEditName', '')
+            edge_type_id = request.POST.get('moduleEdgeEditType', '')
+            edge_type = get_object_or_404(EdgeType, pk=edge_type_id)
+            for key in edge_type.keys:
+                properties[key] = request.POST.get(key, '')
+
+            try:
+                edge.name = edge_name
+                edge.type = edge_type
+                edge.properties = properties
+                edge.save()
+                messages.success(request, 'Edge is saved.')
+            except Exception as e:
+                messages.error(request, str(e))
+
+        if 'edge_delete' in request.POST:
+            edge.delete()
+            messages.success(request, 'Edge is deleted.')
+
+        return redirect('graphs:project_module_detail', module_id)
