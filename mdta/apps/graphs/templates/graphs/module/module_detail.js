@@ -58,12 +58,32 @@ $('.moduleNodeEdit form').on('submit', function(){
 });
 
 $('.moduleNodeDetail').on('show.bs.modal', function(e){
-    var node_id = $(e.relatedTarget).data('node-id'),
-        node_name = $(e.relatedTarget).data('node-name'),
-        node_edges = $(e.relatedTarget).data('node-edges');
+    var node_name = $(e.relatedTarget).data('node-name'),
+        node_edges = $(e.relatedTarget).data('node-edges'),
+        contents_head = '<tr><th>Name</th><th>Priority</th><th>ToNode</th>',
+        contents_body = '',
+        contents = '';
 
     $('.moduleNodeDetail .modal-title').html('Node Detail - {0}'.format(node_name));
-    $('.moduleNodeDetail .modal-body').html(node_edges);
+
+    if (! $.isEmptyObject(node_edges)) {
+        var data = JSON.parse(node_edges.replace(/'/g, '\"'));
+        for (var i = 0; i < data.length; i++) {
+            contents_body += '<tr>';
+            for (var j = 0; j < data[i].length; j++) {
+                contents_body += '<td>{0}</td>'.format(data[i][j]);
+            }
+            contents_body += '</tr>';
+        }
+        contents = "<table id='tableData' class='table table-bordered'>"
+            + "<thead>" + contents_head + "</thead>"
+            + "<tbody>" + contents_body + "</tbody>"
+            + "</table>";
+    } else {
+        contents = 'No Edges';
+    }
+
+    $('.moduleNodeDetail .modal-body').html(contents);
 });
 
 $('.moduleEdgeNew').on('show.bs.modal', function(){
