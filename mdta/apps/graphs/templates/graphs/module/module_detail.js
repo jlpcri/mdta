@@ -2,6 +2,7 @@
  * Created by sliu on 6/8/16.
  */
 
+/* Start Module Node New Code */
 $('.moduleNodeNew').on('show.bs.modal', function(){
     var node_type_id = $('.moduleNodeNew #id_type').find('option:selected').val(),
         node_properties_location = '#module-node-new-properties';
@@ -22,7 +23,9 @@ $('.moduleNodeNew #id_type').on('change', function(){
         location = '#module-node-new-properties';
     load_keys_from_node_edge_type(type_id, location, 'node');
 });
+/* End Module Node New Code */
 
+/* Start Module Node Edit Code */
 $('.moduleNodeEdit').on('show.bs.modal', function(e){
     var node_id = $(e.relatedTarget).data('node-id'),
         node_type_id = $(e.relatedTarget).data('node-type-id'),
@@ -56,36 +59,44 @@ $('.moduleNodeEdit form').on('submit', function(){
         return false;
     }
 });
+/* End Module Node Edit Code */
 
+/* Start Module Node Detail Code */
 $('.moduleNodeDetail').on('show.bs.modal', function(e){
-    var node_name = $(e.relatedTarget).data('node-name'),
-        node_edges = $(e.relatedTarget).data('node-edges'),
+    var node_id = $(e.relatedTarget).data('node-id'),
         contents_head = '<tr><th>Name</th><th>Priority</th><th>ToNode</th>',
         contents_body = '',
         contents = '';
 
-    $('.moduleNodeDetail .modal-title').html('Node Detail - {0}'.format(node_name));
+    // node_id passed from href link
+    if (node_id) {
+        $('.moduleNodeDetail').find('input[name="moduleNodeDetailId"]').val(node_id);
+    }  // else passed from graph
 
-    if (! $.isEmptyObject(node_edges)) {
-        var data = JSON.parse(node_edges.replace(/'/g, '\"'));
-        for (var i = 0; i < data.length; i++) {
-            contents_body += '<tr>';
-            for (var j = 0; j < data[i].length; j++) {
-                contents_body += '<td>{0}</td>'.format(data[i][j]);
-            }
-            contents_body += '</tr>';
+    node_id = $('.moduleNodeDetail').find('input[name="moduleNodeDetailId"]').val();
+
+    $.getJSON("{% url 'graphs:get_leaving_edges_from_node'%}?id={0}".format(node_id)).done(function(data){
+        $.ajax({cache: false});
+        if (data['edges'].length > 0) {
+            $.each(data['edges'], function (index, value) {
+                contents_body += '<tr><td>' + value['name'] + '</td><td>' + value['priority'] + '</td><td>' + value['to_node'] + '</td></tr>';
+            });
+            contents = "<table id='tableData' class='table table-bordered'>"
+                + "<thead>" + contents_head + "</thead>"
+                + "<tbody>" + contents_body + "</tbody>"
+                + "</table>";
+        } else {
+            contents = '&nbsp;&nbsp;No leaving edges';
         }
-        contents = "<table id='tableData' class='table table-bordered'>"
-            + "<thead>" + contents_head + "</thead>"
-            + "<tbody>" + contents_body + "</tbody>"
-            + "</table>";
-    } else {
-        contents = 'No Edges';
-    }
 
-    $('.moduleNodeDetail .modal-body').html(contents);
+        $('.moduleNodeDetail .modal-title').html('Node Detail - {0}'.format(data['node_name']));
+        $('.moduleNodeDetail .modal-body .moduleNodeEdges').html(contents);
+    });
+
 });
+/* End Module Node Detail Code */
 
+/* Start Module Edge New Code */
 $('.moduleEdgeNew').on('show.bs.modal', function(){
     var edge_type_id = $('.moduleEdgeNew #id_type').find('option:selected').val(),
         edge_properties_location = '#module-edge-new-properties';
@@ -107,7 +118,9 @@ $('.moduleEdgeNew #id_type').on('change', function(){
 
     load_keys_from_node_edge_type(edge_type_id, location, 'edge');
 });
+/* End Module Edge New Code */
 
+/* Start Module Edge Edit Code */
 $('.moduleEdgeEdit').on('show.bs.modal', function(e){
     var edge_id = $(e.relatedTarget).data('edge-id'),
         edge_type_id = $(e.relatedTarget).data('edge-type-id'),
@@ -136,6 +149,7 @@ $('.moduleEdgeEdit #moduleEdgeEditType').on('change', function(){
 
     load_keys_from_node_edge_type(edge_type_id, location, 'edge');
 });
+/* End Module Edge Edit Code */
 
 function load_keys_from_node_edge_type(item_id, location, type){
     $.getJSON("{% url 'graphs:get_keys_from_type' %}?id={0}&type={1}".format(item_id, type)).done(function(data){
@@ -196,4 +210,18 @@ function draw_module_graph(){
 
     // initialize your network!
     var network = new vis.Network(container, data, options);
+
+    network.on('click', function(params){
+        //console.log(params.nodes)
+        if (!$.isEmptyObject(params.nodes)) {
+            //var current = '',
+            //    tmp = window.location.href.split('/');
+            //for (var i = 0; i < tmp.length - 3; i++) {
+            //    current += tmp[i] + '/'
+            //}
+            $('.moduleNodeDetail').find('input[name="moduleNodeDetailId"]').val(params.nodes);
+            $('#node-detail-modal').modal('show');
+        }
+    })
+
 }

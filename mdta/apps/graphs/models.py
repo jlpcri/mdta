@@ -69,15 +69,6 @@ class Node(models.Model):
         else:
             return 0
 
-    @property
-    def edges(self):
-        data = []
-        if self.from_node:
-            for item in self.from_node.order_by('priority'):
-                data.append([item.name, item.priority, item.to_node.name])
-
-        return data
-
 
 class Edge(models.Model):
     """

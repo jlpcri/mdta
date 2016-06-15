@@ -63,6 +63,18 @@ function draw_project_graph() {
 
     // initialize your network!
     var network = new vis.Network(container, data, options);
+
+    network.on('click', function(params){
+        //console.log(params.nodes)
+        if (!$.isEmptyObject(params.nodes)) {
+            var current = '',
+                tmp = window.location.href.split('/');
+            for (var i = 0; i < tmp.length - 3; i++) {
+                current += tmp[i] + '/'
+            }
+            window.location.href = current + 'project_module_detail/' + params.nodes;
+        }
+    })
 }
 
 $(document).ready(function(){

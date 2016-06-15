@@ -191,7 +191,7 @@ def project_detail(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     for m in project.modules:
         network_nodes.append({
-            'id': m.name,
+            'id': m.id,
             'label': m.name
         })
 
@@ -200,8 +200,8 @@ def project_detail(request, project_id):
     for edge in project_edges:
         if edge.from_node.module != edge.to_node.module:
             network_edges.append({
-                'to': edge.to_node.module.name,
-                'from': edge.from_node.module.name,
+                'to': edge.to_node.module.id,
+                'from': edge.from_node.module.id,
                 # 'label': edge.name
             })
 
@@ -253,7 +253,7 @@ def project_module_detail(request, module_id):
 
     for n in module.nodes:
         network_nodes.append({
-            'id': n.name,
+            'id': n.id,
             'label': n.name
         })
 
@@ -261,8 +261,8 @@ def project_module_detail(request, module_id):
                                        to_node__module=module)
     for edge in module_edges:
         network_edges.append({
-            'to': edge.to_node.name,
-            'from': edge.from_node.name
+            'to': edge.to_node.id,
+            'from': edge.from_node.id
         })
 
     context = {
@@ -444,3 +444,24 @@ def module_edge_edit(request, module_id):
             messages.success(request, 'Edge is deleted.')
 
         return redirect('graphs:project_module_detail', module_id)
+
+
+def get_leaving_edges_from_node(request):
+    node_id = request.GET.get('id', '')
+    node = get_object_or_404(Node, pk=node_id)
+
+    edges = []
+    for edge in node.from_node.order_by('priority'):
+        temp = {}
+        temp['name'] = edge.name
+        temp['priority'] = edge.priority
+        temp['to_node'] = edge.to_node.name
+
+        edges.append(temp)
+
+    data = {
+        'edges': edges,
+        'node_name': node.name
+    }
+
+    return HttpResponse(json.dumps(data), content_type='application/json')
