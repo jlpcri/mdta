@@ -23,5 +23,6 @@ urlpatterns = [
     url(r'(?P<module_id>\d+)/module_edge_edit/$', views.module_edge_edit, name='module_edge_edit'),
 
     url(r'^get_keys_from_type/$', views.get_keys_from_type, name='get_keys_from_type'),
+    url(r'^get_leaving_edges_from_node/$', views.get_leaving_edges_from_node, name='get_leaving_edges_from_node'),
 
 ]
