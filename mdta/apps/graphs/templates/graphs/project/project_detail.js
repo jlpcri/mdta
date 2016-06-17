@@ -46,16 +46,17 @@ function draw_project_graph() {
         nodes: nodes,
         edges: edges
     };
+    var image_url = 'http://apps.qaci01.wic.west.com/static/common/brand_icons/turnpost-png-graphics/';
     var options = {
         nodes: {
-            shape: 'ellipse',
-            //fontSize: 10
+            shape: 'image',
+            image: image_url + 'blue-infrastructure-graphics_11435264594_o.png'
         },
         edges: {
-            //style: 'arrow',
             color: '#000',
             length: 190,
-            arrows: 'to'
+            arrows: 'to',
+            arrowStrikethrough: false
         },
         width: '100%',
         height: '800px'

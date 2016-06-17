@@ -195,8 +195,10 @@ function draw_module_graph(){
     };
     var options = {
         nodes: {
-            shape: 'ellipse',
-            //fontSize: 10
+            shape: 'box',
+            font: {
+                size: 14, //px
+            }
         },
         edges: {
             //style: 'arrow',
@@ -214,11 +216,6 @@ function draw_module_graph(){
     network.on('click', function(params){
         //console.log(params.nodes)
         if (!$.isEmptyObject(params.nodes)) {
-            //var current = '',
-            //    tmp = window.location.href.split('/');
-            //for (var i = 0; i < tmp.length - 3; i++) {
-            //    current += tmp[i] + '/'
-            //}
             $('.moduleNodeDetail').find('input[name="moduleNodeDetailId"]').val(params.nodes);
             $('#node-detail-modal').modal('show');
         }
