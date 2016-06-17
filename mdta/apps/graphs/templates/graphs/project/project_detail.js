@@ -50,7 +50,9 @@ function draw_project_graph() {
     var options = {
         nodes: {
             shape: 'image',
-            image: image_url + 'blue-infrastructure-graphics_11435264594_o.png'
+            image: image_url + 'blue-infrastructure-graphics_11435264594_o.png',
+            //image: image_url + 'west-ivr-graphic_11435724503_o.png',
+            size: 25
         },
         edges: {
             color: '#000',
