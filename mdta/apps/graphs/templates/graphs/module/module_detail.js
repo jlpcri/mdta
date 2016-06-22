@@ -164,8 +164,10 @@ function draw_module_graph(){
     network.on('click', function(params){
         //console.log(params.nodes)
         if (!$.isEmptyObject(params.nodes)) {
+            $('a[href="#moduleNodeEdit"]').click();
             $('a[href="#node-{0}"]'.format(params.nodes)).click();
         } else if (!$.isEmptyObject(params.edges)) {
+            $('a[href="#moduleEdgeEdit"]').click();
             $('a[href="#edge-{0}"]'.format(params.edges)).click();
         }
     })

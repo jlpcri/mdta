@@ -34,98 +34,131 @@
                 </div>
             </div>
             <div class="col-xs-3" >
-                <div class="row">
-                    <div class="col-xs-12">
-                        <div class="row hidden">
-                            <ul class="nav nav-tabs" >
-                                {% for item in module.nodes %}
-                                    <li><a href="#node-{{ item.id }}" data-toggle="tab">{{ item.id }}</a> </li>
-                                {% endfor %}
-                            </ul>
-                        </div>
+                <div class="row hidden">
+                    <ul class="nav nav-tabs">
+                        <li><a href="#moduleNodeEdit" data-toggle="tab">Node</a></li>
+                        <li><a href="#moduleEdgeEdit" data-toggle="tab">Edge</a> </li>
+                    </ul>
+                </div>
 
-                        <div class="tab-content">
-                            {% for item in module.nodes %}
-                                <div class="tab-pane" id="node-{{ item.id }}">
-                                    <h4>Node Detail</h4>
-                                    <form method="post" action="{% url 'graphs:module_node_edit' item.id %}" class="moduleNodeEditForm">
-                                        <div class="row">
-                                            <div class="col-xs-12">
-                                                <label for="moduleNodeEditType">Type:</label>
-                                                <select class="form-control " id="moduleNodeEditType" name="moduleNodeEditType">
-                                                    {% for type in node_types %}
-                                                        <option value="{{ type.id }}" {% if item.type.id == type.id %}selected{% endif %}>{{ type }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-xs-12">
-                                                <label for="moduleNodeEditName">Name:</label>
-                                                <input type="text" class="form-control" name="moduleNodeEditName" id="moduleNodeEditName" value="{{ item.name }}">
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-xs-12" >
-                                                <h5>Node Properties:</h5>
-                                                <div id="module-node-edit-properties">
-                                                    {% for key, value in item.properties.items %}
-                                                        <div class="row" style="margin-top: 5px;">
-                                                            <div class="col-xs-4">
-                                                                <label>{{ key }}:</label>
-                                                            </div>
-                                                            <div class="col-xs-8">
-                                                                <input name="{{ key }}" value="{{ value }}" >
-                                                            </div>
-                                                        </div>
-                                                    {% endfor %}
+                <div class="tab-content">
+                    <div class="tab-pane" id="moduleNodeEdit">
+                        <div class="col-xs-12">
+                            <div class="row hidden">
+                                <ul class="nav nav-tabs" >
+                                    {% for item in module.nodes %}
+                                        <li><a href="#node-{{ item.id }}" data-toggle="tab">{{ item.id }}</a> </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                            <div class="tab-content">
+                                {% for item in module.nodes %}
+                                    <div class="tab-pane" id="node-{{ item.id }}">
+                                        <h4>Node Detail</h4>
+                                        <form method="post" action="{% url 'graphs:module_node_edit' item.id %}" class="moduleNodeEditForm">
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <label for="moduleNodeEditType">Type:</label>
+                                                    <select class="form-control " id="moduleNodeEditType" name="moduleNodeEditType">
+                                                        {% for type in node_types %}
+                                                            <option value="{{ type.id }}" {% if item.type.id == type.id %}selected{% endif %}>{{ type }}</option>
+                                                        {% endfor %}
+                                                    </select>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <br>
-                                        <div class="row">
-                                            <div class="col-xs-10">
-                                                <div id="moduleNodeEditErrMessage">&nbsp;</div>
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <label for="moduleNodeEditName">Name:</label>
+                                                    <input type="text" class="form-control" name="moduleNodeEditName" id="moduleNodeEditName" value="{{ item.name }}">
+                                                </div>
                                             </div>
-                                        </div>
-                                        <br>
-                                        {% csrf_token %}
-                                        <div class="row">
-                                            <div class="col-xs-12">
-                                                <button type="submit" name="node_save" class="btn btn-primary param-save">Save</button>
-                                                <button type="submit" name="node_delete" class="btn btn-danger param-delete">Delete</button>
-                                                <button type="reset" class="btn btn-default">Reset</button>
-                                            </div>
-                                        </div>
-                                    </form>
-
-                                    <div class="row" style="margin-top: 10px;">
-                                        <div class="col-xs-12">
-                                            {% if item.leaving_edges %}
-                                                <h5>Leaving Edges:</h5>
-                                                <table class="table table-hover table-bordered">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="col-xs-2">Name</th>
-                                                            <th class="col-xs-2">Priority</th>
-                                                            <th class="col-xs-2">ToNode</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {% for edge in item.leaving_edges %}
-                                                            <tr>
-                                                                <td>{{ edge.name }}</td>
-                                                                <td>{{ edge.priority }}</td>
-                                                                <td>{{ edge.to_node.name }}</td>
-                                                            </tr>
+                                            <div class="row">
+                                                <div class="col-xs-12" >
+                                                    <h5>Node Properties:</h5>
+                                                    <div id="module-node-edit-properties">
+                                                        {% for key, value in item.properties.items %}
+                                                            <div class="row" style="margin-top: 5px;">
+                                                                <div class="col-xs-4">
+                                                                    <label>{{ key }}:</label>
+                                                                </div>
+                                                                <div class="col-xs-8">
+                                                                    <input name="{{ key }}" value="{{ value }}" >
+                                                                </div>
+                                                            </div>
                                                         {% endfor %}
-                                                    </tbody>
-                                                </table>
-                                            {% endif %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <br>
+                                            <div class="row">
+                                                <div class="col-xs-10">
+                                                    <div id="moduleNodeEditErrMessage">&nbsp;</div>
+                                                </div>
+                                            </div>
+                                            <br>
+                                            {% csrf_token %}
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <button type="submit" name="node_save" class="btn btn-primary param-save">Save</button>
+                                                    <button type="submit" name="node_delete" class="btn btn-danger param-delete">Delete</button>
+                                                    <button type="reset" class="btn btn-default">Reset</button>
+                                                </div>
+                                            </div>
+                                        </form>
+
+                                        <div class="row" style="margin-top: 10px;">
+                                            <div class="col-xs-12">
+                                                {% if item.leaving_edges %}
+                                                    <h5>Leaving Edges:</h5>
+                                                    <table class="table table-hover table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="col-xs-2">Name</th>
+                                                                <th class="col-xs-2">Priority</th>
+                                                                <th class="col-xs-2">ToNode</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for edge in item.leaving_edges %}
+                                                                <tr>
+                                                                    <td>{{ edge.name }}</td>
+                                                                    <td>{{ edge.priority }}</td>
+                                                                    <td>{{ edge.to_node.name }}</td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                {% endif %}
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            {% endfor %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane" id="moduleEdgeEdit">
+                        <div class="col-xs-12">
+                            <div class="row hidden">
+                                <ul class="nav nav-tabs">
+                                    {% for item in module.edges %}
+                                        <li><a href="#edge-{{ item.id }}" data-toggle="tab">{{ item.id }}</a> </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                            <div class="tab-content">
+                                {% for item in module.edges %}
+                                    <div class="tab-pane" id="edge-{{ item.id }}">
+                                        <h4>Edge Detail</h4>
+                                        <form method="post" action="{% url 'graphs:module_edge_edit' item.id %}" class="moduleEdgeEditForm">
+                                            {{ item.id }} - {{ item.name }}
+                                        </form>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
                         </div>
                     </div>
                 </div>
