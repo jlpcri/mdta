@@ -69,6 +69,10 @@ class Node(models.Model):
         else:
             return 0
 
+    @property
+    def leaving_edges(self):
+        return self.from_node.all()
+
 
 class Edge(models.Model):
     """

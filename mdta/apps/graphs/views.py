@@ -261,6 +261,7 @@ def project_module_detail(request, module_id):
                                        to_node__module=module)
     for edge in module_edges:
         network_edges.append({
+            'id': edge.id,
             'to': edge.to_node.id,
             'from': edge.from_node.id
         })
@@ -337,7 +338,7 @@ def module_node_new(request, module_id):
 
 
 @login_required
-def module_node_edit(request, module_id):
+def module_node_edit(request, node_id):
     """
     Edit node from module view
     :param request:
@@ -345,7 +346,7 @@ def module_node_edit(request, module_id):
     :return:
     """
     if request.method == 'POST':
-        node_id = request.POST.get('moduleNodeEditId', '')
+        # node_id = request.POST.get('moduleNodeEditId', '')
         node = get_object_or_404(Node, pk=node_id)
 
         if 'node_save' in request.POST:
@@ -369,7 +370,7 @@ def module_node_edit(request, module_id):
             node.delete()
             messages.success(request, 'Node is deleted.')
 
-        return redirect('graphs:project_module_detail', module_id)
+        return redirect('graphs:project_module_detail', node.module.id)
 
 
 @login_required
@@ -446,22 +447,3 @@ def module_edge_edit(request, module_id):
         return redirect('graphs:project_module_detail', module_id)
 
 
-def get_leaving_edges_from_node(request):
-    node_id = request.GET.get('id', '')
-    node = get_object_or_404(Node, pk=node_id)
-
-    edges = []
-    for edge in node.from_node.order_by('priority'):
-        temp = {}
-        temp['name'] = edge.name
-        temp['priority'] = edge.priority
-        temp['to_node'] = edge.to_node.name
-
-        edges.append(temp)
-
-    data = {
-        'edges': edges,
-        'node_name': node.name
-    }
-
-    return HttpResponse(json.dumps(data), content_type='application/json')

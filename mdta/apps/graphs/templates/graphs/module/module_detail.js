@@ -26,75 +26,25 @@ $('.moduleNodeNew #id_type').on('change', function(){
 /* End Module Node New Code */
 
 /* Start Module Node Edit Code */
-$('.moduleNodeEdit').on('show.bs.modal', function(e){
-    var node_id = $(e.relatedTarget).data('node-id'),
-        node_type_id = $(e.relatedTarget).data('node-type-id'),
-        node_name = $(e.relatedTarget).data('node-name'),
-        node_properties = $(e.relatedTarget).data('node-properties'),
-        node_properties_location = '#module-node-edit-properties';
-
-    $(e.currentTarget).find('input[name="moduleNodeEditId"]').val(node_id);
-    $(e.currentTarget).find('select').val(node_type_id);
-    $(e.currentTarget).find('input[name="moduleNodeEditName"]').val(node_name);
-    $('.moduleNodeEdit .modal-title').html('Node Edit/Delete');
-
-    //load_keys_from_node_edge_type(node_type_id, node_properties_location, 'node');
-    if (node_properties != 'None') {
-        show_properties_for_node_edit(node_properties, node_properties_location);
-    }
-});
-
-$('.moduleNodeEdit #moduleNodeEditType').on('change', function(){
+$('.moduleNodeEditForm #moduleNodeEditType').on('change', function(e){
     var type_id = $(this).find('option:selected').val(),
-        location = '#module-node-edit-properties';
+        location = $(this).closest('.moduleNodeEditForm').find('#module-node-edit-properties');
+    //console.log($(this).closest('.moduleNodeEditForm').find('#module-node-edit-properties'))
 
     load_keys_from_node_edge_type(type_id, location, 'node');
 });
 
-$('.moduleNodeEdit form').on('submit', function(){
-    var name = $('#moduleNodeEditName').val();
+$('.moduleNodeEditForm').on('submit', function(e){
+    var name = $(e.currentTarget).find('input[name="moduleNodeEditName"]').val(),
+        location = $(e.currentTarget).find('#moduleNodeEditErrMessage');
 
     if (name == ''){
-        showErrMsg('#moduleNodeEditErrMessage', 'Name is Empty');
+        showErrMsg(location, 'Name is Empty');
         return false;
     }
 });
 /* End Module Node Edit Code */
 
-/* Start Module Node Detail Code */
-$('.moduleNodeDetail').on('show.bs.modal', function(e){
-    var node_id = $(e.relatedTarget).data('node-id'),
-        contents_head = '<tr><th>Name</th><th>Priority</th><th>ToNode</th>',
-        contents_body = '',
-        contents = '';
-
-    // node_id passed from href link
-    if (node_id) {
-        $('.moduleNodeDetail').find('input[name="moduleNodeDetailId"]').val(node_id);
-    }  // else passed from graph
-
-    node_id = $('.moduleNodeDetail').find('input[name="moduleNodeDetailId"]').val();
-
-    $.getJSON("{% url 'graphs:get_leaving_edges_from_node'%}?id={0}".format(node_id)).done(function(data){
-        $.ajax({cache: false});
-        if (data['edges'].length > 0) {
-            $.each(data['edges'], function (index, value) {
-                contents_body += '<tr><td>' + value['name'] + '</td><td>' + value['priority'] + '</td><td>' + value['to_node'] + '</td></tr>';
-            });
-            contents = "<table id='tableData' class='table table-bordered'>"
-                + "<thead>" + contents_head + "</thead>"
-                + "<tbody>" + contents_body + "</tbody>"
-                + "</table>";
-        } else {
-            contents = '&nbsp;&nbsp;No leaving edges';
-        }
-
-        $('.moduleNodeDetail .modal-title').html('Node Detail - {0}'.format(data['node_name']));
-        $('.moduleNodeDetail .modal-body .moduleNodeEdges').html(contents);
-    });
-
-});
-/* End Module Node Detail Code */
 
 /* Start Module Edge New Code */
 $('.moduleEdgeNew').on('show.bs.modal', function(){
@@ -216,8 +166,9 @@ function draw_module_graph(){
     network.on('click', function(params){
         //console.log(params.nodes)
         if (!$.isEmptyObject(params.nodes)) {
-            $('.moduleNodeDetail').find('input[name="moduleNodeDetailId"]').val(params.nodes);
-            $('#node-detail-modal').modal('show');
+            $('a[href="#node-{0}"]'.format(params.nodes)).click();
+        } else if (!$.isEmptyObject(params.edges)) {
+            $('a[href="#edge-{0}"]'.format(params.edges)).click();
         }
     })
 
