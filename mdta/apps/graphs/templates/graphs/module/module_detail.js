@@ -29,7 +29,6 @@ $('.moduleNodeNew #id_type').on('change', function(){
 $('.moduleNodeEditForm #moduleNodeEditType').on('change', function(e){
     var type_id = $(this).find('option:selected').val(),
         location = $(this).closest('.moduleNodeEditForm').find('#module-node-edit-properties');
-    //console.log($(this).closest('.moduleNodeEditForm').find('#module-node-edit-properties'))
 
     load_keys_from_node_edge_type(type_id, location, 'node');
 });
@@ -105,10 +104,9 @@ function load_keys_from_node_edge_type(item_id, location, type){
     $.getJSON("{% url 'graphs:get_keys_from_type' %}?id={0}&type={1}".format(item_id, type)).done(function(data){
         var contents = '';
         $.each(data, function(k, v){
-            contents += '<div class=\'row\' style=\'margin-top: 10px;\'>';
-			contents += '<div class=\'col-xs-1\'></div>';
+            contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
 			contents += '<div class=\'col-xs-4\'><label>{0}: </label></div>'.format(data[k]);
-			contents += '<div class=\'col-xs-7\'><input name=\'{0}\'/></div>'.format(data[k]);
+			contents += '<div class=\'col-xs-8\'><input name=\'{0}\'/></div>'.format(data[k]);
 			contents += '</div>';
         });
         //console.log(contents)

@@ -67,8 +67,8 @@
                                         </div>
                                         <div class="row">
                                             <div class="col-xs-12" >
+                                                <h5>Node Properties:</h5>
                                                 <div id="module-node-edit-properties">
-                                                    <h5>Node Properties:</h5>
                                                     {% for key, value in item.properties.items %}
                                                         <div class="row" style="margin-top: 5px;">
                                                             <div class="col-xs-4">
@@ -101,24 +101,27 @@
 
                                     <div class="row" style="margin-top: 10px;">
                                         <div class="col-xs-12">
-                                            <table class="table table-hover table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th class="col-xs-2">Name</th>
-                                                        <th class="col-xs-2">Priority</th>
-                                                        <th class="col-xs-2">ToNode</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% for edge in item.leaving_edges %}
+                                            {% if item.leaving_edges %}
+                                                <h5>Leaving Edges:</h5>
+                                                <table class="table table-hover table-bordered">
+                                                    <thead>
                                                         <tr>
-                                                            <td>{{ edge.name }}</td>
-                                                            <td>{{ edge.priority }}</td>
-                                                            <td>{{ edge.to_node.name }}</td>
+                                                            <th class="col-xs-2">Name</th>
+                                                            <th class="col-xs-2">Priority</th>
+                                                            <th class="col-xs-2">ToNode</th>
                                                         </tr>
-                                                    {% endfor %}
-                                                </tbody>
-                                            </table>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for edge in item.leaving_edges %}
+                                                            <tr>
+                                                                <td>{{ edge.name }}</td>
+                                                                <td>{{ edge.priority }}</td>
+                                                                <td>{{ edge.to_node.name }}</td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
