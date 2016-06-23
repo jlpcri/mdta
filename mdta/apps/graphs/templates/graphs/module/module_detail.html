@@ -158,7 +158,7 @@
                                                     <label for="moduleEdgeEditType">Type:</label>
                                                     <select class="form-control " id="moduleEdgeEditType" name="moduleEdgeEditType">
                                                         {% for type in edge_types %}
-                                                            <option value="{{ type.id }}" {% if item.type.id == type.id %}selected{% endif %}>{{ type }}</option>
+                                                            <option value="{{ type.id }}" {% if item.type.id == type.id %}selected{% endif %}>{{ type.name }}</option>
                                                         {% endfor %}
                                                     </select>
                                                 </div>
@@ -181,12 +181,6 @@
                                                             <option value="{{ node.id }}" {% if item.to_node.id == node.id %}selected{% endif %}>{{ node.name }}</option>
                                                         {% endfor %}
                                                     </select>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-xs-12">
-                                                    <label for="moduleEdgeEditName">Name:</label>
-                                                    <input type="text" class="form-control" name="moduleEdgeEditName" id="moduleEdgeEditName" value="{{ item.name }}">
                                                 </div>
                                             </div>
                                             <div class="row">

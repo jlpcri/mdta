@@ -66,11 +66,10 @@ class EdgeNewForm(ModelForm):
 
     class Meta:
         model = Edge
-        fields = ['type', 'from_node', 'to_node', 'name', 'priority']
+        fields = ['type', 'from_node', 'to_node', 'priority']
         widgets = {
             'type': forms.Select(attrs={'class': 'form-control'}),
             'from_node': forms.Select(attrs={'class': 'form-control'}),
             'to_node': forms.Select(attrs={'class': 'form-control'}),
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
             'priority': forms.Select(attrs={'class': 'form-control'}),
         }

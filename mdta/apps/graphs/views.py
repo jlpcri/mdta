@@ -70,13 +70,13 @@ def project_node_new(request, project_id):
     if request.method == 'GET':
         form = NodeNewForm(project_id=project_id)
     elif request.method == 'POST':
-        data = {}
+        properties = {}
         form = NodeNewForm(request.POST, project_id=project_id)
         if form.is_valid():
             node = form.save(commit=False)
             for key in node.type.keys:
-                data[key] = request.POST.get(key, '')
-            node.data = data
+                properties[key] = request.POST.get(key, '')
+            node.properties = properties
             node.save()
 
             messages.success(request, 'Node is added.')
@@ -136,13 +136,13 @@ def project_edge_new(request, project_id):
     if request.method == 'GET':
         form = EdgeNewForm(project_id=project_id)
     elif request.method == 'POST':
-        data = {}
+        properties = {}
         form = EdgeNewForm(request.POST, project_id=project_id)
         if form.is_valid():
             edge = form.save(commit=False)
             for key in edge.type.keys:
-                data[key] = request.POST.get(key, '')
-            edge.data = data
+                properties[key] = request.POST.get(key, '')
+            edge.properties = properties
             edge.save()
 
             messages.success(request, 'Edge is added.')
@@ -413,7 +413,7 @@ def module_edge_edit(request, edge_id):
 
         if 'edge_save' in request.POST:
             properties = {}
-            edge_name = request.POST.get('moduleEdgeEditName', '')
+            # edge_name = request.POST.get('moduleEdgeEditName', '')
 
             edge_type_id = request.POST.get('moduleEdgeEditType', '')
             edge_type = get_object_or_404(EdgeType, pk=edge_type_id)
@@ -429,7 +429,7 @@ def module_edge_edit(request, edge_id):
                 properties[key] = request.POST.get(key, '')
 
             try:
-                edge.name = edge_name
+                # edge.name = edge_name
                 edge.type = edge_type
                 edge.from_node = from_node
                 edge.to_node = to_node

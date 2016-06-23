@@ -54,9 +54,20 @@ $('.moduleEdgeNew').on('show.bs.modal', function(){
 });
 
 $('.moduleEdgeNew form').on('submit', function(){
-    var name = $('.moduleEdgeNew #id_name').val();
-    if (name == ''){
-        showErrMsg('#moduleEdgeNewErrMessage', 'Name is Empty.');
+    var location = '#moduleEdgeNewErrMessage',
+        properties = $(this).find('#module-edge-new-properties input'),
+        properties_no_input = true;
+
+    //console.log(properties)
+    $.each(properties, function(index){
+        if (properties[index].value != ''){
+            properties_no_input = false;
+            return false;
+        }
+    });
+
+    if (properties_no_input){
+        showErrMsg(location, 'At lease input one property');
         return false;
     }
 });
@@ -78,11 +89,23 @@ $('.moduleEdgeEditForm #moduleEdgeEditType').on('change', function(){
 });
 
 $('.moduleEdgeEditForm').on('submit', function(e){
-    var name = $(e.currentTarget).find('input[name="moduleEdgeEditName"]').val(),
-        location = $(e.currentTarget).find('#moduleEdgeEditErrMessage');
+    var location = $(e.currentTarget).find('#moduleEdgeEditErrMessage'),
+        properties = $(e.currentTarget).find('#module-edge-edit-properties input'),
+        properties_no_input = true,
+        submit = $(e.currentTarget).find('button[type="submit"]:focus');
 
-    if (name == ''){
-        showErrMsg(location, 'Name is Empty');
+    //console.log(submit[0].textContent)
+
+    $.each(properties, function(index){
+        //console.log(index, properties[index].value);
+        if (properties[index].value != ''){
+            properties_no_input = false;
+            return false;
+        }
+    });
+
+    if (properties_no_input && submit[0].textContent == 'Save'){
+        showErrMsg(location, 'At lease input one property');
         return false;
     }
 });
@@ -100,21 +123,6 @@ function load_keys_from_node_edge_type(item_id, location, type){
         //console.log(contents)
         $(location).html(contents)
     })
-}
-
-function show_properties_for_node_edit(properties, location){
-    //console.log(properties)
-    var t = properties.replace(/'/g, '\"'),
-        data = $.parseJSON(t),
-        contents = '';
-    $.each(data, function(k, v){
-        contents += '<div class=\'row\' style=\'margin-top: 10px;\'>';
-        contents += '<div class=\'col-xs-1\'></div>';
-        contents += '<div class=\'col-xs-4\'><label>{0}: </label></div>'.format(k);
-        contents += '<div class=\'col-xs-7\'><input name=\'{0}\' value=\'{1}\'/></div>'.format(k, v);
-        contents += '</div>';
-    });
-    $(location).html(contents);
 }
 
 $(document).ready(function(){
