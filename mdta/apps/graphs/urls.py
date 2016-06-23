@@ -20,7 +20,7 @@ urlpatterns = [
     url(r'(?P<module_id>\d+)/module_node_new/$', views.module_node_new, name='module_node_new'),
     url(r'(?P<node_id>\d+)/module_node_edit/$', views.module_node_edit, name='module_node_edit'),
     url(r'(?P<module_id>\d+)/module_edge_new/$', views.module_edge_new, name='module_edge_new'),
-    url(r'(?P<module_id>\d+)/module_edge_edit/$', views.module_edge_edit, name='module_edge_edit'),
+    url(r'(?P<edge_id>\d+)/module_edge_edit/$', views.module_edge_edit, name='module_edge_edit'),
 
     url(r'^get_keys_from_type/$', views.get_keys_from_type, name='get_keys_from_type'),
 

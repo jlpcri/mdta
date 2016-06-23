@@ -362,7 +362,7 @@ def module_node_edit(request, node_id):
                 node.type = node_type
                 node.properties = properties
                 node.save()
-                messages.success(request, 'Node is saved.')
+                # messages.success(request, 'Node is saved.')
             except Exception as e:
                 messages.error(request, str(e))
 
@@ -400,7 +400,7 @@ def module_edge_new(request, module_id):
 
 
 @login_required
-def module_edge_edit(request, module_id):
+def module_edge_edit(request, edge_id):
     """
     Edit edge from module view
     :param request:
@@ -408,7 +408,7 @@ def module_edge_edit(request, module_id):
     :return:
     """
     if request.method == 'POST':
-        edge_id = request.POST.get('moduleEdgeEditId', '')
+        # edge_id = request.POST.get('moduleEdgeEditId', '')
         edge = get_object_or_404(Edge, pk=edge_id)
 
         if 'edge_save' in request.POST:
@@ -436,7 +436,7 @@ def module_edge_edit(request, module_id):
                 edge.priority = edge_priority
                 edge.properties = properties
                 edge.save()
-                messages.success(request, 'Edge is saved.')
+                # messages.success(request, 'Edge is saved.')
             except Exception as e:
                 messages.error(request, str(e))
 
@@ -444,6 +444,6 @@ def module_edge_edit(request, module_id):
             edge.delete()
             messages.success(request, 'Edge is deleted.')
 
-        return redirect('graphs:project_module_detail', module_id)
+        return redirect('graphs:project_module_detail', edge.from_node.module.id)
 
 

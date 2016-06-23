@@ -153,53 +153,92 @@
                                     <div class="tab-pane" id="edge-{{ item.id }}">
                                         <h4>Edge Detail</h4>
                                         <form method="post" action="{% url 'graphs:module_edge_edit' item.id %}" class="moduleEdgeEditForm">
-                                            {{ item.id }} - {{ item.name }}
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <label for="moduleEdgeEditType">Type:</label>
+                                                    <select class="form-control " id="moduleEdgeEditType" name="moduleEdgeEditType">
+                                                        {% for type in edge_types %}
+                                                            <option value="{{ type.id }}" {% if item.type.id == type.id %}selected{% endif %}>{{ type }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <label for="moduleEdgeEditFromNode">FromNode:</label>
+                                                    <select class="form-control" id="moduleEdgeEditFromNode" name="moduleEdgeEditFromNode">
+                                                        {% for node in module.nodes %}
+                                                            <option value="{{ node.id }}" {% if item.from_node.id == node.id %}selected{% endif %}>{{ node.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <label for="moduleEdgeEditToNode">ToNode:</label>
+                                                    <select class="form-control" id="moduleEdgeEditToNode" name="moduleEdgeEditToNode">
+                                                        {% for node in module.nodes %}
+                                                            <option value="{{ node.id }}" {% if item.to_node.id == node.id %}selected{% endif %}>{{ node.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <label for="moduleEdgeEditName">Name:</label>
+                                                    <input type="text" class="form-control" name="moduleEdgeEditName" id="moduleEdgeEditName" value="{{ item.name }}">
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <label for="moduleEdgeEditPriority">Priority:</label>
+                                                    <select class="form-control" id="moduleEdgeEditPriority" name="moduleEdgeEditPriority">
+                                                        {% for priority in edge_priority %}
+                                                            <option value="{{ priority.0 }}" {% if item.priority == priority.0 %}selected{% endif %}>{{ priority.1 }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-xs-12" >
+                                                    <h5>Edge Properties:</h5>
+                                                    <div id="module-edge-edit-properties">
+                                                        {% for key, value in item.properties.items %}
+                                                            <div class="row" style="margin-top: 5px;">
+                                                                <div class="col-xs-4">
+                                                                    <label>{{ key }}:</label>
+                                                                </div>
+                                                                <div class="col-xs-8">
+                                                                    <input name="{{ key }}" value="{{ value }}" >
+                                                                </div>
+                                                            </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <br>
+                                            <div class="row">
+                                                <div class="col-xs-10">
+                                                    <div id="moduleEdgeEditErrMessage">&nbsp;</div>
+                                                </div>
+                                            </div>
+                                            <br>
+                                            {% csrf_token %}
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <button type="submit" name="edge_save" class="btn btn-primary param-save">Save</button>
+                                                    <button type="submit" name="edge_delete" class="btn btn-danger param-delete">Delete</button>
+                                                    <button type="reset" class="btn btn-default">Reset</button>
+                                                </div>
+                                            </div>
                                         </form>
                                     </div>
                                 {% endfor %}
                             </div>
-
                         </div>
                     </div>
                 </div>
-
-
-
-            ------------------------
-
-                <h4>Edges:</h4>
-                {% if module.edges %}
-                    <table class="table table-hover table-condensed">
-                        <thead>
-                            <tr>
-                                <th class="col-xs-9">Name</th>
-                                <th class="col-xs-3">Edition</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in module.edges %}
-                                <tr>
-                                    <td>{{ item.name }}</td>
-                                    <td>
-                                        <a href="#edge-edit-modal" data-toggle="modal" class="btn btn-primary btn-xs"
-                                            data-edge-id="{{ item.id }}"
-                                            data-edge-type-id="{{ item.type.id }}"
-                                            data-edge-name="{{ item.name }}"
-                                            data-edge-from="{{ item.from_node.id }}"
-                                            data-edge-to="{{ item.to_node.id }}"
-                                            data-edge-priority="{{ item.priority }}"
-                                            data-edge-properties="{{ item.properties }}"
-                                            ><i class="fa fa-edit"></i> </a>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    No Edges inside current module.
-                {% endif %}
-            </div>
-        </div>
 
         {% include 'graphs/module/module_detail_modal.html' %}
     </div>

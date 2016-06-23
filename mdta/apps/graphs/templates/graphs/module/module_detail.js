@@ -70,33 +70,21 @@ $('.moduleEdgeNew #id_type').on('change', function(){
 /* End Module Edge New Code */
 
 /* Start Module Edge Edit Code */
-$('.moduleEdgeEdit').on('show.bs.modal', function(e){
-    var edge_id = $(e.relatedTarget).data('edge-id'),
-        edge_type_id = $(e.relatedTarget).data('edge-type-id'),
-        edge_name = $(e.relatedTarget).data('edge-name'),
-        edge_from = $(e.relatedTarget).data('edge-from'),
-        edge_to = $(e.relatedTarget).data('edge-to'),
-        edge_priority = $(e.relatedTarget).data('edge-priority'),
-        edge_properties = $(e.relatedTarget).data('edge-properties'),
-        edge_properties_location = '#module-edge-edit-properties';
-
-    $(e.currentTarget).find('input[name="moduleEdgeEditId"]').val(edge_id);
-    $(e.currentTarget).find('input[name="moduleEdgeEditName"]').val(edge_name);
-    $(e.currentTarget).find('select[name="moduleEdgeEditType"]').val(edge_type_id);
-    $(e.currentTarget).find('select[name="moduleEdgeEditFromNode"]').val(edge_from);
-    $(e.currentTarget).find('select[name="moduleEdgeEditToNode"]').val(edge_to);
-    $(e.currentTarget).find('select[name="moduleEdgeEditPriority"]').val(edge_priority);
-
-    if (! $.isEmptyObject(edge_properties) && edge_properties != 'None'){
-        show_properties_for_node_edit(edge_properties, edge_properties_location);
-    }
-});
-
-$('.moduleEdgeEdit #moduleEdgeEditType').on('change', function(){
+$('.moduleEdgeEditForm #moduleEdgeEditType').on('change', function(){
     var edge_type_id = $(this).find('option:selected').val(),
-        location = '#module-edge-edit-properties';
+        location = $(this).closest('.moduleEdgeEditForm').find('#module-edge-edit-properties');
 
     load_keys_from_node_edge_type(edge_type_id, location, 'edge');
+});
+
+$('.moduleEdgeEditForm').on('submit', function(e){
+    var name = $(e.currentTarget).find('input[name="moduleEdgeEditName"]').val(),
+        location = $(e.currentTarget).find('#moduleEdgeEditErrMessage');
+
+    if (name == ''){
+        showErrMsg(location, 'Name is Empty');
+        return false;
+    }
 });
 /* End Module Edge Edit Code */
 
