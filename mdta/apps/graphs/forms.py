@@ -46,6 +46,7 @@ class NodeNewNodeForm(ModelForm):
         super(NodeNewNodeForm, self).__init__(*args, **kwargs)
         if module_id:
             self.fields['module'].queryset = Module.objects.filter(project__id=module.project.id)
+            self.fields['module'].initial = module
 
         for field_name in ['module', 'type']:
             self.fields[field_name].empty_label = None
