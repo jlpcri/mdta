@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import ModelForm
-
+from django.shortcuts import get_object_or_404
 
 from .models import NodeType, Node, EdgeType, Edge
 from mdta.apps.projects.models import Project, Module
@@ -25,6 +25,27 @@ class NodeNewForm(ModelForm):
             self.fields['module'].queryset = Module.objects.filter(project__id=project_id)
         elif module_id:
             self.fields['module'].queryset = Module.objects.filter(pk=module_id)
+
+        for field_name in ['module', 'type']:
+            self.fields[field_name].empty_label = None
+
+    class Meta:
+        model = Node
+        fields = ['module', 'type', 'name']
+        widgets = {
+            'module': forms.Select(attrs={'class': 'form-control'}),
+            'type': forms.Select(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+
+class NodeNewNodeForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        module_id = kwargs.pop('module_id', '')
+        module = get_object_or_404(Module, pk=module_id)
+        super(NodeNewNodeForm, self).__init__(*args, **kwargs)
+        if module_id:
+            self.fields['module'].queryset = Module.objects.filter(project__id=module.project.id)
 
         for field_name in ['module', 'type']:
             self.fields[field_name].empty_label = None
@@ -66,11 +87,10 @@ class EdgeNewForm(ModelForm):
 
     class Meta:
         model = Edge
-        fields = ['type', 'from_node', 'to_node', 'name', 'priority']
+        fields = ['type', 'from_node', 'to_node', 'priority']
         widgets = {
             'type': forms.Select(attrs={'class': 'form-control'}),
             'from_node': forms.Select(attrs={'class': 'form-control'}),
             'to_node': forms.Select(attrs={'class': 'form-control'}),
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
             'priority': forms.Select(attrs={'class': 'form-control'}),
         }

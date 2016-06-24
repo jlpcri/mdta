@@ -3,21 +3,39 @@
  */
 $('.projectNodeNew #id_type').on('change', function(){
     var item_id = $(this).find('option:selected').val(),
-        location = '#project-node-new-data-input';
+        location = '#project-node-new-properties';
     load_keys_from_type_contents(item_id, location, 'node');
 });
 
 $('.projectEdgeNew #id_type').on('change', function(){
     var item_id = $(this).find('option:selected').val(),
-        location = '#project-edge-new-data-input';
+        location = '#project-edge-new-properties';
     load_keys_from_type_contents(item_id, location, 'edge');
+});
+
+$('.projectEdgeNew').on('submit', function(){
+    var location = '#projectEdgeNewErrMessage',
+        properties = $('#project-edge-new-properties input'),
+        properties_no_input = true;
+
+    $.each(properties, function(index){
+        if (properties[index].value != ''){
+            properties_no_input = false;
+            return false;
+        }
+    });
+
+    if (properties_no_input){
+        showErrMsg(location, 'At lease input one property');
+        return false;
+    }
 });
 
 $(document).ready(function(){
     var node_id = $('.projectNodeNew #id_type').find('option:selected').val(),
         edge_id = $('.projectEdgeNew #id_type').find('option:selected').val(),
-        node_location = '#project-node-new-data-input',
-        edge_location = '#project-edge-new-data-input';
+        node_location = '#project-node-new-properties',
+        edge_location = '#project-edge-new-properties';
     if (node_id) {
         load_keys_from_type_contents(node_id, node_location, 'node');
     }

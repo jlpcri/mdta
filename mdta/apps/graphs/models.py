@@ -69,6 +69,10 @@ class Node(models.Model):
         else:
             return 0
 
+    @property
+    def leaving_edges(self):
+        return self.from_node.all()
+
 
 class Edge(models.Model):
     """
@@ -84,7 +88,7 @@ class Edge(models.Model):
     )
     type = models.ForeignKey(EdgeType)
 
-    name = models.TextField(default='')
+    # name = models.TextField(default='')
     priority = models.SmallIntegerField(choices=PRIORITY_CHOICES, default=0)
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
@@ -97,6 +101,6 @@ class Edge(models.Model):
     properties = HStoreField(null=True, blank=True)
 
     def __str__(self):
-        return '{0}: {1}: {2}'.format(self.from_node.module.project.name, self.name, self.type.name)
+        return '{0}: {1}: {2}'.format(self.from_node.module.project.name, self.from_node.name, self.type.name)
 
 

@@ -15,8 +15,10 @@
                     {{ node_new_form }}
                     <br>
                     <div class="row">
-                        <h5>&nbsp;&nbsp;&nbsp;&nbsp;Node Properties:</h5>
-                        <div id="module-node-new-properties"></div>
+                        <div class="col-xs-12">
+                            <h5>Node Properties:</h5>
+                            <div id="module-node-new-properties"></div>
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-xs-12">
@@ -34,80 +36,6 @@
     </div>
 </div>
 
-<!-- Node Edit Modal -->
-<div class="modal fade moduleNodeEdit" id="node-edit-modal">
-    <div class="modal-dialog">
-        <form method="post" action="{% url 'graphs:module_node_edit' module.id %}">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title"></h4>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <label for="moduleNodeEditType">Type:</label>
-                            <select class="form-control" id="moduleNodeEditType" name="moduleNodeEditType">
-                                {% for item in node_types %}
-                                    <option value="{{ item.id }}">{{ item }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <label for="moduleNodeEditName">Name:</label>
-                            <input type="text" class="form-control" name="moduleNodeEditName" id="moduleNodeEditName">
-                        </div>
-                    </div>
-                    <br>
-                    <div class="row">
-                        <h5>&nbsp;&nbsp;&nbsp;&nbsp;Node Properties:</h5>
-                        <div id="module-node-edit-properties"></div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-10">
-                            <div id="moduleNodeEditErrMessage">&nbsp;</div>
-                        </div>
-                        <div class="col-xs-1">
-                            <input type="hidden" name="moduleNodeEditId">
-                        </div>
-                    </div>
-                </div>
-                {% csrf_token %}
-                <div class="modal-footer">
-                    <button type="submit" name="node_save" class="btn btn-primary param-save">Save</button>
-                    <button type="submit" name="node_delete" class="btn btn-danger param-delete">Delete</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Node Detail Modal -->
-<div class="modal fade moduleNodeDetail" id="node-detail-modal">
-    <div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-				<h4 class="modal-title"></h4>
-			</div>
-			<div class="modal-body">
-				<div class="row moduleNodeEdges">
-				</div>
-                <div class="row">
-                    <div class="col-xs-1">
-                        <input type="hidden" name="moduleNodeDetailId">
-                    </div>
-                </div>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-			</div>
-		</div>
-    </div>
-</div>
 
 <!-- Edge New Modal -->
 <div class="modal fade moduleEdgeNew" id="edge-new-modal">
@@ -126,8 +54,10 @@
                     {{ edge_new_form }}
                     <br>
                     <div class="row">
-                        <h5>&nbsp;&nbsp;&nbsp;&nbsp;Edge Properties:</h5>
-                        <div id="module-edge-new-properties"></div>
+                        <div class="col-xs-12">
+                            <h5>Edge Properties:</h5>
+                            <div id="module-edge-new-properties"></div>
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-xs-12">
@@ -145,80 +75,64 @@
     </div>
 </div>
 
-<!-- Edge Edit Modal -->
-<div class="modal fade moduleEdgeEdit" id="edge-edit-modal">
+<!-- Node New Node&Edge Modal -->
+<div class="modal fade moduleNodeEdgeNew" id="module-node-edge-new-modal">
     <div class="modal-dialog">
-        <form method="post" action="{% url 'graphs:module_edge_edit' module.id %}">
+        <form action="{% url 'graphs:module_node_new' module.id %}?auto_edge=node_edge_new" method="post">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">Edge Edit/Delete</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4 class="modal-title">Node&Edge New</h4>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-body">
+                    <legend>Node</legend>
+                    {{ node_new_node_form }}
+                    <br>
+
+                    <legend>Edge</legend>
                     <div class="row">
                         <div class="col-xs-12">
-                            <label for="moduleEdgeEditType">Type:</label>
-                            <select class="form-control" id="moduleEdgeEditType" name="moduleEdgeEditType">
-                                {% for item in edge_types %}
-                                    <option value="{{ item.id }}">{{ item }}</option>
+                            <label for="moduleNodeEdgeNewEdgeType">Type:</label>
+                            <select class="form-control " id="moduleNodeEdgeNewEdgeType" name="moduleNodeEdgeNewEdgeType">
+                                {% for type in edge_types %}
+                                    <option value="{{ type.id }}" {% if item.type.id == type.id %}selected{% endif %}>{{ type.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-xs-12">
-                            <label for="moduleEdgeEditFromNode">FromNode:</label>
-                            <select class="form-control" id="moduleEdgeEditFromNode" name="moduleEdgeEditFromNode">
-                                {% for item in module.nodes %}
-                                    <option value="{{ item.id }}">{{ item }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <label for="moduleEdgeEditToNode">ToNode:</label>
-                            <select class="form-control" id="moduleEdgeEditToNode" name="moduleEdgeEditToNode">
-                                {% for item in module.nodes %}
-                                    <option value="{{ item.id }}">{{ item }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <label for="moduleEdgeEditName">Name:</label>
-                            <input type="text" class="form-control input-sm" name="moduleEdgeEditName" id="moduleEdgeEditName">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <label for="moduleEdgeEditPriority">Priority:</label>
-                            <select class="form-control" id="moduleEdgeEditPriority" name="moduleEdgeEditPriority">
-                                {% for item in edge_priority %}
-                                    <option value="{{ item.0 }}">{{ item.1 }}</option>
+                            <label for="moduleNodeEdgeNewEdgePriority">Priority:</label>
+                            <select class="form-control" id="moduleNodeEdgeNewEdgePriority" name="moduleNodeEdgeNewEdgePriority">
+                                {% for priority in edge_priority %}
+                                    <option value="{{ priority.0 }}" {% if item.priority == priority.0 %}selected{% endif %}>{{ priority.1 }}</option>
                                 {% endfor %}
                             </select>
                         </div>
                     </div>
                     <br>
                     <div class="row">
-                        <h5>&nbsp;&nbsp;&nbsp;&nbsp;Edge Properties:</h5>
-                        <div id="module-edge-edit-properties"></div>
+                        <div class="col-xs-12">
+                            <h5>Edge Properties:</h5>
+                            <div id="module-node-edge-new-properties"></div>
+                        </div>
                     </div>
                     <div class="row">
-                        <div class="col-xs-10">
-                            <div id="moduleEdgeEditErrMessage">&nbsp;</div>
+                        <div class="col-xs-11">
+                            <div id="moduleNodeEdgeNewErrMessage">&nbsp;</div>
                         </div>
                         <div class="col-xs-1">
-                            <input type="hidden" name="moduleEdgeEditId">
+                            <input type="hidden" name="moduleNodeEdgeNewFromNodeId">
                         </div>
                     </div>
+                    {% csrf_token %}
                 </div>
-                {% csrf_token %}
                 <div class="modal-footer">
-                    <button type="submit" name="edge_save" class="btn btn-primary param-save">Save</button>
-                    <button type="submit" name="edge_delete" class="btn btn-danger param-delete">Delete</button>
+                    <input id="node_edge_new" class="btn btn-primary" type="submit" value="New Node&Edge">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                 </div>
             </div>
