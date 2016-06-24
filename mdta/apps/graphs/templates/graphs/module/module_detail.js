@@ -111,6 +111,49 @@ $('.moduleEdgeEditForm').on('submit', function(e){
 });
 /* End Module Edge Edit Code */
 
+/* Start Module Node New Node & Edge Code */
+$('.moduleNodeEdgeNew').on('show.bs.modal', function(e){
+    var from_node_id = $(e.relatedTarget).data('from-node-id'),
+        edge_type_id = $('.moduleNodeEdgeNew #moduleNodeEdgeNewEdgeType').find('option:selected').val(),
+        location = '#module-node-edge-new-properties';
+
+    $(e.currentTarget).find('input[name="moduleNodeEdgeNewFromNodeId"]').val(from_node_id);
+    load_keys_from_node_edge_type(edge_type_id, location, 'edge');
+});
+
+$('.moduleNodeEdgeNew #moduleNodeEdgeNewEdgeType').on('change', function(){
+    var edge_type_id = $(this).find('option:selected').val(),
+        location = '#module-node-edge-new-properties';
+
+    load_keys_from_node_edge_type(edge_type_id, location, 'edge');
+});
+
+$('.moduleNodeEdgeNew form').on('submit', function(e){
+    var node_name = $('.moduleNodeEdgeNew #id_name').val(),
+        err_location = '#moduleNodeEdgeNewErrMessage',
+        edge_properties = $(e.currentTarget).find('#module-node-edge-new-properties input'),
+        edge_properties_no_input = true;
+
+    if (node_name == ''){
+        showErrMsg(err_location, 'Node Name is empty.');
+        return false;
+    }
+
+    $.each(edge_properties, function(index){
+        if (edge_properties[index].value != ''){
+            edge_properties_no_input = false;
+            return false;
+        }
+    });
+    if (edge_properties_no_input){
+        showErrMsg(err_location, 'At least input on edge property');
+        return false;
+    }
+});
+
+/* End Module Node New Node & Edge Code */
+
+
 function load_keys_from_node_edge_type(item_id, location, type){
     $.getJSON("{% url 'graphs:get_keys_from_type' %}?id={0}&type={1}".format(item_id, type)).done(function(data){
         var contents = '';
