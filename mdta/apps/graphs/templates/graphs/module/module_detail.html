@@ -124,12 +124,7 @@
                                                                 <tr>
                                                                     <td>{{ edge.to_node.name }}</td>
                                                                     <td>{{ edge.priority }}</td>
-{#                                                                    <td>{{ edge.properties }}</td>#}
-                                                                    <td>
-                                                                        {% for key, value in edge.properties.items %}
-                                                                            {{ key }}: {{ value }}<br>
-                                                                        {% endfor %}
-                                                                    </td>
+                                                                    <td>{{ edge.properties }}</td>
                                                                 </tr>
                                                             {% endfor %}
                                                         </tbody>
