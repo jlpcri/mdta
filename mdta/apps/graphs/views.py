@@ -195,22 +195,22 @@ def project_detail(request, project_id):
             'label': m.name
         })
 
-    project_edges = Edge.objects.filter(from_node__module__project=project,
-                                        to_node__module__project=project)
-    for edge in project_edges:
-        if edge.from_node.module != edge.to_node.module:
-            network_edges.append({
-                'to': edge.to_node.module.id,
-                'from': edge.from_node.module.id,
-                # 'label': edge.name
-            })
+    for edge in project.edges_between_modules:
+        network_edges.append({
+            'id': edge.id,
+            'to': edge.to_node.module.id,
+            'from': edge.from_node.module.id,
+            # 'label': edge.name
+        })
 
     # Remove duplicate edge between two modules
-    network_edges = [dict(t) for t in set([tuple(d.items()) for d in network_edges])]
+    # network_edges = [dict(t) for t in set([tuple(d.items()) for d in network_edges])]
 
     context = {
         'project': project,
         'module_new_form': ModuleNewForm(project_id=project.id),
+        'edge_types': EdgeType.objects.all(),
+        'edge_priority': Edge.PRIORITY_CHOICES,
 
         'network_nodes': json.dumps(network_nodes),
         'network_edges': json.dumps(network_edges)
@@ -441,7 +441,6 @@ def module_edge_edit(request, edge_id):
     :return:
     """
     if request.method == 'POST':
-        # edge_id = request.POST.get('moduleEdgeEditId', '')
         edge = get_object_or_404(Edge, pk=edge_id)
 
         if 'edge_save' in request.POST:
@@ -473,10 +472,43 @@ def module_edge_edit(request, edge_id):
             except Exception as e:
                 messages.error(request, str(e))
 
-        if 'edge_delete' in request.POST:
+            return redirect('graphs:project_module_detail', edge.from_node.module.id)
+
+        elif 'edge_delete' in request.POST:
             edge.delete()
             messages.success(request, 'Edge is deleted.')
+            return redirect('graphs:project_module_detail', edge.from_node.module.id)
 
-        return redirect('graphs:project_module_detail', edge.from_node.module.id)
+        elif 'project_edge_save' in request.POST:
+            properties = {}
+            edge_type_id = request.POST.get('projectEdgeEditType', '')
+            edge_type = get_object_or_404(EdgeType, pk=edge_type_id)
+
+            edge_from = request.POST.get('projectEdgeEditFromNode', '')
+            from_node = get_object_or_404(Node, pk=edge_from)
+            edge_to = request.POST.get('projectEdgeEditToNode', '')
+            to_node = get_object_or_404(Node, pk=edge_to)
+
+            edge_priority = request.POST.get('projectEdgeEditPriority', '')
+
+            for key in edge_type.keys:
+                properties[key] = request.POST.get(key, '')
+
+            try:
+                edge.type = edge_type
+                edge.from_node = from_node
+                edge.to_node = to_node
+                edge.priority = edge_priority
+                edge.properties = properties
+                edge.save()
+            except Exception as e:
+                messages.error(request, str(e))
+
+            return redirect('graphs:project_detail', edge.from_node.module.project.id)
+        elif 'project_edge_delete' in request.POST:
+            edge.delete()
+            return redirect('graphs:project_detail', edge.from_node.module.project.id)
+
+
 
 

@@ -20,6 +20,13 @@ $('.editModule form').on('submit', function(){
     }
 });
 
+$('.projectEdgeEditForm #projectEdgeEditType').on('change', function(){
+    var edge_type_id = $(this).find('option:selected').val(),
+        location = $(this).closest('.projectEdgeEditForm').find('#project-edge-edit-properties');
+
+    load_keys_from_node_edge_type(edge_type_id, location, 'edge')
+});
+
 function draw_project_graph() {
     //// create an array with nodes
     //var nodes = new vis.DataSet([
@@ -76,10 +83,17 @@ function draw_project_graph() {
                 current += tmp[i] + '/'
             }
             window.location.href = current + 'project_module_detail/' + params.nodes;
+        } else if (!$.isEmptyObject(params.edges)){
+            //console.log(params.edges)
+            $('a[href="#projectEdges"]').click();
+            $('a[href="#project-edge-{0}"]'.format(params.edges)).click();
+        } else {
+            $('a[href="#projectModules"]').click();
         }
     })
 }
 
 $(document).ready(function(){
+    $('a[href="#projectModules"]').click();
     draw_project_graph();
 });

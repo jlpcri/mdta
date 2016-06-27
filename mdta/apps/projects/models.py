@@ -23,19 +23,30 @@ class Project(models.Model):
         return self.name
 
     @property
+    def nodes(self):
+        data = []
+        for module in self.modules:
+            data += module.nodes
+
+        return data
+
+    @property
     def nodes_count(self):
-        n = 0
-        for module in self.module_set.all():
-            n += len(module.node_set.all())
-        return n
+        return len(self.nodes)
+
+    @property
+    def edges(self):
+        data = []
+        for module in self.modules:
+            for edge in module.edges:
+                if edge not in data:
+                    data.append(edge)
+
+        return data
 
     @property
     def edges_count(self):
-        n = 0
-        for module in self.module_set.all():
-            for node in module.node_set.all():
-                n += node.edges_count
-        return n
+        return len(self.edges)
 
     @property
     def modules_count(self):
@@ -44,6 +55,16 @@ class Project(models.Model):
     @property
     def modules(self):
         return self.module_set.order_by('name')
+
+    @property
+    def edges_between_modules(self):
+        data = []
+
+        for edge in self.edges:
+            if edge.from_node.module != edge.to_node.module:
+                data.append(edge)
+
+        return data
 
 
 class Module(models.Model):
