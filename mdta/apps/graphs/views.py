@@ -69,6 +69,13 @@ def project_node_new(request, project_id):
     """
     if request.method == 'GET':
         form = NodeNewForm(project_id=project_id)
+        context = {
+            'form': form,
+            'project_id': project_id
+        }
+
+        return render(request, 'graphs/project/node_new.html', context)
+
     elif request.method == 'POST':
         properties = {}
         form = NodeNewForm(request.POST, project_id=project_id)
@@ -80,19 +87,11 @@ def project_node_new(request, project_id):
             node.save()
 
             messages.success(request, 'Node is added.')
-            return redirect('graphs:graphs')
         else:
             print(form.errors)
             messages.error(request, 'Node new Error')
-    else:
-        form = ''
 
-    context = {
-        'form': form,
-        'project_id': project_id
-    }
-
-    return render(request, 'graphs/project/node_new.html', context)
+        return redirect('graphs:project_detail', project_id)
 
 
 @login_required
@@ -135,6 +134,13 @@ def project_edge_new(request, project_id):
     """
     if request.method == 'GET':
         form = EdgeNewForm(project_id=project_id)
+        context = {
+            'form': form,
+            'project_id': project_id
+        }
+
+        return render(request, 'graphs/project/edge_new.html', context)
+
     elif request.method == 'POST':
         properties = {}
         form = EdgeNewForm(request.POST, project_id=project_id)
@@ -144,20 +150,11 @@ def project_edge_new(request, project_id):
                 properties[key] = request.POST.get(key, '')
             edge.properties = properties
             edge.save()
-
             messages.success(request, 'Edge is added.')
-            return redirect('graphs:graphs')
         else:
             messages.error(request, 'Edge new Error')
-    else:
-        form = ''
 
-    context = {
-        'form': form,
-        'project_id': project_id
-    }
-
-    return render(request, 'graphs/project/edge_new.html', context)
+        return redirect('graphs:project_detail', project_id)
 
 
 def get_keys_from_type(request):
