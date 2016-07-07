@@ -91,7 +91,7 @@ def project_node_new(request, project_id):
             print(form.errors)
             messages.error(request, 'Node new Error')
 
-        return redirect('graphs:project_detail', project_id)
+        return redirect('graphs:graphs')
 
 
 @login_required
@@ -154,7 +154,7 @@ def project_edge_new(request, project_id):
         else:
             messages.error(request, 'Edge new Error')
 
-        return redirect('graphs:project_detail', project_id)
+        return redirect('graphs:graphs')
 
 
 def get_keys_from_type(request):
