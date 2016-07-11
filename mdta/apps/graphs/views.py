@@ -134,15 +134,12 @@ def project_edge_new(request, project_id):
     """
     project = get_object_or_404(Project, pk=project_id)
     if request.method == 'GET':
-        # form = EdgeNewForm(project_id=project_id)
-
         edge_types = EdgeType.objects.order_by('name')
         edge_priorities = Edge.PRIORITY_CHOICES
         project_modules = project.module_set.order_by('name')
         first_module_nodes = project_modules[0].node_set.order_by('name')
 
         context = {
-            # 'form': form,
             'project_id': project.id,
 
             'edge_types': edge_types,
@@ -179,17 +176,6 @@ def project_edge_new(request, project_id):
             messages.success(request, 'Edge is added.')
         except Exception as e:
             messages.error(request, str(e))
-
-        # form = EdgeNewForm(request.POST, project_id=project_id)
-        # if form.is_valid():
-        #     edge = form.save(commit=False)
-        #     for key in edge.type.keys:
-        #         properties[key] = request.POST.get(key, '')
-        #     edge.properties = properties
-        #     edge.save()
-        #     messages.success(request, 'Edge is added.')
-        # else:
-        #     messages.error(request, 'Edge new Error')
 
         return redirect('graphs:graphs')
 
@@ -236,16 +222,12 @@ def project_detail(request, project_id):
                 'to': edge.to_node.module.id,
                 'from': edge.from_node.module.id,
                 'label': 1,
-                'priority': edge.priority,
                 # 'font': {
                 #     'align': 'top'
                 # }
             })
 
     # print('**: ', network_edges)
-
-    # Remove duplicate edge between two modules
-    # network_edges = [dict(t) for t in set([tuple(d.items()) for d in network_edges])]
 
     context = {
         'project': project,

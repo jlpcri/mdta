@@ -48,10 +48,6 @@ def check_edge_in_set(edge, network_edges):
         # Found the edges between two same modules
         if item['from'] == edge.from_node.module.id and item['to'] == edge.to_node.module.id:
             item['label'] += 1
-            # Make high priority(less number) edge to be the default edge between modules
-            if item['priority'] > edge.priority:
-                item['id'] = edge.id
-                item['priority'] = edge.priority
 
             found = True
             break
