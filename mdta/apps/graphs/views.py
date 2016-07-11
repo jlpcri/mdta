@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edit_type_new
+from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edit_type_new, check_edge_in_set
 
 from mdta.apps.projects.models import Project, Module
 from .models import NodeType, EdgeType, Node, Edge
@@ -193,12 +193,16 @@ def project_detail(request, project_id):
         })
 
     for edge in project.edges_between_modules:
-        network_edges.append({
-            'id': edge.id,
-            'to': edge.to_node.module.id,
-            'from': edge.from_node.module.id,
-            # 'label': edge.name
-        })
+        if not check_edge_in_set(edge, network_edges):
+            network_edges.append({
+                'id': edge.id,
+                'to': edge.to_node.module.id,
+                'from': edge.from_node.module.id,
+                'label': 1,
+                'priority': edge.priority
+            })
+
+    # print('**: ', network_edges)
 
     # Remove duplicate edge between two modules
     # network_edges = [dict(t) for t in set([tuple(d.items()) for d in network_edges])]

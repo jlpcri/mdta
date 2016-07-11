@@ -71,7 +71,11 @@ class Node(models.Model):
 
     @property
     def leaving_edges(self):
-        return self.from_node.all()
+        return self.from_node.order_by('priority')
+
+    @property
+    def arriving_edges(self):
+        return self.to_node.order_by('priority')
 
 
 class Edge(models.Model):
