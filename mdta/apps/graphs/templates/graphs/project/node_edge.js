@@ -7,10 +7,24 @@ $('.projectNodeNew #id_type').on('change', function(){
     load_keys_from_type_contents(item_id, location, 'node');
 });
 
-$('.projectEdgeNew #id_type').on('change', function(){
+$('.projectEdgeNew #project-edge-new-type').on('change', function(){
     var item_id = $(this).find('option:selected').val(),
         location = '#project-edge-new-properties';
     load_keys_from_type_contents(item_id, location, 'edge');
+});
+
+$('.projectEdgeNew #project-edge-new-from-module').on('change', function(){
+    var module_id = $(this).find('option:selected').val(),
+        location = '#project-edge-new-from-node';
+
+    load_nodes_from_module(module_id, location);
+});
+
+$('.projectEdgeNew #project-edge-new-to-module').on('change', function(){
+    var module_id = $(this).find('option:selected').val(),
+        location = '#project-edge-new-to-node';
+
+    load_nodes_from_module(module_id, location);
 });
 
 $('.projectEdgeNew').on('submit', function(){
@@ -33,7 +47,7 @@ $('.projectEdgeNew').on('submit', function(){
 
 $(document).ready(function(){
     var node_id = $('.projectNodeNew #id_type').find('option:selected').val(),
-        edge_id = $('.projectEdgeNew #id_type').find('option:selected').val(),
+        edge_id = $('.projectEdgeNew #project-edge-new-type').find('option:selected').val(),
         node_location = '#project-node-new-properties',
         edge_location = '#project-edge-new-properties';
     if (node_id) {
@@ -53,4 +67,14 @@ function load_keys_from_type_contents(item_id, location, type){
         //console.log(contents)
         $(location).html(contents)
     })
+}
+
+function load_nodes_from_module(module_id, location){
+    $.getJSON("{% url 'graphs:get_nodes_from_module' %}?module_id={0}".format(module_id)).done(function(data){
+        var option = '';
+        $.each(data, function(k, v){
+            option += '<option value={0}>{1}</option>'.format(v['id'], v['name']);
+        });
+        $(location).empty().append(option);
+    });
 }

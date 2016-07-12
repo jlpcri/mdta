@@ -132,6 +132,33 @@
                                                 {% endif %}
                                             </div>
                                         </div>
+
+                                        <div class="row" style="margin-top: 10px;">
+                                            <div class="col-xs-12">
+                                                {% if item.arriving_edges %}
+                                                    <h5>Arriving Edges:</h5>
+                                                    <table class="table table-hover table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="col-xs-2">FromNode</th>
+                                                                <th class="col-xs-2">Priority</th>
+                                                                <th class="col-xs-2">Properties</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for edge in item.arriving_edges %}
+                                                                <tr>
+                                                                    <td>{{ edge.from_node.name }}</td>
+                                                                    <td>{{ edge.priority }}</td>
+                                                                    <td>{{ edge.properties }}</td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
                                     </div>
                                 {% endfor %}
                             </div>

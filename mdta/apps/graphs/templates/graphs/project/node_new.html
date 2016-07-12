@@ -17,7 +17,7 @@
             {% csrf_token %}
             <div class="row" style="margin-top: 20px;">
                 <input id="project_node_new" class="btn btn-primary" type="submit" value="New Node">
-                <a href="{% url 'graphs:graphs' %}" class="btn btn-default" >Cancel</a>
+                <input type="button" value="Cancel" class="btn btn-default" onclick="history.back(); return false;">
             </div>
         </form>
     </div>

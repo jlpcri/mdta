@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edit_type_new
+from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edit_type_new, check_edge_in_set
 
 from mdta.apps.projects.models import Project, Module
 from .models import NodeType, EdgeType, Node, Edge
@@ -69,6 +69,13 @@ def project_node_new(request, project_id):
     """
     if request.method == 'GET':
         form = NodeNewForm(project_id=project_id)
+        context = {
+            'form': form,
+            'project_id': project_id
+        }
+
+        return render(request, 'graphs/project/node_new.html', context)
+
     elif request.method == 'POST':
         properties = {}
         form = NodeNewForm(request.POST, project_id=project_id)
@@ -80,19 +87,11 @@ def project_node_new(request, project_id):
             node.save()
 
             messages.success(request, 'Node is added.')
-            return redirect('graphs:graphs')
         else:
             print(form.errors)
             messages.error(request, 'Node new Error')
-    else:
-        form = ''
 
-    context = {
-        'form': form,
-        'project_id': project_id
-    }
-
-    return render(request, 'graphs/project/node_new.html', context)
+        return redirect('graphs:graphs')
 
 
 @login_required
@@ -133,31 +132,52 @@ def project_edge_new(request, project_id):
     :param project_id:
     :return:
     """
+    project = get_object_or_404(Project, pk=project_id)
     if request.method == 'GET':
-        form = EdgeNewForm(project_id=project_id)
+        edge_types = EdgeType.objects.order_by('name')
+        edge_priorities = Edge.PRIORITY_CHOICES
+        project_modules = project.module_set.order_by('name')
+        first_module_nodes = project_modules[0].node_set.order_by('name')
+
+        context = {
+            'project_id': project.id,
+
+            'edge_types': edge_types,
+            'edge_priorities': edge_priorities,
+            'project_modules': project_modules,
+            'first_module_nodes': first_module_nodes,
+        }
+
+        return render(request, 'graphs/project/edge_new.html', context)
+
     elif request.method == 'POST':
         properties = {}
-        form = EdgeNewForm(request.POST, project_id=project_id)
-        if form.is_valid():
-            edge = form.save(commit=False)
-            for key in edge.type.keys:
-                properties[key] = request.POST.get(key, '')
-            edge.properties = properties
-            edge.save()
+        edge_type_id = request.POST.get('project-edge-new-type', '')
+        edge_type = get_object_or_404(EdgeType, pk=edge_type_id)
+        for key in edge_type.keys:
+            properties[key] = request.POST.get(key, '')
 
+        edge_priority = request.POST.get('project-edge-new-priority', '')
+
+        edge_from_node_id = request.POST.get('project-edge-new-from-node', '')
+        edge_from_node = get_object_or_404(Node, pk=edge_from_node_id)
+
+        edge_to_node_id = request.POST.get('project-edge-new-to-node', '')
+        edge_to_node = get_object_or_404(Node, pk=edge_to_node_id)
+
+        try:
+            edge = Edge.objects.create(
+                type=edge_type,
+                priority=edge_priority,
+                from_node=edge_from_node,
+                to_node=edge_to_node,
+                properties=properties
+            )
             messages.success(request, 'Edge is added.')
-            return redirect('graphs:graphs')
-        else:
-            messages.error(request, 'Edge new Error')
-    else:
-        form = ''
+        except Exception as e:
+            messages.error(request, str(e))
 
-    context = {
-        'form': form,
-        'project_id': project_id
-    }
-
-    return render(request, 'graphs/project/edge_new.html', context)
+        return redirect('graphs:graphs')
 
 
 def get_keys_from_type(request):
@@ -196,15 +216,18 @@ def project_detail(request, project_id):
         })
 
     for edge in project.edges_between_modules:
-        network_edges.append({
-            'id': edge.id,
-            'to': edge.to_node.module.id,
-            'from': edge.from_node.module.id,
-            # 'label': edge.name
-        })
+        if not check_edge_in_set(edge, network_edges):
+            network_edges.append({
+                'id': edge.id,
+                'to': edge.to_node.module.id,
+                'from': edge.from_node.module.id,
+                'label': 1,
+                # 'font': {
+                #     'align': 'top'
+                # }
+            })
 
-    # Remove duplicate edge between two modules
-    # network_edges = [dict(t) for t in set([tuple(d.items()) for d in network_edges])]
+    # print('**: ', network_edges)
 
     context = {
         'project': project,
@@ -510,5 +533,16 @@ def module_edge_edit(request, edge_id):
             return redirect('graphs:project_detail', edge.from_node.module.project.id)
 
 
+def get_nodes_from_module(request):
+    module_id = request.GET.get('module_id', '')
+    module = get_object_or_404(Module, pk=module_id)
+    data = []
 
+    for item in module.node_set.order_by('name'):
+        data.append({
+            'id': item.id,
+            'name': item.name
+        })
+
+    return HttpResponse(json.dumps(data), content_type='application/json')
 
