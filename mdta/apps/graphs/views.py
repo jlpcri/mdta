@@ -236,7 +236,9 @@ def project_detail(request, project_id):
         'edge_priority': Edge.PRIORITY_CHOICES,
 
         'network_nodes': json.dumps(network_nodes),
-        'network_edges': json.dumps(network_edges)
+        'network_edges': json.dumps(network_edges),
+
+        'edges_between_modules': network_edges
     }
 
     return render(request, 'graphs/project/project_detail.html', context)
