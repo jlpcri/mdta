@@ -222,9 +222,13 @@ def project_detail(request, project_id):
                 'to': edge.to_node.module.id,
                 'from': edge.from_node.module.id,
                 'label': 1,
-                # 'font': {
-                #     'align': 'top'
-                # }
+                'edge_name': edge.from_node.name + '-' + edge.to_node.name,
+
+                'type': edge.type.id,
+                'to_node': edge.to_node.id,
+                'from_node': edge.from_node.id,
+                'priority': edge.priority,
+                'properties': edge.properties
             })
 
     # print('**: ', network_edges)
