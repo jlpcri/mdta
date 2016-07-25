@@ -277,26 +277,38 @@ def project_module_detail(request, module_id):
     :return:
     """
     module = get_object_or_404(Module, pk=module_id)
-    network_nodes = []
+
+    # for moduel level graph
     network_edges = []
+    network_nodes = []
 
-    for n in module.nodes:
-        network_nodes.append({
-            'id': n.id,
-            'label': n.name
-        })
+    outside_module_node_color = 'rgb(211, 211, 211)'
 
-    module_edges = Edge.objects.filter(from_node__module=module,
-                                       to_node__module=module)
-    for edge in module_edges:
+    for edge in module.edges_all:
         network_edges.append({
             'id': edge.id,
             'to': edge.to_node.id,
             'from': edge.from_node.id
         })
 
+    for node in module.nodes_all:
+        if node.module != module:
+            network_nodes.append({
+                'id': node.id,
+                'label': node.name,
+                'color': outside_module_node_color
+            })
+        else:
+            network_nodes.append({
+                'id': node.id,
+                'label': node.name,
+            })
+
+    # print(module.nodes)
+
     context = {
         'module': module,
+
         'node_new_form': NodeNewForm(module_id=module_id),
         'edge_new_form': EdgeNewForm(module_id=module_id),
         'node_new_node_form': NodeNewNodeForm(module_id=module_id),

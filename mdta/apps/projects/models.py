@@ -38,7 +38,7 @@ class Project(models.Model):
     def edges(self):
         data = []
         for module in self.modules:
-            for edge in module.edges:
+            for edge in module.edges_all:
                 if edge not in data:
                     data.append(edge)
 
@@ -82,16 +82,40 @@ class Module(models.Model):
 
     @property
     def nodes(self):
+        """
+        Nodes inside Module
+        """
         return self.node_set.order_by('name')
 
     @property
-    def edges(self):
+    def edges_all(self):
+        """
+        Edges inside/leaving/arriving Module
+        """
         data = []
         for node in self.nodes:
             data += node.from_node.all()
             data += node.to_node.all()
 
         return set(data)  # remove duplicate edges
+
+    @property
+    def nodes_all(self):
+        """
+        Nodes inside Module, outside Module which has edge leaving/arriving Module
+        """
+        data = []
+        for edge in self.edges_all:
+            if edge.from_node not in data:
+                data.append(edge.from_node)
+            if edge.to_node not in data:
+                data.append(edge.to_node)
+
+        for node in self.nodes:
+            if node not in data:
+                data.append(node)
+
+        return data
 
 
 class TestCaseHistory(models.Model):
