@@ -55,7 +55,20 @@
                             <div class="tab-content">
                                 {% for item in module.nodes_all %}
                                     <div class="tab-pane" id="node-{{ item.id }}">
-                                        <h4>Node Detail</h4>
+                                        <div class="row">
+                                            <h4>Node Detail</h4>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-12">
+                                                <label>Module:</label>
+                                                <a href="{% url 'graphs:project_module_detail' item.module.id %}"
+                                                    {% if item.module == module %}
+                                                    onclick="return false;"
+                                                    {% endif %}
+                                                    class="btn btn-default">{{ item.module.name }}</a>
+                                            </div>
+                                        </div>
+
                                         <form method="post" action="{% url 'graphs:module_node_edit' item.id %}" class="moduleNodeEditForm">
                                             <div class="row">
                                                 <div class="col-xs-12">
@@ -242,6 +255,9 @@
                                             <div class="row">
                                                 <div class="col-xs-10">
                                                     <div id="moduleEdgeEditErrMessage">&nbsp;</div>
+                                                </div>
+                                                <div class="col-xs-1">
+                                                    <input type="hidden" name="moduleEdgeEditModuleId" value="{{ module.id }}">
                                                 </div>
                                             </div>
                                             <br>

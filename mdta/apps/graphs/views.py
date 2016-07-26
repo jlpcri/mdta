@@ -486,7 +486,7 @@ def module_edge_edit(request, edge_id):
 
         if 'edge_save' in request.POST:
             properties = {}
-            # edge_name = request.POST.get('moduleEdgeEditName', '')
+            module_id = request.POST.get('moduleEdgeEditModuleId', '')
 
             edge_type_id = request.POST.get('moduleEdgeEditType', '')
             edge_type = get_object_or_404(EdgeType, pk=edge_type_id)
@@ -502,7 +502,6 @@ def module_edge_edit(request, edge_id):
                 properties[key] = request.POST.get(key, '')
 
             try:
-                # edge.name = edge_name
                 edge.type = edge_type
                 edge.from_node = from_node
                 edge.to_node = to_node
@@ -513,7 +512,7 @@ def module_edge_edit(request, edge_id):
             except Exception as e:
                 messages.error(request, str(e))
 
-            return redirect('graphs:project_module_detail', edge.from_node.module.id)
+            return redirect('graphs:project_module_detail', module_id)
 
         elif 'edge_delete' in request.POST:
             edge.delete()
