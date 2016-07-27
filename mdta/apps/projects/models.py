@@ -1,7 +1,31 @@
-from django.contrib.postgres.fields import ArrayField, HStoreField
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 from mdta.apps.users.models import HumanResource
+
+
+class TestRailInstance(models.Model):
+    """
+    Configuration of TestRail host
+    """
+    host = models.URLField()
+    username = models.TextField()
+    password = models.TextField()
+
+    def __str__(self):
+        return '{0}'.format(self.host)
+
+
+class TestRailConfiguration(models.Model):
+    """
+    Configuration connect to TestRail
+    """
+    instance = models.ForeignKey(TestRailInstance, blank=True, null=True)
+    project_name = models.TextField()
+    test_suite = ArrayField(models.CharField(max_length=200), blank=True)
+
+    def __str__(self):
+        return '{0}: {1}'.format(self.project_name, self.test_suite)
 
 
 class Project(models.Model):
@@ -9,6 +33,7 @@ class Project(models.Model):
     Entry of each project which will be represented to Model Driven Graph
     """
     name = models.CharField(max_length=50, unique=True, default='')
+    testrail = models.ForeignKey(TestRailConfiguration, blank=True, null=True)
 
     lead = models.ForeignKey(HumanResource, related_name='project_lead', null=True, blank=True)
     members = models.ManyToManyField(HumanResource, related_name='project_members', blank=True)
@@ -118,17 +143,21 @@ class Module(models.Model):
         return data
 
 
-class TestCaseHistory(models.Model):
+class CatalogItem(models.Model):
     """
-    Latest 3 Test cases set per project
+    West service catalog item,
+    Five hierarchy: component, offering, feature, functionality, product
     """
-    name = models.CharField(max_length=50, default='')
-    project = models.ForeignKey(Project)
-    created = models.DateTimeField(auto_now_add=True, db_index=True)
-    updated = models.DateTimeField(auto_now=True, db_index=True)
-    results = ArrayField(HStoreField(), blank=True, null=True)
+    project = models.ManyToManyField(Project)
+    name = models.TextField()
+    parent = models.ForeignKey('self', blank=True, null=True, related_name='children_set')
+    description = models.TextField(blank=True)
 
     def __str__(self):
-        return '{0}: {1}: {2}'.format(self.project.name,
-                                      self.name,
-                                      self.created)
+        if self.parent:
+            return '{0}: {1}'.format(self.parent.name, self.name)
+        else:
+            return '{0}'.format(self.name)
+
+    class Meta:
+        unique_together = ('parent', 'name')

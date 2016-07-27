@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     'mdta.apps.graphs',
     'mdta.apps.help',
     'mdta.apps.projects',
+    'mdta.apps.testcases',
     'mdta.apps.users',
 ]
 
