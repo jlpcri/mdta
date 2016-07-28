@@ -32,6 +32,7 @@
                                            data-project-lead="{{ project.lead.id }}"
                                             ><i class="fa fa-edit fa-fw"></i>
                                         </a>
+                                        <a href="{% url 'testcases:create_testcases' project.id %}?level=project">TestCases</a>
                                     </h6>
                                 </div>
                                 <div id="collapse_{{ project.name|slugify }}" class="panel-collapse collapse">
@@ -44,6 +45,7 @@
                                                    data-module-project="{{ module.project.id }}"
                                                 > {{ module.name }}
                                                 </a>
+                                                <a href="{% url 'testcases:create_testcases' module.id %}?level=module">TestCases</a>
                                             </li>
                                         {% endfor %}
                                     </ul>

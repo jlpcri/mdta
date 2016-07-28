@@ -91,6 +91,15 @@ class Project(models.Model):
 
         return data
 
+    @property
+    def start_nodes(self):
+        data = []
+        for module in self.modules:
+            if module.start_nodes:
+                data += module.start_nodes
+
+        return data
+
 
 class Module(models.Model):
     """
@@ -138,6 +147,15 @@ class Module(models.Model):
 
         for node in self.nodes:
             if node not in data:
+                data.append(node)
+
+        return data
+
+    @property
+    def start_nodes(self):
+        data = []
+        for node in self.nodes:
+            if node.type.name == 'Start':
                 data.append(node)
 
         return data
