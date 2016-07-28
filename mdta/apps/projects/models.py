@@ -1,7 +1,9 @@
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.db.models import Q
 
 from mdta.apps.users.models import HumanResource
+import mdta.apps.graphs.models
 
 
 class TestRailInstance(models.Model):
@@ -49,33 +51,25 @@ class Project(models.Model):
 
     @property
     def nodes(self):
-        data = []
-        for module in self.modules:
-            data += module.nodes
-
-        return data
+        Node = mdta.apps.graphs.models.Node  # avoiding circular import
+        return Node.objects.filter(module__project=self)
 
     @property
     def nodes_count(self):
-        return len(self.nodes)
+        return self.nodes.count()
 
     @property
     def edges(self):
-        data = []
-        for module in self.modules:
-            for edge in module.edges_all:
-                if edge not in data:
-                    data.append(edge)
-
-        return data
+        Edge = mdta.apps.graphs.models.Edge  # avoiding circular import
+        return Edge.objects.filter(from_node__module__project=self)
 
     @property
     def edges_count(self):
-        return len(self.edges)
+        return self.edges.count()
 
     @property
     def modules_count(self):
-        return len(self.module_set.all())
+        return self.module_set.all().count()
 
     @property
     def modules(self):
@@ -117,30 +111,18 @@ class Module(models.Model):
         """
         Edges inside/leaving/arriving Module
         """
-        data = []
-        for node in self.nodes:
-            data += node.from_node.all()
-            data += node.to_node.all()
-
-        return set(data)  # remove duplicate edges
+        Edge = mdta.apps.graphs.models.Edge  # avoiding circular import
+        nodes = self.node_set.all()
+        return Edge.objects.filter(Q(from_node__in=nodes) | Q(to_node__in=nodes)).distinct()
 
     @property
     def nodes_all(self):
         """
         Nodes inside Module, outside Module which has edge leaving/arriving Module
         """
-        data = []
-        for edge in self.edges_all:
-            if edge.from_node not in data:
-                data.append(edge.from_node)
-            if edge.to_node not in data:
-                data.append(edge.to_node)
-
-        for node in self.nodes:
-            if node not in data:
-                data.append(node)
-
-        return data
+        Node = mdta.apps.graphs.models.Node  # avoiding circular import
+        edges = self.edges_all
+        return Node.objects.filter(Q(from_node__in=edges) | Q(to_node__in=edges) | Q(module=self)).distinct()
 
 
 class CatalogItem(models.Model):
