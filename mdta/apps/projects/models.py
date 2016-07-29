@@ -85,15 +85,6 @@ class Project(models.Model):
 
         return data
 
-    @property
-    def start_nodes(self):
-        data = []
-        for module in self.modules:
-            if module.start_nodes:
-                data += module.start_nodes
-
-        return data
-
 
 class Module(models.Model):
     """
@@ -132,15 +123,6 @@ class Module(models.Model):
         Node = mdta.apps.graphs.models.Node  # avoiding circular import
         edges = self.edges_all
         return Node.objects.filter(Q(from_node__in=edges) | Q(to_node__in=edges) | Q(module=self)).distinct()
-
-    @property
-    def start_nodes(self):
-        data = []
-        for node in self.nodes:
-            if node.type.name == 'Start':
-                data.append(node)
-
-        return data
 
 
 class CatalogItem(models.Model):
