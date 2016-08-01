@@ -60,12 +60,11 @@
                                         </div>
                                         <div class="row">
                                             <div class="col-xs-12">
-                                                <label>Module:</label>
-                                                <a href="{% url 'graphs:project_module_detail' item.module.id %}"
-                                                    {% if item.module == module %}
-                                                    onclick="return false;"
-                                                    {% endif %}
-                                                    class="btn btn-default">{{ item.module.name }}</a>
+                                                {% if item.module != module %}
+                                                    <label>Module:</label>
+                                                    <a href="{% url 'graphs:project_module_detail' item.module.id %}"
+                                                        class="btn btn-default">{{ item.module.name }}</a>
+                                                {% endif %}
                                             </div>
                                         </div>
 
