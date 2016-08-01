@@ -58,6 +58,24 @@
                 {% endif %}
             </div>
         </div>
+
+        <div class="row">
+            <h3>TestCases</h3>
+            {% for module in testcases %}
+                {% if module.data %}
+                    <h4>Module: {{ module.module }}</h4>
+                    {% for tc in module.data %}
+                        Test Case {{ forloop.counter }}: <br>
+                        <ul>
+                            {% for step in tc %}
+                                <li>{{ step }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </div>
+
         {% include 'projects/projects_modal.html' %}
 
     </div>

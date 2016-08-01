@@ -1,7 +1,9 @@
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 
 from mdta.apps.projects.models import Project, Module
 from mdta.apps.graphs.models import Node, Edge
+from mdta.apps.projects.utils import context_projects
+from .utils import traverse, add_step
 
 
 def create_testcases(request, object_id):
@@ -12,15 +14,20 @@ def create_testcases(request, object_id):
     :return:
     """
 
+    testcases = []
     level = request.GET.get('level', '')
     if level == 'project':
         project = get_object_or_404(Project, pk=object_id)
-        create_routing_test_suite(project)
+        testcases = create_routing_test_suite(project)
     elif level == 'module':
         module = get_object_or_404(Module, pk=object_id)
-        create_routing_test_suite(modules=[module])
+        testcases = create_routing_test_suite(modules=[module])
 
-    return redirect('projects:projects')
+    context = context_projects()
+    context['testcases'] = testcases
+    # print(testcases)
+
+    return render(request, 'projects/projects.html', context)
 
 
 def create_routing_test_suite(project=None, modules=None):
@@ -33,12 +40,38 @@ def create_routing_test_suite(project=None, modules=None):
     data = []
 
     if project:
-        print(project.name)
+        # print(project.modules)
+        data = create_routing_test_suite_module(project.modules)
     elif modules:
-        for module in modules:
-            for edge in module.edges_all:
-                print(edge.id)
-                data.append(routing_test(edge))
+        data = create_routing_test_suite_module(modules)
+
+    return data
+
+
+def create_routing_test_suite_module(modules):
+    test_suites = []
+
+    for module in modules:
+        data = []
+        for edge in module.edges_all:
+            # print(edge.id)
+            path = routing_test(edge)
+            if path:
+                tcs = []
+                for index, step in enumerate(path, start=1):
+                    if isinstance(step, Node):
+                        add_step('Node - ' + step.name, tcs, index)
+                    if isinstance(step, Edge):
+                        traverse(step, tcs, index)
+
+                data.append(tcs)
+
+        test_suites.append({
+            'module': module.name,
+            'data': data
+        })
+
+    return test_suites
 
 
 def routing_test(edge):
@@ -54,10 +87,10 @@ def routing_test(edge):
     route_to(edge.from_node, data, visited_nodes)
 
     if data:
-        data.append(edge.id)
-        data.append(edge.to_node.name)
+        data.append(edge)
+        data.append(edge.to_node)
 
-    print(data)
+    # print(data)
     return data
 
 
@@ -87,9 +120,10 @@ def breadth_first_search(node, path, visited_nodes):
     start_node_found_outside = False  # flag to find Start Node outside
 
     if node.type.name == 'Start':
-        path.append(node.name)
+        path.append(node)
     else:
-        edges = Edge.objects.filter(to_node=node)
+        # edges = Edge.objects.filter(to_node=node)
+        edges = node.arriving_edges
         if edges.count() > 0:
             start_node_found = False  # flag to find Start Node in current search
             for edge in edges:
@@ -101,11 +135,11 @@ def breadth_first_search(node, path, visited_nodes):
                                 breadth_first_search(edge.from_node, path, visited_nodes)
                         else:
                             start_node_found = True
-                            path.append(edge.from_node.name)
+                            path.append(edge.from_node)
 
                         if start_node_found or start_node_found_outside:  # if found Start Node, add Edge
-                            path.append(edge.id)
-                            path.append(node.name)
+                            path.append(edge)
+                            path.append(node)
 
                     if start_node_found:  # if found Start Node, break out of for loop
                         break
@@ -115,6 +149,6 @@ def breadth_first_search(node, path, visited_nodes):
             path = []
 
     if start_node_found_outside:
-        path.append(node.name)
+        path.append(node)
 
     # print('path: ', node.name,  path)

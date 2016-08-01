@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from mdta.apps.projects.utils import context_projects
 
 from .models import Project, Module
 from .forms import ProjectNewForm, ModuleNewForm
@@ -13,13 +14,7 @@ from mdta.apps.users.models import HumanResource
 
 @login_required
 def projects(request):
-    context = {
-        'projects': Project.objects.all(),
-        'project_new_form': ProjectNewForm(),
-        'module_new_form': ModuleNewForm(),
-        'hrs': HumanResource.objects.all(),
-    }
-    return render(request, 'projects/projects.html', context)
+    return render(request, 'projects/projects.html', context_projects())
 
 
 @login_required
