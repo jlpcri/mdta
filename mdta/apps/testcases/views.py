@@ -53,8 +53,9 @@ def routing_test(edge):
 
     route_to(edge.from_node, data, visited_nodes)
 
-    data.append(edge.id)
-    data.append(edge.to_node.name)
+    if data:
+        data.append(edge.id)
+        data.append(edge.to_node.name)
 
     print(data)
     return data
@@ -83,20 +84,37 @@ def breadth_first_search(node, path, visited_nodes):
     :return:
     """
 
+    start_node_found_outside = False  # flag to find Start Node outside
+
     if node.type.name == 'Start':
         path.append(node.name)
     else:
         edges = Edge.objects.filter(to_node=node)
         if edges.count() > 0:
+            start_node_found = False  # flag to find Start Node in current search
             for edge in edges:
-                if edge.from_node not in visited_nodes:
+                if edge.from_node not in visited_nodes or edge.from_node.type.name == 'Start':  # if Node is not visited or Node is Start
                     if edge.from_node != edge.to_node:
                         if edge.from_node.type.name != 'Start':
-                            breadth_first_search(edge.from_node, path, visited_nodes)
+                            if edge.from_node.arriving_edges.count() > 0:
+                                start_node_found_outside = True
+                                breadth_first_search(edge.from_node, path, visited_nodes)
                         else:
+                            start_node_found = True
                             path.append(edge.from_node.name)
-                        path.append(edge.id)
 
-    path.append(node.name)
+                        if start_node_found or start_node_found_outside:  # if found Start Node, add Edge
+                            path.append(edge.id)
+                            path.append(node.name)
+
+                    if start_node_found:  # if found Start Node, break out of for loop
+                        break
+            if not start_node_found:  # if Not found Start Node, variable Path=[]
+                path = []
+        else:  # if No Arriving Edges, variable Path=[]
+            path = []
+
+    if start_node_found_outside:
+        path.append(node.name)
 
     # print('path: ', node.name,  path)
