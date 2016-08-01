@@ -65,7 +65,7 @@ class Node(models.Model):
     @property
     def edges_count(self):
         if self.from_node:
-            return len(self.from_node.all())
+            return self.from_node.all().count()
         else:
             return 0
 

@@ -87,6 +87,8 @@ function draw_project_graph() {
             //console.log(params.edges)
             $('a[href="#projectEdges"]').click();
             $('a[href="#project-edge-{0}"]'.format(params.edges)).click();
+            $('.edges-between-modules').show();
+            $('.edges-between-modules-contents').hide();
         } else {
             $('a[href="#projectModules"]').click();
         }
@@ -96,4 +98,16 @@ function draw_project_graph() {
 $(document).ready(function(){
     $('a[href="#projectModules"]').click();
     draw_project_graph();
+});
+
+$('.list-group-item').click(function(){
+    $('.edges-between-modules').hide();
+    $('.edges-between-modules-contents').show();
+});
+
+$('.back-to-edges-between-modules').click(function(){
+    $('.edges-between-modules').show();
+    $('.edges-between-modules-contents').hide();
+    $('a[href="#{0}"]'.format(this.value)).click();
+
 });

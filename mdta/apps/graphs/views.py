@@ -222,9 +222,13 @@ def project_detail(request, project_id):
                 'to': edge.to_node.module.id,
                 'from': edge.from_node.module.id,
                 'label': 1,
-                # 'font': {
-                #     'align': 'top'
-                # }
+                'edge_name': edge.from_node.name + '-' + edge.to_node.name,
+
+                'type': edge.type.id,
+                'to_node': edge.to_node.id,
+                'from_node': edge.from_node.id,
+                'priority': edge.priority,
+                'properties': edge.properties
             })
 
     # print('**: ', network_edges)
@@ -236,7 +240,9 @@ def project_detail(request, project_id):
         'edge_priority': Edge.PRIORITY_CHOICES,
 
         'network_nodes': json.dumps(network_nodes),
-        'network_edges': json.dumps(network_edges)
+        'network_edges': json.dumps(network_edges),
+
+        'edges_between_modules': network_edges
     }
 
     return render(request, 'graphs/project/project_detail.html', context)
@@ -271,26 +277,38 @@ def project_module_detail(request, module_id):
     :return:
     """
     module = get_object_or_404(Module, pk=module_id)
-    network_nodes = []
+
+    # for moduel level graph
     network_edges = []
+    network_nodes = []
 
-    for n in module.nodes:
-        network_nodes.append({
-            'id': n.id,
-            'label': n.name
-        })
+    outside_module_node_color = 'rgb(211, 211, 211)'
 
-    module_edges = Edge.objects.filter(from_node__module=module,
-                                       to_node__module=module)
-    for edge in module_edges:
+    for edge in module.edges_all:
         network_edges.append({
             'id': edge.id,
             'to': edge.to_node.id,
             'from': edge.from_node.id
         })
 
+    for node in module.nodes_all:
+        if node.module != module:
+            network_nodes.append({
+                'id': node.id,
+                'label': node.name,
+                'color': outside_module_node_color
+            })
+        else:
+            network_nodes.append({
+                'id': node.id,
+                'label': node.name,
+            })
+
+    # print(module.nodes)
+
     context = {
         'module': module,
+
         'node_new_form': NodeNewForm(module_id=module_id),
         'edge_new_form': EdgeNewForm(module_id=module_id),
         'node_new_node_form': NodeNewNodeForm(module_id=module_id),
@@ -468,7 +486,7 @@ def module_edge_edit(request, edge_id):
 
         if 'edge_save' in request.POST:
             properties = {}
-            # edge_name = request.POST.get('moduleEdgeEditName', '')
+            module_id = request.POST.get('moduleEdgeEditModuleId', '')
 
             edge_type_id = request.POST.get('moduleEdgeEditType', '')
             edge_type = get_object_or_404(EdgeType, pk=edge_type_id)
@@ -484,7 +502,6 @@ def module_edge_edit(request, edge_id):
                 properties[key] = request.POST.get(key, '')
 
             try:
-                # edge.name = edge_name
                 edge.type = edge_type
                 edge.from_node = from_node
                 edge.to_node = to_node
@@ -495,7 +512,7 @@ def module_edge_edit(request, edge_id):
             except Exception as e:
                 messages.error(request, str(e))
 
-            return redirect('graphs:project_module_detail', edge.from_node.module.id)
+            return redirect('graphs:project_module_detail', module_id)
 
         elif 'edge_delete' in request.POST:
             edge.delete()

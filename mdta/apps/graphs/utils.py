@@ -48,6 +48,39 @@ def check_edge_in_set(edge, network_edges):
         # Found the edges between two same modules
         if item['from'] == edge.from_node.module.id and item['to'] == edge.to_node.module.id:
             item['label'] += 1
+            if 'edge_list' in item:
+                item['edge_list'].append(
+                    {
+                        'id': edge.id,
+                        'edge_name': edge.from_node.name + '-' + edge.to_node.name,
+                        'type': edge.type.id,
+                        'to_node': edge.to_node.id,
+                        'from_node': edge.from_node.id,
+                        'priority': edge.priority,
+                        'properties': edge.properties
+                    }
+                )
+            else:
+                item['edge_list'] = [
+                    {
+                        'id': item['id'],
+                        'edge_name': item['edge_name'],
+                        'type': item['type'],
+                        'to_node': item['to_node'],
+                        'from_node': item['from_node'],
+                        'priority': item['priority'],
+                        'properties': item['properties']
+                    },
+                    {
+                        'id': edge.id,
+                        'edge_name': edge.from_node.name + '-' + edge.to_node.name,
+                        'type': edge.type.id,
+                        'to_node': edge.to_node.id,
+                        'from_node': edge.from_node.id,
+                        'priority': edge.priority,
+                        'properties': edge.properties
+                    }
+                ]
 
             found = True
             break
