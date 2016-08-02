@@ -79,7 +79,7 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="row">
+                                            <div class="row" style="margin-top: 5px;">
                                                 <div class="col-xs-12">
                                                     <label for="moduleNodeEditName">Name:</label>
                                                     <input type="text" class="form-control" name="moduleNodeEditName" id="moduleNodeEditName" value="{{ item.name }}">
@@ -91,10 +91,12 @@
                                                     <div id="module-node-edit-properties">
                                                         {% for key, value in item.properties.items %}
                                                             <div class="row" style="margin-top: 5px;">
-                                                                <div class="col-xs-4">
+                                                                <div class="col-xs-12">
                                                                     <label>{{ key }}:</label>
                                                                 </div>
-                                                                <div class="col-xs-8">
+                                                            </div>
+                                                            <div class="row" style="margin-top: 5px;">
+                                                                <div class="col-xs-12">
                                                                     <input name="{{ key }}" value="{{ value }}" >
                                                                 </div>
                                                             </div>
