@@ -3,7 +3,7 @@ from django.shortcuts import redirect, get_object_or_404, render
 from mdta.apps.projects.models import Project, Module
 from mdta.apps.graphs.models import Node, Edge
 from mdta.apps.projects.utils import context_projects
-from .utils import traverse, add_step
+from .utils import traverse, add_step, verify_current_node
 
 
 def create_testcases(request, object_id):
@@ -60,7 +60,7 @@ def create_routing_test_suite_module(modules):
                 tcs = []
                 for index, step in enumerate(path, start=1):
                     if isinstance(step, Node):
-                        add_step('Node - ' + step.name, tcs, index)
+                        verify_current_node(step, tcs, index)
                     if isinstance(step, Edge):
                         traverse(step, tcs, index)
 
