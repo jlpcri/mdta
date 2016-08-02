@@ -7,7 +7,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from mdta.apps.projects.utils import context_projects
 
-from .models import Project, Module
+from .models import Project, Module, TestRailConfiguration
 from .forms import ProjectNewForm, ModuleNewForm
 from mdta.apps.users.models import HumanResource
 
@@ -35,13 +35,24 @@ def project_edit(request):
     if request.method == 'POST':
         project_id = request.POST.get('editProjectId', '')
         project_name = request.POST.get('editProjectName', '')
+        project_testrail = request.POST.get('editProjectTestrail', '')
+        project_catalog = request.POST.getlist('editProjectCatalogs', '')
         project_lead = request.POST.get('editProjectLead', '')
         project_members = request.POST.getlist('editProjectMembers', '')
 
         project = get_object_or_404(Project, pk=project_id)
         try:
             project.name = project_name
-            project.lead = get_object_or_404(HumanResource, pk=project_lead)
+            if project_lead:
+                project.lead = get_object_or_404(HumanResource, pk=project_lead)
+
+            if project_testrail:
+                project.testrail = get_object_or_404(TestRailConfiguration, pk=project_testrail)
+
+            project.catalog.clear()
+            for catalog_id in project_catalog:
+                project.catalog.add(catalog_id)
+
             project.members.clear()
             for hr_id in project_members:
                 project.members.add(hr_id)
@@ -54,13 +65,22 @@ def project_edit(request):
         return redirect('projects:projects')
 
 
-def fetch_project_members(request):
-    data = []
+def fetch_project_catalogs_members(request):
+    catalogs = []
+    members = []
     id = request.GET.get('id', '')
     project = get_object_or_404(Project, pk=id)
 
+    for catalog in project.catalog.all():
+        catalogs.append(catalog.id)
+
     for member in project.members.all():
-        data.append(member.id)
+        members.append(member.id)
+
+    data = {
+        'catalogs': catalogs,
+        'members': members
+    }
 
     return HttpResponse(json.dumps(data), content_type='application/json')
 

@@ -49,6 +49,26 @@
                     </div>
                     <div class="row">
                         <div class="col-xs-12">
+                            <label for="editProjectCatalogs">Catalog Items:</label>
+                            <select multiple id="editProjectCatalogs" name="editProjectCatalogs" class="form-control">
+                                {% for catalog in catalogs %}
+                                    <option value="{{catalog.id }}">{{ catalog.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="editProjectTestrail">TestRail:</label>
+                            <select id="editProjectTestrail" name="editProjectTestrail" class="form-control">
+                                {% for testrail in testrails %}
+                                    <option value="{{ testrail.id }}">{{ testrail.project_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
                             <label for="editProjectLead">Lead:</label>
                             <select id="editProjectLead" name="editProjectLead" class="form-control">
                                 {% for lead in hrs %}
