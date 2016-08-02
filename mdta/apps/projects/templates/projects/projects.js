@@ -13,14 +13,17 @@ $('.newProject form').on('submit', function(){
 $('.editProject').on('show.bs.modal', function(e){
     var id = $(e.relatedTarget).data('project-id'),
         name = $(e.relatedTarget).data('project-name'),
+        testrail = $(e.relatedTarget).data('project-testrail'),
         lead = $(e.relatedTarget).data('project-lead');
 
     $(e.currentTarget).find('input[name="editProjectId"]').val(id);
     $(e.currentTarget).find('input[name="editProjectName"]').val(name);
+    $('#editProjectTestrail').val(testrail);
     $('#editProjectLead').val(lead);
 
-    $.getJSON("{% url 'projects:fetch_project_members'%}?id={0}".format(id)).done(function(data){
-        $('#editProjectMembers').val(data);
+    $.getJSON("{% url 'projects:fetch_project_catalogs_members'%}?id={0}".format(id)).done(function(data){
+        $('#editProjectCatalogs').val(data['catalogs']);
+        $('#editProjectMembers').val(data['members']);
     });
 
 });

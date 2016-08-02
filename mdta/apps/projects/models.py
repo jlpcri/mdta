@@ -30,12 +30,33 @@ class TestRailConfiguration(models.Model):
         return '{0}: {1}'.format(self.project_name, self.test_suite)
 
 
+class CatalogItem(models.Model):
+    """
+    West service catalog item,
+    Five hierarchy: component, offering, feature, functionality, product
+    """
+    # project = models.ManyToManyField(Project, blank=True)
+    name = models.TextField()
+    parent = models.ForeignKey('self', blank=True, null=True, related_name='children_set')
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        if self.parent:
+            return '{0}: {1}'.format(self.name, self.parent.id)
+        else:
+            return '{0}'.format(self.name)
+
+    class Meta:
+        unique_together = ('parent', 'name')
+
+
 class Project(models.Model):
     """
     Entry of each project which will be represented to Model Driven Graph
     """
     name = models.CharField(max_length=50, unique=True, default='')
     testrail = models.ForeignKey(TestRailConfiguration, blank=True, null=True)
+    catalog = models.ManyToManyField(CatalogItem, blank=True)
 
     lead = models.ForeignKey(HumanResource, related_name='project_lead', null=True, blank=True)
     members = models.ManyToManyField(HumanResource, related_name='project_members', blank=True)
@@ -125,21 +146,4 @@ class Module(models.Model):
         return Node.objects.filter(Q(from_node__in=edges) | Q(to_node__in=edges) | Q(module=self)).distinct()
 
 
-class CatalogItem(models.Model):
-    """
-    West service catalog item,
-    Five hierarchy: component, offering, feature, functionality, product
-    """
-    project = models.ManyToManyField(Project)
-    name = models.TextField()
-    parent = models.ForeignKey('self', blank=True, null=True, related_name='children_set')
-    description = models.TextField(blank=True)
 
-    def __str__(self):
-        if self.parent:
-            return '{0}: {1}'.format(self.parent.name, self.name)
-        else:
-            return '{0}'.format(self.name)
-
-    class Meta:
-        unique_together = ('parent', 'name')
