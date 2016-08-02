@@ -3,7 +3,7 @@ from django.shortcuts import redirect, get_object_or_404, render
 from mdta.apps.projects.models import Project, Module
 from mdta.apps.graphs.models import Node, Edge
 from mdta.apps.projects.utils import context_projects
-from .utils import traverse, add_step, verify_current_node
+from .utils import traverse, add_step, verify_current_node, check_duplicate_path
 
 
 def create_testcases(request, object_id):
@@ -65,6 +65,8 @@ def create_routing_test_suite_module(modules):
                         traverse(step, tcs, index)
 
                 data.append(tcs)
+
+        data_subset = check_duplicate_path(data)
 
         test_suites.append({
             'module': module.name,
