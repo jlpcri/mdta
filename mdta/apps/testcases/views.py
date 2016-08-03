@@ -1,9 +1,9 @@
-from django.shortcuts import redirect, get_object_or_404, render
+from django.shortcuts import get_object_or_404, render
 
 from mdta.apps.projects.models import Project, Module
 from mdta.apps.graphs.models import Node, Edge
 from mdta.apps.projects.utils import context_projects
-from .utils import traverse, add_step, verify_current_node, check_duplicate_path
+from .utils import traverse, verify_current_node, check_subpath_in_all
 
 
 def create_testcases(request, object_id):
@@ -40,12 +40,29 @@ def create_routing_test_suite(project=None, modules=None):
     data = []
 
     if project:
-        # print(project.modules)
+        # data = create_routing_test_suite_project(project)
         data = create_routing_test_suite_module(project.modules)
     elif modules:
         data = create_routing_test_suite_module(modules)
 
     return data
+
+
+def create_routing_test_suite_project(project):
+    """
+    Create routing paths for project
+    :param project:
+    :return:
+    """
+    test_suites = []
+    data = get_paths_through_all_edges(project.edges)
+
+    test_suites.append({
+        'project': project.name,
+        'data': data
+    })
+
+    return test_suites
 
 
 def create_routing_test_suite_module(modules):
@@ -57,21 +74,7 @@ def create_routing_test_suite_module(modules):
     test_suites = []
 
     for module in modules:
-        data = []
-        for edge in module.edges_all:
-            # print(edge.id)
-            path = routing_test(edge)
-            if path:
-                tcs = []
-                for index, step in enumerate(path, start=1):
-                    if isinstance(step, Node):
-                        verify_current_node(step, tcs, index)
-                    if isinstance(step, Edge):
-                        traverse(step, tcs, index)
-
-                data.append(tcs)
-
-        data_subset = check_duplicate_path(data)
+        data = get_paths_through_all_edges(module.edges_all)
 
         test_suites.append({
             'module': module.name,
@@ -79,6 +82,31 @@ def create_routing_test_suite_module(modules):
         })
 
     return test_suites
+
+
+def get_paths_through_all_edges(edges):
+    """
+    Get all paths through all edges
+    :param edges:
+    :param data:
+    :return:
+    """
+    data = []
+    for edge in edges:
+        # print(edge.id)
+        path = routing_test(edge)
+        if path:
+            tcs = []
+            for index, step in enumerate(path, start=1):
+                if isinstance(step, Node):
+                    verify_current_node(step, tcs, index)
+                if isinstance(step, Edge):
+                    traverse(step, tcs, index)
+
+            data.append(tcs)
+
+    # return check_subpath_in_all(data)
+    return data
 
 
 def routing_test(edge):

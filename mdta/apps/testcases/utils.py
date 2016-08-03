@@ -1,6 +1,6 @@
-def check_duplicate_path(all_path):
+def check_subpath_in_all(all_path):
     """
-    Find duplicate paths in all possible paths and remove them
+    Find sub paths contained by parent path in all possible paths and remove them
     Use set(a) < set(b) to compare if list_b contains list_a
     :param all_path:
     :return:

@@ -62,10 +62,10 @@
 
         <div class="row">
             <h3>TestCases</h3>
-            {% for module in testcases %}
-                {% if module.data %}
-                    <h4>Module: {{ module.module }}</h4>
-                    {% for tc in module.data %}
+            {% for item in testcases %}
+                {% if item.data %}
+                    <h4>{% if item.project %}Project: {{ item.project }}{% else %}Module: {{ item.module }}{% endif %}</h4>
+                    {% for tc in item.data %}
                         Test Case {{ forloop.counter }}: <br>
                         <ul>
                             {% for step in tc %}
