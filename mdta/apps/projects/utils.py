@@ -4,6 +4,10 @@ from mdta.apps.users.models import HumanResource
 
 
 def context_projects():
+    """
+    Retrieve context for tab projects
+    :return:
+    """
     context = {
         'projects': Project.objects.all(),
         'project_new_form': ProjectNewForm(),

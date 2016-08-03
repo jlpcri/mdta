@@ -1,4 +1,10 @@
 def check_duplicate_path(all_path):
+    """
+    Find duplicate paths in all possible paths and remove them
+    Use set(a) < set(b) to compare if list_b contains list_a
+    :param all_path:
+    :return:
+    """
     data = []
     length = len(all_path)
     for i in range(length):
@@ -8,6 +14,7 @@ def check_duplicate_path(all_path):
             elif set(all_path[i]) > set(all_path[j]) and not check_path_contains_in_result(all_path[i], data):
                 data.append(all_path[i])
 
+    # check if first path of all_path is in result
     if length > 0 and not check_path_contains_in_result(all_path[0], data):
         data.append(all_path[0])
 
@@ -15,6 +22,12 @@ def check_duplicate_path(all_path):
 
 
 def check_path_contains_in_result(path, result):
+    """
+    Check current path is covered in result
+    :param path:
+    :param result:
+    :return:
+    """
     flag = False
     for i in range(len(result)):
         if set(path) <= set(result[i]):
@@ -27,6 +40,13 @@ def check_path_contains_in_result(path, result):
 
 
 def traverse(edge, tcs, index):
+    """
+    Traverse Edge based on edge type
+    :param edge:
+    :param tcs:
+    :param index:
+    :return:
+    """
     if edge.type.name == 'DTMF':
         add_step(edge_dtmf_dial(edge), tcs, index)
     elif edge.type.name == 'Speech':
@@ -36,10 +56,24 @@ def traverse(edge, tcs, index):
 
 
 def add_step(step, tcs, index):
+    """
+    Add step to test cases
+    :param step:
+    :param tcs:
+    :param index:
+    :return:
+    """
     tcs.append(str(index) + ', ' + step)
 
 
 def verify_current_node(node, tcs, index):
+    """
+    Verify current node from holly logs, will do in the future
+    :param node:
+    :param tcs:
+    :param index:
+    :return:
+    """
     add_step(node_check_holly_log(node), tcs, index)
 
 

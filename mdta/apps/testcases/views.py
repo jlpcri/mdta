@@ -32,7 +32,7 @@ def create_testcases(request, object_id):
 
 def create_routing_test_suite(project=None, modules=None):
     """
-    Create routing test suite for Project/Module lists
+    Create routing paths for project.modules lists or module lists
     :param project:
     :param modules:
     :return:
@@ -49,6 +49,11 @@ def create_routing_test_suite(project=None, modules=None):
 
 
 def create_routing_test_suite_module(modules):
+    """
+    Create routing paths for list of modules
+    :param modules:
+    :return:
+    """
     test_suites = []
 
     for module in modules:
@@ -78,7 +83,7 @@ def create_routing_test_suite_module(modules):
 
 def routing_test(edge):
     """
-    Routing tests to current Edge
+    Routing path to current Edge, edge.from_node
     :param edge:
     :return:
     """
@@ -98,7 +103,7 @@ def routing_test(edge):
 
 def route_to(node, data, visited_nodes):
     """
-    Routing tests to current Node
+    Routing path to current Node
     :param node:
     :param data:
     :return:

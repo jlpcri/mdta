@@ -14,11 +14,21 @@ from mdta.apps.users.models import HumanResource
 
 @login_required
 def projects(request):
+    """
+    View of apps/projects
+    :param request:
+    :return:
+    """
     return render(request, 'projects/projects.html', context_projects())
 
 
 @login_required
 def project_new(request):
+    """
+    Add new project
+    :param request:
+    :return:
+    """
     if request.method == 'POST':
         form = ProjectNewForm(request.POST)
         if form.is_valid():
@@ -32,6 +42,11 @@ def project_new(request):
 
 @login_required
 def project_edit(request):
+    """
+    Edit project
+    :param request:
+    :return:
+    """
     if request.method == 'POST':
         project_id = request.POST.get('editProjectId', '')
         project_name = request.POST.get('editProjectName', '')
@@ -66,6 +81,11 @@ def project_edit(request):
 
 
 def fetch_project_catalogs_members(request):
+    """
+    Get catalogs and members of project for new/edit project
+    :param request:
+    :return:
+    """
     catalogs = []
     members = []
     id = request.GET.get('id', '')
@@ -87,6 +107,11 @@ def fetch_project_catalogs_members(request):
 
 @login_required
 def module_new(request):
+    """
+    Add new module of project
+    :param request:
+    :return:
+    """
     if request.method == 'POST':
         form = ModuleNewForm(request.POST)
         if form.is_valid():
@@ -100,6 +125,11 @@ def module_new(request):
 
 @login_required
 def module_edit(request):
+    """
+    Edit module of project
+    :param request:
+    :return:
+    """
     if request.method == 'POST':
         module_id = request.POST.get('editModuleId', '')
         module_name = request.POST.get('editModuleName', '')
