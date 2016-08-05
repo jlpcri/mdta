@@ -33,7 +33,8 @@
                                            data-project-lead="{{ project.lead.id }}"
                                             ><i class="fa fa-edit fa-fw"></i>
                                         </a>
-                                        <a href="{% url 'testcases:create_testcases' project.id %}?level=project">TestCases</a>
+                                        <a href="{% url 'testcases:create_testcases' project.id %}?level=project">TestCases</a> |
+                                        <a href="{% url 'testcases:push_testcases_to_testrail' project.id %}">TestRail</a>
                                     </h6>
                                 </div>
                                 <div id="collapse_{{ project.name|slugify }}" class="panel-collapse collapse">
@@ -60,8 +61,8 @@
             </div>
         </div>
 
-        <div class="row">
-            <h3>TestCases</h3>
+        <div class="row" id="project-testcases">
+            <legend>TestCases</legend>
             {% for item in testcases %}
                 {% if item.data %}
                     <h4>{% if item.project %}Project: {{ item.project }}{% else %}Module: {{ item.module }}{% endif %}</h4>
@@ -75,6 +76,11 @@
                     {% endfor %}
                 {% endif %}
             {% endfor %}
+        </div>
+
+        <div class="row" id="project-testrail">
+            <legend>TestRail</legend>
+            {{ testrail }}
         </div>
 
         {% include 'projects/projects_modal.html' %}

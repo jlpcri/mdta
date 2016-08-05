@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
 
 from mdta.apps.projects.models import Project, Module
@@ -5,6 +6,7 @@ from mdta.apps.projects.utils import context_projects
 from .utils import get_paths_through_all_edges
 
 
+@login_required
 def create_testcases(request, object_id):
     """
     Create TestCases per project/module
@@ -83,4 +85,12 @@ def create_routing_test_suite_module(modules):
     return test_suites
 
 
+@login_required
+def push_testcases_to_testrail(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+    print(project.name)
 
+    context = context_projects()
+    context['testrail'] = project.name
+
+    return render(request, 'projects/projects.html', context)
