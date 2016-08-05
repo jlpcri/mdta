@@ -1,6 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
 
+from testrail import APIClient, APIError
+
 from mdta.apps.projects.models import Project, Module
 from mdta.apps.projects.utils import context_projects
 from .utils import get_paths_through_all_edges
@@ -88,9 +90,22 @@ def create_routing_test_suite_module(modules):
 @login_required
 def push_testcases_to_testrail(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
-    print(project.name)
+
+    try:
+        client = APIClient(project.testrail.instance.host)
+        client.user = project.testrail.instance.username
+        client.password = project.testrail.instance.password
+
+        cases = client.send_get('get_cases/57')
+        case = client.send_get('get_case/40663')
+        for case in cases:
+            print(case['id'], case['title'])
+    except AttributeError:
+        cases = ''
+        case = ''
+        print('No Testrail config')
 
     context = context_projects()
-    context['testrail'] = project.name
+    context['testrail'] = case
 
     return render(request, 'projects/projects.html', context)

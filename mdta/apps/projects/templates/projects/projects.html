@@ -80,7 +80,9 @@
 
         <div class="row" id="project-testrail">
             <legend>TestRail</legend>
-            {{ testrail }}
+            {% for key, value in testrail.items %}
+                {{ key }}: {{ value }}<br>
+            {% endfor %}
         </div>
 
         {% include 'projects/projects_modal.html' %}
