@@ -34,7 +34,7 @@
                                             ><i class="fa fa-edit fa-fw"></i>
                                         </a>
                                         <a href="{% url 'testcases:create_testcases' project.id %}?level=project">TestCases</a>
-{#                                        | <a href="{% url 'testcases:push_testcases_to_testrail' project.id %}">TestRail</a>#}
+                                        | <a href="{% url 'testcases:push_testcases_to_testrail' project.id %}">TestRail</a>
                                     </h6>
                                 </div>
                                 <div id="collapse_{{ project.name|slugify }}" class="panel-collapse collapse">
@@ -78,12 +78,12 @@
             {% endfor %}
         </div>
 
-{#        <div class="row" id="project-testrail">#}
-{#            <legend>TestRail</legend>#}
-{#            {% for key, value in testrail.items %}#}
-{#                {{ key }}: {{ value }}<br>#}
-{#            {% endfor %}#}
-{#        </div>#}
+        <div class="row" id="project-testrail">
+            <legend>TestRail</legend>
+            {% for key, value in testrail.items %}
+                {{ key }}: {{ value }}<br>
+            {% endfor %}
+        </div>
 
         {% include 'projects/projects_modal.html' %}
 
