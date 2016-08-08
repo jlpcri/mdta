@@ -87,18 +87,24 @@ def fetch_project_catalogs_members(request):
     :return:
     """
     catalogs = []
+    catalogs_module = []
     members = []
     id = request.GET.get('id', '')
     project = get_object_or_404(Project, pk=id)
 
     for catalog in project.catalog.all():
         catalogs.append(catalog.id)
+        catalogs_module.append({
+            'id': catalog.id,
+            'name': catalog.name
+        })
 
     for member in project.members.all():
         members.append(member.id)
 
     data = {
         'catalogs': catalogs,
+        'catalogs_module': catalogs_module,
         'members': members
     }
 
