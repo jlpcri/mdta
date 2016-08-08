@@ -14,11 +14,21 @@ from mdta.apps.users.models import HumanResource
 
 @login_required
 def projects(request):
+    """
+    View of apps/projects
+    :param request:
+    :return:
+    """
     return render(request, 'projects/projects.html', context_projects())
 
 
 @login_required
 def project_new(request):
+    """
+    Add new project
+    :param request:
+    :return:
+    """
     if request.method == 'POST':
         form = ProjectNewForm(request.POST)
         if form.is_valid():
@@ -32,6 +42,11 @@ def project_new(request):
 
 @login_required
 def project_edit(request):
+    """
+    Edit project
+    :param request:
+    :return:
+    """
     if request.method == 'POST':
         project_id = request.POST.get('editProjectId', '')
         project_name = request.POST.get('editProjectName', '')
@@ -66,27 +81,56 @@ def project_edit(request):
 
 
 def fetch_project_catalogs_members(request):
+    """
+    Get catalogs and members of project for new/edit project
+    :param request:
+    :return:
+    """
+    data = {}
     catalogs = []
+    catalogs_module = []
     members = []
-    id = request.GET.get('id', '')
-    project = get_object_or_404(Project, pk=id)
+    object_id = request.GET.get('id', '')
+    level = request.GET.get('level', '')
 
-    for catalog in project.catalog.all():
-        catalogs.append(catalog.id)
+    if level == 'project':
+        project = get_object_or_404(Project, pk=object_id)
 
-    for member in project.members.all():
-        members.append(member.id)
+        for catalog in project.catalog.all():
+            catalogs.append(catalog.id)
+            catalogs_module.append({
+                'id': catalog.id,
+                'name': catalog.name
+            })
 
-    data = {
-        'catalogs': catalogs,
-        'members': members
-    }
+        for member in project.members.all():
+            members.append(member.id)
+
+        data = {
+            'catalogs': catalogs,
+            'catalogs_module': catalogs_module,
+            'members': members
+        }
+    elif level == 'module':
+        module = get_object_or_404(Module, pk=object_id)
+
+        for catalog in module.catalog.all():
+            catalogs.append(catalog.id)
+
+        data = {
+            'catalogs': catalogs
+        }
 
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
 @login_required
 def module_new(request):
+    """
+    Add new module of project
+    :param request:
+    :return:
+    """
     if request.method == 'POST':
         form = ModuleNewForm(request.POST)
         if form.is_valid():
@@ -100,15 +144,26 @@ def module_new(request):
 
 @login_required
 def module_edit(request):
+    """
+    Edit module of project
+    :param request:
+    :return:
+    """
     if request.method == 'POST':
         module_id = request.POST.get('editModuleId', '')
         module_name = request.POST.get('editModuleName', '')
         module_project = request.POST.get('editModuleProject', '')
+        module_catalogs = request.POST.getlist('editModuleCatalogs', '')
 
         module = get_object_or_404(Module, pk=module_id)
         try:
             module.name = module_name
             module.project.id = module_project
+
+            module.catalog.clear()
+            for catalog_id in module_catalogs:
+                module.catalog.add(catalog_id)
+
             module.save()
             messages.success(request, 'Module is saved.')
         except Exception as e:

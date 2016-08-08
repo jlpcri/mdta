@@ -3,7 +3,13 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 
 
-def node_or_edit_type_new(request, form):
+def node_or_edge_type_new(request, form):
+    """
+    Add new Node/Edge Type form action
+    :param request:
+    :param form:
+    :return:
+    """
     if form.is_valid():
         keys = form.cleaned_data['keys']
         if len(keys) != len(set(keys)):
@@ -17,6 +23,12 @@ def node_or_edit_type_new(request, form):
 
 
 def node_or_edge_type_edit(request, node_or_edge):
+    """
+    Edit Node/Edge Type form action
+    :param request:
+    :param node_or_edge:
+    :return:
+    """
     if node_or_edge.__class__.__name__ == 'NodeType':
         name = request.POST.get('editNodeTypeName', '')
         keys = request.POST.getlist('editNodeTypeKeys', '')
@@ -43,6 +55,12 @@ def node_or_edge_type_edit(request, node_or_edge):
 
 
 def check_edge_in_set(edge, network_edges):
+    """
+    Check if edge in network_edges(edges from between modules)
+    :param edge:
+    :param network_edges:
+    :return:
+    """
     found = False
     for item in network_edges:
         # Found the edges between two same modules

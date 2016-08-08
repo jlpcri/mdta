@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edit_type_new, check_edge_in_set
+from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new, check_edge_in_set
 
 from mdta.apps.projects.models import Project, Module
 from .models import NodeType, EdgeType, Node, Edge
@@ -38,7 +38,7 @@ def node_type_new(request):
     """
     if request.method == 'POST':
         form = NodeTypeNewForm(request.POST)
-        node_or_edit_type_new(request, form)
+        node_or_edge_type_new(request, form)
 
         return redirect('graphs:graphs')
 
@@ -103,7 +103,7 @@ def edge_type_new(request):
     """
     if request.method == 'POST':
         form = EdgeTypeNewForm(request.POST)
-        node_or_edit_type_new(request, form)
+        node_or_edge_type_new(request, form)
 
         return redirect('graphs:graphs')
 
@@ -551,6 +551,12 @@ def module_edge_edit(request, edge_id):
 
 
 def get_nodes_from_module(request):
+    """
+    Get nodes of module, for add new Edge of project level
+    to select nodes from different module
+    :param request:
+    :return:
+    """
     module_id = request.GET.get('module_id', '')
     module = get_object_or_404(Module, pk=module_id)
     data = []

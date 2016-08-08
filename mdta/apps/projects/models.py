@@ -113,6 +113,7 @@ class Module(models.Model):
     """
     name = models.CharField(max_length=50, default='')
     project = models.ForeignKey(Project)
+    catalog = models.ManyToManyField(CatalogItem, blank=True)
 
     class Meta:
         unique_together = ('project', 'name',)
