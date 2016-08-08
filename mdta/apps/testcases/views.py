@@ -98,8 +98,9 @@ def push_testcases_to_testrail(request, project_id):
 
         cases = client.send_get('get_cases/57')
         case = client.send_get('get_case/40663')
-        for case in cases:
-            print(case['id'], case['title'])
+        print(case['custom_steps'])
+        # for case in cases:
+        #     print(case['id'], case['custom_steps'])
     except AttributeError:
         cases = ''
         case = ''
