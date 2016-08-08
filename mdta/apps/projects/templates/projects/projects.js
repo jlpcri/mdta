@@ -21,7 +21,7 @@ $('.editProject').on('show.bs.modal', function(e){
     $('#editProjectTestrail').val(testrail);
     $('#editProjectLead').val(lead);
 
-    $.getJSON("{% url 'projects:fetch_project_catalogs_members'%}?id={0}".format(id)).done(function(data){
+    $.getJSON("{% url 'projects:fetch_project_catalogs_members'%}?id={0}&level=project".format(id)).done(function(data){
         $('#editProjectCatalogs').val(data['catalogs']);
         $('#editProjectMembers').val(data['members']);
     });
@@ -67,12 +67,30 @@ $('.newModule form').on('submit', function(){
 
 $('.editModule').on('show.bs.modal', function(e){
     var id = $(e.relatedTarget).data('module-id'),
-        project = $(e.relatedTarget).data('module-project'),
-        name = $(e.relatedTarget).data('module-name');
+        project_id = $(e.relatedTarget).data('module-project'),
+        name = $(e.relatedTarget).data('module-name'),
+        location = $('#editModuleCatalogs');
 
     $(e.currentTarget).find('input[name="editModuleId"]').val(id);
     $(e.currentTarget).find('input[name="editModuleName"]').val(name);
-    $('#editModuleProject').val(project);
+    $('#editModuleProject').val(project_id);
+
+    set_catalog_selection_value(project_id, location);
+
+    $.getJSON("{% url 'projects:fetch_project_catalogs_members' %}?id={0}&level=module".format(id)).done(function(data){
+        $('#editModuleCatalogs').val(data['catalogs']);
+    })
+});
+
+$('#editModuleProject').on('change', function(){
+    var project_id = $(this).val(),
+        location = $('#editModuleCatalogs');
+
+    set_catalog_selection_value(project_id, location);
+
+    $.getJSON("{% url 'projects:fetch_project_catalogs_members' %}?id={0}&level=module".format(module_id)).done(function(data){
+        $('#editModuleCatalogs').val(data['catalogs']);
+    })
 });
 
 $('.editModule form').on('submit', function(){
@@ -85,7 +103,7 @@ $('.editModule form').on('submit', function(){
 });
 
 function set_catalog_selection_value(project_id, location){
-    $.getJSON("{% url 'projects:fetch_project_catalogs_members' %}?id={0}".format(project_id)).done(function(data){
+    $.getJSON("{% url 'projects:fetch_project_catalogs_members' %}?id={0}&level=project".format(project_id)).done(function(data){
         var option = '';
         $.each(data['catalogs_module'], function(index, value){
             option += '<option value={0}>{1}</option>'.format(value['id'], value['name']);

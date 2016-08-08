@@ -86,27 +86,40 @@ def fetch_project_catalogs_members(request):
     :param request:
     :return:
     """
+    data = {}
     catalogs = []
     catalogs_module = []
     members = []
-    id = request.GET.get('id', '')
-    project = get_object_or_404(Project, pk=id)
+    object_id = request.GET.get('id', '')
+    level = request.GET.get('level', '')
 
-    for catalog in project.catalog.all():
-        catalogs.append(catalog.id)
-        catalogs_module.append({
-            'id': catalog.id,
-            'name': catalog.name
-        })
+    if level == 'project':
+        project = get_object_or_404(Project, pk=object_id)
 
-    for member in project.members.all():
-        members.append(member.id)
+        for catalog in project.catalog.all():
+            catalogs.append(catalog.id)
+            catalogs_module.append({
+                'id': catalog.id,
+                'name': catalog.name
+            })
 
-    data = {
-        'catalogs': catalogs,
-        'catalogs_module': catalogs_module,
-        'members': members
-    }
+        for member in project.members.all():
+            members.append(member.id)
+
+        data = {
+            'catalogs': catalogs,
+            'catalogs_module': catalogs_module,
+            'members': members
+        }
+    elif level == 'module':
+        module = get_object_or_404(Module, pk=object_id)
+
+        for catalog in module.catalog.all():
+            catalogs.append(catalog.id)
+
+        data = {
+            'catalogs': catalogs
+        }
 
     return HttpResponse(json.dumps(data), content_type='application/json')
 
@@ -140,11 +153,17 @@ def module_edit(request):
         module_id = request.POST.get('editModuleId', '')
         module_name = request.POST.get('editModuleName', '')
         module_project = request.POST.get('editModuleProject', '')
+        module_catalogs = request.POST.getlist('editModuleCatalogs', '')
 
         module = get_object_or_404(Module, pk=module_id)
         try:
             module.name = module_name
             module.project.id = module_project
+
+            module.catalog.clear()
+            for catalog_id in module_catalogs:
+                module.catalog.add(catalog_id)
+
             module.save()
             messages.success(request, 'Module is saved.')
         except Exception as e:
