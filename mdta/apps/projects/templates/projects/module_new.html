@@ -1,0 +1,33 @@
+{% extends 'core/base.html' %}
+
+{% block title %} Module New {% endblock %}
+
+{% block body %}
+    <div class="container newModule">
+        <form action="{% url 'projects:module_new' %}" method="post">
+            <div class="row">
+                {{ form }}
+            </div>
+            {% csrf_token %}
+            <div class="row" style="margin-top: 20px;">
+                <div class="col-xs-12">
+                    <div id="newModuleErrMessage"></div>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top: 50px;">
+                <div class="col-xs-12">
+                    <input id="module_new" class="btn btn-primary" type="submit" value="New Module">
+                    <input type="button" value="Cancel" class="btn btn-default" onclick="history.back(); return false;">
+                </div>
+            </div>
+
+            </form>
+    </div>
+{% endblock %}
+
+{% block footer %}
+    <script>
+        {% include 'projects/projects.js' %}
+    </script>
+{% endblock %}

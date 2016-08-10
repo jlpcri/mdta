@@ -8,7 +8,7 @@ from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new
 from mdta.apps.projects.models import Project, Module
 from .models import NodeType, EdgeType, Node, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeNewForm, NodeNewNodeForm
-from mdta.apps.projects.forms import ModuleNewForm
+from mdta.apps.projects.forms import ModuleForm
 
 
 @login_required
@@ -235,7 +235,7 @@ def project_detail(request, project_id):
 
     context = {
         'project': project,
-        'module_new_form': ModuleNewForm(project_id=project.id),
+        'module_new_form': ModuleForm(project_id=project.id),
         'edge_types': EdgeType.objects.all(),
         'edge_priority': Edge.PRIORITY_CHOICES,
 
@@ -257,7 +257,7 @@ def project_module_new(request, project_id):
     :return:
     """
     if request.method == 'POST':
-        form = ModuleNewForm(request.POST)
+        form = ModuleForm(request.POST)
         if form.is_valid():
             module = form.save()
             messages.success(request, 'Module \'{0}\' is added to \'{1}\''.format(module.name, module.project.name))
