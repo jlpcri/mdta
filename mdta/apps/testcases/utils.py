@@ -1,4 +1,23 @@
 from mdta.apps.graphs.models import Node, Edge
+from mdta.apps.projects.models import Project, TestRailConfiguration
+
+
+def context_testcases():
+    """
+    Retrieve context for tab TestCases
+    :return:
+    """
+    context = {
+        'projects': Project.objects.all(),
+        # 'project_new_form': ProjectNewForm(),
+        # 'module_new_form': ModuleNewForm(),
+        # 'hrs': HumanResource.objects.all(),
+
+        'testrails': TestRailConfiguration.objects.all(),
+        # 'catalogs': CatalogItem.objects.all()
+    }
+
+    return context
 
 
 def get_paths_through_all_edges(edges):

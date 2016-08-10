@@ -4,8 +4,14 @@ from django.shortcuts import get_object_or_404, render
 from testrail import APIClient, APIError
 
 from mdta.apps.projects.models import Project, Module
-from mdta.apps.projects.utils import context_projects
-from .utils import get_paths_through_all_edges
+from .utils import context_testcases, get_paths_through_all_edges
+
+
+@login_required
+def testcases(request):
+    context = context_testcases()
+
+    return render(request, 'testcases/testcases.html', context)
 
 
 @login_required
@@ -26,11 +32,11 @@ def create_testcases(request, object_id):
         module = get_object_or_404(Module, pk=object_id)
         testcases = create_routing_test_suite(modules=[module])
 
-    context = context_projects()
+    context = context_testcases()
     context['testcases'] = testcases
     # print(testcases)
 
-    return render(request, 'projects/projects.html', context)
+    return render(request, 'testcases/testcases.html', context)
 
 
 def create_routing_test_suite(project=None, modules=None):
@@ -89,24 +95,27 @@ def create_routing_test_suite_module(modules):
 
 @login_required
 def push_testcases_to_testrail(request, project_id):
+    """
+    Push Testcases of project to TestRail
+    :param request:
+    :param project_id:
+    :return:
+    """
     project = get_object_or_404(Project, pk=project_id)
+    testrail_contents = ''
 
     try:
         client = APIClient(project.testrail.instance.host)
         client.user = project.testrail.instance.username
         client.password = project.testrail.instance.password
 
-        cases = client.send_get('get_cases/57')
-        case = client.send_get('get_case/40663')
-        print(case['custom_steps'])
-        # for case in cases:
-        #     print(case['id'], case['custom_steps'])
+        testrail_contents = client.send_get('get_project/' + project.testrail.project_id)
+        # testrail_contents = client.send_get('get_projects')
+
     except AttributeError:
-        cases = ''
-        case = ''
         print('No Testrail config')
 
-    context = context_projects()
-    context['testrail'] = case
+    context = context_testcases()
+    context['testrail'] = testrail_contents
 
-    return render(request, 'projects/projects.html', context)
+    return render(request, 'testcases/testcases.html', context)
