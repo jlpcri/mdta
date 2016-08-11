@@ -4,6 +4,7 @@
 
 {% block body %}
     <div class="container newProject">
+        <h3>Add New Project</h3>
         <form action="{% url 'projects:project_new' %}" method="post">
             <div class="row">
                 {{ form }}

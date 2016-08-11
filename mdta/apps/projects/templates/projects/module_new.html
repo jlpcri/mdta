@@ -4,6 +4,7 @@
 
 {% block body %}
     <div class="container newModule">
+        <h3>Add New Module</h3>
         <form action="{% url 'projects:module_new' %}" method="post">
             <div class="row">
                 {{ form }}
@@ -28,6 +29,13 @@
 
 {% block footer %}
     <script>
+        $(document).ready(function(){
+            var project_id = $('#id_project').val(),
+                location = $('#id_catalog');
+
+            set_catalog_selection_value(project_id, location);
+        });
+
         {% include 'projects/projects.js' %}
     </script>
 {% endblock %}
