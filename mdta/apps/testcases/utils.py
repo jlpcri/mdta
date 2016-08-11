@@ -1,3 +1,4 @@
+from testrail import APIClient
 from mdta.apps.graphs.models import Node, Edge
 from mdta.apps.projects.models import Project, TestRailConfiguration
 
@@ -9,15 +10,18 @@ def context_testcases():
     """
     context = {
         'projects': Project.objects.all(),
-        # 'project_new_form': ProjectNewForm(),
-        # 'module_new_form': ModuleNewForm(),
-        # 'hrs': HumanResource.objects.all(),
-
         'testrails': TestRailConfiguration.objects.all(),
-        # 'catalogs': CatalogItem.objects.all()
     }
 
     return context
+
+
+def get_projects_from_testrail(instance):
+    client = APIClient(instance.host)
+    client.user = instance.username
+    client.password = instance.password
+
+    return client.send_get('get_projects')
 
 
 def get_paths_through_all_edges(edges):

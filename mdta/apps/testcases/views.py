@@ -1,10 +1,12 @@
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 
 from testrail import APIClient, APIError
 
-from mdta.apps.projects.models import Project, Module
-from .utils import context_testcases, get_paths_through_all_edges
+from mdta.apps.projects.models import Project, Module, TestRailInstance
+from .utils import context_testcases, get_paths_through_all_edges, get_projects_from_testrail
+from .forms import TestrailConfigurationForm
 
 
 @login_required
@@ -119,3 +121,30 @@ def push_testcases_to_testrail(request, project_id):
     context['testrail'] = testrail_contents
 
     return render(request, 'testcases/testcases.html', context)
+
+
+@login_required
+def testrail_configuration_new(request):
+    if request.method == 'GET':
+        context = {
+            'form': TestrailConfigurationForm()
+        }
+        return render(request, 'testcases/tc_testrails_new.html', context)
+    elif request.method == 'POST':
+        # print(request.POST)
+
+        instance = get_object_or_404(TestRailInstance, username='testrail@west.com')
+        testrail_projects = get_projects_from_testrail(instance)
+
+        form = TestrailConfigurationForm(request.POST)
+        if form.is_valid():
+            testrail_new = form.save(commit=False)
+            testrail_find = next(item for item in testrail_projects if item['name'] == testrail_new.project_name)
+            testrail_new.project_id = testrail_find['id']
+            testrail_new.test_suite = []
+
+            testrail_new.save()
+        else:
+            messages.error(request, form.errors)
+
+        return redirect('testcases:testcases')

@@ -20,8 +20,8 @@ def graphs(request):
     """
     context = {
         'projects': Project.objects.all(),
-        'node_types': NodeType.objects.order_by('name'),
-        'edge_types': EdgeType.objects.order_by('name'),
+        'node_types': NodeType.objects.all(),
+        'edge_types': EdgeType.objects.all(),
 
         'node_type_new_form': NodeTypeNewForm(),
         'edge_type_new_form': EdgeTypeNewForm(),

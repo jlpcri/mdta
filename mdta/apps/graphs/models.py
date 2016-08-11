@@ -10,21 +10,14 @@ class NodeType(models.Model):
     HostRequest, HostResponse, Segment
     """
     name = models.CharField(max_length=50, unique=True, default='')
-
-    # Keys of Node property data
-    # Start and End Node: empty
-    # Transfer: dialed, reason, status, subreason, transfer_type etc
-    # Prompt: response_type, response, status, confidence, utterance, grammar, module
-    # DatabaseRequest: status, host_key, data_sent
-    # DatabaseResponse: host_key, xml_tag_key, xml_tag_value, xml_sequence_number
-    # HostRequest: status, host_key, data_sent
-    # HostResponse: host_key, xml_tag_key, xml_tag_value, xml_sequence_number
-    # Segment: segment_group, segment_name
     keys = ArrayField(models.CharField(max_length=50), null=True, blank=True,
                       verbose_name='Keys(Separated with comma)')
 
     def __str__(self):
         return '{0}: {1}'.format(self.name, self.keys)
+
+    class Meta:
+        ordering = ['name']
 
 
 class EdgeType(models.Model):
@@ -39,6 +32,9 @@ class EdgeType(models.Model):
 
     def __str__(self):
         return '{0}: {1}'.format(self.name, self.keys)
+
+    class Meta:
+        ordering = ['name']
 
 
 class Node(models.Model):
