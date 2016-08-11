@@ -71,17 +71,20 @@
                         {% endfor %}
                     </div>
                 </div>
-
-
             </div>
-
         </div>
-
     </div>
 {% endblock %}
 
 {% block footer %}
     <script>
+        $(document).ready(function(){
+            var first_href = $('.table tbody tr:first td:first a').attr('href');
+
+            //console.log(first_href);
+            $('a[href="{0}"]'.format(first_href)).click();
+        });
+
         {% include 'projects/projects.js' %}
     </script>
 {% endblock %}

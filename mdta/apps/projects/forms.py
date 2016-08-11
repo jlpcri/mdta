@@ -11,10 +11,16 @@ class ProjectForm(ModelForm):
         exclude = ['created', 'updated']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'catalog': forms.SelectMultiple(attrs={'class': 'form-control'}),
+            'catalog': forms.SelectMultiple(attrs={
+                'class': 'form-control',
+                'size': '10'
+            }),
             'testrail': forms.Select(attrs={'class': 'form-control'}),
             'lead': forms.Select(attrs={'class': 'form-control'}),
-            'members': forms.SelectMultiple(attrs={'class': 'form-control'})
+            'members': forms.SelectMultiple(attrs={
+                'class': 'form-control',
+                'size': '6'
+            })
         }
 
 
@@ -35,5 +41,8 @@ class ModuleForm(ModelForm):
         widgets = {
             'project': forms.Select(attrs={'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'catalog': forms.SelectMultiple(attrs={'class': 'form-control'}),
+            'catalog': forms.SelectMultiple(attrs={
+                'class': 'form-control',
+                'size': '10'
+            }),
         }
