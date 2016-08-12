@@ -26,17 +26,20 @@ def create_testcases(request, object_id):
     """
 
     testcases = []
+    link_id = ''
     level = request.GET.get('level', '')
     if level == 'project':
         project = get_object_or_404(Project, pk=object_id)
+        link_id = project.id
         testcases = create_routing_test_suite(project=project)
     elif level == 'module':
         module = get_object_or_404(Module, pk=object_id)
+        link_id = module.project.id
         testcases = create_routing_test_suite(modules=[module])
 
     context = context_testcases()
     context['testcases'] = testcases
-    # print(testcases)
+    context['link_id'] = link_id
 
     return render(request, 'testcases/testcases.html', context)
 
@@ -51,29 +54,11 @@ def create_routing_test_suite(project=None, modules=None):
     data = []
 
     if project:
-        # data = create_routing_test_suite_project(project)
         data = create_routing_test_suite_module(project.modules)
     elif modules:
         data = create_routing_test_suite_module(modules)
 
     return data
-
-
-def create_routing_test_suite_project(project):
-    """
-    Create routing paths for project
-    :param project:
-    :return:
-    """
-    test_suites = []
-    data = get_paths_through_all_edges(project.edges)
-
-    test_suites.append({
-        'project': project.name,
-        'data': data
-    })
-
-    return test_suites
 
 
 def create_routing_test_suite_module(modules):
@@ -119,6 +104,7 @@ def push_testcases_to_testrail(request, project_id):
 
     context = context_testcases()
     context['testrail'] = testrail_contents
+    context['link_id'] = project.id
 
     return render(request, 'testcases/testcases.html', context)
 

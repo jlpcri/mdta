@@ -1,6 +1,5 @@
 from django import forms
 from django.forms import ModelForm
-from testrail import APIClient
 
 from mdta.apps.projects.models import TestRailConfiguration, TestRailInstance
 from mdta.apps.testcases.utils import get_projects_from_testrail
