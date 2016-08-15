@@ -15,19 +15,25 @@ class TestRailInstance(models.Model):
     password = models.TextField()
 
     def __str__(self):
-        return '{0}'.format(self.host)
+        return '{0}: {1}'.format(self.host, self.username)
 
 
 class TestRailConfiguration(models.Model):
     """
     Configuration connect to TestRail
+    project_name: Name of project in TestRail
+    project_id: Id of project in TestRail
     """
     instance = models.ForeignKey(TestRailInstance, blank=True, null=True)
-    project_name = models.TextField()
-    test_suite = ArrayField(models.CharField(max_length=200), blank=True)
+    project_name = models.TextField(unique=True)
+    project_id = models.CharField(max_length=20, blank=True, null=True)
+    test_suite = ArrayField(models.CharField(max_length=200), blank=True, null=True)
 
     def __str__(self):
         return '{0}: {1}'.format(self.project_name, self.test_suite)
+
+    class Meta:
+        ordering = ['project_name']
 
 
 class CatalogItem(models.Model):
@@ -116,6 +122,7 @@ class Module(models.Model):
     catalog = models.ManyToManyField(CatalogItem, blank=True)
 
     class Meta:
+        ordering = ['name']
         unique_together = ('project', 'name',)
 
     def __str__(self):

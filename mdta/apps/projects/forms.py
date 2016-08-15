@@ -5,23 +5,29 @@ from django.shortcuts import get_object_or_404
 from .models import Project, Module, CatalogItem
 
 
-class ProjectNewForm(ModelForm):
+class ProjectForm(ModelForm):
     class Meta:
         model = Project
         exclude = ['created', 'updated']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'catalog': forms.SelectMultiple(attrs={'class': 'form-control'}),
+            'catalog': forms.SelectMultiple(attrs={
+                'class': 'form-control',
+                'size': '10'
+            }),
             'testrail': forms.Select(attrs={'class': 'form-control'}),
             'lead': forms.Select(attrs={'class': 'form-control'}),
-            'members': forms.SelectMultiple(attrs={'class': 'form-control'})
+            'members': forms.SelectMultiple(attrs={
+                'class': 'form-control',
+                'size': '6'
+            })
         }
 
 
-class ModuleNewForm(ModelForm):
+class ModuleForm(ModelForm):
     def __init__(self, *args, **kwargs):
         project_id = kwargs.pop('project_id', '')
-        super(ModuleNewForm, self).__init__(*args, **kwargs)
+        super(ModuleForm, self).__init__(*args, **kwargs)
         if project_id:
             project = get_object_or_404(Project, pk=project_id)
             self.fields['project'].queryset = Project.objects.filter(pk=project_id)
@@ -35,5 +41,8 @@ class ModuleNewForm(ModelForm):
         widgets = {
             'project': forms.Select(attrs={'class': 'form-control'}),
             'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'catalog': forms.SelectMultiple(attrs={'class': 'form-control'}),
+            'catalog': forms.SelectMultiple(attrs={
+                'class': 'form-control',
+                'size': '10'
+            }),
         }

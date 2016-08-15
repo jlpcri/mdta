@@ -1,0 +1,45 @@
+{% extends 'core/base.html' %}
+
+{% block title %} Module Edit {% endblock %}
+
+{% block body %}
+    <div class="container editModule">
+        <h3>Edit Module</h3>
+        <form action="{% url 'projects:module_edit' module.id%}" method="post">
+            <div class="row">
+                {{ form }}
+            </div>
+            {% csrf_token %}
+            <div class="row" style="margin-top: 20px;">
+                <div class="col-xs-12">
+                    <div id="editModuleErrMessage"></div>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top: 50px;">
+                <div class="col-xs-12">
+                    <input id="module_edit" class="btn btn-primary" type="submit" value="Save Module">
+                    <input type="button" value="Cancel" class="btn btn-default" onclick="history.back(); return false;">
+                </div>
+            </div>
+
+            </form>
+    </div>
+{% endblock %}
+
+{% block footer %}
+    <script>
+        $(document).ready(function(){
+            var project_id = $('#id_project').val(),
+                module_id = '{{ module.id }}',
+                location = $('#id_catalog');
+
+            set_catalog_selection_value(project_id, location);
+
+            $.getJSON("{% url 'projects:fetch_project_catalogs_members' %}?id={0}&level=module".format(module_id)).done(function(data){
+                $('#id_catalog').val(data['catalogs']);
+            })
+        });
+        {% include 'projects/projects.js' %}
+    </script>
+{% endblock %}

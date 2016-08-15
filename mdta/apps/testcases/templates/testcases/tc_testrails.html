@@ -1,0 +1,30 @@
+<div class="container">
+    {% if testrails %}
+        <div class="row">
+            <div class="col-xs-12 table-responsive">
+                <table class="table table-striped table-hover table-condensed table-bordered">
+                    <thead>
+                        <tr>
+                            <th class="col-xs-2">Project Name</th>
+                            <th class="col-xs-2">Project ID</th>
+                            <th class="col-xs-2">Instance</th>
+                            <th class="col-xs-2">Test Suites</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for testrail in testrails %}
+                            <tr>
+                                <td>{{ testrail.project_name }}</td>
+                                <td>{{ testrail.project_id }}</td>
+                                <td>{{ testrail.instance.host }}</td>
+                                <td>{{ testrail.test_suite }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% else %}
+        No TestRail Configuration
+    {% endif %}
+</div>
