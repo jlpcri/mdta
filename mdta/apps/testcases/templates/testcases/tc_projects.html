@@ -32,11 +32,14 @@
                 <legend>TestCases</legend>
                 {% for item in testcases %}
                     {% if item.data %}
-                        <h4>{% if item.project %}Project: {{ item.project }}{% else %}Module: {{ item.module }}{% endif %}</h4>
-                        {% for tc in item.data %}
+                        <h4>Module: {{ item.module }}</h4>
+                        {% for each_tc in item.data %}
                             Test Case {{ forloop.counter }}: <br>
                             <ul>
-                                {% for step in tc %}
+                                <li>PreCondition:</li>
+                                {{ each_tc.pre_condition }}
+
+                                {% for step in each_tc.tc_steps %}
                                     <li>{{ step }}</li>
                                 {% endfor %}
                             </ul>
