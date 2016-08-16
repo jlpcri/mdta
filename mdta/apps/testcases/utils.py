@@ -42,13 +42,14 @@ def get_paths_through_all_edges(edges):
                 if isinstance(step, Node):
                     traverse_node(step, tcs, index)
                 if isinstance(step, Edge):
-                    traverse_edge(step, tcs, index, pre_condition)
+                    if step.type.name == 'PreCondition':
+                        update_testcase_precondition(step, pre_condition)
+                    traverse_edge(step, tcs, index)
 
             data.append({
                 'pre_condition': pre_condition,
                 'tc_steps': tcs
             })
-
     # return check_subpath_in_all(data)
     return data
 
@@ -196,7 +197,7 @@ def node_check_holly_log(node):
     return 'Node - ' + node.name
 
 
-def traverse_edge(edge, tcs, index, pre_condition):
+def traverse_edge(edge, tcs, index):
     """
     Traverse Edge based on edge type
     :param edge:
@@ -211,7 +212,6 @@ def traverse_edge(edge, tcs, index, pre_condition):
     elif edge.type.name == 'Data':
         add_step(edge_alter_data_requirement(edge), tcs, index)
     elif edge.type.name == 'PreCondition':
-        update_testcase_precondition(edge, pre_condition)
         add_step(edge_precondition(edge), tcs, index)
 
 
@@ -251,9 +251,12 @@ def get_item_properties(item):
 
 
 def update_testcase_precondition(edge, pre_condition):
-    # pre_condition = []
+    data = []
     for key in edge.properties:
-        pre_condition.append(key + ': ' + edge.properties[key])
+        data.append(key + ': ' + edge.properties[key])
+
+    pre_condition.append(data)
+
 
 
 
