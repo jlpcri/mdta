@@ -97,7 +97,7 @@ def push_testcases_to_testrail(request, project_id):
         client.password = project.testrail.instance.password
 
         testrail_contents = client.send_get('get_project/' + project.testrail.project_id)
-        # testrail_contents = client.send_get('get_projects')
+        # testrail_contents_case = client.send_get('get_case/23896')
 
     except AttributeError:
         print('No Testrail config')
@@ -105,6 +105,9 @@ def push_testcases_to_testrail(request, project_id):
     context = context_testcases()
     context['testrail'] = testrail_contents
     context['link_id'] = project.id
+
+    # for item in testrail_contents_case['custom_steps_seperated']:
+    #     print(item)
 
     return render(request, 'testcases/testcases.html', context)
 

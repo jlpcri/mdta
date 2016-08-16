@@ -40,7 +40,7 @@
                                 {{ each_tc.pre_condition }}
 
                                 {% for step in each_tc.tc_steps %}
-                                    <li>{{ step }}</li>
+                                    <li>{{ forloop.counter }}, {{ step }}</li>
                                 {% endfor %}
                             </ul>
                         {% endfor %}
