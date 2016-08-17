@@ -133,6 +133,7 @@ $('.moduleNodeEdgeNew #moduleNodeEdgeNewEdgeType').on('change', function(){
 $('.moduleNodeEdgeNew form').on('submit', function(e){
     var node_name = $('.moduleNodeEdgeNew #id_name').val(),
         err_location = '#moduleNodeEdgeNewErrMessage',
+        edge_type = $('#moduleNodeEdgeNewEdgeType option:selected').text(),
         edge_properties = $(e.currentTarget).find('#module-node-edge-new-properties input'),
         edge_properties_no_input = true;
 
@@ -147,7 +148,7 @@ $('.moduleNodeEdgeNew form').on('submit', function(e){
             return false;
         }
     });
-    if (edge_properties_no_input){
+    if (edge_properties_no_input && edge_type != 'Connector'){
         showErrMsg(err_location, 'At least input on edge property');
         return false;
     }
