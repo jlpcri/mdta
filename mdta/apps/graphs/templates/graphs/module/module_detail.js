@@ -54,11 +54,12 @@ $('.moduleEdgeNew').on('show.bs.modal', function(){
 });
 
 $('.moduleEdgeNew form').on('submit', function(){
-    var location = '#moduleEdgeNewErrMessage',
+    var edge_type = $(this).find('#id_type option:selected').text().split(':')[0],
+        location = '#moduleEdgeNewErrMessage',
         properties = $(this).find('#module-edge-new-properties input'),
         properties_no_input = true;
 
-    //console.log(properties)
+    //console.log(edge_type)
     $.each(properties, function(index){
         if (properties[index].value != ''){
             properties_no_input = false;
@@ -66,7 +67,7 @@ $('.moduleEdgeNew form').on('submit', function(){
         }
     });
 
-    if (properties_no_input){
+    if (properties_no_input && edge_type != 'Connector'){
         showErrMsg(location, 'At lease input one property');
         return false;
     }
@@ -89,12 +90,13 @@ $('.moduleEdgeEditForm #moduleEdgeEditType').on('change', function(){
 });
 
 $('.moduleEdgeEditForm').on('submit', function(e){
-    var location = $(e.currentTarget).find('#moduleEdgeEditErrMessage'),
+    var edge_type = $(e.currentTarget).find('#moduleEdgeEditType option:selected').text(),
+        location = $(e.currentTarget).find('#moduleEdgeEditErrMessage'),
         properties = $(e.currentTarget).find('#module-edge-edit-properties input'),
         properties_no_input = true,
         submit = $(e.currentTarget).find('button[type="submit"]:focus');
 
-    //console.log(submit[0].textContent)
+    //console.log(edge_type)
 
     $.each(properties, function(index){
         //console.log(index, properties[index].value);
@@ -104,7 +106,7 @@ $('.moduleEdgeEditForm').on('submit', function(e){
         }
     });
 
-    if (properties_no_input && submit[0].textContent == 'Save'){
+    if (properties_no_input && edge_type != 'Connector' && submit[0].textContent == 'Save'){
         showErrMsg(location, 'At lease input one property');
         return false;
     }

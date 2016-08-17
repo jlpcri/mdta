@@ -28,7 +28,8 @@ $('.projectEdgeNew #project-edge-new-to-module').on('change', function(){
 });
 
 $('.projectEdgeNew').on('submit', function(){
-    var location = '#projectEdgeNewErrMessage',
+    var edge_type = $('#project-edge-new-type option:selected').text(),
+        location = '#projectEdgeNewErrMessage',
         properties = $('#project-edge-new-properties input'),
         properties_no_input = true;
 
@@ -39,7 +40,7 @@ $('.projectEdgeNew').on('submit', function(){
         }
     });
 
-    if (properties_no_input){
+    if (properties_no_input && edge_type != 'Connector'){
         showErrMsg(location, 'At lease input one property');
         return false;
     }
