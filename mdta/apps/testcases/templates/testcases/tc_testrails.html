@@ -6,9 +6,9 @@
                     <thead>
                         <tr>
                             <th class="col-xs-2">Project Name</th>
-                            <th class="col-xs-2">Project ID</th>
-                            <th class="col-xs-2">Instance</th>
-                            <th class="col-xs-2">Test Suites</th>
+                            <th class="col-xs-1">Project ID</th>
+                            <th class="col-xs-3">Test Suites</th>
+                            <th class="col-xs-2">Edition</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -16,8 +16,12 @@
                             <tr>
                                 <td>{{ testrail.project_name }}</td>
                                 <td>{{ testrail.project_id }}</td>
-                                <td>{{ testrail.instance.host }}</td>
                                 <td>{{ testrail.test_suite }}</td>
+                                <td>
+                                    <a href="#" class="btn btn-danger btn-xs" onclick="deleteModal('{{ testrail.project_name }}', {{ testrail.id }})">
+                                        <i class="fa fa-trash-o"></i>
+                                    </a>
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>
@@ -27,4 +31,25 @@
     {% else %}
         No TestRail Configuration
     {% endif %}
+</div>
+
+<!--Delete TestRail confirmation modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="deleteTitle" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 id="deleteTitle" class="modal-title"></h4>
+            </div>
+            <div class="modal-body">
+                <p id="deleteBody">
+                    This action will remove this TestRail Configuration.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <a href="" id="deleteTestRailButton" type="button" class="btn btn-danger">Delete</a>
+            </div>
+        </div>
+    </div>
 </div>

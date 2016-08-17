@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 
 from testrail import APIClient, APIError
 
-from mdta.apps.projects.models import Project, Module, TestRailInstance
+from mdta.apps.projects.models import Project, Module, TestRailInstance, TestRailConfiguration
 from .utils import context_testcases, get_paths_through_all_edges, get_projects_from_testrail
 from .forms import TestrailConfigurationForm
 
@@ -137,3 +137,12 @@ def testrail_configuration_new(request):
             messages.error(request, form.errors)
 
         return redirect('testcases:testcases')
+
+
+@login_required
+def testrail_configuration_delete(request, testrail_id):
+    testrail = get_object_or_404(TestRailConfiguration, pk=testrail_id)
+
+    testrail.delete()
+
+    return redirect('testcases:testcases')

@@ -9,3 +9,10 @@ $(document).ready(function () {
         $('a[href="#project-{0}"]'.format('{{link_id}}')).click();
     }
 });
+
+function deleteModal (project_name, project_id) {
+    $('#deleteTitle').text('Delete TestRail Configuration: \"' + project_name + '\" ?');
+    $('#deleteTestRailButton').attr('href', '/mdta/testcases/testrail_configuration_delete/' + project_id);
+
+    $('#confirmModal').modal('show');
+}
