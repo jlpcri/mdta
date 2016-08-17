@@ -37,14 +37,20 @@ def get_paths_through_all_edges(edges):
         path = routing_test(edge)
         if path:
             tcs = []
-            for index, step in enumerate(path, start=1):
+            pre_condition = []
+            # for index, step in enumerate(path, start=1):
+            for step in path:
                 if isinstance(step, Node):
-                    verify_current_node(step, tcs, index)
+                    traverse_node(step, tcs)
                 if isinstance(step, Edge):
-                    traverse(step, tcs, index)
+                    if step.type.name == 'PreCondition':
+                        update_testcase_precondition(step, pre_condition)
+                    traverse_edge(step, tcs)
 
-            data.append(tcs)
-
+            data.append({
+                'pre_condition': pre_condition,
+                'tc_steps': tcs
+            })
     # return check_subpath_in_all(data)
     return data
 
@@ -170,63 +176,109 @@ def check_path_contains_in_result(path, result):
     return flag
 
 
-def traverse(edge, tcs, index):
+def traverse_node(node, tcs):
+    """
+    Traverse Node based on node type
+    :param step:
+    :param tcs:
+    :return:
+    """
+    if node.type.name == 'Start':
+        add_step(node_start(node), tcs)
+    elif node.type.name in ['Menu Prompt', 'Menu Prompt with Confirmation', 'Play Prompt']:
+        add_step(node_prompt(node), tcs)
+    else:
+        add_step(node_check_holly_log(node), tcs)
+
+
+def node_start(node):
+    return {
+        'content': get_item_properties(node),
+    }
+
+
+def node_prompt(node):
+    return {
+        'content': 'Node - ' + node.name,
+        'expected': node.properties['Verbiage']
+    }
+
+
+def node_check_holly_log(node):
+    return {
+        'content': 'Node - ' + node.name
+    }
+
+
+def traverse_edge(edge, tcs):
     """
     Traverse Edge based on edge type
     :param edge:
     :param tcs:
-    :param index:
     :return:
     """
     if edge.type.name == 'DTMF':
-        add_step(edge_dtmf_dial(edge), tcs, index)
+        add_step(edge_dtmf_dial(edge), tcs)
     elif edge.type.name == 'Speech':
-        add_step(edge_speech_say(edge), tcs, index)
+        add_step(edge_speech_say(edge), tcs)
     elif edge.type.name == 'Data':
-        add_step(edge_alter_data_requirement(edge), tcs, index)
+        add_step(edge_alter_data_requirement(edge), tcs)
+    elif edge.type.name == 'PreCondition':
+        add_step(edge_precondition(edge), tcs)
 
 
-def add_step(step, tcs, index):
+def add_step(step, tcs):
     """
     Add step to test cases
     :param step:
     :param tcs:
-    :param index:
     :return:
     """
-    tcs.append(str(index) + ', ' + step)
-
-
-def verify_current_node(node, tcs, index):
-    """
-    Verify current node from holly logs, will do in the future
-    :param node:
-    :param tcs:
-    :param index:
-    :return:
-    """
-    add_step(node_check_holly_log(node), tcs, index)
-
-
-def node_check_holly_log(node):
-    return 'Node - ' + node.name
+    tcs.append({
+        'content': step['content'],
+        'expected': step['expected'] if 'expected' in step.keys() else ''
+    })
 
 
 def edge_dtmf_dial(edge):
-    return 'DTMF Dial - ' + get_edge_properties(edge)
+    return {
+        'content': 'DTMF Dial - ' + get_item_properties(edge)
+    }
 
 
 def edge_speech_say(edge):
-    return 'Speech Say - ' + get_edge_properties(edge)
+    return {
+        'content': 'Speech Say - ' + get_item_properties(edge)
+    }
 
 
 def edge_alter_data_requirement(edge):
-    return 'Alter Data Requirement - ' + get_edge_properties(edge)
+    return {
+        'content': 'Alter Data Requirement - ' + get_item_properties(edge)
+    }
 
 
-def get_edge_properties(edge):
+def edge_precondition(edge):
+    return {
+        'content': 'PreCondition - ' + get_item_properties(edge)
+    }
+
+
+def get_item_properties(item):
     data = ''
-    for key in edge.properties:
-        data += edge.properties[key]
+    for key in item.properties:
+        data += key + ': ' + item.properties[key] + ', '
 
     return data
+
+
+def update_testcase_precondition(edge, pre_condition):
+    data = []
+    for key in edge.properties:
+        data.append(key + ': ' + edge.properties[key])
+
+    pre_condition.append(data)
+
+
+
+
