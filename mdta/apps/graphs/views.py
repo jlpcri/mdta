@@ -9,6 +9,7 @@ from mdta.apps.projects.models import Project, Module
 from .models import NodeType, EdgeType, Node, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeNewForm, NodeNewNodeForm
 from mdta.apps.projects.forms import ModuleForm
+from mdta.apps.testcases.utils import START_NODE_NAME
 
 
 @login_required
@@ -283,6 +284,8 @@ def project_module_detail(request, module_id):
     network_nodes = []
 
     outside_module_node_color = 'rgb(211, 211, 211)'
+    start_node_shape = 'star'
+    normal_node_shape = 'box'
 
     for edge in module.edges_all:
         network_edges.append({
@@ -296,12 +299,14 @@ def project_module_detail(request, module_id):
             network_nodes.append({
                 'id': node.id,
                 'label': node.name,
-                'color': outside_module_node_color
+                'color': outside_module_node_color,
+                'shape': start_node_shape if node.type.name == START_NODE_NAME else normal_node_shape
             })
         else:
             network_nodes.append({
                 'id': node.id,
                 'label': node.name,
+                'shape': start_node_shape if node.type.name == START_NODE_NAME else normal_node_shape
             })
 
     # print(module.nodes)
