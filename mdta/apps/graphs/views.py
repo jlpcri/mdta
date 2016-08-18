@@ -364,18 +364,25 @@ def module_node_new(request, module_id):
     auto_edge = request.GET.get('auto_edge', '')
     if request.method == 'POST':
         if auto_edge == 'node_edge_new':
+            # print(request.POST)
+            # return redirect('graphs:project_module_detail', module_id)
             node_form = NodeNewForm(request.POST)
             edge_type_id = request.POST.get('moduleNodeEdgeNewEdgeType', '')
             edge_priority = request.POST.get('moduleNodeEdgeNewEdgePriority', '')
             from_node_id = request.POST.get('moduleNodeEdgeNewFromNodeId', '')
             if node_form.is_valid():
                 from_node = get_object_or_404(Node, pk=from_node_id)
-                to_node = node_form.save()
-                edge_properties = {}
+                to_node = node_form.save(commit=False)
+                node_properties = {}
+                for key in to_node.type.keys:
+                    node_properties[key] = request.POST.get('node_' + key, '')
+                to_node.properties = node_properties
+                to_node.save()
 
+                edge_properties = {}
                 edge_type = get_object_or_404(EdgeType, pk=edge_type_id)
                 for key in edge_type.keys:
-                    edge_properties[key] = request.POST.get(key, '')
+                    edge_properties[key] = request.POST.get('edge_' + key, '')
                 try:
                     edge = Edge.objects.create(
                         type=edge_type,
