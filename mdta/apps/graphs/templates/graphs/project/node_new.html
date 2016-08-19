@@ -4,7 +4,10 @@
 
 {% block body %}
     <div class="container">
-        <form action="{% url 'graphs:project_node_new' project_id %}" method="post" class="projectNodeNew">
+        <div class="row">
+            <legend>Project: {{ project.name }}</legend>
+        </div>
+        <form action="{% url 'graphs:project_node_new' project.id %}" method="post" class="projectNodeNew">
             <div class="row">
                 {{ form }}
             </div>

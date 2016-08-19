@@ -2,6 +2,8 @@ from testrail import APIClient
 from mdta.apps.graphs.models import Node, Edge
 from mdta.apps.projects.models import Project, TestRailConfiguration
 
+START_NODE_NAME = 'Start'
+
 
 def context_testcases():
     """
@@ -34,7 +36,7 @@ def get_paths_through_all_edges(edges):
     data = []
     for edge in edges:
         # print(edge.id)
-        path = routing_test(edge)
+        path = routing_path_to_edge(edge)
         if path:
             tcs = []
             pre_condition = []
@@ -55,7 +57,7 @@ def get_paths_through_all_edges(edges):
     return data
 
 
-def routing_test(edge):
+def routing_path_to_edge(edge):
     """
     Routing path to current Edge, edge.from_node
     :param edge:
@@ -65,7 +67,7 @@ def routing_test(edge):
 
     data = []
 
-    route_to(edge.from_node, data, visited_nodes)
+    routing_path_to_node(edge.from_node, data, visited_nodes)
 
     if data:
         data.append(edge)
@@ -75,7 +77,7 @@ def routing_test(edge):
     return data
 
 
-def route_to(node, data, visited_nodes):
+def routing_path_to_node(node, data, visited_nodes):
     """
     Routing path to current Node
     :param node:
@@ -93,14 +95,14 @@ def route_to(node, data, visited_nodes):
 def breadth_first_search(node, path, visited_nodes):
     """
     Search a path from Start node(type='Start') to current Node
-    Breadh
+    Breadth
     :param node:
     :return:
     """
 
     start_node_found_outside = False  # flag to find Start Node outside
 
-    if node.type.name == 'Start':
+    if node.type.name == START_NODE_NAME:
         path.append(node)
     else:
         # edges = Edge.objects.filter(to_node=node)
@@ -108,11 +110,11 @@ def breadth_first_search(node, path, visited_nodes):
         if edges.count() > 0:
             start_node_found = False  # flag to find Start Node in current search
             for edge in edges:
-                if edge.from_node not in visited_nodes or edge.from_node.type.name == 'Start':  # if Node is not visited or Node is Start
+                if edge.from_node not in visited_nodes or edge.from_node.type.name == START_NODE_NAME:  # if Node is not visited or Node is Start
                     if edge.from_node != edge.to_node:
-                        if edge.from_node.type.name != 'Start':
+                        if edge.from_node.type.name != START_NODE_NAME:
                             if edge.from_node.arriving_edges.count() > 0:
-                                start_node_found_outside = True
+                                start_node_found_outside = search_start_node_outside(edge.from_node)
                                 breadth_first_search(edge.from_node, path, visited_nodes)
                         else:
                             start_node_found = True
@@ -183,7 +185,7 @@ def traverse_node(node, tcs):
     :param tcs:
     :return:
     """
-    if node.type.name == 'Start':
+    if node.type.name == START_NODE_NAME:
         add_step(node_start(node), tcs)
     elif node.type.name in ['Menu Prompt', 'Menu Prompt with Confirmation', 'Play Prompt']:
         add_step(node_prompt(node), tcs)
@@ -280,5 +282,13 @@ def update_testcase_precondition(edge, pre_condition):
     pre_condition.append(data)
 
 
+def search_start_node_outside(node):
+    flag = False
+    if node.arriving_edges.count() > 0:
+        for edge in node.arriving_edges:
+            if edge.from_node.type.name == START_NODE_NAME:
+                flag = True
+                break
 
+    return flag
 

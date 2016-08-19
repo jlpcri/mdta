@@ -26,5 +26,5 @@ urlpatterns = [
     url(r'mdta/help/', include('mdta.apps.help.urls', namespace='help')),
     url(r'mdta/testcases/', include('mdta.apps.testcases.urls', namespace='testcases')),
 
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^mdta/admin/', include(admin.site.urls)),
 ]

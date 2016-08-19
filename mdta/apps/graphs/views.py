@@ -9,6 +9,7 @@ from mdta.apps.projects.models import Project, Module
 from .models import NodeType, EdgeType, Node, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeNewForm, NodeNewNodeForm
 from mdta.apps.projects.forms import ModuleForm
+from mdta.apps.testcases.utils import START_NODE_NAME
 
 
 @login_required
@@ -68,10 +69,11 @@ def project_node_new(request, project_id):
     :return:
     """
     if request.method == 'GET':
+        project = get_object_or_404(Project, pk=project_id)
         form = NodeNewForm(project_id=project_id)
         context = {
             'form': form,
-            'project_id': project_id
+            'project': project
         }
 
         return render(request, 'graphs/project/node_new.html', context)
@@ -140,7 +142,7 @@ def project_edge_new(request, project_id):
         first_module_nodes = project_modules[0].node_set.order_by('name')
 
         context = {
-            'project_id': project.id,
+            'project': project,
 
             'edge_types': edge_types,
             'edge_priorities': edge_priorities,
@@ -256,7 +258,14 @@ def project_module_new(request, project_id):
     :param project_id:
     :return:
     """
-    if request.method == 'POST':
+    if request.method == 'GET':
+        form = ModuleForm(project_id=project_id)
+        context = {
+            'form': form,
+            'project_id': project_id
+        }
+        return render(request, 'graphs/project/module_new.html', context)
+    elif request.method == 'POST':
         form = ModuleForm(request.POST)
         if form.is_valid():
             module = form.save()
@@ -278,11 +287,13 @@ def project_module_detail(request, module_id):
     """
     module = get_object_or_404(Module, pk=module_id)
 
-    # for moduel level graph
+    # for module level graph
     network_edges = []
     network_nodes = []
 
     outside_module_node_color = 'rgb(211, 211, 211)'
+    start_node_shape = 'star'
+    normal_node_shape = 'box'
 
     for edge in module.edges_all:
         network_edges.append({
@@ -296,12 +307,14 @@ def project_module_detail(request, module_id):
             network_nodes.append({
                 'id': node.id,
                 'label': node.name,
-                'color': outside_module_node_color
+                'color': outside_module_node_color,
+                'shape': start_node_shape if node.type.name == START_NODE_NAME else normal_node_shape
             })
         else:
             network_nodes.append({
                 'id': node.id,
                 'label': node.name,
+                'shape': start_node_shape if node.type.name == START_NODE_NAME else normal_node_shape
             })
 
     # print(module.nodes)
@@ -364,18 +377,25 @@ def module_node_new(request, module_id):
     auto_edge = request.GET.get('auto_edge', '')
     if request.method == 'POST':
         if auto_edge == 'node_edge_new':
+            # print(request.POST)
+            # return redirect('graphs:project_module_detail', module_id)
             node_form = NodeNewForm(request.POST)
             edge_type_id = request.POST.get('moduleNodeEdgeNewEdgeType', '')
             edge_priority = request.POST.get('moduleNodeEdgeNewEdgePriority', '')
             from_node_id = request.POST.get('moduleNodeEdgeNewFromNodeId', '')
             if node_form.is_valid():
                 from_node = get_object_or_404(Node, pk=from_node_id)
-                to_node = node_form.save()
-                edge_properties = {}
+                to_node = node_form.save(commit=False)
+                node_properties = {}
+                for key in to_node.type.keys:
+                    node_properties[key] = request.POST.get('node_' + key, '')
+                to_node.properties = node_properties
+                to_node.save()
 
+                edge_properties = {}
                 edge_type = get_object_or_404(EdgeType, pk=edge_type_id)
                 for key in edge_type.keys:
-                    edge_properties[key] = request.POST.get(key, '')
+                    edge_properties[key] = request.POST.get('edge_' + key, '')
                 try:
                     edge = Edge.objects.create(
                         type=edge_type,

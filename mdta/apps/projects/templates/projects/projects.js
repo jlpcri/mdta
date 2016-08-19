@@ -24,7 +24,7 @@ $('.newModule #id_project').on('change', function(){
     var project_id = $(this).val(),
         location = $('.newModule #id_catalog');
 
-    set_catalog_selection_value(project_id, location);
+    set_catalog_selection_value(project_id, null, location);
 });
 
 $('.newModule form').on('submit', function(){
@@ -47,7 +47,7 @@ $('.editModule #id_project').on('change', function(){
         module_id = '{{module.id}}',
         location = $('#id_catalog');
 
-    set_catalog_selection_value(project_id, location);
+    set_catalog_selection_value(project_id, module_id, location);
 
     $.getJSON("{% url 'projects:fetch_project_catalogs_members' %}?id={0}&level=module".format(module_id)).done(function(data){
         $('#id_catalog').val(data['catalogs']);
@@ -63,7 +63,7 @@ $('.editModule form').on('submit', function(){
     }
 });
 
-function set_catalog_selection_value(project_id, location){
+function set_catalog_selection_value(project_id, module_id, location){
     $.getJSON("{% url 'projects:fetch_project_catalogs_members' %}?id={0}&level=project".format(project_id)).done(function(data){
         var option = '';
         $.each(data['catalogs_module'], function(index, value){
@@ -71,7 +71,12 @@ function set_catalog_selection_value(project_id, location){
         });
 
         location.empty().append(option);
+    });
 
-    })
+    if (module_id) {
+        $.getJSON("{% url 'projects:fetch_project_catalogs_members' %}?id={0}&level=module".format(module_id)).done(function (data) {
+            location.val(data['catalogs']);
+        })
+    }
 }
 

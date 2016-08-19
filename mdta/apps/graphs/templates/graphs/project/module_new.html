@@ -5,7 +5,7 @@
 {% block body %}
     <div class="container newModule">
         <h3>Add New Module</h3>
-        <form action="{% url 'projects:module_new' %}" method="post">
+        <form action="{% url 'graphs:project_module_new' project_id %}" method="post">
             <div class="row">
                 {{ form }}
             </div>
@@ -33,9 +33,14 @@
             var project_id = $('#id_project').val(),
                 location = $('#id_catalog');
 
-            set_catalog_selection_value(project_id, null, location);
-        });
+            $.getJSON("{% url 'projects:fetch_project_catalogs_members' %}?id={0}&level=project".format(project_id)).done(function(data){
+                var option = '';
+                $.each(data['catalogs_module'], function(index, value){
+                    option += '<option value={0}>{1}</option>'.format(value['id'], value['name']);
+                });
 
-        {% include 'projects/projects.js' %}
+                location.empty().append(option);
+            })
+        });
     </script>
 {% endblock %}

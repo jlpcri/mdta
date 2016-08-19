@@ -16,7 +16,9 @@
                             {% for project in projects %}
                                 <tr>
                                     <td><a href="{% url 'graphs:project_detail' project.id %}">{{ project.name }}</a></td>
-                                    <td>{{ project.modules_count|default:0 }}</td>
+                                    <td>{{ project.modules_count|default:0 }} |
+                                        <a href="{% url 'graphs:project_module_new' project.id %}"> new</a>
+                                    </td>
                                     <td>{{ project.nodes_count|default:0 }} |
                                         <a href="{% url 'graphs:project_node_new' project.id %}"> new</a>
                                     </td>
