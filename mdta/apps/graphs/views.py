@@ -69,10 +69,11 @@ def project_node_new(request, project_id):
     :return:
     """
     if request.method == 'GET':
+        project = get_object_or_404(Project, pk=project_id)
         form = NodeNewForm(project_id=project_id)
         context = {
             'form': form,
-            'project_id': project_id
+            'project': project
         }
 
         return render(request, 'graphs/project/node_new.html', context)
@@ -141,7 +142,7 @@ def project_edge_new(request, project_id):
         first_module_nodes = project_modules[0].node_set.order_by('name')
 
         context = {
-            'project_id': project.id,
+            'project': project,
 
             'edge_types': edge_types,
             'edge_priorities': edge_priorities,
@@ -279,7 +280,7 @@ def project_module_detail(request, module_id):
     """
     module = get_object_or_404(Module, pk=module_id)
 
-    # for moduel level graph
+    # for module level graph
     network_edges = []
     network_nodes = []
 
