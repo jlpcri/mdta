@@ -258,7 +258,14 @@ def project_module_new(request, project_id):
     :param project_id:
     :return:
     """
-    if request.method == 'POST':
+    if request.method == 'GET':
+        form = ModuleForm(project_id=project_id)
+        context = {
+            'form': form,
+            'project_id': project_id
+        }
+        return render(request, 'graphs/project/module_new.html', context)
+    elif request.method == 'POST':
         form = ModuleForm(request.POST)
         if form.is_valid():
             module = form.save()

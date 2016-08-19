@@ -177,19 +177,25 @@ def module_edit(request, module_id):
 
         return render(request, 'projects/module_edit.html', context)
     elif request.method == 'POST':
-        form = ModuleForm(request.POST, instance=module)
-        try:
-            module = form.save()
-            messages.success(request, 'Module is saved.')
+        if 'module_save' in request.POST:
+            form = ModuleForm(request.POST, instance=module)
+            try:
+                module = form.save()
+                messages.success(request, 'Module is saved.')
+                return redirect('projects:projects')
+            except Exception as e:
+                messages.error(request, str(e))
+
+                context = {
+                    'module': module,
+                    'form': form
+                }
+
+                return render(request, 'projects/module_edit.html', context)
+        elif 'module_delete' in request.POST:
+            module = get_object_or_404(Module, pk=module_id)
+            module.delete()
+
             return redirect('projects:projects')
-        except Exception as e:
-            messages.error(request, str(e))
-
-            context = {
-                'module': module,
-                'form': form
-            }
-
-            return render(request, 'projects/module_edit.html', context)
 
 

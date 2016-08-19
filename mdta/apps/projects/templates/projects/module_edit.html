@@ -18,7 +18,8 @@
 
             <div class="row" style="margin-top: 50px;">
                 <div class="col-xs-12">
-                    <input id="module_edit" class="btn btn-primary" type="submit" value="Save Module">
+                    <input name="module_save" class="btn btn-primary" type="submit" value="Save">
+                    <input name="module_delete" class="btn btn-danger" type="submit" value="Delete">
                     <input type="button" value="Cancel" class="btn btn-default" onclick="history.back(); return false;">
                 </div>
             </div>
@@ -34,11 +35,8 @@
                 module_id = '{{ module.id }}',
                 location = $('#id_catalog');
 
-            set_catalog_selection_value(project_id, location);
+            set_catalog_selection_value(project_id, module_id, location);
 
-            $.getJSON("{% url 'projects:fetch_project_catalogs_members' %}?id={0}&level=module".format(module_id)).done(function(data){
-                $('#id_catalog').val(data['catalogs']);
-            })
         });
         {% include 'projects/projects.js' %}
     </script>
