@@ -18,9 +18,11 @@
                                 <td>{{ testrail.project_id }}</td>
                                 <td>{{ testrail.test_suite }}</td>
                                 <td>
-                                    <a href="#" class="btn btn-danger btn-xs" onclick="deleteModal('{{ testrail.project_name }}', {{ testrail.id }})">
-                                        <i class="fa fa-trash-o"></i>
-                                    </a>
+                                    {% if user.is_superuser %}
+                                        <a href="#" class="btn btn-danger btn-xs" onclick="deleteModal('{{ testrail.project_name }}', {{ testrail.id }})">
+                                            <i class="fa fa-trash-o"></i>
+                                        </a>
+                                    {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}
