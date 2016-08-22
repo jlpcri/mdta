@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render, redirect
@@ -34,28 +35,38 @@ def create_testcases(request, object_id):
         link_id = project.id
         testcases = create_routing_test_suite(project=project)
 
-        try:
-            TestCaseResults.objects.create(
-                project=project,
-                results=testcases
-            )
-        except Exception as e:
-            print(str(e))
+        tc_results = TestCaseResults.objects.filter(project=project)
+        if tc_results.count() > 2:
+            tc_latest = project.testcaseresults_set.latest('updated')
+            if tc_latest.results == testcases:
+                tc_latest.updated = datetime.now()
+                tc_latest.save()
+            else:
+                tc_earliest = project.testcaseresults_set.earliest('updated')
+                tc_earliest.results = testcases
+                tc_earliest.updated = datetime.now()
+                tc_earliest.save()
+        else:
+            try:
+                TestCaseResults.objects.create(
+                    project=project,
+                    results=testcases
+                )
+            except Exception as e:
+                print(str(e))
 
     elif level == 'module':
         module = get_object_or_404(Module, pk=object_id)
         link_id = module.project.id
         testcases = create_routing_test_suite(modules=[module])
 
-        print(testcases[0])
-
-        try:
-            TestCaseResults.objects.create(
-                project=module.project,
-                results=testcases
-            )
-        except Exception as e:
-            print(str(e))
+        # try:
+        #     TestCaseResults.objects.create(
+        #         project=module.project,
+        #         results=testcases
+        #     )
+        # except Exception as e:
+        #     print(str(e))
 
     context = context_testcases()
     context['testcases'] = testcases

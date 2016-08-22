@@ -16,9 +16,10 @@
                                 <tr>
                                     <td><a href="#project-{{ project.id }}" data-toggle="tab">{{ project.name }}</a></td>
                                     <td>
-                                        <a href="{% url 'testcases:create_testcases' project.id %}?level=project">project</a>
+                                        <a href="#">TCs</a> |
+                                        <a href="{% url 'testcases:create_testcases' project.id %}?level=project">Generate </a>
                                     </td>
-                                    <td><a href="{% url 'testcases:push_testcases_to_testrail' project.id %}">testrail</a></td>
+                                    <td><a href="{% url 'testcases:push_testcases_to_testrail' project.id %}">Push to TestRail</a></td>
                                 </tr>
                             {% endfor %}
                         </tbody>

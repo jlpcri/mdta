@@ -17,4 +17,4 @@ class TestCaseResults(models.Model):
 
     def __str__(self):
         return '{0}: {1}'.format(self.project.name,
-                                 localtime(self.created))
+                                 localtime(self.updated))
