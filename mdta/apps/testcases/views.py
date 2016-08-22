@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from testrail import APIClient, APIError
 
 from mdta.apps.projects.models import Project, Module, TestRailInstance, TestRailConfiguration
-from .models import TestCaseHistory
+from .models import TestCaseResults
 from .utils import context_testcases, get_paths_through_all_edges, get_projects_from_testrail
 from .forms import TestrailConfigurationForm
 
@@ -34,26 +34,28 @@ def create_testcases(request, object_id):
         link_id = project.id
         testcases = create_routing_test_suite(project=project)
 
-        # print(testcases)
-        # # update TestCaseHistory for current project
-        # TestCaseHistory.objects.create(
-        #     project=project,
-        #     results=''
-        # )
+        try:
+            TestCaseResults.objects.create(
+                project=project,
+                results=testcases
+            )
+        except Exception as e:
+            print(str(e))
 
     elif level == 'module':
         module = get_object_or_404(Module, pk=object_id)
         link_id = module.project.id
         testcases = create_routing_test_suite(modules=[module])
 
-        # print(testcases)
-        # try:
-        #     TestCaseHistory.objects.create(
-        #         project=module.project,
-        #         results=testcases
-        #     )
-        # except Exception as e:
-        #     print(str(e))
+        print(testcases[0])
+
+        try:
+            TestCaseResults.objects.create(
+                project=module.project,
+                results=testcases
+            )
+        except Exception as e:
+            print(str(e))
 
     context = context_testcases()
     context['testcases'] = testcases
