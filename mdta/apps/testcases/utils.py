@@ -26,6 +26,42 @@ def get_projects_from_testrail(instance):
     return client.send_get('get_projects')
 
 
+def create_routing_test_suite(project=None, modules=None):
+    """
+    Create routing paths for project.modules lists or module lists
+    :param project:
+    :param modules:
+    :return:
+    """
+    data = []
+
+    if project:
+        data = create_routing_test_suite_module(project.modules)
+    elif modules:
+        data = create_routing_test_suite_module(modules)
+
+    return data
+
+
+def create_routing_test_suite_module(modules):
+    """
+    Create routing paths for list of modules
+    :param modules:
+    :return:
+    """
+    test_suites = []
+
+    for module in modules:
+        data = get_paths_through_all_edges(module.edges_all)
+
+        test_suites.append({
+            'module': module.name,
+            'data': data
+        })
+
+    return test_suites
+
+
 def get_paths_through_all_edges(edges):
     """
     Get all paths through all edges
