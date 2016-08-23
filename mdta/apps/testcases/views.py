@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from testrail import APIClient, APIError
 
 from mdta.apps.projects.models import Project, Module, TestRailInstance, TestRailConfiguration
+from mdta.apps.testcases.models import TestCaseResults
 from mdta.apps.testcases.tasks import create_testcases_celery
 from .utils import context_testcases, get_projects_from_testrail, create_routing_test_suite
 from .forms import TestrailConfigurationForm
@@ -32,42 +33,44 @@ def create_testcases(request, object_id):
     if level == 'project':
         create_testcases_celery(object_id)
 
-        # project = get_object_or_404(Project, pk=object_id)
-        # link_id = project.id
-        # testcases = create_routing_test_suite(project=project)
-        #
-        # tc_results = TestCaseResults.objects.filter(project=project)
-        # if tc_results.count() > 2:
-        #     tc_latest = project.testcaseresults_set.latest('updated')
-        #     if tc_latest.results == testcases:
-        #         tc_latest.updated = datetime.now()
-        #         tc_latest.save()
-        #     else:
-        #         tc_earliest = project.testcaseresults_set.earliest('updated')
-        #         tc_earliest.results = testcases
-        #         tc_earliest.updated = datetime.now()
-        #         tc_earliest.save()
-        # else:
-        #     try:
-        #         TestCaseResults.objects.create(
-        #             project=project,
-        #             results=testcases
-        #         )
-        #     except Exception as e:
-        #         print(str(e))
-
     elif level == 'module':
         module = get_object_or_404(Module, pk=object_id)
         link_id = module.project.id
         testcases = create_routing_test_suite(modules=[module])
 
-        # try:
-        #     TestCaseResults.objects.create(
-        #         project=module.project,
-        #         results=testcases
-        #     )
-        # except Exception as e:
-        #     print(str(e))
+    context = context_testcases()
+    context['testcases'] = testcases
+    context['link_id'] = link_id
+
+    return render(request, 'testcases/testcases.html', context)
+
+
+@login_required
+def demonstrate_testcases(request, object_id):
+    """
+    Demonstrate TestCases of Project/Module from TestCaseResults
+    :param request:
+    :param object_id:
+    :return:
+    """
+    level = request.GET.get('level', '')
+    if level == 'project':
+        project = get_object_or_404(Project, pk=object_id)
+        link_id = project.id
+        try:
+            testcases = project.testcaseresults_set.latest('updated').results
+        except TestCaseResults.DoesNotExist:
+            testcases = []
+    elif level == 'module':
+        module = get_object_or_404(Module, pk=object_id)
+        link_id = module.project.id
+        try:
+            testcases = module.project.testcaseresults_set.latest('updated').results
+        except TestCaseResults.DoesNotExist:
+            testcases = []
+    else:
+        testcases = []
+        link_id = ''
 
     context = context_testcases()
     context['testcases'] = testcases
