@@ -18,7 +18,7 @@ class TestCaseHistoryModelTest(TestCase):
         )
 
         self.assertEqual(str(test_case_result), '{0}: {1}'.format(self.project.name,
-                                                                  localtime(test_case_result.created)))
+                                                                  localtime(test_case_result.updated)))
 
     def test_verbose_name_plural(self):
         self.assertEqual(str(TestCaseResults._meta.verbose_name_plural), 'test case resultss')

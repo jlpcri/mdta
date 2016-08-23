@@ -17,7 +17,7 @@
                                     <td><a href="#project-{{ project.id }}" data-toggle="tab">{{ project.name }}</a></td>
                                     <td>
                                         <a href="{% url 'testcases:demonstrate_testcases' project.id %}?level=project">TCs</a> |
-                                        <a href="{% url 'testcases:create_testcases' project.id %}?level=project">Generate </a>
+                                        <a href="{% url 'testcases:create_testcases' project.id %}?level=project"><i class="fa fa-globe fa-fw"></i> </a>
                                     </td>
                                     <td><a href="{% url 'testcases:push_testcases_to_testrail' project.id %}">Push to TestRail</a></td>
                                 </tr>
@@ -79,7 +79,7 @@
                                         <li>
                                             <a href="{% url 'testcases:demonstrate_testcases' module.id %}?level=module">{{ module.name }}</a>
                                             {% if user.is_superuser %}
-                                                <a href="{% url 'testcases:create_testcases' module.id %}?level=module"><i class="fa fa-support fa-fw"></i> </a>
+                                                <a href="{% url 'testcases:create_testcases' module.id %}?level=module"><i class="fa fa-hourglass-2 fa-fw"></i> </a>
                                             {% endif %}
                                         </li>
                                     {% endfor %}

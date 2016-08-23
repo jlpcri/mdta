@@ -65,7 +65,8 @@ def demonstrate_testcases(request, object_id):
         module = get_object_or_404(Module, pk=object_id)
         link_id = module.project.id
         try:
-            testcases = module.project.testcaseresults_set.latest('updated').results
+            tmp_tcs = module.project.testcaseresults_set.latest('updated').results
+            testcases = [(item for item in tmp_tcs if item['module'] == module.name).__next__()]
         except TestCaseResults.DoesNotExist:
             testcases = []
     else:
