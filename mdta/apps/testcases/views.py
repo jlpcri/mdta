@@ -1,4 +1,3 @@
-from datetime import datetime
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render, redirect
@@ -6,8 +5,9 @@ from django.shortcuts import get_object_or_404, render, redirect
 from testrail import APIClient, APIError
 
 from mdta.apps.projects.models import Project, Module, TestRailInstance, TestRailConfiguration
-from .models import TestCaseResults
-from .utils import context_testcases, get_paths_through_all_edges, get_projects_from_testrail
+from mdta.apps.testcases.models import TestCaseResults
+from mdta.apps.testcases.tasks import create_testcases_celery
+from .utils import context_testcases, get_projects_from_testrail, create_routing_test_suite
 from .forms import TestrailConfigurationForm
 
 
@@ -31,42 +31,12 @@ def create_testcases(request, object_id):
     link_id = ''
     level = request.GET.get('level', '')
     if level == 'project':
-        project = get_object_or_404(Project, pk=object_id)
-        link_id = project.id
-        testcases = create_routing_test_suite(project=project)
-
-        tc_results = TestCaseResults.objects.filter(project=project)
-        if tc_results.count() > 2:
-            tc_latest = project.testcaseresults_set.latest('updated')
-            if tc_latest.results == testcases:
-                tc_latest.updated = datetime.now()
-                tc_latest.save()
-            else:
-                tc_earliest = project.testcaseresults_set.earliest('updated')
-                tc_earliest.results = testcases
-                tc_earliest.updated = datetime.now()
-                tc_earliest.save()
-        else:
-            try:
-                TestCaseResults.objects.create(
-                    project=project,
-                    results=testcases
-                )
-            except Exception as e:
-                print(str(e))
+        create_testcases_celery(object_id)
 
     elif level == 'module':
         module = get_object_or_404(Module, pk=object_id)
         link_id = module.project.id
         testcases = create_routing_test_suite(modules=[module])
-
-        # try:
-        #     TestCaseResults.objects.create(
-        #         project=module.project,
-        #         results=testcases
-        #     )
-        # except Exception as e:
-        #     print(str(e))
 
     context = context_testcases()
     context['testcases'] = testcases
@@ -75,40 +45,39 @@ def create_testcases(request, object_id):
     return render(request, 'testcases/testcases.html', context)
 
 
-def create_routing_test_suite(project=None, modules=None):
+@login_required
+def demonstrate_testcases(request, object_id):
     """
-    Create routing paths for project.modules lists or module lists
-    :param project:
-    :param modules:
+    Demonstrate TestCases of Project/Module from TestCaseResults
+    :param request:
+    :param object_id:
     :return:
     """
-    data = []
+    level = request.GET.get('level', '')
+    if level == 'project':
+        project = get_object_or_404(Project, pk=object_id)
+        link_id = project.id
+        try:
+            testcases = project.testcaseresults_set.latest('updated').results
+        except TestCaseResults.DoesNotExist:
+            testcases = []
+    elif level == 'module':
+        module = get_object_or_404(Module, pk=object_id)
+        link_id = module.project.id
+        try:
+            tmp_tcs = module.project.testcaseresults_set.latest('updated').results
+            testcases = [(item for item in tmp_tcs if item['module'] == module.name).__next__()]
+        except TestCaseResults.DoesNotExist:
+            testcases = []
+    else:
+        testcases = []
+        link_id = ''
 
-    if project:
-        data = create_routing_test_suite_module(project.modules)
-    elif modules:
-        data = create_routing_test_suite_module(modules)
+    context = context_testcases()
+    context['testcases'] = testcases
+    context['link_id'] = link_id
 
-    return data
-
-
-def create_routing_test_suite_module(modules):
-    """
-    Create routing paths for list of modules
-    :param modules:
-    :return:
-    """
-    test_suites = []
-
-    for module in modules:
-        data = get_paths_through_all_edges(module.edges_all)
-
-        test_suites.append({
-            'module': module.name,
-            'data': data
-        })
-
-    return test_suites
+    return render(request, 'testcases/testcases.html', context)
 
 
 @login_required
