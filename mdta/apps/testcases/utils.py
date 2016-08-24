@@ -66,7 +66,6 @@ def get_paths_through_all_edges(edges):
     """
     Get all paths through all edges
     :param edges:
-    :param data:
     :return:
     """
     data = []
@@ -77,18 +76,19 @@ def get_paths_through_all_edges(edges):
             tcs = []
             pre_condition = []
             # for index, step in enumerate(path, start=1):
-            for step in path:
-                if isinstance(step, Node):
-                    traverse_node(step, tcs)
-                if isinstance(step, Edge):
-                    if step.type.name == 'PreCondition':
-                        update_testcase_precondition(step, pre_condition)
-                    traverse_edge(step, tcs)
+            if isinstance(path[0], Node) and path[0].type.name == START_NODE_NAME:
+                for step in path:
+                    if isinstance(step, Node):
+                        traverse_node(step, tcs)
+                    if isinstance(step, Edge):
+                        if step.type.name == 'PreCondition':
+                            update_testcase_precondition(step, pre_condition)
+                        traverse_edge(step, tcs)
 
-            data.append({
-                'pre_condition': pre_condition,
-                'tc_steps': tcs
-            })
+                data.append({
+                    'pre_condition': pre_condition,
+                    'tc_steps': tcs
+                })
     # return check_subpath_in_all(data)
     return data
 
@@ -150,7 +150,7 @@ def breadth_first_search(node, path, visited_nodes):
                     if edge.from_node != edge.to_node:
                         if edge.from_node.type.name != START_NODE_NAME:
                             if edge.from_node.arriving_edges.count() > 0:
-                                start_node_found_outside = search_start_node_outside(edge.from_node)
+                                start_node_found_outside = True
                                 breadth_first_search(edge.from_node, path, visited_nodes)
                         else:
                             start_node_found = True
@@ -217,7 +217,7 @@ def check_path_contains_in_result(path, result):
 def traverse_node(node, tcs):
     """
     Traverse Node based on node type
-    :param step:
+    :param node:
     :param tcs:
     :return:
     """
@@ -318,13 +318,4 @@ def update_testcase_precondition(edge, pre_condition):
     pre_condition.append(data)
 
 
-def search_start_node_outside(node):
-    flag = False
-    if node.arriving_edges.count() > 0:
-        for edge in node.arriving_edges:
-            if edge.from_node.type.name == START_NODE_NAME:
-                flag = True
-                break
-
-    return flag
 
