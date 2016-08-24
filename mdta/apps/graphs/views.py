@@ -1,11 +1,12 @@
 import json
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new, check_edge_in_set
 
 from mdta.apps.projects.models import Project, Module
+from mdta.apps.users.views import user_is_staff
 from .models import NodeType, EdgeType, Node, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeNewForm, NodeNewNodeForm
 from mdta.apps.projects.forms import ModuleForm
@@ -30,7 +31,7 @@ def graphs(request):
     return render(request, 'graphs/graphs.html', context)
 
 
-@login_required
+@user_passes_test(user_is_staff)
 def node_type_new(request):
     """
     Add new NodeType from apps/graphs
@@ -44,7 +45,7 @@ def node_type_new(request):
         return redirect('graphs:graphs')
 
 
-@login_required
+@user_passes_test(user_is_staff)
 def node_type_edit(request):
     """
     Edit NodeType from apps/graphs
@@ -60,7 +61,7 @@ def node_type_edit(request):
         return redirect('graphs:graphs')
 
 
-@login_required
+@user_passes_test(user_is_staff)
 def project_node_new(request, project_id):
     """
     Add new Node from apps/graphs
@@ -96,7 +97,7 @@ def project_node_new(request, project_id):
         return redirect('graphs:graphs')
 
 
-@login_required
+@user_passes_test(user_is_staff)
 def edge_type_new(request):
     """
     Add new EdgeType from apps/graphs
@@ -110,7 +111,7 @@ def edge_type_new(request):
         return redirect('graphs:graphs')
 
 
-@login_required
+@user_passes_test(user_is_staff)
 def edge_type_edit(request):
     """
     Edit EdgeType from apps/graphs
@@ -126,7 +127,7 @@ def edge_type_edit(request):
         return redirect('graphs:graphs')
 
 
-@login_required
+@user_passes_test(user_is_staff)
 def project_edge_new(request, project_id):
     """
     Add new Edge from apps/graphs
@@ -250,7 +251,7 @@ def project_detail(request, project_id):
     return render(request, 'graphs/project/project_detail.html', context)
 
 
-@login_required
+@user_passes_test(user_is_staff)
 def project_module_new(request, project_id):
     """
     Add new module from project view
@@ -337,7 +338,7 @@ def project_module_detail(request, module_id):
     return render(request, 'graphs/module/module_detail.html', context)
 
 
-@login_required
+@user_passes_test(user_is_staff)
 def project_module_edit(request, project_id):
     """
     Edit module from project view, include Edition/Deletion
@@ -366,7 +367,7 @@ def project_module_edit(request, project_id):
         return redirect('graphs:project_detail', project_id)
 
 
-@login_required
+@user_passes_test(user_is_staff)
 def module_node_new(request, module_id):
     """
     Add new node from module view
@@ -431,7 +432,7 @@ def module_node_new(request, module_id):
         return redirect('graphs:project_module_detail', module_id)
 
 
-@login_required
+@user_passes_test(user_is_staff)
 def module_node_edit(request, node_id):
     """
     Edit node from module view
@@ -467,7 +468,7 @@ def module_node_edit(request, node_id):
         return redirect('graphs:project_module_detail', node.module.id)
 
 
-@login_required
+@user_passes_test(user_is_staff)
 def module_edge_new(request, module_id):
     """
     Add new edge from module view
@@ -493,7 +494,7 @@ def module_edge_new(request, module_id):
         return redirect('graphs:project_module_detail', module_id)
 
 
-@login_required
+@user_passes_test(user_is_staff)
 def module_edge_edit(request, edge_id):
     """
     Edit edge from module view

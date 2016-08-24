@@ -11,6 +11,10 @@ def user_is_superuser(user):
     return user.is_superuser
 
 
+def user_is_staff(user):
+    return user.is_staff or user.is_active
+
+
 @login_required
 def home(request):
     return render(request, 'users/home.html')

@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, render, redirect
 
 from testrail import APIClient, APIError
@@ -7,6 +7,7 @@ from testrail import APIClient, APIError
 from mdta.apps.projects.models import Project, Module, TestRailInstance, TestRailConfiguration
 from mdta.apps.testcases.models import TestCaseResults
 from mdta.apps.testcases.tasks import create_testcases_celery
+from mdta.apps.users.views import user_is_superuser, user_is_staff
 from .utils import context_testcases, get_projects_from_testrail, create_routing_test_suite
 from .forms import TestrailConfigurationForm
 
@@ -18,7 +19,7 @@ def testcases(request):
     return render(request, 'testcases/testcases.html', context)
 
 
-@login_required
+@user_passes_test(user_is_staff)
 def create_testcases(request, object_id):
     """
     Create TestCases per project/module
@@ -43,6 +44,16 @@ def create_testcases(request, object_id):
     context['link_id'] = link_id
 
     return render(request, 'testcases/testcases.html', context)
+
+
+@user_passes_test(user_is_superuser)
+def create_testcases_all(request):
+    projects = Project.objects.all()
+    for project in projects:
+        create_testcases_celery(project.id)
+        # create_testcases_celery.delay(project.id)
+
+    return redirect('testcases:testcases')
 
 
 @login_required
@@ -80,7 +91,7 @@ def demonstrate_testcases(request, object_id):
     return render(request, 'testcases/testcases.html', context)
 
 
-@login_required
+@user_passes_test(user_is_staff)
 def push_testcases_to_testrail(request, project_id):
     """
     Push Testcases of project to TestRail
@@ -97,10 +108,36 @@ def push_testcases_to_testrail(request, project_id):
         client.password = project.testrail.instance.password
 
         testrail_contents = client.send_get('get_project/' + project.testrail.project_id)
-        # testrail_contents_case = client.send_get('get_case/23896')
+
+        tr_suites = client.send_get('get_suites/' + project.testrail.project_id)
+        testcases = project.testcaseresults_set.latest('updated').results
+
+        if project.testrail.project_id == '6':  # TestRail project 'test'
+            for item in testcases:
+                if item['data']:
+                    try:
+                        tr_suite = (suite for suite in tr_suites if suite['name'] == item['module']).__next__()
+                        # client.send_post('delete_suite/' + str(tr_suite['id']), None)
+                    except Exception as e:
+                        print(e)
+                        suite_data = {
+                            'name': item['module'],
+                            'description': ''
+                        }
+                        suite = client.send_post('add_suite/' + project.testrail.project_id, suite_data)
+                        print(suite)
+
+                    print(tr_suite['id'], tr_suite['name'])
+                    # tr_suite_tcs = client.send_get('get_cases/' +
+                    #                                project.testrail.project_id +
+                    #                                '&suite_id=' + tr_suite['id']
+                    #                                )
+                    # print(tr_suite_tcs)
 
     except AttributeError:
-        print('No Testrail config')
+        testrail_contents = {
+            'Error': 'No TestRail config'
+        }
 
     context = context_testcases()
     context['testrail'] = testrail_contents
@@ -112,7 +149,7 @@ def push_testcases_to_testrail(request, project_id):
     return render(request, 'testcases/testcases.html', context)
 
 
-@login_required
+@user_passes_test(user_is_staff)
 def testrail_configuration_new(request):
     if request.method == 'GET':
         context = {
@@ -139,7 +176,7 @@ def testrail_configuration_new(request):
         return redirect('testcases:testcases')
 
 
-@login_required
+@user_passes_test(user_is_superuser)
 def testrail_configuration_delete(request, testrail_id):
     testrail = get_object_or_404(TestRailConfiguration, pk=testrail_id)
 

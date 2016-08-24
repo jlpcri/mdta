@@ -1,9 +1,10 @@
 import json
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from mdta.apps.projects.utils import context_projects
+from mdta.apps.users.views import user_is_staff
 
 from .models import Project, Module
 from .forms import ProjectForm, ModuleForm
@@ -19,7 +20,7 @@ def projects(request):
     return render(request, 'projects/projects.html', context_projects())
 
 
-@login_required
+@user_passes_test(user_is_staff)
 def project_new(request):
     """
     Add new project
@@ -52,7 +53,7 @@ def project_new(request):
             return render(request, 'projects/project_new.html', context)
 
 
-@login_required
+@user_passes_test(user_is_staff)
 def project_edit(request, project_id):
     """
     Edit project
@@ -129,7 +130,7 @@ def fetch_project_catalogs_members(request):
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
-@login_required
+@user_passes_test(user_is_staff)
 def module_new(request):
     """
     Add new module of project
@@ -160,7 +161,7 @@ def module_new(request):
             return render(request, 'projects/module_new.html', context)
 
 
-@login_required
+@user_passes_test(user_is_staff)
 def module_edit(request, module_id):
     """
     Edit module of project
