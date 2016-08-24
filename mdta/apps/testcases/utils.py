@@ -87,7 +87,8 @@ def get_paths_through_all_edges(edges):
 
                 data.append({
                     'pre_condition': pre_condition,
-                    'tc_steps': tcs
+                    'tc_steps': tcs,
+                    'title': 'Route from ' + edge.from_node.name + ' to ' + edge.to_node.name
                 })
     # return check_subpath_in_all(data)
     return data

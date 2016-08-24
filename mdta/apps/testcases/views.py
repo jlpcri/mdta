@@ -133,7 +133,7 @@ def push_testcases_to_testrail(request, project_id):
                                 for pre_cond in each_tc['pre_condition']:
                                     custom_preconds += ', '.join(pre_cond) + '; '
                                 tc_data = {
-                                    'title': 'Test Case',
+                                    'title': each_tc['title'],
                                     'custom_preconds': custom_preconds,
                                     'custom_steps_seperated': each_tc['tc_steps']
                                 }
