@@ -8,7 +8,8 @@ from mdta.apps.projects.models import Project, Module, TestRailInstance, TestRai
 from mdta.apps.testcases.models import TestCaseResults
 from mdta.apps.testcases.tasks import create_testcases_celery
 from mdta.apps.users.views import user_is_superuser, user_is_staff
-from .utils import context_testcases, get_projects_from_testrail, create_routing_test_suite
+from .utils import context_testcases, get_projects_from_testrail, create_routing_test_suite, add_testcase_to_section, \
+    remove_section_from_testsuite, add_section_to_testsuite, add_testsuite_to_project
 from .forms import TestrailConfigurationForm
 
 
@@ -117,46 +118,35 @@ def push_testcases_to_testrail(request, project_id):
             # Find or Create TestSuites in TestRail
             try:
                 tr_suite = (suite for suite in tr_suites if suite['name'] == project.testrail.test_suite[0]).__next__()
-                # client.send_post('delete_suite/' + str(tr_suite['id']), None)
-                tr_suite_sections = client.send_get('get_sections/' + project.testrail.project_id + '&suite_id=' + str(tr_suite['id']))
-                # print(tr_suite_sections)
-
-                # Find or Create Section of TestSuites
-                for item in testcases:
-                    try:
-                        section = (section for section in tr_suite_sections if section['name'] == item['module']).__next__()
-                        # print('found: ', section['name'])
-                        # Add new TestCases
-                        if item['data']:
-                            for each_tc in item['data']:
-                                custom_preconds = ''
-                                for pre_cond in each_tc['pre_condition']:
-                                    custom_preconds += ', '.join(pre_cond) + '; '
-                                tc_data = {
-                                    'title': each_tc['title'],
-                                    'custom_preconds': custom_preconds,
-                                    'custom_steps_seperated': each_tc['tc_steps']
-                                }
-                                try:
-                                    tc = client.send_post('add_case/' + str(section['id']), tc_data)
-                                except Exception as e:
-                                    print('TestCase: ', e)
-
-                    except Exception as e:
-                        print('Section: ', e)
-                        section_data = {
-                            'suite_id': tr_suite['id'],
-                            'name': item['module']
-                        }
-                        section = client.send_post('add_section/' + project.testrail.project_id, section_data)
-
             except Exception as e:
                 print('Suite: ', e)
-                suite_data = {
-                    'name': project.testrail.test_suite[0],
-                    'description': ''
-                }
-                suite = client.send_post('add_suite/' + project.testrail.project_id, suite_data)
+                tr_suite = add_testsuite_to_project(client,
+                                                    project.testrail.project_id,
+                                                    project.testrail.test_suite[0])
+
+            tr_suite_sections = client.send_get('get_sections/' + project.testrail.project_id + '&suite_id=' + str(tr_suite['id']))
+            # print(tr_suite_sections)
+
+            # Find or Create Section of TestSuites
+            for item in testcases:
+                try:
+                    section = (section for section in tr_suite_sections if section['name'] == item['module']).__next__()
+                    remove_section_from_testsuite(client, str(section['id']))
+
+                    section_id = add_section_to_testsuite(client,
+                                                          project.testrail.project_id,
+                                                          tr_suite['id'],
+                                                          item['module'])
+
+                    add_testcase_to_section(client, section_id, item['data'])
+
+                except Exception as e:
+                    print('Section: ', e)
+                    section_id = add_section_to_testsuite(client,
+                                                          project.testrail.project_id,
+                                                          tr_suite['id'],
+                                                          item['module'])
+                    add_testcase_to_section(client, section_id, item['data'])
 
     except AttributeError:
         testrail_contents = {

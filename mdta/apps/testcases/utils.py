@@ -18,14 +18,7 @@ def context_testcases():
     return context
 
 
-def get_projects_from_testrail(instance):
-    client = APIClient(instance.host)
-    client.user = instance.username
-    client.password = instance.password
-
-    return client.send_get('get_projects')
-
-
+# --------------- Routing Project/Module Graph Start ---------------
 def create_routing_test_suite(project=None, modules=None):
     """
     Create routing paths for project.modules lists or module lists
@@ -318,5 +311,63 @@ def update_testcase_precondition(edge, pre_condition):
 
     pre_condition.append(data)
 
+# --------------- Routing Project/Module Graph End ---------------
 
 
+# --------------- TestRail Start ---------------
+def get_projects_from_testrail(instance):
+    """
+    Get Projects from TestRail to help adding TestRail Configuration
+    :param instance:
+    :return:
+    """
+    client = APIClient(instance.host)
+    client.user = instance.username
+    client.password = instance.password
+
+    return client.send_get('get_projects')
+
+
+def add_testsuite_to_project(client, project_id, suite_name):
+    data = {
+        'name': suite_name,
+        'description': ''
+    }
+
+    suite = client.send_post('add_suite/' + project_id, data)
+
+    return suite
+
+
+def add_section_to_testsuite(client, project_id, suite_id, section_name):
+    data = {
+        'suite_id': suite_id,
+        'name': section_name
+    }
+
+    section = client.send_post('add_section/' + project_id, data)
+
+    return str(section['id'])
+
+
+def remove_section_from_testsuite(client, section_id):
+    client.send_post('delete_section/' + section_id, None)
+
+
+def add_testcase_to_section(client, section_id, data):
+    try:
+        for each_tc in data:
+            custom_preconds = ''
+            for pre_cond in each_tc['pre_condition']:
+                custom_preconds += ', '.join(pre_cond) + '; '
+            tc_data = {
+                'title': each_tc['title'],
+                'custom_preconds': custom_preconds,
+                'custom_steps_seperated': each_tc['tc_steps']
+            }
+            client.send_post('add_case/' + section_id, tc_data)
+    except Exception as e:
+        print('TestCase: ', e)
+
+
+# --------------- TestRail End ---------------
