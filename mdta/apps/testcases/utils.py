@@ -334,9 +334,12 @@ def add_testsuite_to_project(client, project_id, suite_name):
         'description': ''
     }
 
-    suite = client.send_post('add_suite/' + project_id, data)
-
-    return suite
+    try:
+        suite = client.send_post('add_suite/' + project_id, data)
+        return suite
+    except Exception as e:
+        print('Add Suite Error: ', e)
+        return None
 
 
 def add_section_to_testsuite(client, project_id, suite_id, section_name):

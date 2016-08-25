@@ -113,7 +113,7 @@ def push_testcases_to_testrail(request, project_id):
         tr_suites = client.send_get('get_suites/' + project.testrail.project_id)
         testcases = project.testcaseresults_set.latest('updated').results
 
-        if project.testrail.project_id == '6':  # TestRail project 'test'
+        if project.testrail.project_id in ['6', '10']:  # TestRail project 'test'
 
             # Find or Create TestSuites in TestRail
             try:
@@ -123,6 +123,9 @@ def push_testcases_to_testrail(request, project_id):
                 tr_suite = add_testsuite_to_project(client,
                                                     project.testrail.project_id,
                                                     project.testrail.test_suite[0])
+                if not tr_suite:
+                    messages.error(request, 'You are not allowed (insufficient permissions)')
+                    return redirect('testcases:testcases')
 
             tr_suite_sections = client.send_get('get_sections/' + project.testrail.project_id + '&suite_id=' + str(tr_suite['id']))
             # print(tr_suite_sections)
