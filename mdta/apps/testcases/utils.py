@@ -81,7 +81,7 @@ def get_paths_through_all_edges(edges):
                 data.append({
                     'pre_condition': pre_condition,
                     'tc_steps': tcs,
-                    'title': 'Route from ' + edge.from_node.name + ' to ' + edge.to_node.name
+                    'title': 'Route from \'' + edge.from_node.name + '\' to \'' + edge.to_node.name + '\''
                 })
     # return check_subpath_in_all(data)
     return data
@@ -237,9 +237,16 @@ def node_prompt(node):
 
 
 def node_check_holly_log(node):
-    return {
-        'content': 'Node - ' + node.name
-    }
+    if node.properties:
+        data = {
+            'content': 'Node - ' + node.name + ', ' + get_item_properties(node)
+        }
+    else:
+        data = {
+            'content': 'Node - ' + node.name
+        }
+
+    return data
 
 
 def traverse_edge(edge, tcs):
