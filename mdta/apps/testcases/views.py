@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, render, redirect
 
-from testrail import APIClient, APIError
+from testrail import APIClient
 
 from mdta.apps.projects.models import Project, Module, TestRailInstance, TestRailConfiguration
 from mdta.apps.testcases.models import TestCaseResults
@@ -118,14 +118,15 @@ def push_testcases_to_testrail(request, project_id):
             # Find or Create TestSuites in TestRail
             try:
                 tr_suite = (suite for suite in tr_suites if suite['name'] == project.testrail.test_suite[0]).__next__()
-            except Exception as e:
+            except StopIteration as e:
                 print('Suite: ', e)
                 tr_suite = add_testsuite_to_project(client,
                                                     project.testrail.project_id,
                                                     project.testrail.test_suite[0])
                 if not tr_suite:
-                    messages.error(request, 'You are not allowed (insufficient permissions)')
-                    return redirect('testcases:testcases')
+                    messages.error(request, 'You are not allowed (Insufficient Permissions)')
+                    # return redirect('testcases:testcases')
+                    raise PermissionError('Insufficient Permissions')
 
             tr_suite_sections = client.send_get('get_sections/' + project.testrail.project_id + '&suite_id=' + str(tr_suite['id']))
             # print(tr_suite_sections)
@@ -143,7 +144,7 @@ def push_testcases_to_testrail(request, project_id):
 
                     add_testcase_to_section(client, section_id, item['data'])
 
-                except Exception as e:
+                except StopIteration as e:
                     print('Section: ', e)
                     section_id = add_section_to_testsuite(client,
                                                           project.testrail.project_id,
@@ -155,6 +156,9 @@ def push_testcases_to_testrail(request, project_id):
         testrail_contents = {
             'Error': 'No TestRail config'
         }
+
+    except PermissionError as e:
+        testrail_contents['error'] = e
 
     context = context_testcases()
     context['testrail'] = testrail_contents
