@@ -117,15 +117,14 @@ def push_testcases_to_testrail(request, project_id):
 
             # Find or Create TestSuites in TestRail
             try:
-                tr_suite = (suite for suite in tr_suites if suite['name'] == project.testrail.test_suite[0]).__next__()
+                tr_suite = (suite for suite in tr_suites if suite['name'] == project.version).__next__()
             except StopIteration as e:
                 print('Suite: ', e)
                 tr_suite = add_testsuite_to_project(client,
                                                     project.testrail.project_id,
-                                                    project.testrail.test_suite[0])
+                                                    project.version)
                 if not tr_suite:
                     messages.error(request, 'You are not allowed (Insufficient Permissions)')
-                    # return redirect('testcases:testcases')
                     raise PermissionError('Insufficient Permissions')
 
             tr_suite_sections = client.send_get('get_sections/' + project.testrail.project_id + '&suite_id=' + str(tr_suite['id']))
@@ -157,7 +156,7 @@ def push_testcases_to_testrail(request, project_id):
             'Error': 'No TestRail config'
         }
 
-    except PermissionError as e:
+    except (TestCaseResults.DoesNotExist, PermissionError) as e:
         testrail_contents['error'] = e
 
     context = context_testcases()
