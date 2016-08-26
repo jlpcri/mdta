@@ -185,10 +185,18 @@ def testrail_configuration_new(request):
 
         form = TestrailConfigurationForm(request.POST)
         if form.is_valid():
+            suites = []
             testrail_new = form.save(commit=False)
             testrail_find = next(item for item in testrail_projects if item['name'] == testrail_new.project_name)
             testrail_new.project_id = testrail_find['id']
-            testrail_new.test_suite = []
+
+            client = APIClient(testrail_new.instance.host)
+            client.user = testrail_new.instance.username
+            client.password = testrail_new.instance.password
+            testrail_find_suites = client.send_get('get_suites/' + str(testrail_new.project_id))
+            for suite in testrail_find_suites:
+                suites.append(suite['name'])
+            testrail_new.test_suite = suites
 
             testrail_new.save()
         else:

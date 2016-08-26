@@ -30,7 +30,7 @@ class TestRailConfiguration(models.Model):
     test_suite = ArrayField(models.CharField(max_length=200), blank=True, null=True)
 
     def __str__(self):
-        return '{0}: {1}'.format(self.project_name, self.test_suite)
+        return '{0}: {1}'.format(self.project_name, self.project_id)
 
     class Meta:
         ordering = ['project_name']
@@ -61,7 +61,12 @@ class Project(models.Model):
     Entry of each project which will be represented to Model Driven Graph
     """
     name = models.CharField(max_length=50, unique=True, default='')
-    testrail = models.ForeignKey(TestRailConfiguration, blank=True, null=True)
+
+    version = models.TextField()  # relate to TestRail-TestSuites
+    testrail = models.ForeignKey(TestRailConfiguration,
+                                 models.SET_NULL,
+                                 blank=True,
+                                 null=True,)
     catalog = models.ManyToManyField(CatalogItem, blank=True)
 
     lead = models.ForeignKey(HumanResource, related_name='project_lead', null=True, blank=True)

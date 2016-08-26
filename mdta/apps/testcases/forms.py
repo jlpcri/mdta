@@ -19,7 +19,7 @@ class TestrailConfigurationForm(ModelForm):
                 names += ((item['name'], item['name']), )
 
             self.fields['project_name'] = forms.ChoiceField(
-                choices=names,
+                choices=sorted(names, key=lambda tup: tup[1]),
                 widget=forms.Select(attrs={'class': 'form-control'})
             )
 
