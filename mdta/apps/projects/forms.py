@@ -11,6 +11,7 @@ class ProjectForm(ModelForm):
         exclude = ['created', 'updated']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'test_header': forms.Select(attrs={'class': 'form-control'}),
             'version': forms.TextInput(attrs={'class': 'form-control'}),
             'catalog': forms.SelectMultiple(attrs={
                 'class': 'form-control',

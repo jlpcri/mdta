@@ -61,6 +61,8 @@ class Project(models.Model):
     Entry of each project which will be represented to Model Driven Graph
     """
     name = models.CharField(max_length=50, unique=True, default='')
+    test_header = models.ForeignKey('Module', null=True, blank=True,
+                                    related_name='test_header')
 
     version = models.TextField()  # relate to TestRail-TestSuites
     testrail = models.ForeignKey(TestRailConfiguration,
@@ -123,7 +125,7 @@ class Module(models.Model):
     Modules per project
     """
     name = models.CharField(max_length=50, default='')
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, null=True, blank=True)  # if null, then it's Test Header
     catalog = models.ManyToManyField(CatalogItem, blank=True)
 
     class Meta:

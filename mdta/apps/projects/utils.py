@@ -1,4 +1,4 @@
-from mdta.apps.projects.models import Project
+from mdta.apps.projects.models import Project, Module
 
 
 def context_projects():
@@ -8,6 +8,7 @@ def context_projects():
     """
     context = {
         'projects': Project.objects.all(),
+        'test_headers': Module.objects.filter(project=None)
     }
 
     return context

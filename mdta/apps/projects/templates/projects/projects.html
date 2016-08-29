@@ -8,80 +8,36 @@
             <small>
                 <i class="fa fa-pencil fa-fw"></i> Create
                 <a href="{% url 'projects:project_new' %}" >New Project</a> |
-                <a href="{% url 'projects:module_new' %}" >New Module</a>
+                <a href="{% url 'projects:module_new' %}" >New Module</a> |
+                <a href="#">New TestHeader</a>
             </small>
+        </div>
+        <div class="row" style="margin-top: 10px;">
+            <ul id="subnav-tabs" class="nav nav-tabs">
+                <li><a href="#projects" data-toggle="tab">Projects</a> </li>
+                <li><a href="#test_headers" data-toggle="tab">Test Headers</a> </li>
+            </ul>
         </div>
     </div>
 {% endblock %}
 
 {% block body %}
-    <div class="container">
-        <div class="row">
-            <div class="col-xs-8">
-                <h1>Projects</h1>
-                {% if projects %}
-                    <div class="col-xs-12 table-responsive">
-                        <table class="table table-striped table-hover table-condensed table-bordered">
-                            <thead>
-                                <tr>
-                                    <th class="col-xs-2">Name</th>
-                                    <th class="col-xs-1">Edit</th>
-                                    <th class="col-xs-2">Version(TestSuites)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for project in projects %}
-                                    <tr>
-                                        <td><a href="#project-{{ project.id }}" data-toggle="tab">{{ project.name }}</a></td>
-                                        <td>
-                                            <a href="{% url 'projects:project_edit' project.id %}"><i class="fa fa-edit fa-fw"></i></a>
-                                        </td>
-                                        <td>{{ project.version }}</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                {% else %}
-                    No Projects
-                {% endif %}
-            </div>
-
-            <div class="col-xs-4">
-                <div class="col-xs-12">
-                    <div class="row hidden">
-                        <ul class="nav nav-tabs">
-                            {% for project in projects %}
-                                <li><a href="#project-{{ project.id }}" data-toggle="tab">{{ project.id }}</a></li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                    <div class="tab-content">
-                        {% for project in projects %}
-                            <div class="tab-pane" id="project-{{ project.id }}">
-                                <div class="row">
-                                    <h4>{{ project.name }} modules list:</h4>
-                                </div>
-                                <div class="row">
-                                    <div class="col-xs-12">
-                                        {% for module in project.modules %}
-                                            <li><a href="{% url 'projects:module_edit' module.id %}">{{ module.name }}</a></li>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
+    <div class="tab-content">
+        <div class="tab-pane" id="projects">
+            {% include 'projects/projects_projects.html' %}
+        </div>
+        <div class="tab-pane" id="test_headers">
+            {% include 'projects/projects_testheaders.html' %}
         </div>
     </div>
-{% endblock %}
+{% endblock%}
 
 {% block footer %}
     <script>
         $(document).ready(function(){
-            var first_href = $('.table tbody tr:first td:first a').attr('href');
+            $('#subnav-tabs').find('a[href="#projects"]').tab('show');
+
+            var first_href = $('.projectsTable tbody tr:first td:first a').attr('href');
 
             //console.log(first_href);
             $('a[href="{0}"]'.format(first_href)).click();
