@@ -1,8 +1,8 @@
 from django.contrib import admin
 
-from .models import Project, Module, CatalogItem
+from .models import TestRailInstance, TestRailConfiguration, Project, Module, CatalogItem
 
 
-@admin.register(Project, Module, CatalogItem)
+@admin.register(TestRailInstance, TestRailConfiguration, Project, Module, CatalogItem)
 class ProjectsAdmin(admin.ModelAdmin):
     pass

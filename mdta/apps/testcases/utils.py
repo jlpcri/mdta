@@ -1,7 +1,6 @@
 from testrail import APIClient, APIError
 from mdta.apps.graphs.models import Node, Edge
-from mdta.apps.projects.models import Project
-from mdta.apps.testcases.models import TestRailConfiguration
+from mdta.apps.projects.models import Project, TestRailConfiguration
 
 START_NODE_NAME = 'Start'
 

@@ -4,8 +4,8 @@ from django.shortcuts import get_object_or_404, render, redirect
 
 from testrail import APIClient
 
-from mdta.apps.projects.models import Project, Module
-from mdta.apps.testcases.models import TestCaseResults, TestRailInstance, TestRailConfiguration
+from mdta.apps.projects.models import Project, Module, TestRailInstance, TestRailConfiguration
+from mdta.apps.testcases.models import TestCaseResults
 from mdta.apps.testcases.tasks import create_testcases_celery
 from mdta.apps.users.views import user_is_superuser, user_is_staff
 from .utils import context_testcases, get_projects_from_testrail, create_routing_test_suite, add_testcase_to_section, \
@@ -101,7 +101,7 @@ def push_testcases_to_testrail(request, project_id):
     :return:
     """
     project = get_object_or_404(Project, pk=project_id)
-    testrail_contents = {}
+    testrail_contents = ''
 
     try:
         client = APIClient(project.testrail.instance.host)
@@ -156,7 +156,7 @@ def push_testcases_to_testrail(request, project_id):
             'Error': 'No TestRail config'
         }
 
-    except (TestCaseResults.DoesNotExist, TestRailConfiguration.DoesNotExist, PermissionError) as e:
+    except (TestCaseResults.DoesNotExist, PermissionError) as e:
         testrail_contents['error'] = e
 
     context = context_testcases()
