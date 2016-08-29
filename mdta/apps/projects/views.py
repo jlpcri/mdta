@@ -75,7 +75,7 @@ def project_edit(request, project_id):
         try:
             project = form.save()
             return redirect('projects:projects')
-        except Exception as e:
+        except ValueError as e:
             messages.error(request, str(e))
 
             context = {
@@ -184,7 +184,7 @@ def module_edit(request, module_id):
                 module = form.save()
                 messages.success(request, 'Module is saved.')
                 return redirect('projects:projects')
-            except Exception as e:
+            except ValueError as e:
                 messages.error(request, str(e))
 
                 context = {

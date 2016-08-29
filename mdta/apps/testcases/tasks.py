@@ -1,4 +1,5 @@
 from datetime import datetime
+from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 
 from mdta.celery_module import app
@@ -36,6 +37,6 @@ def create_testcases_celery(project_id):
                 project=project,
                 results=testcases
             )
-        except Exception as e:
+        except (ValueError, ValidationError) as e:
             print(str(e))
 

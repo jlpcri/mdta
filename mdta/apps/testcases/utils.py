@@ -1,4 +1,4 @@
-from testrail import APIClient
+from testrail import APIClient, APIError
 from mdta.apps.graphs.models import Node, Edge
 from mdta.apps.projects.models import Project, TestRailConfiguration
 
@@ -344,7 +344,7 @@ def add_testsuite_to_project(client, project_id, suite_name):
     try:
         suite = client.send_post('add_suite/' + project_id, data)
         return suite
-    except Exception as e:
+    except APIError as e:
         print('Add Suite Error: ', e)
         return None
 
@@ -376,7 +376,7 @@ def add_testcase_to_section(client, section_id, data):
                 'custom_steps_seperated': each_tc['tc_steps']
             }
             client.send_post('add_case/' + section_id, tc_data)
-    except Exception as e:
+    except APIError as e:
         print('TestCase: ', e)
 
 

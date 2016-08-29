@@ -1,6 +1,7 @@
 import json
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new, check_edge_in_set
@@ -177,7 +178,7 @@ def project_edge_new(request, project_id):
                 properties=properties
             )
             messages.success(request, 'Edge is added.')
-        except Exception as e:
+        except (ValueError, ValidationError) as e:
             messages.error(request, str(e))
 
         return redirect('graphs:graphs')
@@ -357,7 +358,7 @@ def project_module_edit(request, project_id):
                 module.name = module_name
                 module.save()
                 messages.success(request, 'Module is saved.')
-            except Exception as e:
+            except (ValueError, ValidationError) as e:
                 messages.error(request, str(e))
 
         if 'module_delete' in request.POST:
@@ -406,7 +407,7 @@ def module_node_new(request, module_id):
                         properties=edge_properties,
                     )
                     messages.success(request, 'Module New Node and Automatic Edge added.')
-                except Exception as e:
+                except (ValueError, ValidationError) as e:
                     to_node.delete()
                     messages.error(request, str(e))
 
@@ -458,7 +459,7 @@ def module_node_edit(request, node_id):
                 node.properties = properties
                 node.save()
                 # messages.success(request, 'Node is saved.')
-            except Exception as e:
+            except (ValueError, ValidationError) as e:
                 messages.error(request, str(e))
 
         if 'node_delete' in request.POST:
@@ -530,7 +531,7 @@ def module_edge_edit(request, edge_id):
                 edge.properties = properties
                 edge.save()
                 # messages.success(request, 'Edge is saved.')
-            except Exception as e:
+            except (ValueError, ValidationError) as e:
                 messages.error(request, str(e))
 
             return redirect('graphs:project_module_detail', module_id)
@@ -562,7 +563,7 @@ def module_edge_edit(request, edge_id):
                 edge.priority = edge_priority
                 edge.properties = properties
                 edge.save()
-            except Exception as e:
+            except (ValueError, ValidationError) as e:
                 messages.error(request, str(e))
 
             return redirect('graphs:project_detail', edge.from_node.module.project.id)

@@ -25,7 +25,8 @@
                             <thead>
                                 <tr>
                                     <th class="col-xs-2">Name</th>
-                                    <th class="col-xs-2">Edition</th>
+                                    <th class="col-xs-1">Edit</th>
+                                    <th class="col-xs-2">Version(TestSuites)</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -35,6 +36,7 @@
                                         <td>
                                             <a href="{% url 'projects:project_edit' project.id %}"><i class="fa fa-edit fa-fw"></i></a>
                                         </td>
+                                        <td>{{ project.version }}</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
