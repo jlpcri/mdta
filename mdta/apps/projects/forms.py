@@ -48,3 +48,12 @@ class ModuleForm(ModelForm):
                 'size': '10'
             }),
         }
+
+
+class TestHeaderForm(ModelForm):
+    class Meta:
+        model = Module
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+        }

@@ -133,7 +133,10 @@ class Module(models.Model):
         unique_together = ('project', 'name',)
 
     def __str__(self):
-        return '{0}: {1}'.format(self.project.name, self.name)
+        if self.project:
+            return '{0}: {1}'.format(self.project.name, self.name)
+        else:
+            return '{0}: {1}'.format('TestHeader', self.name)
 
     @property
     def nodes(self):

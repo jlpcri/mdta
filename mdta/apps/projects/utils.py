@@ -12,3 +12,11 @@ def context_projects():
     }
 
     return context
+
+
+def check_testheader_duplicate(test_header, test_headers):
+    for item in test_headers:
+        if item.name == test_header.name and item.id != test_header.id:
+            return True
+
+    return False

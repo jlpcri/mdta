@@ -3,11 +3,11 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from mdta.apps.projects.utils import context_projects
+from mdta.apps.projects.utils import context_projects, check_testheader_duplicate
 from mdta.apps.users.views import user_is_staff
 
 from .models import Project, Module
-from .forms import ProjectForm, ModuleForm
+from .forms import ProjectForm, ModuleForm, TestHeaderForm
 
 
 @login_required
@@ -200,3 +200,88 @@ def module_edit(request, module_id):
             return redirect('projects:projects')
 
 
+@user_passes_test(user_is_staff)
+def test_header_new(request):
+    """
+    Add new Test Header as Module which project is null
+    :param request:
+    :return:
+    """
+    if request.method == 'GET':
+        form = TestHeaderForm()
+        context = {
+            'form': form
+        }
+
+        return render(request, 'projects/testheader_new.html', context)
+    elif request.method == 'POST':
+        test_headers = Module.objects.filter(project=None)
+        form = TestHeaderForm(request.POST)
+        if form.is_valid():
+            test_header = form.save(commit=False)
+            if check_testheader_duplicate(test_header, test_headers):
+                messages.error(request, 'Test Header name duplicated')
+                context = {
+                    'form': form
+                }
+                return render(request, 'projects/testheader_new.html', context)
+            else:
+                test_header = form.save()
+                messages.success(request, 'Test Header is added')
+                return redirect('projects:projects')
+        else:
+            messages.error(request, form.errors)
+            context = {
+                'form': form
+            }
+
+            return render(request, 'projects/testheader_new.html', context)
+
+
+@user_passes_test(user_is_staff)
+def test_header_edit(request, test_header_id):
+    """
+    Edit Test Header
+    :param request:
+    :param test_header_id:
+    :return:
+    """
+    test_header = get_object_or_404(Module, pk=test_header_id)
+
+    if request.method == 'GET':
+        form = TestHeaderForm(instance=test_header)
+        context = {
+            'test_header': test_header,
+            'form': form
+        }
+
+        return render(request, 'projects/testheader_edit.html', context)
+    elif request.method == 'POST':
+        if 'test_header_save' in request.POST:
+            test_headers = Module.objects.filter(project=None)
+            form = TestHeaderForm(request.POST, instance=test_header)
+            try:
+                test_header = form.save(commit=False)
+                if check_testheader_duplicate(test_header, test_headers):
+                    messages.error(request, 'Test Header name duplicated')
+                    context = {
+                        'test_header': test_header,
+                        'form': form
+                    }
+                    return render(request, 'projects/testheader_edit.html', context)
+                else:
+                    test_header = form.save()
+                    messages.success(request, 'Test Header is saved.')
+                    return redirect('projects:projects')
+            except ValueError as e:
+                messages.error(request, str(e))
+                context = {
+                    'test_header': test_header,
+                    'form': form
+                }
+
+                return render(request, 'projects/testheader_edit.html', context)
+        elif 'test_header_delete' in request.POST:
+            test_header.delete()
+
+            return redirect('projects:projects')

@@ -14,10 +14,8 @@
                         <tbody>
                             {% for test_header in test_headers %}
                                 <tr>
-                                    <td><a href="#" >{{ test_header.name }}</a></td>
-                                    <td>
-                                        <a href="#"><i class="fa fa-edit fa-fw"></i></a>
-                                    </td>
+                                    <td><a href="#">{{ test_header.name }}</a> </td>
+                                    <td><a href="{% url 'projects:test_header_edit' test_header.id %}" ><i class="fa fa-edit fa-fw"></i> </a></td>
                                     <td></td>
                                 </tr>
                             {% endfor %}
