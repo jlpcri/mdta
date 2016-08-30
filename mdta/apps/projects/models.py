@@ -165,6 +165,10 @@ class Module(models.Model):
 
     @property
     def th_related_projects(self):
+        """
+        Projects which test_header refers to this Module instance
+        :return:
+        """
         data = []
         projects = Project.objects.filter(test_header=self)
         for project in projects:
@@ -173,4 +177,29 @@ class Module(models.Model):
         return data
 
 
+class ProjectVariable(models.Model):
+    """
+    Variables of project level
+    """
+    TESTHEADER = 1
+    PRECONDITION = 2
+    PROMPT = 3
+    DATA = 4
+    ORIGIN_TYPE_CHOICES = (
+        (TESTHEADER, 'TestHeader'),
+        (PRECONDITION, 'PreCondition'),
+        (PROMPT, 'Prompt'),
+        (DATA, 'Data')
+    )
 
+    project = models.ForeignKey(Project)
+    name = models.TextField()
+    origin_type = models.IntegerField(choices=ORIGIN_TYPE_CHOICES, default=TESTHEADER)
+    origin = models.ForeignKey('graphs.Node', null=True, blank=True)
+
+    class Meta:
+        ordering = ['name']
+        unique_together = ('project', 'name',)
+
+    def __str__(self):
+        return '{0}: {1}'.format(self.project.name, self.name)
