@@ -6,6 +6,10 @@ from .models import Project, Module, CatalogItem
 
 
 class ProjectForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(ProjectForm, self).__init__(*args, **kwargs)
+        self.fields['test_header'].queryset = Module.objects.filter(project=None)
+
     class Meta:
         model = Project
         exclude = ['created', 'updated']

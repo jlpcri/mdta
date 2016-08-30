@@ -23,6 +23,8 @@ def graphs(request):
     """
     context = {
         'projects': Project.objects.all(),
+        'test_headers': Module.objects.filter(project=None),
+
         'node_types': NodeType.objects.all(),
         'edge_types': EdgeType.objects.all(),
 

@@ -163,5 +163,14 @@ class Module(models.Model):
         edges = self.edges_all
         return Node.objects.filter(Q(from_node__in=edges) | Q(to_node__in=edges) | Q(module=self)).distinct()
 
+    @property
+    def th_related_projects(self):
+        data = []
+        projects = Project.objects.filter(test_header=self)
+        for project in projects:
+            data.append(project.name)
+
+        return data
+
 
 
