@@ -32,23 +32,34 @@ def node_or_edge_type_edit(request, node_or_edge):
     if node_or_edge.__class__.__name__ == 'NodeType':
         name = request.POST.get('editNodeTypeName', '')
         keys = request.POST.getlist('editNodeTypeKeys', '')
+        subkeys = request.POST.getlist('editNodeTypeSubKeys', '')
     else:
         name = request.POST.get('editEdgeTypeName', '')
         keys = request.POST.getlist('editEdgeTypeKeys', '')
+        subkeys = request.POST.getlist('editEdgeTypeSubKeys', '')
 
-    tmp = keys[0].replace(' ', '')  # remove white space from string
+    tmp_keys = keys[0].replace(' ', '')  # remove white space from string
+    tmp_subkeys = subkeys[0].replace(' ', '')
 
-    keys_list = tmp.split(',')
+    keys_list = tmp_keys.split(',')
+    subkeys_list = tmp_subkeys.split(',')
+
     if keys_list[-1] == '':
         del keys_list[-1]
-
     if len(keys_list) != len(set(keys_list)):
         messages.error(request, 'Duplicate keys found.')
+        return
+
+    if subkeys_list[-1] == '':
+        del subkeys_list[-1]
+    if len(subkeys_list) != len(set(subkeys_list)):
+        messages.error(request, 'Dupliate subKeys found.')
         return
 
     try:
         node_or_edge.name = name
         node_or_edge.keys = keys_list
+        node_or_edge.subkeys = subkeys_list
         node_or_edge.save()
     except (ValidationError, IntegrityError) as e:
         messages.error(request, str(e))

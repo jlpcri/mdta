@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.postgres.fields import HStoreField, ArrayField
+from django.contrib.postgres.fields import HStoreField, ArrayField, JSONField
 
 from mdta.apps.projects.models import Project, Module
 
@@ -10,8 +10,11 @@ class NodeType(models.Model):
     HostRequest, HostResponse, Segment
     """
     name = models.CharField(max_length=50, unique=True, default='')
+
     keys = ArrayField(models.CharField(max_length=50), null=True, blank=True,
                       verbose_name='Keys(Separated with comma)')
+    subkeys = ArrayField(models.CharField(max_length=50), null=True, blank=True,
+                         verbose_name='SubKeys(Separated with comma)')
 
     def __str__(self):
         return '{0}: {1}'.format(self.name, self.keys)
@@ -29,6 +32,8 @@ class EdgeType(models.Model):
     # Keys of Edge property data
     keys = ArrayField(models.CharField(max_length=50), null=True, blank=True,
                       verbose_name='Keys(Separated with comma)')
+    subkeys = ArrayField(models.CharField(max_length=50), null=True, blank=True,
+                         verbose_name='SubKeys(Separated with comma)')
 
     def __str__(self):
         return '{0}: {1}'.format(self.name, self.keys)
@@ -50,7 +55,7 @@ class Node(models.Model):
     updated = models.DateTimeField(auto_now=True, db_index=True)
 
     # Property for the Node, Keys are from NodeType
-    properties = HStoreField(null=True, blank=True)
+    properties = JSONField(null=True, blank=True)
 
     class Meta:
         unique_together = ('module', 'name',)
@@ -98,7 +103,7 @@ class Edge(models.Model):
     to_node = models.ForeignKey(Node, related_name='to_node')
 
     # Property for the Edge, Keys are from EdgeType
-    properties = HStoreField(null=True, blank=True)
+    properties = JSONField(null=True, blank=True)
 
     def __str__(self):
         return '{0}: {1}: {2}'.format(self.from_node.module.project.name, self.from_node.name, self.type.name)

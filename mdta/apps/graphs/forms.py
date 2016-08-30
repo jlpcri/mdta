@@ -9,10 +9,11 @@ from mdta.apps.projects.models import Project, Module
 class NodeTypeNewForm(ModelForm):
     class Meta:
         model = NodeType
-        fields = ['name', 'keys']
+        exclude = []
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'keys': forms.TextInput(attrs={'class': 'form-control'}),
+            'subkeys': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
 
@@ -66,10 +67,11 @@ class NodeNewNodeForm(ModelForm):
 class EdgeTypeNewForm(ModelForm):
     class Meta:
         model = EdgeType
-        fields = ['name', 'keys']
+        exclude = []
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'keys': forms.TextInput(attrs={'class': 'form-control'}),
+            'subkeys': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
 
