@@ -199,7 +199,10 @@ def get_keys_from_type(request):
     else:
         item = get_object_or_404(EdgeType, pk=id)
 
-    data = item.keys
+    data = {
+        'keys': item.keys,
+        'subkeys': item.subkeys
+    }
 
     return HttpResponse(json.dumps(data), content_type='application/json')
 
@@ -390,16 +393,29 @@ def module_node_new(request, module_id):
             if node_form.is_valid():
                 from_node = get_object_or_404(Node, pk=from_node_id)
                 to_node = node_form.save(commit=False)
+
                 node_properties = {}
+                node_properties_tmp = {}
+                for key in to_node.type.subkeys:
+                    node_properties_tmp[key] = request.POST.get('node_' + key, '')
                 for key in to_node.type.keys:
                     node_properties[key] = request.POST.get('node_' + key, '')
+                if to_node.type.name in ['DataQueries Database', 'DataQueries WebService', 'Menu Prompt', 'Menu Prompt with Confirmation'] and to_node.type.keys_data_name:
+                    node_properties[to_node.type.keys_data_name] = node_properties_tmp
+
                 to_node.properties = node_properties
                 to_node.save()
 
                 edge_properties = {}
+                edge_properties_tmp = {}
                 edge_type = get_object_or_404(EdgeType, pk=edge_type_id)
+                for key in edge_type.subkeys:
+                    edge_properties_tmp[key] = request.POST.get('edge_' + key, '')
                 for key in edge_type.keys:
                     edge_properties[key] = request.POST.get('edge_' + key, '')
+                if edge_type.name in ['Data', 'PreCondition'] and edge_type.keys_data_name:
+                    edge_properties[edge_type.keys_data_name] = edge_properties_tmp
+
                 try:
                     edge = Edge.objects.create(
                         type=edge_type,
@@ -422,8 +438,15 @@ def module_node_new(request, module_id):
             form = NodeNewForm(request.POST)
             if form.is_valid():
                 node = form.save(commit=False)
+
+                tmp = {}
+                for key in node.type.subkeys:
+                    tmp[key] = request.POST.get(key, '')
                 for key in node.type.keys:
                     properties[key] = request.POST.get(key, '')
+                if node.type.name in ['DataQueries Database', 'DataQueries WebService', 'Menu Prompt', 'Menu Prompt with Confirmation']:
+                    properties[node.type.keys_data_name] = tmp
+
                 node.properties = properties
                 node.save()
 
@@ -459,10 +482,8 @@ def module_node_edit(request, node_id):
             for key in node_type.keys:
                 properties[key] = request.POST.get(key, '')
 
-            if node_type.name in ['DataQueries Database', 'DataQueries WebService']:
-                properties['InputData'] = tmp
-            elif node_type.name in ['Menu Prompt', 'Menu Prompt with Confirmation']:
-                properties['OutputData'] = tmp
+            if node_type.name in ['DataQueries Database', 'DataQueries WebService', 'Menu Prompt', 'Menu Prompt with Confirmation'] and node_type.keys_data_name:
+                properties[node_type.keys_data_name] = tmp
 
             try:
                 node.name = node_name
@@ -493,8 +514,14 @@ def module_edge_new(request, module_id):
         form = EdgeNewForm(request.POST)
         if form.is_valid():
             edge = form.save(commit=False)
+
+            tmp = {}
+            for key in edge.type.subkeys:
+                tmp[key] = request.POST.get(key, '')
             for key in edge.type.keys:
                 properties[key] = request.POST.get(key, '')
+            if edge.type.name in ['Data', 'PreCondition']:
+                properties[edge.type.keys_data_name] = tmp
 
             edge.properties = properties
             edge.save()
@@ -531,8 +558,14 @@ def module_edge_edit(request, edge_id):
 
             edge_priority = request.POST.get('moduleEdgeEditPriority', '')
 
+            tmp = {}
+            for key in edge_type.subkeys:
+                tmp[key] = request.POST.get(key, '')
             for key in edge_type.keys:
                 properties[key] = request.POST.get(key, '')
+
+            if edge_type.name in ['Data', 'PreCondition'] and edge_type.keys_data_name:
+                properties[edge_type.keys_data_name] = tmp
 
             try:
                 edge.type = edge_type

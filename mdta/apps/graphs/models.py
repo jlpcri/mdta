@@ -22,6 +22,13 @@ class NodeType(models.Model):
     class Meta:
         ordering = ['name']
 
+    @property
+    def keys_data_name(self):
+        for item in self.keys:
+            if 'Data' in item:
+                return item
+        return None
+
 
 class EdgeType(models.Model):
     """
@@ -40,6 +47,13 @@ class EdgeType(models.Model):
 
     class Meta:
         ordering = ['name']
+
+    @property
+    def keys_data_name(self):
+        for item in self.keys:
+            if 'Data' in item or 'Condition' in item:
+                return item
+        return None
 
 
 class Node(models.Model):
