@@ -452,8 +452,17 @@ def module_node_edit(request, node_id):
             node_name = request.POST.get('moduleNodeEditName', '')
             node_type_id = request.POST.get('moduleNodeEditType', '')
             node_type = get_object_or_404(NodeType, pk=node_type_id)
+
+            tmp = {}
+            for subkey in node_type.subkeys:
+                tmp[subkey] = request.POST.get(subkey, '')
             for key in node_type.keys:
                 properties[key] = request.POST.get(key, '')
+
+            if node_type.name in ['DataQueries Database', 'DataQueries WebService']:
+                properties['InputData'] = tmp
+            elif node_type.name in ['Menu Prompt', 'Menu Prompt with Confirmation']:
+                properties['OutputData'] = tmp
 
             try:
                 node.name = node_name
