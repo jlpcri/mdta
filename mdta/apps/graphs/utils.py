@@ -2,6 +2,12 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 
+from mdta.apps.graphs.models import NodeType, EdgeType
+
+
+NODE_TYPES_WITH_DATA = ['DataQueries Database', 'DataQueries WebService', 'Menu Prompt', 'Menu Prompt with Confirmation']
+EDGE_TYPES_WITH_DATA = ['Data', 'PreCondition']
+
 
 def node_or_edge_type_new(request, form):
     """
@@ -117,5 +123,31 @@ def check_edge_in_set(edge, network_edges):
     return found
 
 
+def get_properties_for_node_or_edge(request, node_or_edge_type, auto_edge=None):
+    properties = {}
+    tmp = {}
+    if isinstance(node_or_edge_type, NodeType):
+        name_list = NODE_TYPES_WITH_DATA
+        key_name = 'node_'
+    elif isinstance(node_or_edge_type, EdgeType):
+        name_list = EDGE_TYPES_WITH_DATA
+        key_name = 'edge_'
+    else:
+        name_list = []
+        key_name = ''
 
+    if auto_edge:
+        for key in node_or_edge_type.subkeys:
+            tmp[key] = request.POST.get(key_name + key, '')
+        for key in node_or_edge_type.keys:
+            properties[key] = request.POST.get(key_name + key, '')
+    else:
+        for key in node_or_edge_type.subkeys:
+            tmp[key] = request.POST.get(key, '')
+        for key in node_or_edge_type.keys:
+            properties[key] = request.POST.get(key, '')
+    if node_or_edge_type.name in name_list and node_or_edge_type.keys_data_name:
+        properties[node_or_edge_type.keys_data_name] = tmp
+
+    return properties
 
