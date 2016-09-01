@@ -610,8 +610,13 @@ def module_edge_edit(request, edge_id):
 
             edge_priority = request.POST.get('projectEdgeEditPriority', '')
 
+            tmp = {}
+            for key in edge_type.subkeys:
+                tmp[key] = request.POST.get(key, '')
             for key in edge_type.keys:
                 properties[key] = request.POST.get(key, '')
+            if edge_type.name in ['Data', 'PreCondition'] and edge_type.keys_data_name:
+                properties[edge_type.keys_data_name] = tmp
 
             try:
                 edge.type = edge_type

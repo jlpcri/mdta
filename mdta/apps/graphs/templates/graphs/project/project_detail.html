@@ -137,14 +137,42 @@
                                                                     <h5>Edge Properties:</h5>
                                                                     <div id="project-edge-edit-properties">
                                                                         {% for key, value in edge.properties.items %}
-                                                                            <div class="row" style="margin-top: 5px;">
-                                                                                <div class="col-xs-4">
-                                                                                    <label>{{ key }}:</label>
+                                                                            {% if key == 'OutputData' %}
+                                                                                <label style="margin-top: 5px;">{{ key }}:</label>
+                                                                                {% for subkey, subvalue in edge.properties.OutputData.items %}
+                                                                                    <div class="row" style="margin-top: 5px;">
+                                                                                        <div class="col-xs-1"></div>
+                                                                                        <div class="col-xs-5">
+                                                                                            {{ subkey }}
+                                                                                        </div>
+                                                                                        <div class="col-xs-5">
+                                                                                            <input name="{{ subkey }}" value="{{ subvalue }}" >
+                                                                                        </div>
+                                                                                    </div>
+                                                                                {% endfor %}
+                                                                            {% elif key == 'Condition' %}
+                                                                                <label style="margin-top: 5px;">{{ key }}:</label>
+                                                                                {% for subkey, subvalue in edge.properties.Condition.items %}
+                                                                                    <div class="row" style="margin-top: 5px;">
+                                                                                        <div class="col-xs-1"></div>
+                                                                                        <div class="col-xs-5">
+                                                                                            {{ subkey }}
+                                                                                        </div>
+                                                                                        <div class="col-xs-5">
+                                                                                            <input name="{{ subkey }}" value="{{ subvalue }}" >
+                                                                                        </div>
+                                                                                    </div>
+                                                                                {% endfor %}
+                                                                            {% else %}
+                                                                                <div class="row" style="margin-top: 5px;">
+                                                                                    <div class="col-xs-4">
+                                                                                        <label>{{ key }}:</label>
+                                                                                    </div>
+                                                                                    <div class="col-xs-8">
+                                                                                        <input name="{{ key }}" value="{{ value }}" >
+                                                                                    </div>
                                                                                 </div>
-                                                                                <div class="col-xs-8">
-                                                                                    <input name="{{ key }}" value="{{ value }}" >
-                                                                                </div>
-                                                                            </div>
+                                                                            {% endif %}
                                                                         {% endfor %}
                                                                     </div>
                                                                 </div>
@@ -209,14 +237,42 @@
                                                         <h5>Edge Properties:</h5>
                                                         <div id="project-edge-edit-properties">
                                                             {% for key, value in item.properties.items %}
-                                                                <div class="row" style="margin-top: 5px;">
-                                                                    <div class="col-xs-4">
-                                                                        <label>{{ key }}:</label>
+                                                                {% if key == 'OutputData' %}
+                                                                    <label style="margin-top: 5px;">{{ key }}:</label>
+                                                                    {% for subkey, subvalue in item.properties.OutputData.items %}
+                                                                        <div class="row" style="margin-top: 5px;">
+                                                                            <div class="col-xs-1"></div>
+                                                                            <div class="col-xs-5">
+                                                                                {{ subkey }}
+                                                                            </div>
+                                                                            <div class="col-xs-5">
+                                                                                <input name="{{ subkey }}" value="{{ subvalue }}" >
+                                                                            </div>
+                                                                        </div>
+                                                                    {% endfor %}
+                                                                {% elif key == 'Condition' %}
+                                                                    <label style="margin-top: 5px;">{{ key }}:</label>
+                                                                    {% for subkey, subvalue in item.properties.Condition.items %}
+                                                                        <div class="row" style="margin-top: 5px;">
+                                                                            <div class="col-xs-1"></div>
+                                                                            <div class="col-xs-5">
+                                                                                {{ subkey }}
+                                                                            </div>
+                                                                            <div class="col-xs-5">
+                                                                                <input name="{{ subkey }}" value="{{ subvalue }}" >
+                                                                            </div>
+                                                                        </div>
+                                                                    {% endfor %}
+                                                                {% else %}
+                                                                    <div class="row" style="margin-top: 5px;">
+                                                                        <div class="col-xs-4">
+                                                                            <label>{{ key }}:</label>
+                                                                        </div>
+                                                                        <div class="col-xs-8">
+                                                                            <input name="{{ key }}" value="{{ value }}" >
+                                                                        </div>
                                                                     </div>
-                                                                    <div class="col-xs-8">
-                                                                        <input name="{{ key }}" value="{{ value }}" >
-                                                                    </div>
-                                                                </div>
+                                                                {% endif %}
                                                             {% endfor %}
                                                         </div>
                                                     </div>

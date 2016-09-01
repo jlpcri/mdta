@@ -33,8 +33,8 @@ function load_keys_from_node_edge_type(item_id, location, type){
                 $.each(subkeys, function(k, v){
                     contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
                     contents += '<div class=\'col-xs-1\'></div>';
-                    contents += '<div class=\'col-xs-3\'>{0}: </div>'.format(subkeys[k]);
-                    contents += '<div class=\'col-xs-8\'><input name=\'{0}\'/></div>'.format(subkeys[k]);
+                    contents += '<div class=\'col-xs-5\'>{0}: </div>'.format(subkeys[k]);
+                    contents += '<div class=\'col-xs-5\'><input name=\'{0}\'/></div>'.format(subkeys[k]);
                     contents += '</div>';
                 })
             } else {
