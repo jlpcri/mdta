@@ -87,8 +87,15 @@ def project_node_new(request, project_id):
         form = NodeNewForm(request.POST, project_id=project_id)
         if form.is_valid():
             node = form.save(commit=False)
+
+            tmp = {}
+            for key in node.type.subkeys:
+                tmp[key] = request.POST.get(key, '')
             for key in node.type.keys:
                 properties[key] = request.POST.get(key, '')
+            if node.type.name in ['DataQueries Database', 'DataQueries WebService', 'Menu Prompt', 'Menu Prompt with Confirmation'] and node.type.keys_data_name:
+                properties[node.type.keys_data_name] = tmp
+
             node.properties = properties
             node.save()
 
@@ -160,8 +167,14 @@ def project_edge_new(request, project_id):
         properties = {}
         edge_type_id = request.POST.get('project-edge-new-type', '')
         edge_type = get_object_or_404(EdgeType, pk=edge_type_id)
+
+        tmp = {}
+        for key in edge_type.subkeys:
+            tmp[key] = request.POST.get(key, '')
         for key in edge_type.keys:
             properties[key] = request.POST.get(key, '')
+        if edge_type.name in ['Data', 'PreCondition'] and edge_type.keys_data_name:
+            properties[edge_type.keys_data_name] = tmp
 
         edge_priority = request.POST.get('project-edge-new-priority', '')
 

@@ -230,8 +230,14 @@ def node_start(node):
 
 
 def node_prompt(node):
+    # content = ''
+    if node.type == 'Play Prompt':
+        content = 'say_' + node.name
+    else:
+        content = 'prompt_' + node.name
+
     return {
-        'content': 'Node - ' + node.name,
+        'content': content,
         'expected': node.properties['Verbiage']
     }
 
@@ -306,15 +312,19 @@ def edge_precondition(edge):
 def get_item_properties(item):
     data = ''
     for key in item.properties:
-        data += key + ': ' + item.properties[key] + ', '
+        if key == item.type.keys_data_name:
+            for subkey in item.properties[key]:
+                data += subkey + ': ' + item.properties[key][subkey] + ', '
+        else:
+            data += key + ': ' + item.properties[key] + ', '
 
     return data
 
 
 def update_testcase_precondition(edge, pre_condition):
     data = []
-    for key in edge.properties:
-        data.append(key + ': ' + edge.properties[key])
+    for key in edge.properties[edge.type.keys_data_name]:
+        data.append(key + ': ' + edge.properties[edge.type.keys_data_name][key])
 
     pre_condition.append(data)
 

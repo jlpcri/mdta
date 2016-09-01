@@ -61,9 +61,27 @@ $(document).ready(function(){
 
 function load_keys_from_type_contents(item_id, location, type){
     $.getJSON("{% url 'graphs:get_keys_from_type' %}?id={0}&type={1}".format(item_id, type)).done(function(data){
-        var contents = '';
-        $.each(data, function(k, v){
-            contents += '<div class=\'col-xs-2\'><label>{0}: </label> <input name=\'{0}\'/></div>'.format(data[k]);
+        var keys = data['keys'],
+            subkeys = data['subkeys'],
+            contents = '';
+        $.each(keys, function(k, v){
+            if ((keys[k].indexOf('Data') >= 0) || (keys[k] == 'Condition')) {
+                contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
+                contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
+                contents += '</div>';
+                $.each(subkeys, function(k, v){
+                    contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
+                    contents += '<div class=\'col-xs-1\'></div>';
+                    contents += '<div class=\'col-xs-2\'>{0}: </div>'.format(subkeys[k]);
+                    contents += '<div class=\'col-xs-2\'><input name=\'{0}\'/></div>'.format(subkeys[k]);
+                    contents += '</div>';
+                })
+            } else {
+                contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
+                contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
+                contents += '<div class=\'col-xs-2\'><input name=\'{0}\'/></div>'.format(keys[k]);
+                contents += '</div>';
+            }
         });
         //console.log(contents)
         $(location).html(contents)
