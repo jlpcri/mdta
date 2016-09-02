@@ -95,9 +95,7 @@ def routing_path_to_edge(edge):
     """
     visited_nodes = [edge.to_node]  # Visited nodes for the path to this Edge
 
-    data = []
-
-    routing_path_to_node(edge.from_node, data, visited_nodes)
+    data = routing_path_to_node(edge.from_node, visited_nodes)
 
     if data:
         data.append(edge)
@@ -107,19 +105,22 @@ def routing_path_to_edge(edge):
     return data
 
 
-def routing_path_to_node(node, data, visited_nodes):
+def routing_path_to_node(node, visited_nodes):
     """
     Routing path to current Node
     :param node:
     :param data:
     :return:
     """
+    data = []
     path = []
     visited_nodes.append(node)
 
     breadth_first_search(node, path, visited_nodes)
 
     data += path
+
+    return data
 
 
 def breadth_first_search(node, path, visited_nodes):

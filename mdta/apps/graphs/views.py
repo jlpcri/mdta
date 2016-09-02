@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new, check_edge_in_set,\
-    EDGE_TYPES_WITH_DATA, NODE_TYPES_WITH_DATA, get_properties_for_node_or_edge
+    get_properties_for_node_or_edge
 from mdta.apps.projects.models import Project, Module
 from mdta.apps.users.views import user_is_staff
 from .models import NodeType, EdgeType, Node, Edge
