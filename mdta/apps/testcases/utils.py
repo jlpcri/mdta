@@ -112,18 +112,15 @@ def routing_path_to_node(node, visited_nodes):
     :param data:
     :return:
     """
-    data = []
-    path = []
+
     visited_nodes.append(node)
 
-    breadth_first_search(node, path, visited_nodes)
+    path = breadth_first_search(node, visited_nodes)
 
-    data += path
-
-    return data
+    return path
 
 
-def breadth_first_search(node, path, visited_nodes):
+def breadth_first_search(node, visited_nodes):
     """
     Search a path from Start node(type='Start') to current Node
     Breadth
@@ -131,12 +128,12 @@ def breadth_first_search(node, path, visited_nodes):
     :return:
     """
 
+    path = []
     start_node_found_outside = False  # flag to find Start Node outside
 
     if node.type.name == START_NODE_NAME:
         path.append(node)
     else:
-        # edges = Edge.objects.filter(to_node=node)
         edges = node.arriving_edges
         if edges.count() > 0:
             start_node_found = False  # flag to find Start Node in current search
@@ -146,7 +143,7 @@ def breadth_first_search(node, path, visited_nodes):
                         if edge.from_node.type.name != START_NODE_NAME:
                             if edge.from_node.arriving_edges.count() > 0:
                                 start_node_found_outside = True
-                                breadth_first_search(edge.from_node, path, visited_nodes)
+                                path += breadth_first_search(edge.from_node, visited_nodes)
                         else:
                             start_node_found = True
                             path.append(edge.from_node)
@@ -157,15 +154,9 @@ def breadth_first_search(node, path, visited_nodes):
 
                     if start_node_found:  # if found Start Node, break out of for loop
                         break
-            if not start_node_found:  # if Not found Start Node, variable Path=[]
-                path = []
-        else:  # if No Arriving Edges, variable Path=[]
-            path = []
-
-    if start_node_found_outside:
-        path.append(node)
 
     # print('path: ', node.name,  path)
+    return path
 
 
 def check_subpath_in_all(all_path):
