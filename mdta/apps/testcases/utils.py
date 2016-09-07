@@ -120,6 +120,7 @@ def routing_path_to_node(node, visited_nodes):
 
     path = breadth_first_search(node, visited_nodes)
 
+    print(path)
     return path
 
 
@@ -158,7 +159,7 @@ def breadth_first_search(node, visited_nodes):
                     if start_node_found:  # if found Start Node, break out of for loop
                         break
 
-    # print('path: ', node.name,  path)
+    # print('path: ',  path)
     return path
 
 
@@ -225,20 +226,12 @@ def node_start(node):
 
 
 def node_prompt(node, preceding_edge=None):
+    content = ''
     if preceding_edge:
-        if node.type.name == 'Play Prompt':
-            content = 'say_'
-        else:
-            content = 'prompt_'
-
         if preceding_edge.type.name == 'DTMF':
-            content += 'press_' + preceding_edge.properties['Number']
+            content = 'press ' + preceding_edge.properties['Number']
         elif preceding_edge.type.name == 'Speech':
-            content += preceding_edge.properties['Response']
-        else:
-            content = ''
-    else:
-        content = ''
+            content = preceding_edge.properties['Response']
 
     return {
         'content': content,
@@ -266,11 +259,11 @@ def traverse_edge(edge, tcs):
     :param tcs:
     :return:
     """
-    if edge.type.name == 'DTMF':
-        add_step(edge_dtmf_dial(edge), tcs)
-    elif edge.type.name == 'Speech':
-        add_step(edge_speech_say(edge), tcs)
-    elif edge.type.name == 'Data':
+    # if edge.type.name == 'DTMF':
+    #     add_step(edge_dtmf_dial(edge), tcs)
+    # elif edge.type.name == 'Speech':
+    #     add_step(edge_speech_say(edge), tcs)
+    if edge.type.name == 'Data':
         add_step(edge_alter_data_requirement(edge), tcs)
     elif edge.type.name == 'PreCondition':
         add_step(edge_precondition(edge), tcs)
