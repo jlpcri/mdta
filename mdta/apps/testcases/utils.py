@@ -70,9 +70,12 @@ def get_paths_through_all_edges(edges):
             pre_condition = []
             # for index, step in enumerate(path, start=1):
             if isinstance(path[0], Node) and path[0].type.name == START_NODE_NAME:
-                for step in path:
+                for index, step in enumerate(path):
                     if isinstance(step, Node):
-                        traverse_node(step, tcs)
+                        if index > 1:
+                            traverse_node(step, tcs, path[index-1])
+                        else:
+                            traverse_node(step, tcs)
                     if isinstance(step, Edge):
                         if step.type.name == 'PreCondition':
                             update_testcase_precondition(step, pre_condition)
@@ -200,7 +203,7 @@ def check_path_contains_in_result(path, result):
     return flag
 
 
-def traverse_node(node, tcs):
+def traverse_node(node, tcs, preceding_edge=None):
     """
     Traverse Node based on node type
     :param node:
@@ -210,7 +213,7 @@ def traverse_node(node, tcs):
     if node.type.name == START_NODE_NAME:
         add_step(node_start(node), tcs)
     elif node.type.name in ['Menu Prompt', 'Menu Prompt with Confirmation', 'Play Prompt']:
-        add_step(node_prompt(node), tcs)
+        add_step(node_prompt(node, preceding_edge), tcs)
     else:
         add_step(node_check_holly_log(node), tcs)
 
@@ -221,12 +224,21 @@ def node_start(node):
     }
 
 
-def node_prompt(node):
-    # content = ''
-    if node.type == 'Play Prompt':
-        content = 'say_' + node.name
+def node_prompt(node, preceding_edge=None):
+    if preceding_edge:
+        if node.type.name == 'Play Prompt':
+            content = 'say_'
+        else:
+            content = 'prompt_'
+
+        if preceding_edge.type.name == 'DTMF':
+            content += 'press_' + preceding_edge.properties['Number']
+        elif preceding_edge.type.name == 'Speech':
+            content += preceding_edge.properties['Response']
+        else:
+            content = ''
     else:
-        content = 'prompt_' + node.name
+        content = ''
 
     return {
         'content': content,
