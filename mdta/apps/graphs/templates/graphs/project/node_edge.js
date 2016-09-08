@@ -4,7 +4,7 @@
 $('.projectNodeNew #id_type').on('change', function(){
     var item_id = $(this).find('option:selected').val(),
         location = '#project-node-new-properties';
-    load_keys_from_type_contents(item_id, location, 'node');
+    load_keys_from_type_contents_node(item_id, location, 'node');
 });
 
 $('.projectEdgeNew #project-edge-new-type').on('change', function(){
@@ -52,7 +52,7 @@ $(document).ready(function(){
         node_location = '#project-node-new-properties',
         edge_location = '#project-edge-new-properties';
     if (node_id) {
-        load_keys_from_type_contents(node_id, node_location, 'node');
+        load_keys_from_type_contents_node(node_id, node_location, 'node');
     }
     if (edge_id) {
         load_keys_from_type_contents(edge_id, edge_location, 'edge');
@@ -97,3 +97,83 @@ function load_nodes_from_module(module_id, location){
         $(location).empty().append(option);
     });
 }
+
+function load_keys_from_type_contents_node(item_id, location, type){
+    $.getJSON("{% url 'graphs:get_keys_from_type' %}?id={0}&type={1}".format(item_id, type)).done(function(data){
+        var keys = data['keys'],
+            subkeys = data['subkeys'],
+            rowCounter = 0,
+            contents = '';
+        $.each(keys, function(k, v){
+            if ((keys[k].indexOf('Data') >= 0) || (keys[k] == 'Condition')) {
+                contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
+                contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
+                contents += '</div>';
+
+                contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
+                contents += '<div class=\'col-xs-1\'></div>';
+                contents += '<div class=\'col-xs-11\'>';
+                contents += '<table class=\'table\' id=\'property-table\'>';
+
+                contents += '<thead><tr>';
+                $.each(subkeys, function(k, v){
+                    contents += '<th class=\'col-xs-2\'>{0}</th>'.format(subkeys[k]);
+                });
+                if (keys[k].indexOf('InputData') >= 0) {
+                    contents += '<th class=\'col-xs-2\'><button id=\'buttonAddData\' class=\'btn btn-xs\' type=\'button\'>Add Data</button></th>';
+                } else {
+                    contents += '<th class=\'col-xs-2\'></th>';
+                }
+                contents += '</tr></thead>';
+
+                contents += '<tbody>';
+
+                contents += '<tr id=\'{0}\'>'.format(rowCounter);
+                $.each(subkeys, function(k, v){
+                    contents += '<td><input name=\'{0}_{1}\'/></td>'.format(subkeys[k], rowCounter);
+                });
+                contents += '</tr>';
+
+                contents += '</tbody></table>';
+                contents += '</div>';
+                contents += '</div>';
+            } else {
+                contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
+                contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
+                contents += '<div class=\'col-xs-2\'><input name=\'{0}\'/></div>'.format(keys[k]);
+                contents += '</div>';
+            }
+        });
+        //console.log(contents)
+        $(location).html(contents);
+
+        $('#buttonAddData').click(function(){
+            rowCounter++;
+            node_property_add_data(subkeys, rowCounter);
+        });
+    });
+}
+
+function node_property_add_data(subkeys, rowCounter){
+    var newRow = '';
+
+    newRow += '<tr id=\'{0}\'>'.format(rowCounter);
+    $.each(subkeys, function(k, v){
+        newRow += '<td><input name=\'{0}_{1}\'/></td>'.format(subkeys[k], rowCounter);
+    });
+    newRow += '<td class=\'text-center\'><a href=\'#\' onclick=\'deleteRow(this);\'><i class=\'fa fa-trash-o fa-lg\'></i></a></td>';
+    newRow += '</tr>';
+    $('table#property-table').append(newRow)
+}
+
+function deleteRow(row){
+    $(row).closest('tr').remove();
+}
+
+$('.projectNodeNew').on('submit', function(){
+    var data = '';
+    $('#property-table tbody tr').each(function(){
+        data += this.id + ' ';
+    });
+    $('input[name="property_data_index"]').val(data);
+});

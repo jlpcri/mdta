@@ -142,10 +142,22 @@ def get_properties_for_node_or_edge(request, node_or_edge_type, auto_edge=None):
         for key in node_or_edge_type.keys:
             properties[key] = request.POST.get(key_name + key, '')
     else:
-        for key in node_or_edge_type.subkeys:
-            tmp[key] = request.POST.get(key, '')
-        for key in node_or_edge_type.keys:
-            properties[key] = request.POST.get(key, '')
+        if 'DataQueries' in node_or_edge_type.name:
+            data_index = request.POST.get('property_data_index', '').strip().split(' ')
+            tmp_data = []
+            for index in data_index:
+                tmp_row = {}
+                for key in node_or_edge_type.subkeys:
+                    tmp_row[key] = request.POST.get('{0}_{1}'.format(key, index), '')
+                tmp_data.append(tmp_row)
+            properties[node_or_edge_type.keys_data_name] = tmp_data
+            return properties
+
+        else:
+            for key in node_or_edge_type.subkeys:
+                tmp[key] = request.POST.get(key, '')
+            for key in node_or_edge_type.keys:
+                properties[key] = request.POST.get(key, '')
     if node_or_edge_type.name in name_list and node_or_edge_type.keys_data_name:
         properties[node_or_edge_type.keys_data_name] = tmp
 

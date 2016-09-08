@@ -18,6 +18,7 @@
             </div>
 
             {% csrf_token %}
+            <input type="hidden" name="property_data_index" value="">
             <div class="row" style="margin-top: 20px;">
                 <input id="project_node_new" class="btn btn-primary" type="submit" value="New Node">
                 <input type="button" value="Cancel" class="btn btn-default" onclick="history.back(); return false;">

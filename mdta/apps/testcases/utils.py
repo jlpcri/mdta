@@ -120,7 +120,7 @@ def routing_path_to_node(node, visited_nodes):
 
     path = breadth_first_search(node, visited_nodes)
 
-    print(path)
+    # print(path)
     return path
 
 
