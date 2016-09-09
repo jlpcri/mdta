@@ -25,9 +25,13 @@
             <div class="row" style="margin-top: 10px;">
                 <div id="module-node-edge-new-edge-properties"></div>
             </div>
+            <div class="row" style="margin-top: 10px;">
+                <div id="moduleNodeEdgeNewErrMessage"></div>
+            </div>
 
             {% csrf_token %}
-            <input type="hidden" name="property_data_index" value="">
+            <input type="hidden" name="node_property_data_index" value="">
+            <input type="hidden" name="edge_property_data_index" value="">
             <div class="row" style="margin-top: 20px;">
                 <input id="module_node_edge_new" class="btn btn-primary" type="submit" value="New Node&Edge">
                 <input type="button" value="Cancel" class="btn btn-default" onclick="history.back(); return false;">

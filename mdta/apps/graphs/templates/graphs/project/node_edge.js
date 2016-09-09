@@ -73,34 +73,6 @@ $(document).ready(function(){
     }
 });
 
-function load_keys_from_type_contents_old(item_id, location, type){
-    $.getJSON("{% url 'graphs:get_keys_from_type' %}?id={0}&type={1}".format(item_id, type)).done(function(data){
-        var keys = data['keys'],
-            subkeys = data['subkeys'],
-            contents = '';
-        $.each(keys, function(k, v){
-            if ((keys[k].indexOf('Data') >= 0) || (keys[k] == 'Condition')) {
-                contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
-                contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
-                contents += '</div>';
-                $.each(subkeys, function(k, v){
-                    contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
-                    contents += '<div class=\'col-xs-1\'></div>';
-                    contents += '<div class=\'col-xs-2\'>{0}: </div>'.format(subkeys[k]);
-                    contents += '<div class=\'col-xs-2\'><input name=\'{0}\'/></div>'.format(subkeys[k]);
-                    contents += '</div>';
-                })
-            } else {
-                contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
-                contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
-                contents += '<div class=\'col-xs-2\'><input name=\'{0}\'/></div>'.format(keys[k]);
-                contents += '</div>';
-            }
-        });
-        //console.log(contents)
-        $(location).html(contents)
-    })
-}
 
 function load_nodes_from_module(module_id, location){
     $.getJSON("{% url 'graphs:get_nodes_from_module' %}?module_id={0}".format(module_id)).done(function(data){
@@ -127,7 +99,7 @@ function load_keys_from_type_contents(item_id, location, type){
                 contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
                 contents += '<div class=\'col-xs-1\'></div>';
                 contents += '<div class=\'col-xs-11\'>';
-                contents += '<table class=\'table\' id=\'property-table\'>';
+                contents += '<table class=\'table\' id=\'{0}-property-table\'>'.format(type);
 
                 contents += '<thead><tr>';
                 $.each(subkeys, function(k, v){
@@ -177,7 +149,7 @@ function node_property_add_data(subkeys, rowCounter){
     });
     newRow += '<td class=\'text-center\'><a href=\'#\' onclick=\'deleteRow(this);\'><i class=\'fa fa-trash-o fa-lg\'></i></a></td>';
     newRow += '</tr>';
-    $('table#property-table').append(newRow)
+    $('#node-property-table').append(newRow)
 }
 
 function deleteRow(row){

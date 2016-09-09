@@ -329,9 +329,6 @@ def project_module_detail(request, module_id):
     context = {
         'module': module,
 
-        # 'node_new_form': NodeNewForm(module_id=module_id),
-        # 'edge_new_form': EdgeNewForm(module_id=module_id),
-        # 'node_new_node_form': NodeNewNodeForm(module_id=module_id),
         'node_types': NodeType.objects.all(),
         'edge_types': EdgeType.objects.all(),
 
@@ -381,7 +378,6 @@ def module_node_new(request, module_id):
     :param module_id:
     :return:
     """
-    auto_edge = request.GET.get('auto_edge', '')
     if request.method == 'GET':
         module = get_object_or_404(Module, pk=module_id)
         form = NodeNewForm(module_id=module_id)
@@ -391,56 +387,19 @@ def module_node_new(request, module_id):
         }
         return render(request, 'graphs/module/node_new.html', context)
     elif request.method == 'POST':
-        if auto_edge == 'node_edge_new':
-            # print(request.POST)
-            # return redirect('graphs:project_module_detail', module_id)
-            node_form = NodeNewForm(request.POST)
-            edge_type_id = request.POST.get('moduleNodeEdgeNewEdgeType', '')
-            edge_priority = request.POST.get('moduleNodeEdgeNewEdgePriority', '')
-            from_node_id = request.POST.get('moduleNodeEdgeNewFromNodeId', '')
-            if node_form.is_valid():
-                from_node = get_object_or_404(Node, pk=from_node_id)
-                to_node = node_form.save(commit=False)
+        form = NodeNewForm(request.POST)
+        if form.is_valid():
+            node = form.save(commit=False)
 
-                node_properties = get_properties_for_node_or_edge(request, to_node.type, auto_edge=True)
+            properties = get_properties_for_node_or_edge(request, node.type)
 
-                to_node.properties = node_properties
-                to_node.save()
+            node.properties = properties
+            node.save()
 
-                edge_type = get_object_or_404(EdgeType, pk=edge_type_id)
-                edge_properties = get_properties_for_node_or_edge(request, edge_type, auto_edge=True)
-
-                try:
-                    edge = Edge.objects.create(
-                        type=edge_type,
-                        priority=edge_priority,
-                        from_node=from_node,
-                        to_node=to_node,
-                        properties=edge_properties,
-                    )
-                    messages.success(request, 'Module New Node and Automatic Edge added.')
-                except (ValueError, ValidationError) as e:
-                    to_node.delete()
-                    messages.error(request, str(e))
-
-            else:
-                print(node_form.errors)
-                messages.error(request, node_form.errors)
-
+            messages.success(request, 'Node is Added')
         else:
-            form = NodeNewForm(request.POST)
-            if form.is_valid():
-                node = form.save(commit=False)
-
-                properties = get_properties_for_node_or_edge(request, node.type)
-
-                node.properties = properties
-                node.save()
-
-                messages.success(request, 'Node is Added')
-            else:
-                print(form.errors)
-                messages.error(request, 'Module new node error.')
+            print(form.errors)
+            messages.error(request, 'Module new node error.')
 
         return redirect('graphs:project_module_detail', module_id)
 
@@ -457,6 +416,42 @@ def module_node_new_node_edge(request, node_id):
     }
     if request.method == 'GET':
         return render(request, 'graphs/module/node_auto_edge_new.html', context)
+    elif request.method == 'POST':
+        # print(request.POST)
+        # return redirect('graphs:project_module_detail', module_id)
+        to_node_form = NodeNewForm(request.POST)
+        edge_form = EdgeAutoNewForm(request.POST)
+        # edge_type_id = request.POST.get('moduleNodeEdgeNewEdgeType', '')
+        # edge_priority = request.POST.get('moduleNodeEdgeNewEdgePriority', '')
+        # from_node_id = request.POST.get('moduleNodeEdgeNewFromNodeId', '')
+        if to_node_form.is_valid():
+            # from_node = node
+            to_node = to_node_form.save(commit=False)
+
+            to_node_properties = get_properties_for_node_or_edge(request, to_node.type, auto_edge=True)
+
+            to_node.properties = to_node_properties
+            to_node.save()
+
+            edge = edge_form.save(commit=False)
+            edge_properties = get_properties_for_node_or_edge(request, edge.type, auto_edge=True)
+
+            try:
+                edge.from_node = node
+                edge.to_node = to_node
+                edge.properties = edge_properties
+                edge.save()
+
+                messages.success(request, 'Module New Node and Automatic Edge added.')
+            except (ValueError, ValidationError) as e:
+                to_node.delete()
+                messages.error(request, str(e))
+
+        else:
+            print(to_node_form.errors)
+            messages.error(request, to_node_form.errors)
+
+        return redirect('graphs:project_module_detail', node.module.id)
 
 
 @user_passes_test(user_is_staff)
