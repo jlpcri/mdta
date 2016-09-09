@@ -142,24 +142,36 @@ def get_properties_for_node_or_edge(request, node_or_edge_type, auto_edge=None):
         for key in node_or_edge_type.keys:
             properties[key] = request.POST.get(key_name + key, '')
     else:
-        if 'DataQueries' in node_or_edge_type.name:
-            data_index = request.POST.get('property_data_index', '').strip().split(' ')
-            tmp_data = []
-            for index in data_index:
-                tmp_row = {}
-                for key in node_or_edge_type.subkeys:
-                    tmp_row[key] = request.POST.get('{0}_{1}'.format(key, index), '')
-                tmp_data.append(tmp_row)
+        if 'DataQueries' in node_or_edge_type.name:  # Node 'DataQueries Database' and 'DataQueries WebService'
+            tmp_data = get_properties_from_multi_rows(request, node_or_edge_type)
             properties[node_or_edge_type.keys_data_name] = tmp_data
             return properties
 
-        else:
-            for key in node_or_edge_type.subkeys:
-                tmp[key] = request.POST.get(key, '')
+        elif 'Menu Prompt' in node_or_edge_type.name:  # Node 'Menu Prompt' and 'Menu Prompt with Confirmation'
+            tmp_data = get_properties_from_multi_rows(request, node_or_edge_type)
             for key in node_or_edge_type.keys:
                 properties[key] = request.POST.get(key, '')
+            properties[node_or_edge_type.keys_data_name] = tmp_data
+            return properties
+        else:
+            for key in node_or_edge_type.subkeys:
+                tmp[key] = request.POST.get(key + '_0', '')
+            for key in node_or_edge_type.keys:
+                properties[key] = request.POST.get(key, '')
+
     if node_or_edge_type.name in name_list and node_or_edge_type.keys_data_name:
         properties[node_or_edge_type.keys_data_name] = tmp
 
     return properties
 
+
+def get_properties_from_multi_rows(request, node_or_edge_type):
+    data_index = request.POST.get('property_data_index', '').strip().split(' ')
+    tmp_data = []
+    for index in data_index:
+        tmp_row = {}
+        for key in node_or_edge_type.subkeys:
+            tmp_row[key] = request.POST.get('{0}_{1}'.format(key, index), '')
+        tmp_data.append(tmp_row)
+
+    return tmp_data

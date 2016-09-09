@@ -120,6 +120,6 @@ class Edge(models.Model):
     properties = JSONField(null=True, blank=True)
 
     def __str__(self):
-        return '{0}: {1}: {2}'.format(self.from_node.module.project.name, self.from_node.name, self.type.name)
+        return '{0}: {1}: {2}'.format(self.from_node.module.name, self.from_node.name, self.to_node.name)
 
 

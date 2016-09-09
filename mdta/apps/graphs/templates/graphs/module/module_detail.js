@@ -113,59 +113,6 @@ $('.moduleEdgeEditForm').on('submit', function(e){
 });
 /* End Module Edge Edit Code */
 
-/* Start Module Node New Node & Edge Code */
-$('.moduleNodeEdgeNew').on('show.bs.modal', function(e){
-    var from_node_id = $(e.relatedTarget).data('from-node-id'),
-        node_type_id = $('.moduleNodeEdgeNew #id_type').find('option:selected').val(),
-        node_location = '#module-node-edge-new-node-properties',
-        edge_type_id = $('.moduleNodeEdgeNew #moduleNodeEdgeNewEdgeType').find('option:selected').val(),
-        edge_location = '#module-node-edge-new-edge-properties';
-
-    $(e.currentTarget).find('input[name="moduleNodeEdgeNewFromNodeId"]').val(from_node_id);
-    load_keys_from_node_edge_type_together(node_type_id, node_location, 'node');
-    load_keys_from_node_edge_type_together(edge_type_id, edge_location, 'edge');
-});
-
-$('.moduleNodeEdgeNew #id_type').on('change', function(){
-    var node_type_id = $(this).find('option:selected').val(),
-        location = '#module-node-edge-new-node-properties';
-
-    load_keys_from_node_edge_type_together(node_type_id, location, 'node');
-});
-
-$('.moduleNodeEdgeNew #moduleNodeEdgeNewEdgeType').on('change', function(){
-    var edge_type_id = $(this).find('option:selected').val(),
-        location = '#module-node-edge-new-edge-properties';
-
-    load_keys_from_node_edge_type_together(edge_type_id, location, 'edge');
-});
-
-$('.moduleNodeEdgeNew form').on('submit', function(e){
-    var node_name = $('.moduleNodeEdgeNew #id_name').val(),
-        err_location = '#moduleNodeEdgeNewErrMessage',
-        edge_type = $('#moduleNodeEdgeNewEdgeType option:selected').text(),
-        edge_properties = $(e.currentTarget).find('#module-node-edge-new-edge-properties input'),
-        edge_properties_no_input = true;
-
-    if (node_name == ''){
-        showErrMsg(err_location, 'Node Name is empty.');
-        return false;
-    }
-
-    $.each(edge_properties, function(index){
-        if (edge_properties[index].value != ''){
-            edge_properties_no_input = false;
-            return false;
-        }
-    });
-    if (edge_properties_no_input && edge_type != 'Connector'){
-        showErrMsg(err_location, 'At least input on edge property');
-        return false;
-    }
-});
-
-/* End Module Node New Node & Edge Code */
-
 
 $(document).ready(function(){
     draw_module_graph();

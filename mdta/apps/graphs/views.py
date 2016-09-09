@@ -10,7 +10,7 @@ from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new
 from mdta.apps.projects.models import Project, Module
 from mdta.apps.users.views import user_is_staff
 from .models import NodeType, EdgeType, Node, Edge
-from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeNewForm, NodeNewNodeForm
+from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeNewForm, EdgeAutoNewForm
 from mdta.apps.projects.forms import ModuleForm
 from mdta.apps.testcases.utils import START_NODE_NAME
 
@@ -329,9 +329,9 @@ def project_module_detail(request, module_id):
     context = {
         'module': module,
 
-        'node_new_form': NodeNewForm(module_id=module_id),
-        'edge_new_form': EdgeNewForm(module_id=module_id),
-        'node_new_node_form': NodeNewNodeForm(module_id=module_id),
+        # 'node_new_form': NodeNewForm(module_id=module_id),
+        # 'edge_new_form': EdgeNewForm(module_id=module_id),
+        # 'node_new_node_form': NodeNewNodeForm(module_id=module_id),
         'node_types': NodeType.objects.all(),
         'edge_types': EdgeType.objects.all(),
 
@@ -449,7 +449,7 @@ def module_node_new(request, module_id):
 def module_node_new_node_edge(request, node_id):
     node = get_object_or_404(Node, pk=node_id)
     form_node = NodeNewForm(project_id=node.module.project.id)
-    form_edge = EdgeNewForm(project_id=node.module.project.id)
+    form_edge = EdgeAutoNewForm()
     context = {
         'node': node,
         'form_node': form_node,

@@ -7,14 +7,14 @@
         <div class="row">
             <legend>Project: {{ module.project.name }} Auto Edge</legend>
         </div>
-        <form action="{% url 'graphs:module_node_new_node_edge' node.id %}" method="post" class="projectNodeNew">
+        <form action="{% url 'graphs:module_node_new_node_edge' node.id %}" method="post" class="moduleNodeEdgeNew">
             <div class="row">
                 {{ form_node }}
             </div>
             <br>
             <legend>Node Property:</legend>
             <div class="row" style="margin-top: 10px;">
-                <div id="project-node-new-properties"></div>
+                <div id="module-node-edge-new-node-properties"></div>
             </div>
 
             <div class="row">
@@ -23,13 +23,13 @@
             <br>
             <legend>Edge Property:</legend>
             <div class="row" style="margin-top: 10px;">
-                <div id="project-edge-new-properties"></div>
+                <div id="module-node-edge-new-edge-properties"></div>
             </div>
 
             {% csrf_token %}
             <input type="hidden" name="property_data_index" value="">
             <div class="row" style="margin-top: 20px;">
-                <input id="project_node_new" class="btn btn-primary" type="submit" value="New Node">
+                <input id="module_node_edge_new" class="btn btn-primary" type="submit" value="New Node&Edge">
                 <input type="button" value="Cancel" class="btn btn-default" onclick="history.back(); return false;">
             </div>
         </form>
@@ -38,6 +38,7 @@
 
 {% block footer %}
     <script>
+        {% include 'graphs/module/node_auto_edge_new.js' %}
         {% include 'graphs/project/node_edge.js' %}
     </script>
 {% endblock %}

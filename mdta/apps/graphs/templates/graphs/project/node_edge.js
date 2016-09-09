@@ -4,7 +4,7 @@
 $('.projectNodeNew #id_type').on('change', function(){
     var item_id = $(this).find('option:selected').val(),
         location = '#project-node-new-properties';
-    load_keys_from_type_contents_node(item_id, location, 'node');
+    load_keys_from_type_contents(item_id, location, 'node');
 });
 
 $('.projectEdgeNew #id_type').on('change', function(){
@@ -34,7 +34,8 @@ $('.projectEdgeNew #project-edge-new-to-module').on('change', function(){
 });
 
 $('.projectEdgeNew').on('submit', function(){
-    var edge_type = $('#project-edge-new-type option:selected').text(),
+    var data = '',
+        edge_type = $('#project-edge-new-type option:selected').text(),
         location = '#projectEdgeNewErrMessage',
         properties = $('#project-edge-new-properties input'),
         properties_no_input = true;
@@ -50,6 +51,11 @@ $('.projectEdgeNew').on('submit', function(){
         showErrMsg(location, 'At lease input one property');
         return false;
     }
+
+    $('#property-table tbody tr').each(function(){
+        data += this.id + ' ';
+    });
+    $('input[name="property_data_index"]').val(data);
 });
 
 $(document).ready(function(){
@@ -59,7 +65,7 @@ $(document).ready(function(){
         node_location = '#project-node-new-properties',
         edge_location = '#project-edge-new-properties';
     if (node_id) {
-        load_keys_from_type_contents_node(node_id, node_location, 'node');
+        load_keys_from_type_contents(node_id, node_location, 'node');
     } else if (edge_id_project) {
         load_keys_from_type_contents(edge_id_project, edge_location, 'edge');
     } else if (edge_id_module) {
@@ -67,7 +73,7 @@ $(document).ready(function(){
     }
 });
 
-function load_keys_from_type_contents(item_id, location, type){
+function load_keys_from_type_contents_old(item_id, location, type){
     $.getJSON("{% url 'graphs:get_keys_from_type' %}?id={0}&type={1}".format(item_id, type)).done(function(data){
         var keys = data['keys'],
             subkeys = data['subkeys'],
@@ -106,7 +112,7 @@ function load_nodes_from_module(module_id, location){
     });
 }
 
-function load_keys_from_type_contents_node(item_id, location, type){
+function load_keys_from_type_contents(item_id, location, type){
     $.getJSON("{% url 'graphs:get_keys_from_type' %}?id={0}&type={1}".format(item_id, type)).done(function(data){
         var keys = data['keys'],
             subkeys = data['subkeys'],
@@ -137,15 +143,9 @@ function load_keys_from_type_contents_node(item_id, location, type){
                 contents += '<tbody>';
 
                 contents += '<tr id=\'{0}\'>'.format(rowCounter);
-                if (keys[k].indexOf('InputData') >= 0) {
-                    $.each(subkeys, function (k, v) {
-                        contents += '<td><input name=\'{0}_{1}\'/></td>'.format(subkeys[k], rowCounter);
-                    });
-                } else {
-                    $.each(subkeys, function (k, v) {
-                        contents += '<td><input name=\'{0}\'/></td>'.format(subkeys[k]);
-                    });
-                }
+                $.each(subkeys, function(k, v){
+                    contents += '<td><input name=\'{0}_{1}\'/></td>'.format(subkeys[k], rowCounter);
+                });
                 contents += '</tr>';
 
                 contents += '</tbody></table>';
@@ -185,7 +185,15 @@ function deleteRow(row){
 }
 
 $('.projectNodeNew').on('submit', function(){
-    var data = '';
+    var data = '',
+        location = '#projectNodeNewErrMessage',
+        name = $('.projectNodeNew #id_name').val();
+
+    if (name == ''){
+        showErrMsg(location, 'Name is empty.');
+        return false;
+    }
+
     $('#property-table tbody tr').each(function(){
         data += this.id + ' ';
     });
