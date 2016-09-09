@@ -1,3 +1,4 @@
+import ast
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -171,7 +172,16 @@ def get_properties_from_multi_rows(request, node_or_edge_type):
     for index in data_index:
         tmp_row = {}
         for key in node_or_edge_type.subkeys:
-            tmp_row[key] = request.POST.get('{0}_{1}'.format(key, index), '')
+            key_data = {}
+            try:
+                key_data_json = ast.literal_eval(request.POST.get('{0}_{1}'.format(key, index), ''))
+                for d_key in key_data_json:
+                    key_data[d_key] = key_data_json[d_key]
+            except Exception as e:
+                pass
+
+            tmp_row[key] = key_data
+
         tmp_data.append(tmp_row)
 
     return tmp_data

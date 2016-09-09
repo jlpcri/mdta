@@ -52,7 +52,7 @@ $('.projectEdgeNew').on('submit', function(){
         return false;
     }
 
-    $('#property-table tbody tr').each(function(){
+    $('#edge-property-table tbody tr').each(function(){
         data += this.id + ' ';
     });
     $('input[name="property_data_index"]').val(data);
@@ -91,7 +91,7 @@ function load_keys_from_type_contents(item_id, location, type){
             rowCounter = 0,
             contents = '';
         $.each(keys, function(k, v){
-            if ((keys[k].indexOf('Data') >= 0) || (keys[k] == 'Condition')) {
+            if ((keys[k].indexOf('Data') >= 0) ) {
                 contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
                 contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
                 contents += '</div>';
@@ -103,12 +103,12 @@ function load_keys_from_type_contents(item_id, location, type){
 
                 contents += '<thead><tr>';
                 $.each(subkeys, function(k, v){
-                    contents += '<th class=\'col-xs-2\'>{0}</th>'.format(subkeys[k]);
+                    contents += '<th class=\'col-xs-5\'>{0}</th>'.format(subkeys[k]);
                 });
                 if (keys[k].indexOf('InputData') >= 0) {
-                    contents += '<th class=\'col-xs-2\'><button id=\'buttonAddData\' class=\'btn btn-xs\' type=\'button\'>Add Data</button></th>';
+                    contents += '<th class=\'col-xs-1\'><button id=\'buttonAddData\' class=\'btn btn-xs\' type=\'button\'>Add Data</button></th>';
                 } else {
-                    contents += '<th class=\'col-xs-2\'></th>';
+                    contents += '<th class=\'col-xs-1\'></th>';
                 }
                 contents += '</tr></thead>';
 
@@ -166,7 +166,7 @@ $('.projectNodeNew').on('submit', function(){
         return false;
     }
 
-    $('#property-table tbody tr').each(function(){
+    $('#node-property-table tbody tr').each(function(){
         data += this.id + ' ';
     });
     $('input[name="property_data_index"]').val(data);
