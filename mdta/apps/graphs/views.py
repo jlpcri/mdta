@@ -382,7 +382,15 @@ def module_node_new(request, module_id):
     :return:
     """
     auto_edge = request.GET.get('auto_edge', '')
-    if request.method == 'POST':
+    if request.method == 'GET':
+        module = get_object_or_404(Module, pk=module_id)
+        form = NodeNewForm(module_id=module_id)
+        context = {
+            'form': form,
+            'module': module
+        }
+        return render(request, 'graphs/module/node_new.html', context)
+    elif request.method == 'POST':
         if auto_edge == 'node_edge_new':
             # print(request.POST)
             # return redirect('graphs:project_module_detail', module_id)
@@ -438,6 +446,20 @@ def module_node_new(request, module_id):
 
 
 @user_passes_test(user_is_staff)
+def module_node_new_node_edge(request, node_id):
+    node = get_object_or_404(Node, pk=node_id)
+    form_node = NodeNewForm(project_id=node.module.project.id)
+    form_edge = EdgeNewForm(project_id=node.module.project.id)
+    context = {
+        'node': node,
+        'form_node': form_node,
+        'form_edge': form_edge
+    }
+    if request.method == 'GET':
+        return render(request, 'graphs/module/node_auto_edge_new.html', context)
+
+
+@user_passes_test(user_is_staff)
 def module_node_edit(request, node_id):
     """
     Edit node from module view
@@ -480,7 +502,15 @@ def module_edge_new(request, module_id):
     :param module_id:
     :return:
     """
-    if request.method == 'POST':
+    if request.method == 'GET':
+        module = get_object_or_404(Module, pk=module_id)
+        form = EdgeNewForm(module_id=module_id)
+        context = {
+            'form': form,
+            'module': module
+        }
+        return render(request, 'graphs/module/edge_new.html', context)
+    elif request.method == 'POST':
         form = EdgeNewForm(request.POST)
         if form.is_valid():
             edge = form.save(commit=False)

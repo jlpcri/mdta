@@ -7,6 +7,12 @@ $('.projectNodeNew #id_type').on('change', function(){
     load_keys_from_type_contents_node(item_id, location, 'node');
 });
 
+$('.projectEdgeNew #id_type').on('change', function(){
+    var item_id = $(this).find('option:selected').val(),
+        location = '#project-edge-new-properties';
+    load_keys_from_type_contents(item_id, location, 'edge');
+});
+
 $('.projectEdgeNew #project-edge-new-type').on('change', function(){
     var item_id = $(this).find('option:selected').val(),
         location = '#project-edge-new-properties';
@@ -48,14 +54,16 @@ $('.projectEdgeNew').on('submit', function(){
 
 $(document).ready(function(){
     var node_id = $('.projectNodeNew #id_type').find('option:selected').val(),
-        edge_id = $('.projectEdgeNew #project-edge-new-type').find('option:selected').val(),
+        edge_id_project = $('.projectEdgeNew #project-edge-new-type').find('option:selected').val(),
+        edge_id_module = $('.projectEdgeNew #id_type').find('option:selected').val(),
         node_location = '#project-node-new-properties',
         edge_location = '#project-edge-new-properties';
     if (node_id) {
         load_keys_from_type_contents_node(node_id, node_location, 'node');
-    }
-    if (edge_id) {
-        load_keys_from_type_contents(edge_id, edge_location, 'edge');
+    } else if (edge_id_project) {
+        load_keys_from_type_contents(edge_id_project, edge_location, 'edge');
+    } else if (edge_id_module) {
+        load_keys_from_type_contents(edge_id_module, edge_location, 'edge');
     }
 });
 
@@ -129,9 +137,15 @@ function load_keys_from_type_contents_node(item_id, location, type){
                 contents += '<tbody>';
 
                 contents += '<tr id=\'{0}\'>'.format(rowCounter);
-                $.each(subkeys, function(k, v){
-                    contents += '<td><input name=\'{0}_{1}\'/></td>'.format(subkeys[k], rowCounter);
-                });
+                if (keys[k].indexOf('InputData') >= 0) {
+                    $.each(subkeys, function (k, v) {
+                        contents += '<td><input name=\'{0}_{1}\'/></td>'.format(subkeys[k], rowCounter);
+                    });
+                } else {
+                    $.each(subkeys, function (k, v) {
+                        contents += '<td><input name=\'{0}\'/></td>'.format(subkeys[k]);
+                    });
+                }
                 contents += '</tr>';
 
                 contents += '</tbody></table>';
