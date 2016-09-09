@@ -320,10 +320,13 @@ def get_item_properties(item):
 
 def update_testcase_precondition(edge, pre_condition):
     data = []
-    for key in edge.properties[edge.type.keys_data_name]:
-        data.append(key + ': ' + edge.properties[edge.type.keys_data_name][key])
+    try:
+        for key in edge.properties[edge.type.keys_data_name]:
+            data.append(key + ': ' + edge.properties[edge.type.keys_data_name][key])
 
-    pre_condition.append(data)
+        pre_condition.append(data)
+    except KeyError:
+        pass
 
 # --------------- Routing Project/Module Graph End ---------------
 
