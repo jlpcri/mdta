@@ -29,6 +29,13 @@ class NodeType(models.Model):
                 return item
         return None
 
+    @property
+    def subkey_data_name(self):
+        if self.subkeys[0]:
+            return self.subkeys[0]
+        else:
+            return None
+
 
 class EdgeType(models.Model):
     """
@@ -54,6 +61,13 @@ class EdgeType(models.Model):
             if 'Data' in item or 'Condition' in item:
                 return item
         return None
+
+    @property
+    def subkey_data_name(self):
+        if self.subkeys[0]:
+            return self.subkeys[0]
+        else:
+            return None
 
 
 class Node(models.Model):

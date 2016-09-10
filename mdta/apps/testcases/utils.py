@@ -309,20 +309,31 @@ def edge_precondition(edge):
 def get_item_properties(item):
     data = ''
     for key in item.properties:
-        if key == item.type.keys_data_name:
-            for subkey in item.properties[key]:
-                data += subkey + ': ' + item.properties[key][subkey] + ', '
+        if key == 'InputData':
+            try:
+                for ele in item.properties[key]:
+                    data += 'Inputs: ' + str(ele['Inputs']) + ', Outputs: ' + str(ele['Outputs']) + '; '
+            except (KeyError, TypeError):
+                data += key
+        elif key == 'OutputData':
+            try:
+                data += str(item.properties[key][item.type.subkey_data_name])
+            except KeyError:
+                data += key
         else:
-            data += key + ': ' + item.properties[key] + ', '
+            try:
+                data += key + ': ' + item.properties[key] + ', '
+            except (KeyError, TypeError):
+                data += key
 
     return data
 
 
 def update_testcase_precondition(edge, pre_condition):
-    data = []
+    data = ''
     try:
         for key in edge.properties[edge.type.keys_data_name]:
-            data.append(key + ': ' + edge.properties[edge.type.keys_data_name][key])
+            data += str(edge.properties[edge.type.keys_data_name][key])
 
         pre_condition.append(data)
     except KeyError:
