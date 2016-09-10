@@ -11,7 +11,7 @@ ALLOWED_HOSTS = [
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'mdta_old',
+        'NAME': 'mdta',
         'USER': 'scorecard',
         'PASSWORD': 'scorecard_development',
         'HOST': 'qaci01.wic.west.com',

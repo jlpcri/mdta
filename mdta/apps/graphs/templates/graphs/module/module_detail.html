@@ -22,11 +22,15 @@
             <div class="col-xs-9">
                 <div class="row">
                     <div class="col-xs-6">
-                        <h4>Module: <a href="{% url 'graphs:project_detail' module.project.id %}">{{ module.project.name }}</a> - {{ module.name }}</h4>
+                        {% if module.project %}
+                            <h4>Project: <a href="{% url 'graphs:project_detail' module.project.id %}">{{ module.project.name }}</a> - Module: {{ module.name }}</h4>
+                        {% else %}
+                            <h4>Test Header - {{ module.name }}</h4>
+                        {% endif %}
                     </div>
                     <div class="col-xs-3 pull-right">
-                        <a href="#" data-toggle="modal" data-target="#node-new-modal" class="btn btn-default">New Node</a>
-                        <a href="#" data-toggle="modal" data-target="#edge-new-modal" class="btn btn-default">New Edge</a>
+                        <a href="{% url 'graphs:module_node_new' module.id %}" class="btn btn-default">New Node</a>
+                        <a href="{% url 'graphs:module_edge_new' module.id %}" class="btn btn-default">New Edge</a>
                     </div>
                 </div>
                 <div class="row">
@@ -90,16 +94,44 @@
                                                     <h5>Node Properties:</h5>
                                                     <div id="module-node-edit-properties">
                                                         {% for key, value in item.properties.items %}
-                                                            <div class="row" style="margin-top: 5px;">
-                                                                <div class="col-xs-12">
-                                                                    <label>{{ key }}:</label>
+                                                            {% if key == 'InputData' %}
+                                                                <label style="margin-top: 5px;">{{ key }}:</label>
+                                                                {% for subkey, subvalue in item.properties.InputData.items %}
+                                                                    <div class="row" style="margin-top: 5px;">
+                                                                        <div class="col-xs-1"></div>
+                                                                        <div class="col-xs-5">
+                                                                            {{ subkey }}
+                                                                        </div>
+                                                                        <div class="col-xs-5">
+                                                                            <input name="{{ subkey }}" value="{{ subvalue }}" >
+                                                                        </div>
+                                                                    </div>
+                                                                {% endfor %}
+                                                            {% elif key == 'OutputData' %}
+                                                                <label style="margin-top: 5px;">{{ key }}:</label>
+                                                                {% for subkey, subvalue in item.properties.OutputData.items %}
+                                                                    <div class="row" style="margin-top: 5px;">
+                                                                        <div class="col-xs-1"></div>
+                                                                        <div class="col-xs-5">
+                                                                            {{ subkey }}
+                                                                        </div>
+                                                                        <div class="col-xs-5">
+                                                                            <input name="{{ subkey }}" value="{{ subvalue }}" >
+                                                                        </div>
+                                                                    </div>
+                                                                {% endfor %}
+                                                            {% else %}
+                                                                <div class="row" style="margin-top: 5px;">
+                                                                    <div class="col-xs-12">
+                                                                        <label>{{ key }}:</label>
+                                                                    </div>
                                                                 </div>
-                                                            </div>
-                                                            <div class="row" style="margin-top: 5px;">
-                                                                <div class="col-xs-12">
-                                                                    <input name="{{ key }}" value="{{ value }}" >
+                                                                <div class="row" style="margin-top: 5px;">
+                                                                    <div class="col-xs-12">
+                                                                        <input name="{{ key }}" value="{{ value }}" >
+                                                                    </div>
                                                                 </div>
-                                                            </div>
+                                                            {% endif %}
                                                         {% endfor %}
                                                     </div>
                                                 </div>
@@ -116,7 +148,7 @@
                                                 <div class="col-xs-12">
                                                     <button type="submit" name="node_save" class="btn btn-primary param-save">Save</button>
                                                     <button type="submit" name="node_delete" class="btn btn-danger param-delete">Delete</button>
-                                                    <a href="#module-node-edge-new-modal" data-toggle="modal" class="btn btn-primary" data-from-node-id="{{ item.id }}">NewNode</a>
+                                                    <a href="{% url 'graphs:module_node_new_node_edge' item.id %}" class="btn btn-primary" >NewNode</a>
                                                 </div>
                                             </div>
                                         </form>
@@ -240,14 +272,42 @@
                                                     <h5>Edge Properties:</h5>
                                                     <div id="module-edge-edit-properties">
                                                         {% for key, value in item.properties.items %}
-                                                            <div class="row" style="margin-top: 5px;">
-                                                                <div class="col-xs-4">
-                                                                    <label>{{ key }}:</label>
+                                                            {% if key == 'OutputData' %}
+                                                                <label style="margin-top: 5px;">{{ key }}:</label>
+                                                                {% for subkey, subvalue in item.properties.OutputData.items %}
+                                                                    <div class="row" style="margin-top: 5px;">
+                                                                        <div class="col-xs-1"></div>
+                                                                        <div class="col-xs-5">
+                                                                            {{ subkey }}
+                                                                        </div>
+                                                                        <div class="col-xs-5">
+                                                                            <input name="{{ subkey }}" value="{{ subvalue }}" >
+                                                                        </div>
+                                                                    </div>
+                                                                {% endfor %}
+                                                            {% elif key == 'Condition' %}
+                                                                <label style="margin-top: 5px;">{{ key }}:</label>
+                                                                {% for subkey, subvalue in item.properties.Condition.items %}
+                                                                    <div class="row" style="margin-top: 5px;">
+                                                                        <div class="col-xs-1"></div>
+                                                                        <div class="col-xs-5">
+                                                                            {{ subkey }}
+                                                                        </div>
+                                                                        <div class="col-xs-5">
+                                                                            <input name="{{ subkey }}" value="{{ subvalue }}" >
+                                                                        </div>
+                                                                    </div>
+                                                                {% endfor %}
+                                                            {% else %}
+                                                                <div class="row" style="margin-top: 5px;">
+                                                                    <div class="col-xs-4">
+                                                                        <label>{{ key }}:</label>
+                                                                    </div>
+                                                                    <div class="col-xs-8">
+                                                                        <input name="{{ key }}" value="{{ value }}" >
+                                                                    </div>
                                                                 </div>
-                                                                <div class="col-xs-8">
-                                                                    <input name="{{ key }}" value="{{ value }}" >
-                                                                </div>
-                                                            </div>
+                                                            {% endif %}
                                                         {% endfor %}
                                                     </div>
                                                 </div>
@@ -278,7 +338,6 @@
                     </div>
                 </div>
 
-        {% include 'graphs/module/module_detail_modal.html' %}
     </div>
         </div>
     </div>

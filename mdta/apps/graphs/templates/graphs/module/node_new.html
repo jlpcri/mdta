@@ -5,9 +5,9 @@
 {% block body %}
     <div class="container">
         <div class="row">
-            <legend>Project: {{ project.name }}</legend>
+            <legend>Project: {{ module.project.name }}</legend>
         </div>
-        <form action="{% url 'graphs:project_node_new' project.id %}" method="post" class="projectNodeNew">
+        <form action="{% url 'graphs:module_node_new' module.id %}" method="post" class="projectNodeNew">
             <div class="row">
                 {{ form }}
             </div>

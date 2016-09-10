@@ -61,6 +61,8 @@ class Project(models.Model):
     Entry of each project which will be represented to Model Driven Graph
     """
     name = models.CharField(max_length=50, unique=True, default='')
+    test_header = models.ForeignKey('Module', null=True, blank=True,
+                                    related_name='test_header')
 
     version = models.TextField()  # relate to TestRail-TestSuites
     testrail = models.ForeignKey(TestRailConfiguration,
@@ -123,7 +125,7 @@ class Module(models.Model):
     Modules per project
     """
     name = models.CharField(max_length=50, default='')
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, null=True, blank=True)  # if null, then it's Test Header
     catalog = models.ManyToManyField(CatalogItem, blank=True)
 
     class Meta:
@@ -131,7 +133,10 @@ class Module(models.Model):
         unique_together = ('project', 'name',)
 
     def __str__(self):
-        return '{0}: {1}'.format(self.project.name, self.name)
+        if self.project:
+            return '{0}: {1}'.format(self.project.name, self.name)
+        else:
+            return '{0}: {1}'.format('TestHeader', self.name)
 
     @property
     def nodes(self):
@@ -158,5 +163,43 @@ class Module(models.Model):
         edges = self.edges_all
         return Node.objects.filter(Q(from_node__in=edges) | Q(to_node__in=edges) | Q(module=self)).distinct()
 
+    @property
+    def th_related_projects(self):
+        """
+        Projects which test_header refers to this Module instance
+        :return:
+        """
+        data = []
+        projects = Project.objects.filter(test_header=self)
+        for project in projects:
+            data.append(project.name)
+
+        return data
 
 
+class ProjectVariable(models.Model):
+    """
+    Variables of project level
+    """
+    TESTHEADER = 1
+    PRECONDITION = 2
+    PROMPT = 3
+    DATA = 4
+    ORIGIN_TYPE_CHOICES = (
+        (TESTHEADER, 'TestHeader'),
+        (PRECONDITION, 'PreCondition'),
+        (PROMPT, 'Prompt'),
+        (DATA, 'Data')
+    )
+
+    project = models.ForeignKey(Project)
+    name = models.TextField()
+    origin_type = models.IntegerField(choices=ORIGIN_TYPE_CHOICES, default=TESTHEADER)
+    origin = models.ForeignKey('graphs.Node', null=True, blank=True)
+
+    class Meta:
+        ordering = ['name']
+        unique_together = ('project', 'name',)
+
+    def __str__(self):
+        return '{0}: {1}'.format(self.project.name, self.name)

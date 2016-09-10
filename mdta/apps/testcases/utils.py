@@ -70,9 +70,12 @@ def get_paths_through_all_edges(edges):
             pre_condition = []
             # for index, step in enumerate(path, start=1):
             if isinstance(path[0], Node) and path[0].type.name == START_NODE_NAME:
-                for step in path:
+                for index, step in enumerate(path):
                     if isinstance(step, Node):
-                        traverse_node(step, tcs)
+                        if index > 1:
+                            traverse_node(step, tcs, path[index-1])
+                        else:
+                            traverse_node(step, tcs)
                     if isinstance(step, Edge):
                         if step.type.name == 'PreCondition':
                             update_testcase_precondition(step, pre_condition)
@@ -95,9 +98,7 @@ def routing_path_to_edge(edge):
     """
     visited_nodes = [edge.to_node]  # Visited nodes for the path to this Edge
 
-    data = []
-
-    routing_path_to_node(edge.from_node, data, visited_nodes)
+    data = routing_path_to_node(edge.from_node, visited_nodes)
 
     if data:
         data.append(edge)
@@ -107,22 +108,23 @@ def routing_path_to_edge(edge):
     return data
 
 
-def routing_path_to_node(node, data, visited_nodes):
+def routing_path_to_node(node, visited_nodes):
     """
     Routing path to current Node
     :param node:
     :param data:
     :return:
     """
-    path = []
+
     visited_nodes.append(node)
 
-    breadth_first_search(node, path, visited_nodes)
+    path = breadth_first_search(node, visited_nodes)
 
-    data += path
+    # print(path)
+    return path
 
 
-def breadth_first_search(node, path, visited_nodes):
+def breadth_first_search(node, visited_nodes):
     """
     Search a path from Start node(type='Start') to current Node
     Breadth
@@ -130,12 +132,12 @@ def breadth_first_search(node, path, visited_nodes):
     :return:
     """
 
+    path = []
     start_node_found_outside = False  # flag to find Start Node outside
 
     if node.type.name == START_NODE_NAME:
         path.append(node)
     else:
-        # edges = Edge.objects.filter(to_node=node)
         edges = node.arriving_edges
         if edges.count() > 0:
             start_node_found = False  # flag to find Start Node in current search
@@ -145,7 +147,7 @@ def breadth_first_search(node, path, visited_nodes):
                         if edge.from_node.type.name != START_NODE_NAME:
                             if edge.from_node.arriving_edges.count() > 0:
                                 start_node_found_outside = True
-                                breadth_first_search(edge.from_node, path, visited_nodes)
+                                path += breadth_first_search(edge.from_node, visited_nodes)
                         else:
                             start_node_found = True
                             path.append(edge.from_node)
@@ -156,15 +158,9 @@ def breadth_first_search(node, path, visited_nodes):
 
                     if start_node_found:  # if found Start Node, break out of for loop
                         break
-            if not start_node_found:  # if Not found Start Node, variable Path=[]
-                path = []
-        else:  # if No Arriving Edges, variable Path=[]
-            path = []
 
-    if start_node_found_outside:
-        path.append(node)
-
-    # print('path: ', node.name,  path)
+    # print('path: ',  path)
+    return path
 
 
 def check_subpath_in_all(all_path):
@@ -208,7 +204,7 @@ def check_path_contains_in_result(path, result):
     return flag
 
 
-def traverse_node(node, tcs):
+def traverse_node(node, tcs, preceding_edge=None):
     """
     Traverse Node based on node type
     :param node:
@@ -218,7 +214,7 @@ def traverse_node(node, tcs):
     if node.type.name == START_NODE_NAME:
         add_step(node_start(node), tcs)
     elif node.type.name in ['Menu Prompt', 'Menu Prompt with Confirmation', 'Play Prompt']:
-        add_step(node_prompt(node), tcs)
+        add_step(node_prompt(node, preceding_edge), tcs)
     else:
         add_step(node_check_holly_log(node), tcs)
 
@@ -229,9 +225,16 @@ def node_start(node):
     }
 
 
-def node_prompt(node):
+def node_prompt(node, preceding_edge=None):
+    content = ''
+    if preceding_edge:
+        if preceding_edge.type.name == 'DTMF':
+            content = 'press ' + preceding_edge.properties['Number']
+        elif preceding_edge.type.name == 'Speech':
+            content = preceding_edge.properties['Response']
+
     return {
-        'content': 'Node - ' + node.name,
+        'content': content,
         'expected': node.properties['Verbiage']
     }
 
@@ -256,11 +259,11 @@ def traverse_edge(edge, tcs):
     :param tcs:
     :return:
     """
-    if edge.type.name == 'DTMF':
-        add_step(edge_dtmf_dial(edge), tcs)
-    elif edge.type.name == 'Speech':
-        add_step(edge_speech_say(edge), tcs)
-    elif edge.type.name == 'Data':
+    # if edge.type.name == 'DTMF':
+    #     add_step(edge_dtmf_dial(edge), tcs)
+    # elif edge.type.name == 'Speech':
+    #     add_step(edge_speech_say(edge), tcs)
+    if edge.type.name == 'Data':
         add_step(edge_alter_data_requirement(edge), tcs)
     elif edge.type.name == 'PreCondition':
         add_step(edge_precondition(edge), tcs)
@@ -306,17 +309,35 @@ def edge_precondition(edge):
 def get_item_properties(item):
     data = ''
     for key in item.properties:
-        data += key + ': ' + item.properties[key] + ', '
+        if key == 'InputData':
+            try:
+                for ele in item.properties[key]:
+                    data += 'Inputs: ' + str(ele['Inputs']) + ', Outputs: ' + str(ele['Outputs']) + '; '
+            except (KeyError, TypeError):
+                data += key
+        elif key == 'OutputData':
+            try:
+                data += str(item.properties[key][item.type.subkey_data_name])
+            except KeyError:
+                data += key
+        else:
+            try:
+                data += key + ': ' + item.properties[key] + ', '
+            except (KeyError, TypeError):
+                data += key
 
     return data
 
 
 def update_testcase_precondition(edge, pre_condition):
-    data = []
-    for key in edge.properties:
-        data.append(key + ': ' + edge.properties[key])
+    data = ''
+    try:
+        for key in edge.properties[edge.type.keys_data_name]:
+            data += str(edge.properties[edge.type.keys_data_name][key])
 
-    pre_condition.append(data)
+        pre_condition.append(data)
+    except KeyError:
+        pass
 
 # --------------- Routing Project/Module Graph End ---------------
 

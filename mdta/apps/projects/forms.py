@@ -6,11 +6,16 @@ from .models import Project, Module, CatalogItem
 
 
 class ProjectForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(ProjectForm, self).__init__(*args, **kwargs)
+        self.fields['test_header'].queryset = Module.objects.filter(project=None)
+
     class Meta:
         model = Project
         exclude = ['created', 'updated']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'test_header': forms.Select(attrs={'class': 'form-control'}),
             'version': forms.TextInput(attrs={'class': 'form-control'}),
             'catalog': forms.SelectMultiple(attrs={
                 'class': 'form-control',
@@ -46,4 +51,13 @@ class ModuleForm(ModelForm):
                 'class': 'form-control',
                 'size': '10'
             }),
+        }
+
+
+class TestHeaderForm(ModelForm):
+    class Meta:
+        model = Module
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
         }

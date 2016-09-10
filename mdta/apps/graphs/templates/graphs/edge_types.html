@@ -16,7 +16,8 @@
                                     <td><a href="#edge-type-edit-modal" data-toggle="modal"
                                            data-edge-type-id="{{ edge_type.id }}"
                                            data-edge-type-name="{{ edge_type.name }}"
-                                           data-edge-type-keys="{{ edge_type.keys|join:", " }}">
+                                           data-edge-type-keys="{{ edge_type.keys|join:", " }}"
+                                           data-edge-type-subkeys="{{ edge_type.subkeys|join:", " }}">
                                         {{ edge_type.name }}</a>
                                     </td>
                                     <td>{{ edge_type.keys }}</td>

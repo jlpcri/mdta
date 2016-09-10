@@ -13,6 +13,7 @@
         <div class="row" style="margin-top: 10px;">
             <ul id="subnav-tabs" class="nav nav-tabs">
                 <li><a href="#projects" data-toggle="tab">Project Lists</a> </li>
+                <li><a href="#test_headers" data-toggle="tab">Test Headers</a> </li>
                 <li><a href="#node_types" data-toggle="tab">Node Types</a> </li>
                 <li><a href="#edge_types" data-toggle="tab">Edge Types</a> </li>
             </ul>
@@ -24,6 +25,10 @@
     <div class="tab-content">
         <div class="tab-pane" id="projects">
             {% include 'graphs/project/projects.html' %}
+        </div>
+
+        <div class="tab-pane" id="test_headers">
+            {% include 'graphs/graphs_testheaders.html' %}
         </div>
 
         <div class="tab-pane" id="node_types">
