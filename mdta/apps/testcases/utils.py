@@ -317,7 +317,7 @@ def get_item_properties(item):
                 data += key
         elif key == 'OutputData':
             try:
-                data += str(item.properties[key][item.type.subkey_data_name])
+                data += str(item.properties[key][item.type.subkeys_data_name])
             except KeyError:
                 data += key
         else:

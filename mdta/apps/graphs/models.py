@@ -6,8 +6,12 @@ from mdta.apps.projects.models import Project, Module
 
 class NodeType(models.Model):
     """
-    Type of Node: Transfer, Prompt, DBRequest, DBResponse,
-    HostRequest, HostResponse, Segment
+    Type of Node: DataQueries Database, DataQueries WebService
+                  Play Prompt
+                  Menu Prompt, Menu Prompt with Confirmation
+                  Start
+                  TestHeader Start
+                  TestHeader End
     """
     name = models.CharField(max_length=50, unique=True, default='')
 
@@ -30,11 +34,14 @@ class NodeType(models.Model):
         return None
 
     @property
-    def subkey_data_name(self):
-        if self.subkeys[0]:
-            return self.subkeys[0]
+    def subkeys_data_name(self):
+        if 'DataQueries' in self.name:
+            return self.subkeys
         else:
-            return None
+            if self.subkeys[0]:
+                return self.subkeys[0]
+            else:
+                return None
 
 
 class EdgeType(models.Model):
@@ -63,7 +70,7 @@ class EdgeType(models.Model):
         return None
 
     @property
-    def subkey_data_name(self):
+    def subkeys_data_name(self):
         if self.subkeys[0]:
             return self.subkeys[0]
         else:
