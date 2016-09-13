@@ -1,3 +1,4 @@
+import ast
 from testrail import APIClient, APIError
 from mdta.apps.graphs.models import Node, Edge
 from mdta.apps.projects.models import Project, TestRailConfiguration
@@ -332,11 +333,19 @@ def get_item_properties(item):
 def update_testcase_precondition(edge, pre_condition):
     data = ''
     try:
-        for key in edge.properties[edge.type.keys_data_name]:
-            data += str(edge.properties[edge.type.keys_data_name][key])
+        for subkey in edge.properties[edge.type.keys_data_name]:
+            tmp = edge.properties[edge.type.keys_data_name][subkey]
+            tmp = ast.literal_eval(tmp)
+            for idx, tmp_key in enumerate(tmp):
+                if idx == len(tmp) - 1:
+                    data += tmp_key + ': ' + tmp[tmp_key]
+                else:
+                    data += tmp_key + ': ' + tmp[tmp_key] + ', '
+            # data += edge.properties[edge.type.keys_data_name][subkey]
 
         pre_condition.append(data)
-    except KeyError:
+    except (KeyError, TypeError) as e:
+        print(e)
         pass
 
 # --------------- Routing Project/Module Graph End ---------------
