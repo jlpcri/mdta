@@ -316,5 +316,6 @@
         var nodes = {{ network_nodes|safe }};
         var edges = {{ network_edges|safe }};
         {% include 'graphs/project/project_detail.js' %}
+        {% include 'graphs/node_edge_properties.js' %}
     </script>
 {% endblock %}

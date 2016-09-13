@@ -35,7 +35,7 @@ $('.moduleEdgeEditForm #moduleEdgeEditType').on('change', function(){
     var edge_type_id = $(this).find('option:selected').val(),
         location = $(this).closest('.moduleEdgeEditForm').find('#module-edge-edit-properties');
 
-    load_keys_from_node_edge_type(edge_type_id, location, 'edge');
+    load_keys_from_type_contents(edge_type_id, location, 'edge');
 });
 
 $('.moduleEdgeEditForm').on('submit', function(e){
