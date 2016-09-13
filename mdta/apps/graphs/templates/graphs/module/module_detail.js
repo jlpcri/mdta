@@ -22,7 +22,7 @@ $('.moduleNodeEditForm').on('submit', function(e){
         return false;
     }
 
-    $(e.currentTarget).find('#node-property-table tbody tr').each(function(){
+    $(e.currentTarget).find('.moduleNodeEditPropertyTable tbody tr').each(function(){
         data += this.id + ' ';
     });
     $(e.currentTarget).find('input[name="property_data_index"]').val(data);

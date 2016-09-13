@@ -13,7 +13,7 @@ function load_keys_from_type_contents(item_id, location, type){
                 contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
                 contents += '<div class=\'col-xs-1\'></div>';
                 contents += '<div class=\'col-xs-11\'>';
-                contents += '<table class=\'table\' id=\'{0}-property-table\'>'.format(type);
+                contents += '<table class=\'table moduleNodeEditPropertyTable\' id=\'{0}-property-table\'>'.format(type);
 
                 contents += '<thead><tr>';
                 $.each(subkeys, function(k, v){
@@ -49,12 +49,12 @@ function load_keys_from_type_contents(item_id, location, type){
 
         $('#buttonAddData').click(function(){
             rowCounter++;
-            node_property_add_data(subkeys, rowCounter);
+            node_property_add_data(subkeys, rowCounter, '.moduleNodeEditPropertyTable');
         });
     });
 }
 
-function node_property_add_data(subkeys, rowCounter){
+function node_property_add_data(subkeys, rowCounter, location){
     var newRow = '';
 
     newRow += '<tr id=\'{0}\'>'.format(rowCounter);
@@ -63,9 +63,19 @@ function node_property_add_data(subkeys, rowCounter){
     });
     newRow += '<td class=\'text-center\'><a href=\'#\' onclick=\'deleteRow(this);\'><i class=\'fa fa-trash-o fa-lg\'></i></a></td>';
     newRow += '</tr>';
-    $('#node-property-table').append(newRow)
+    $(location).append(newRow)
 }
 
 function deleteRow(row){
     $(row).closest('tr').remove();
+}
+
+
+function module_node_edit_add_data(node_id){
+    var subkeys = ['Inputs', 'Outputs'],
+        location = '#node-property-table-{0}'.format(node_id);
+
+    var rowCounter = parseInt($('{0} tr:last'.format(location)).attr('id')) + 1;
+
+    node_property_add_data(subkeys, rowCounter, location);
 }

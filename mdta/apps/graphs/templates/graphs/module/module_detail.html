@@ -96,11 +96,12 @@
                                                         {% for key, value in item.properties.items %}
                                                             {% if key == 'InputData' %}
                                                                 <label style="margin-top: 5px;">{{ key }}:</label>
-                                                                <table class="table" id="node-property-table">
+                                                                <table class="table moduleNodeEditPropertyTable" id="node-property-table-{{ item.id }}">
                                                                     <thead>
                                                                         <tr>
                                                                             <td>Inputs</td>
                                                                             <td>Outputs</td>
+                                                                            <td><button id="buttonAddData_{{ item.id }}" type="button" class="btn btn-xs" onclick="module_node_edit_add_data({{ item.id }})">Add Data</button></td>
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
@@ -108,6 +109,7 @@
                                                                             <tr id="{{ forloop.counter0 }}">
                                                                                 <td><input name="Inputs_{{ forloop.counter0 }}" value="{{ rec.Inputs }}"></td>
                                                                                 <td><input name="Outputs_{{ forloop.counter0 }}" value="{{ rec.Outputs }}"> </td>
+                                                                                <td class="text-center"><a href="#" onclick="deleteRow(this);"><i class="fa fa-trash-o fa-lg"></i> </a> </td>
                                                                             </tr>
                                                                         {% endfor %}
                                                                     </tbody>
