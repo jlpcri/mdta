@@ -9,7 +9,7 @@ $('.moduleNodeEditForm #moduleNodeEditType').on('change', function(e){
     var type_id = $(this).find('option:selected').val(),
         location = $(this).closest('.moduleNodeEditForm').find('#module-node-edit-properties');
 
-    load_keys_from_type_contents(type_id, location, 'node');
+    load_keys_from_type_contents(type_id, location, 'node', 'module_node_edit');
 });
 
 $('.moduleNodeEditForm').on('submit', function(e){

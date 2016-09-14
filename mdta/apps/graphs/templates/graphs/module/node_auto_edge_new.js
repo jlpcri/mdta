@@ -27,7 +27,7 @@ function load_keys_from_type_contents_edge(item_id, location, type){
 
                 contents += '<tr id=\'{0}\'>'.format(rowCounter);
                 $.each(subkeys, function(k, v){
-                    contents += '<td><input name=\'{0}_{1}\'/></td>'.format(subkeys[k], rowCounter);
+                    contents += '<td><input name=\'{0}_{1}\' style=\'width:100%\' placeholder=\'JSON Format\'/></td>'.format(subkeys[k], rowCounter);
                 });
                 contents += '</tr>';
 
