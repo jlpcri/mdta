@@ -67,43 +67,44 @@ def get_paths_through_all_edges(edges, th_module=None):
     :param edges:
     :return:
     """
-    th_path = get_paths_from_test_header(th_module)
-    print(th_path)
+    th_paths = get_paths_from_test_header(th_module)
+    # print(th_paths)
 
     data = []
-    for edge in edges:
-        # print(edge.id)
-        path = routing_path_to_edge(edge)
-        if path:
-            tcs = []
-            pre_condition = []
-            # for index, step in enumerate(path, start=1):
-            if isinstance(path[0], Node) and path[0].type.name in START_NODE_NAME:
-                for index, step in enumerate(path):
-                    if index == 0:
-                        traverse_node(step, tcs)
-                        if th_path:
-                            for th_index, th_step in enumerate(th_path):
-                                if th_index == 0:
-                                    traverse_node(th_step, tcs)
-                                else:
-                                    if isinstance(th_step, Node):
-                                        traverse_node(th_step, tcs, th_path[th_index - 1])
-                                    elif isinstance(th_step, Edge):
-                                        traverse_edge(th_step, tcs)
-                    else:
-                        if isinstance(step, Node):
-                            traverse_node(step, tcs, path[index - 1])
-                        elif isinstance(step, Edge):
-                            if step.type.name == 'PreCondition':
-                                update_testcase_precondition(step, pre_condition)
-                            traverse_edge(step, tcs)
+    for th_path in th_paths:
+        for edge in edges:
+            # print(edge.id)
+            path = routing_path_to_edge(edge)
+            if path:
+                tcs = []
+                pre_condition = []
+                # for index, step in enumerate(path, start=1):
+                if isinstance(path[0], Node) and path[0].type.name in START_NODE_NAME:
+                    for index, step in enumerate(path):
+                        if index == 0:
+                            traverse_node(step, tcs)
+                            if th_path:
+                                for th_index, th_step in enumerate(th_path):
+                                    if th_index == 0:
+                                        traverse_node(th_step, tcs)
+                                    else:
+                                        if isinstance(th_step, Node):
+                                            traverse_node(th_step, tcs, th_path[th_index - 1])
+                                        elif isinstance(th_step, Edge):
+                                            traverse_edge(th_step, tcs)
+                        else:
+                            if isinstance(step, Node):
+                                traverse_node(step, tcs, path[index - 1])
+                            elif isinstance(step, Edge):
+                                if step.type.name == 'PreCondition':
+                                    update_testcase_precondition(step, pre_condition)
+                                traverse_edge(step, tcs)
 
-                data.append({
-                    'pre_condition': pre_condition,
-                    'tc_steps': tcs,
-                    'title': 'Route from \'' + edge.from_node.name + '\' to \'' + edge.to_node.name + '\''
-                })
+                    data.append({
+                        'pre_condition': pre_condition,
+                        'tc_steps': tcs,
+                        'title': 'Route from \'' + edge.from_node.name + '\' to \'' + edge.to_node.name + '\''
+                    })
     # return check_subpath_in_all(data)
     return data
 
@@ -376,7 +377,7 @@ def get_paths_from_test_header(th_module):
             end_node = Node.objects.get(module=th_module, type__name='TestHeader End')
             for edge in end_node.arriving_edges:
                 path = routing_path_to_edge(edge)
-                data += path
+                data.append(path)
         except Exception as e:
             print(e)
             pass
