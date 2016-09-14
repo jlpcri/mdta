@@ -184,25 +184,36 @@ def breadth_first_search(node, visited_nodes):
         path.append(node)
     else:
         edges = node.arriving_edges
-        if edges.count() > 0:
+        if edges.count() == 1:
+            edge = edges[0]
+        elif edges.count() > 1:
+            for tmp_edge in edges:
+                if tmp_edge.type.name == 'Connector':
+                    edge = tmp_edge
+                    break
+            else:
+                edge = edges[0]
+        else:
+            edge = None
+
+        if edge:
             start_node_found = False  # flag to find Start Node in current search
-            for edge in edges:
-                if edge.from_node not in visited_nodes or edge.from_node.type.name in START_NODE_NAME:  # if Node is not visited or Node is Start
-                    if edge.from_node != edge.to_node:
-                        if edge.from_node.type.name not in START_NODE_NAME:
-                            if edge.from_node.arriving_edges.count() > 0:
-                                start_node_found_outside = True
-                                path += breadth_first_search(edge.from_node, visited_nodes)
-                        else:
-                            start_node_found = True
-                            path.append(edge.from_node)
+            if edge.from_node not in visited_nodes or edge.from_node.type.name in START_NODE_NAME:  # if Node is not visited or Node is Start
+                if edge.from_node != edge.to_node:
+                    if edge.from_node.type.name not in START_NODE_NAME:
+                        if edge.from_node.arriving_edges.count() > 0:
+                            start_node_found_outside = True
+                            path += breadth_first_search(edge.from_node, visited_nodes)
+                    else:
+                        start_node_found = True
+                        path.append(edge.from_node)
 
-                        if start_node_found or start_node_found_outside:  # if found Start Node, add Edge
-                            path.append(edge)
-                            path.append(node)
+                    if start_node_found or start_node_found_outside:  # if found Start Node, add Edge
+                        path.append(edge)
+                        path.append(node)
 
-                    if start_node_found:  # if found Start Node, break out of for loop
-                        break
+                # if start_node_found:  # if found Start Node, break out of for loop
+                #     break
 
     # print('path: ',  path)
     return path
