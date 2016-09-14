@@ -71,7 +71,42 @@ def get_paths_through_all_edges(edges, th_module=None):
     # print(th_paths)
 
     data = []
-    for th_path in th_paths:
+    if th_paths:
+        for th_path in th_paths:
+            for edge in edges:
+                # print(edge.id)
+                path = routing_path_to_edge(edge)
+                if path:
+                    tcs = []
+                    pre_condition = []
+                    # for index, step in enumerate(path, start=1):
+                    if isinstance(path[0], Node) and path[0].type.name in START_NODE_NAME:
+                        for index, step in enumerate(path):
+                            if index == 0:
+                                traverse_node(step, tcs)
+                                if th_path:
+                                    for th_index, th_step in enumerate(th_path):
+                                        if th_index == 0:
+                                            traverse_node(th_step, tcs)
+                                        else:
+                                            if isinstance(th_step, Node):
+                                                traverse_node(th_step, tcs, th_path[th_index - 1])
+                                            elif isinstance(th_step, Edge):
+                                                traverse_edge(th_step, tcs)
+                            else:
+                                if isinstance(step, Node):
+                                    traverse_node(step, tcs, path[index - 1])
+                                elif isinstance(step, Edge):
+                                    if step.type.name == 'PreCondition':
+                                        update_testcase_precondition(step, pre_condition)
+                                    traverse_edge(step, tcs)
+
+                        data.append({
+                            'pre_condition': pre_condition,
+                            'tc_steps': tcs,
+                            'title': 'Route from \'' + edge.from_node.name + '\' to \'' + edge.to_node.name + '\''
+                        })
+    else:
         for edge in edges:
             # print(edge.id)
             path = routing_path_to_edge(edge)
@@ -83,15 +118,6 @@ def get_paths_through_all_edges(edges, th_module=None):
                     for index, step in enumerate(path):
                         if index == 0:
                             traverse_node(step, tcs)
-                            if th_path:
-                                for th_index, th_step in enumerate(th_path):
-                                    if th_index == 0:
-                                        traverse_node(th_step, tcs)
-                                    else:
-                                        if isinstance(th_step, Node):
-                                            traverse_node(th_step, tcs, th_path[th_index - 1])
-                                        elif isinstance(th_step, Edge):
-                                            traverse_edge(th_step, tcs)
                         else:
                             if isinstance(step, Node):
                                 traverse_node(step, tcs, path[index - 1])
@@ -363,7 +389,7 @@ def update_testcase_precondition(edge, pre_condition):
 
         pre_condition.append(data)
     except (KeyError, TypeError) as e:
-        print(e)
+        print('PreCondition update error: ', e)
         pass
 
 # --------------- Routing Project/Module Graph End ---------------
@@ -379,7 +405,7 @@ def get_paths_from_test_header(th_module):
                 path = routing_path_to_edge(edge)
                 data.append(path)
         except Exception as e:
-            print(e)
+            print('TestHeader error: ', e)
             pass
 
     return data
@@ -442,7 +468,7 @@ def add_testcase_to_section(client, section_id, data):
             }
             client.send_post('add_case/' + section_id, tc_data)
     except APIError as e:
-        print('TestCase: ', e)
+        print('Add TestCase to Section error: ', e)
 
 
 # --------------- TestRail End ---------------
