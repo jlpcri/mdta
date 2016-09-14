@@ -1,12 +1,33 @@
 /**
  * Created by sliu on 5/18/16.
  */
+
+/* ---------------Start Project/Module Node New ---------------*/
 $('.projectNodeNew #id_type').on('change', function(){
     var item_id = $(this).find('option:selected').val(),
         location = '#project-node-new-properties';
     load_keys_from_type_contents(item_id, location, 'node');
 });
 
+$('.projectNodeNew').on('submit', function(){
+    var data = '',
+        location = '#projectNodeNewErrMessage',
+        name = $('.projectNodeNew #id_name').val();
+
+    if (name == ''){
+        showErrMsg(location, 'Name is empty.');
+        return false;
+    }
+
+    $('#node-property-table tbody tr').each(function(){
+        data += this.id + ' ';
+    });
+    $('input[name="property_data_index"]').val(data);
+});
+
+/* ---------------End Project/Module Node New ---------------*/
+
+/* ---------------Start Project/Module Edge New ---------------*/
 $('.projectEdgeNew #id_type').on('change', function(){
     var item_id = $(this).find('option:selected').val(),
         location = '#project-edge-new-properties';
@@ -35,7 +56,8 @@ $('.projectEdgeNew #project-edge-new-to-module').on('change', function(){
 
 $('.projectEdgeNew').on('submit', function(){
     var data = '',
-        edge_type = $('#project-edge-new-type option:selected').text(),
+        edge_type_project = $('#project-edge-new-type option:selected').text(),
+        edge_type_module = $('#id_type option:selected').text(),
         location = '#projectEdgeNewErrMessage',
         properties = $('#project-edge-new-properties input'),
         properties_no_input = true;
@@ -47,8 +69,13 @@ $('.projectEdgeNew').on('submit', function(){
         }
     });
 
-    if (properties_no_input && edge_type != 'Connector'){
-        showErrMsg(location, 'At lease input one property');
+    if ((properties_no_input && edge_type_project != 'Connector') && edge_type_project) {
+        showErrMsg(location, 'Please Input property');
+        return false;
+    }
+
+    if ((properties_no_input && edge_type_module != 'Connector') && edge_type_module) {
+        showErrMsg(location, 'Please Input property');
         return false;
     }
 
@@ -57,6 +84,8 @@ $('.projectEdgeNew').on('submit', function(){
     });
     $('input[name="property_data_index"]').val(data);
 });
+
+/* ---------------End Project/Module Edge New ---------------*/
 
 $(document).ready(function(){
     var node_id = $('.projectNodeNew #id_type').find('option:selected').val(),
@@ -84,90 +113,4 @@ function load_nodes_from_module(module_id, location){
     });
 }
 
-function load_keys_from_type_contents(item_id, location, type){
-    $.getJSON("{% url 'graphs:get_keys_from_type' %}?id={0}&type={1}".format(item_id, type)).done(function(data){
-        var keys = data['keys'],
-            subkeys = data['subkeys'],
-            rowCounter = 0,
-            contents = '';
-        $.each(keys, function(k, v){
-            if ((keys[k].indexOf('Data') >= 0) ) {
-                contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
-                contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
-                contents += '</div>';
 
-                contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
-                contents += '<div class=\'col-xs-1\'></div>';
-                contents += '<div class=\'col-xs-11\'>';
-                contents += '<table class=\'table\' id=\'{0}-property-table\'>'.format(type);
-
-                contents += '<thead><tr>';
-                $.each(subkeys, function(k, v){
-                    contents += '<th class=\'col-xs-5\'>{0}</th>'.format(subkeys[k]);
-                });
-                if (keys[k].indexOf('InputData') >= 0) {
-                    contents += '<th class=\'col-xs-1\'><button id=\'buttonAddData\' class=\'btn btn-xs\' type=\'button\'>Add Data</button></th>';
-                } else {
-                    contents += '<th class=\'col-xs-1\'></th>';
-                }
-                contents += '</tr></thead>';
-
-                contents += '<tbody>';
-
-                contents += '<tr id=\'{0}\'>'.format(rowCounter);
-                $.each(subkeys, function(k, v){
-                    contents += '<td><input name=\'{0}_{1}\'/></td>'.format(subkeys[k], rowCounter);
-                });
-                contents += '</tr>';
-
-                contents += '</tbody></table>';
-                contents += '</div>';
-                contents += '</div>';
-            } else {
-                contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
-                contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
-                contents += '<div class=\'col-xs-2\'><input name=\'{0}\'/></div>'.format(keys[k]);
-                contents += '</div>';
-            }
-        });
-        //console.log(contents)
-        $(location).html(contents);
-
-        $('#buttonAddData').click(function(){
-            rowCounter++;
-            node_property_add_data(subkeys, rowCounter);
-        });
-    });
-}
-
-function node_property_add_data(subkeys, rowCounter){
-    var newRow = '';
-
-    newRow += '<tr id=\'{0}\'>'.format(rowCounter);
-    $.each(subkeys, function(k, v){
-        newRow += '<td><input name=\'{0}_{1}\'/></td>'.format(subkeys[k], rowCounter);
-    });
-    newRow += '<td class=\'text-center\'><a href=\'#\' onclick=\'deleteRow(this);\'><i class=\'fa fa-trash-o fa-lg\'></i></a></td>';
-    newRow += '</tr>';
-    $('#node-property-table').append(newRow)
-}
-
-function deleteRow(row){
-    $(row).closest('tr').remove();
-}
-
-$('.projectNodeNew').on('submit', function(){
-    var data = '',
-        location = '#projectNodeNewErrMessage',
-        name = $('.projectNodeNew #id_name').val();
-
-    if (name == ''){
-        showErrMsg(location, 'Name is empty.');
-        return false;
-    }
-
-    $('#node-property-table tbody tr').each(function(){
-        data += this.id + ' ';
-    });
-    $('input[name="property_data_index"]').val(data);
-});

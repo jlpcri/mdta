@@ -9,17 +9,23 @@ $('.moduleNodeEditForm #moduleNodeEditType').on('change', function(e){
     var type_id = $(this).find('option:selected').val(),
         location = $(this).closest('.moduleNodeEditForm').find('#module-node-edit-properties');
 
-    load_keys_from_node_edge_type(type_id, location, 'node');
+    load_keys_from_type_contents(type_id, location, 'node');
 });
 
 $('.moduleNodeEditForm').on('submit', function(e){
     var name = $(e.currentTarget).find('input[name="moduleNodeEditName"]').val(),
-        location = $(e.currentTarget).find('#moduleNodeEditErrMessage');
+        location = $(e.currentTarget).find('#moduleNodeEditErrMessage'),
+        data = '';
 
     if (name == ''){
         showErrMsg(location, 'Name is Empty');
         return false;
     }
+
+    $(e.currentTarget).find('.moduleNodeEditPropertyTable tbody tr').each(function(){
+        data += this.id + ' ';
+    });
+    $(e.currentTarget).find('input[name="property_data_index"]').val(data);
 });
 /* End Module Node Edit Code */
 
@@ -29,7 +35,7 @@ $('.moduleEdgeEditForm #moduleEdgeEditType').on('change', function(){
     var edge_type_id = $(this).find('option:selected').val(),
         location = $(this).closest('.moduleEdgeEditForm').find('#module-edge-edit-properties');
 
-    load_keys_from_node_edge_type(edge_type_id, location, 'edge');
+    load_keys_from_type_contents(edge_type_id, location, 'edge');
 });
 
 $('.moduleEdgeEditForm').on('submit', function(e){

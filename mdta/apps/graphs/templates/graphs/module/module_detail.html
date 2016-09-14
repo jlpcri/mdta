@@ -96,30 +96,40 @@
                                                         {% for key, value in item.properties.items %}
                                                             {% if key == 'InputData' %}
                                                                 <label style="margin-top: 5px;">{{ key }}:</label>
-                                                                {% for subkey, subvalue in item.properties.InputData.items %}
-                                                                    <div class="row" style="margin-top: 5px;">
-                                                                        <div class="col-xs-1"></div>
-                                                                        <div class="col-xs-5">
-                                                                            {{ subkey }}
-                                                                        </div>
-                                                                        <div class="col-xs-5">
-                                                                            <input name="{{ subkey }}" value="{{ subvalue }}" >
-                                                                        </div>
-                                                                    </div>
-                                                                {% endfor %}
+                                                                <table class="table moduleNodeEditPropertyTable" id="node-property-table-{{ item.id }}">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <td>Inputs</td>
+                                                                            <td>Outputs</td>
+                                                                            <td><button id="buttonAddData_{{ item.id }}" type="button" class="btn btn-xs" onclick="module_node_edit_add_data({{ item.id }})">Add Data</button></td>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        {% for rec in item.properties.InputData %}
+                                                                            <tr id="{{ forloop.counter0 }}">
+                                                                                <td><input name="Inputs_{{ forloop.counter0 }}" value="{{ rec.Inputs }}"></td>
+                                                                                <td><input name="Outputs_{{ forloop.counter0 }}" value="{{ rec.Outputs }}"> </td>
+                                                                                <td class="text-center"><a href="#" onclick="deleteRow(this);"><i class="fa fa-trash-o fa-lg"></i> </a> </td>
+                                                                            </tr>
+                                                                        {% endfor %}
+                                                                    </tbody>
+                                                                </table>
                                                             {% elif key == 'OutputData' %}
                                                                 <label style="margin-top: 5px;">{{ key }}:</label>
-                                                                {% for subkey, subvalue in item.properties.OutputData.items %}
-                                                                    <div class="row" style="margin-top: 5px;">
-                                                                        <div class="col-xs-1"></div>
-                                                                        <div class="col-xs-5">
-                                                                            {{ subkey }}
-                                                                        </div>
-                                                                        <div class="col-xs-5">
-                                                                            <input name="{{ subkey }}" value="{{ subvalue }}" >
-                                                                        </div>
-                                                                    </div>
-                                                                {% endfor %}
+                                                                <table class="table moduleNodeEditPropertyTable" id="node-property-table">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <td>Outputs</td>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        {% for rec in item.properties.OutputData %}
+                                                                            <tr id="{{ forloop.counter0 }}">
+                                                                                <td><input name="Outputs_{{ forloop.counter0 }}" value="{{ rec.Outputs }}"> </td>
+                                                                            </tr>
+                                                                        {% endfor %}
+                                                                    </tbody>
+                                                                </table>
                                                             {% else %}
                                                                 <div class="row" style="margin-top: 5px;">
                                                                     <div class="col-xs-12">
@@ -141,9 +151,14 @@
                                                 <div class="col-xs-10">
                                                     <div id="moduleNodeEditErrMessage">&nbsp;</div>
                                                 </div>
+                                                <div class="cos-xs-1">
+                                                    <input type="hidden" name="moduleNodeEditId" value="{{ item.id }}">
+                                                    <input type="hidden" name="property_data_index" value="">
+                                                </div>
                                             </div>
                                             <br>
                                             {% csrf_token %}
+
                                             <div class="row">
                                                 <div class="col-xs-12">
                                                     <button type="submit" name="node_save" class="btn btn-primary param-save">Save</button>
@@ -281,7 +296,7 @@
                                                                             {{ subkey }}
                                                                         </div>
                                                                         <div class="col-xs-5">
-                                                                            <input name="{{ subkey }}" value="{{ subvalue }}" >
+                                                                            <input name="{{ subkey }}_0" value="{{ subvalue }}" >
                                                                         </div>
                                                                     </div>
                                                                 {% endfor %}
@@ -294,7 +309,7 @@
                                                                             {{ subkey }}
                                                                         </div>
                                                                         <div class="col-xs-5">
-                                                                            <input name="{{ subkey }}" value="{{ subvalue }}" >
+                                                                            <input name="{{ subkey }}_0" value="{{ subvalue }}" >
                                                                         </div>
                                                                     </div>
                                                                 {% endfor %}
@@ -348,5 +363,6 @@
         var nodes = {{ network_nodes|safe }};
         var edges = {{ network_edges|safe }};
         {% include 'graphs/module/module_detail.js' %}
+        {% include 'graphs/node_edge_properties.js' %}
     </script>
 {% endblock %}

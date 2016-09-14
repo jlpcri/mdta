@@ -315,13 +315,13 @@ def project_module_detail(request, module_id):
                 'id': node.id,
                 'label': node.name,
                 'color': outside_module_node_color,
-                'shape': start_node_shape if node.type.name == START_NODE_NAME else normal_node_shape
+                'shape': start_node_shape if node.type.name == START_NODE_NAME[0] else normal_node_shape
             })
         else:
             network_nodes.append({
                 'id': node.id,
                 'label': node.name,
-                'shape': start_node_shape if node.type.name == START_NODE_NAME else normal_node_shape
+                'shape': start_node_shape if node.type.name == START_NODE_NAME[0] else normal_node_shape
             })
 
     # print(module.nodes)

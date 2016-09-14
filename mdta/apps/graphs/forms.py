@@ -29,6 +29,7 @@ class NodeNewForm(ModelForm):
 
         for field_name in ['module', 'type']:
             self.fields[field_name].empty_label = None
+            self.fields[field_name].label_from_instance = lambda obj: "%s" % obj.name
 
     class Meta:
         model = Node
@@ -65,6 +66,7 @@ class EdgeNewForm(ModelForm):
 
         for field_name in ['from_node', 'to_node', 'type']:
             self.fields[field_name].empty_label = None
+            self.fields[field_name].label_from_instance = lambda obj: "%s" % obj.name
 
     class Meta:
         model = Edge

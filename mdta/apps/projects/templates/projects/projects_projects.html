@@ -9,6 +9,7 @@
                                 <th class="col-xs-2">Name</th>
                                 <th class="col-xs-1">Edit</th>
                                 <th class="col-xs-2">Version(TestSuites)</th>
+                                <th class="col-xs-1">TestHeader</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -18,7 +19,20 @@
                                     <td>
                                         <a href="{% url 'projects:project_edit' project.id %}"><i class="fa fa-edit fa-fw"></i></a>
                                     </td>
-                                    <td>{{ project.version }}</td>
+                                    <td>
+                                        {% if project.testrail %}
+                                            <a href="http://linux3216/testrail/index.php?/projects/overview/{{ project.testrail.project_id }}" target="_blank">{{ project.version }}</a>
+                                        {% else %}
+                                            None
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if project.test_header %}
+                                            <a href="{% url 'graphs:project_module_detail' project.test_header.id %}">{{ project.test_header.name }}</a>
+                                        {% else %}
+                                            None
+                                        {% endif %}
+                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
