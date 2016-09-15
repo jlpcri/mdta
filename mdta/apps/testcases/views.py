@@ -211,3 +211,22 @@ def testrail_configuration_delete(request, testrail_id):
     testrail.delete()
 
     return redirect('testcases:testcases')
+
+
+@user_passes_test(user_is_superuser)
+def testrail_configuration_update(request, testrail_id):
+    suites = []
+    testrail = get_object_or_404(TestRailConfiguration, pk=testrail_id)
+
+    client = APIClient(testrail.instance.host)
+    client.user = testrail.instance.username
+    client.password = testrail.instance.password
+    testrail_find_suites = client.send_get('get_suites/' + str(testrail.project_id))
+    for suite in testrail_find_suites:
+        suites.append(suite['name'])
+
+    testrail.test_suite = suites
+    testrail.save()
+
+    return redirect('testcases:testcases')
+

@@ -13,6 +13,7 @@ class TestrailConfigurationForm(ModelForm):
         if testrail_instance.count() > 0:
             self.fields['instance'].queryset = testrail_instance
             self.fields['instance'].empty_label = None
+            self.fields['instance'].label_from_instance = lambda obj: "%s" % obj.host
 
             testrail_projects = get_projects_from_testrail(testrail_instance[0])
             for item in testrail_projects:

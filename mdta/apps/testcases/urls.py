@@ -12,5 +12,6 @@ urlpatterns = [
 
     url(r'^testrail_configuration_new/$', views.testrail_configuration_new, name='testrail_configuration_new'),
     url(r'^testrail_configuration_delete/(?P<testrail_id>\d+)/$', views.testrail_configuration_delete, name='testrail_configuration_delete'),
+    url(r'^testrail_configuration_update/(?P<testrail_id>\d+)/$', views.testrail_configuration_update, name='testrail_configuration_update'),
 
 ]
