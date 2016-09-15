@@ -21,7 +21,7 @@
                                     </td>
                                     <td>
                                         {% if project.testrail %}
-                                            <a href="http://linux3216/testrail/index.php?/projects/overview/{{ project.testrail.project_id }}" target="_blank">{{ project.version }}</a>
+                                            <a href="{{ project.testrail.instance.host }}/index.php?/suites/overview/{{ project.testrail.project_id }}" target="_blank">{{ project.testrail.project_name }}: {{ project.version }}</a>
                                         {% else %}
                                             None
                                         {% endif %}

@@ -1,4 +1,4 @@
-function load_keys_from_type_contents(item_id, location, type){
+function load_keys_from_type_contents(item_id, location, type, call_from_node_edit){
     $.getJSON("{% url 'graphs:get_keys_from_type' %}?id={0}&type={1}".format(item_id, type)).done(function(data){
         var keys = data['keys'],
             subkeys = data['subkeys'],
@@ -29,9 +29,15 @@ function load_keys_from_type_contents(item_id, location, type){
                 contents += '<tbody>';
 
                 contents += '<tr id=\'{0}\'>'.format(rowCounter);
-                $.each(subkeys, function(k, v){
-                    contents += '<td><input name=\'{0}_{1}\'/></td>'.format(subkeys[k], rowCounter);
-                });
+                if (call_from_node_edit) {
+                    $.each(subkeys, function (k, v) {
+                        contents += '<td><input name=\'{0}_{1}\' placeholder=\'JSON Format\'/></td>'.format(subkeys[k], rowCounter);
+                    });
+                } else {
+                    $.each(subkeys, function (k, v) {
+                        contents += '<td><input name=\'{0}_{1}\' style=\'width:100%\' placeholder=\'JSON Format\'/></td>'.format(subkeys[k], rowCounter);
+                    });
+                }
                 contents += '</tr>';
 
                 contents += '</tbody></table>';
@@ -49,18 +55,24 @@ function load_keys_from_type_contents(item_id, location, type){
 
         $('#buttonAddData').click(function(){
             rowCounter++;
-            node_property_add_data(subkeys, rowCounter, '.moduleNodeEditPropertyTable');
+            node_property_add_data(subkeys, rowCounter, '.moduleNodeEditPropertyTable', call_from_node_edit);
         });
     });
 }
 
-function node_property_add_data(subkeys, rowCounter, location){
+function node_property_add_data(subkeys, rowCounter, location, call_from_node_edit){
     var newRow = '';
 
     newRow += '<tr id=\'{0}\'>'.format(rowCounter);
-    $.each(subkeys, function(k, v){
-        newRow += '<td><input name=\'{0}_{1}\'/></td>'.format(subkeys[k], rowCounter);
-    });
+    if (call_from_node_edit) {
+        $.each(subkeys, function (k, v) {
+            newRow += '<td><input name=\'{0}_{1}\' placeholder=\'JSON Format\'/></td>'.format(subkeys[k], rowCounter);
+        });
+    } else {
+        $.each(subkeys, function (k, v) {
+            newRow += '<td><input name=\'{0}_{1}\' style=\'width:100%\' placeholder=\'JSON Format\'/></td>'.format(subkeys[k], rowCounter);
+        });
+    }
     newRow += '<td class=\'text-center\'><a href=\'#\' onclick=\'deleteRow(this);\'><i class=\'fa fa-trash-o fa-lg\'></i></a></td>';
     newRow += '</tr>';
     $(location).append(newRow)

@@ -418,12 +418,8 @@ def module_node_new_node_edge(request, node_id):
         return render(request, 'graphs/module/node_auto_edge_new.html', context)
     elif request.method == 'POST':
         # print(request.POST)
-        # return redirect('graphs:project_module_detail', module_id)
         to_node_form = NodeNewForm(request.POST)
         edge_form = EdgeAutoNewForm(request.POST)
-        # edge_type_id = request.POST.get('moduleNodeEdgeNewEdgeType', '')
-        # edge_priority = request.POST.get('moduleNodeEdgeNewEdgePriority', '')
-        # from_node_id = request.POST.get('moduleNodeEdgeNewFromNodeId', '')
         if to_node_form.is_valid():
             # from_node = node
             to_node = to_node_form.save(commit=False)

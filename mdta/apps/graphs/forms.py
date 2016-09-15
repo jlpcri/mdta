@@ -83,6 +83,7 @@ class EdgeAutoNewForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(EdgeAutoNewForm, self).__init__(*args, **kwargs)
         self.fields['type'].empty_label = None
+        self.fields['type'].label_from_instance = lambda obj: "%s" % obj.name
 
     class Meta:
         model = Edge

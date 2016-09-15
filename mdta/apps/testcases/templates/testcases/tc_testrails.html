@@ -8,17 +8,20 @@
                             <th class="col-xs-2">Project Name</th>
                             <th class="col-xs-1">Project ID</th>
                             <th class="col-xs-3">Test Suites</th>
-                            <th class="col-xs-2">Deletion</th>
+                            <th class="col-xs-1">CRUD</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for testrail in testrails %}
                             <tr>
-                                <td>{{ testrail.project_name }}</td>
+                                <td><a href="{{ testrail.instance.host }}/index.php?/projects/overview/{{ testrail.project_id }}" target="_blank">{{ testrail.project_name }}</a></td>
                                 <td>{{ testrail.project_id }}</td>
                                 <td>{{ testrail.test_suite }}</td>
                                 <td>
                                     {% if user.is_superuser %}
+                                        <a href="{% url 'testcases:testrail_configuration_update' testrail.id %}" class="btn btn-primary btn-xs">
+                                            <i class="fa fa-refresh"></i>
+                                        </a> &nbsp;&nbsp;&nbsp;&nbsp;
                                         <a href="#" class="btn btn-danger btn-xs" onclick="deleteModal('{{ testrail.project_name }}', {{ testrail.id }})">
                                             <i class="fa fa-trash-o"></i>
                                         </a>
