@@ -225,8 +225,9 @@ def testrail_configuration_update(request, testrail_id):
     for suite in testrail_find_suites:
         suites.append(suite['name'])
 
-    testrail.test_suite = suites
-    testrail.save()
+    if testrail.test_suite != suites:
+        testrail.test_suite = suites
+        testrail.save()
 
     return redirect('testcases:testcases')
 
