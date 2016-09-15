@@ -172,7 +172,10 @@ class Module(models.Model):
         data = []
         projects = Project.objects.filter(test_header=self)
         for project in projects:
-            data.append(project.name)
+            data.append({
+                'name': project.name,
+                'id': project.id
+            })
 
         return data
 
