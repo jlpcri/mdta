@@ -50,8 +50,7 @@ def create_testcases(request, object_id):
 def create_testcases_all(request):
     projects = Project.objects.all()
     for project in projects:
-        create_testcases_celery(project.id)
-        # create_testcases_celery.delay(project.id)
+        create_testcases_celery.delay(project.id)
 
     return redirect('testcases:testcases')
 

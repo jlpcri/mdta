@@ -13,6 +13,7 @@ from .models import NodeType, EdgeType, Node, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeNewForm, EdgeAutoNewForm
 from mdta.apps.projects.forms import ModuleForm
 from mdta.apps.testcases.utils import START_NODE_NAME
+from mdta.apps.testcases.tasks import create_testcases_celery, push_testcases_to_testrail_celery
 
 
 @login_required
@@ -610,3 +611,17 @@ def get_nodes_from_module(request):
 
     return HttpResponse(json.dumps(data), content_type='application/json')
 
+
+@user_passes_test(user_is_staff)
+def project_publish(request, project_id):
+    """
+    Project Publish, create testcases and push testcases to TestRail using celery worker
+    :param request:
+    :param project_id:
+    :return:
+    """
+    project = get_object_or_404(Project, pk=project_id)
+    create_testcases_celery.delay(project.id)
+    push_testcases_to_testrail_celery.delay(project.id)
+
+    return redirect('graphs:project_detail', project.id)
