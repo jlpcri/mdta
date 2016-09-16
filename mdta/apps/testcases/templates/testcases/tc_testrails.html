@@ -14,7 +14,9 @@
                     <tbody>
                         {% for testrail in testrails %}
                             <tr>
-                                <td><a href="{{ testrail.instance.host }}/index.php?/projects/overview/{{ testrail.project_id }}" target="_blank">{{ testrail.project_name }}</a></td>
+                                <td>
+                                    <a href="{{ testrail.instance.host_abbreviation }}/index.php?/projects/overview/{{ testrail.project_id }}" target="_blank">{{ testrail.project_name }}</a>
+                                </td>
                                 <td>{{ testrail.project_id }}</td>
                                 <td>{{ testrail.test_suite }}</td>
                                 <td>
