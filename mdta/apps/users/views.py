@@ -12,7 +12,7 @@ def user_is_superuser(user):
 
 
 def user_is_staff(user):
-    return user.is_staff or user.is_active
+    return user.is_staff
 
 
 @login_required
