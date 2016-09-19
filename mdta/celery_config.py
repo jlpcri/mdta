@@ -11,6 +11,7 @@ CELERY_TASK_RESULT_EXPIRES = None   # no result is return back
 CELERY_TIMEZONE = 'America/Chicago'
 
 CELERY_ROUTES = {
-    'mdta.apps.testcases.tasks.create_testcases': {'queue': 'mdta_queue'},
+    'mdta.apps.testcases.tasks.create_testcases_celery': {'queue': 'mdta_queue'},
+    'mdta.apps.testcases.tasks.push_testcases_to_testrail_celery': {'queue': 'mdta_queue'},
 }
 

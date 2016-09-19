@@ -6,10 +6,9 @@ from testrail import APIClient
 
 from mdta.apps.projects.models import Project, Module, TestRailInstance, TestRailConfiguration
 from mdta.apps.testcases.models import TestCaseResults
-from mdta.apps.testcases.tasks import create_testcases_celery
+from mdta.apps.testcases.tasks import create_testcases_celery, push_testcases_to_testrail_celery
 from mdta.apps.users.views import user_is_superuser, user_is_staff
-from .utils import context_testcases, get_projects_from_testrail, create_routing_test_suite, add_testcase_to_section, \
-    remove_section_from_testsuite, add_section_to_testsuite, add_testsuite_to_project
+from .utils import context_testcases, get_projects_from_testrail, create_routing_test_suite
 from .forms import TestrailConfigurationForm
 
 
@@ -51,8 +50,7 @@ def create_testcases(request, object_id):
 def create_testcases_all(request):
     projects = Project.objects.all()
     for project in projects:
-        create_testcases_celery(project.id)
-        # create_testcases_celery.delay(project.id)
+        create_testcases_celery.delay(project.id)
 
     return redirect('testcases:testcases')
 
@@ -100,71 +98,12 @@ def push_testcases_to_testrail(request, project_id):
     :param project_id:
     :return:
     """
-    project = get_object_or_404(Project, pk=project_id)
-    testrail_contents = ''
-
-    try:
-        client = APIClient(project.testrail.instance.host)
-        client.user = project.testrail.instance.username
-        client.password = project.testrail.instance.password
-
-        testrail_contents = client.send_get('get_project/' + project.testrail.project_id)
-
-        tr_suites = client.send_get('get_suites/' + project.testrail.project_id)
-        testcases = project.testcaseresults_set.latest('updated').results
-
-        if project.testrail.project_id in ['6', '10']:  # TestRail project 'test'
-
-            # Find or Create TestSuites in TestRail
-            try:
-                tr_suite = (suite for suite in tr_suites if suite['name'] == project.version).__next__()
-            except StopIteration as e:
-                print('Suite: ', e)
-                tr_suite = add_testsuite_to_project(client,
-                                                    project.testrail.project_id,
-                                                    project.version)
-                if not tr_suite:
-                    messages.error(request, 'You are not allowed (Insufficient Permissions)')
-                    raise PermissionError('Insufficient Permissions')
-
-            tr_suite_sections = client.send_get('get_sections/' + project.testrail.project_id + '&suite_id=' + str(tr_suite['id']))
-            # print(tr_suite_sections)
-
-            # Find or Create Section of TestSuites
-            for item in testcases:
-                try:
-                    section = (section for section in tr_suite_sections if section['name'] == item['module']).__next__()
-                    remove_section_from_testsuite(client, str(section['id']))
-
-                    section_id = add_section_to_testsuite(client,
-                                                          project.testrail.project_id,
-                                                          tr_suite['id'],
-                                                          item['module'])
-
-                    add_testcase_to_section(client, section_id, item['data'])
-
-                except StopIteration as e:
-                    print('Section: ', e)
-                    section_id = add_section_to_testsuite(client,
-                                                          project.testrail.project_id,
-                                                          tr_suite['id'],
-                                                          item['module'])
-                    add_testcase_to_section(client, section_id, item['data'])
-
-    except AttributeError:
-        testrail_contents = {
-            'Error': 'No TestRail config'
-        }
-
-    except (TestCaseResults.DoesNotExist, PermissionError) as e:
-        testrail_contents['error'] = e
+    testrail_contents = push_testcases_to_testrail_celery(project_id)
+    # testrail_contents = push_testcases_to_testrail_celery.delay(project_id)
 
     context = context_testcases()
     context['testrail'] = testrail_contents
-    context['link_id'] = project.id
-
-    # for item in testrail_contents_case['custom_steps_seperated']:
-    #     print(item)
+    context['link_id'] = project_id
 
     return render(request, 'testcases/testcases.html', context)
 

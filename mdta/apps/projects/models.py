@@ -17,6 +17,13 @@ class TestRailInstance(models.Model):
     def __str__(self):
         return '{0}: {1}'.format(self.host, self.username)
 
+    @property
+    def host_abbreviation(self):
+        abbr = self.host.split('.')
+        abbr_last = abbr[len(abbr) - 1].split('/')
+
+        return abbr[0] + '/' + abbr_last[-1]
+
 
 class TestRailConfiguration(models.Model):
     """
@@ -172,7 +179,10 @@ class Module(models.Model):
         data = []
         projects = Project.objects.filter(test_header=self)
         for project in projects:
-            data.append(project.name)
+            data.append({
+                'name': project.name,
+                'id': project.id
+            })
 
         return data
 
