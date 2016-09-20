@@ -14,7 +14,11 @@
                             {% for test_header in test_headers %}
                                 <tr>
                                     <td><a href="{% url 'graphs:project_module_detail' test_header.id %}" >{{ test_header.name }} </a></td>
-                                    <td>{{ test_header.th_related_projects }}</td>
+                                    <td>
+                                        {% for p in test_header.th_related_projects %}
+                                            <a href="{% url 'graphs:project_detail' p.id%}">{{ p.name }}</a>
+                                        {% endfor %}
+                                    </td>
                                 </tr>
                             {% endfor %}
                         </tbody>
