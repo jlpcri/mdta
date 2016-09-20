@@ -1,9 +1,9 @@
 import ast
 from django.shortcuts import get_object_or_404
-from testrail import APIClient, APIError
+
 from mdta.apps.graphs.models import Node, Edge
 from mdta.apps.projects.models import Project, TestRailConfiguration, Module
-from mdta.apps.testcases.models import TestCaseResults
+from mdta.apps.testcases.testrail import APIClient, APIError
 
 START_NODE_NAME = ['Start', 'TestHeader Start']
 
@@ -487,7 +487,7 @@ def add_testcase_to_section(client, section_id, data):
 # --------------- TestRail End ---------------
 
 
-# --------------- Hat Script Start ---------------
+# --------------- Hat Scripts Start ---------------
 def create_hat_scripts_for_project_or_module(project_id=None, module_id=None):
     """
     Create Hat Scripts per Project
@@ -520,4 +520,4 @@ def create_hat_scripts_per_tc(index, testcase):
         print(step)
 
 
-# --------------- Hat Script End ---------------
+# --------------- Hat Scripts End ---------------

@@ -1,13 +1,13 @@
 from datetime import datetime
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
-from testrail import APIClient
 
 from mdta.celery_module import app
 from mdta.apps.projects.models import Project
 from mdta.apps.testcases.models import TestCaseResults
 from mdta.apps.testcases.utils import create_routing_test_suite, add_testsuite_to_project, remove_section_from_testsuite, \
     add_section_to_testsuite, add_testcase_to_section
+from mdta.apps.testcases.testrail import APIClient
 
 
 @app.task

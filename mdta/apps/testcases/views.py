@@ -2,7 +2,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, render, redirect
 
-from testrail import APIClient
 
 from mdta.apps.projects.models import Project, Module, TestRailInstance, TestRailConfiguration
 from mdta.apps.testcases.models import TestCaseResults
@@ -11,6 +10,7 @@ from mdta.apps.users.views import user_is_superuser, user_is_staff
 from .utils import context_testcases, get_projects_from_testrail, create_routing_test_suite, \
     create_hat_scripts_for_project_or_module
 from .forms import TestrailConfigurationForm
+from mdta.apps.testcases.testrail import APIClient
 
 
 @login_required
