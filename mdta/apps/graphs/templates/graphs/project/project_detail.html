@@ -28,7 +28,9 @@
                         <a href="#" data-toggle="modal" data-target="#module-new-modal" class="btn btn-default">New Module</a>
                         <a href="{% url 'graphs:project_node_new' project.id %}" class="btn btn-default">New Node</a>
                         <a href="{% url 'graphs:project_edge_new' project.id %}" class="btn btn-default">New Edge</a>
-                        <a href="{% url 'graphs:project_publish' project.id %}" class="btn btn-success">Publish</a>
+                        {% if user.is_superuser %}
+                            <a href="{% url 'graphs:project_publish' project.id %}" class="btn btn-success">Publish</a>
+                        {% endif %}
                     </div>
                 </div>
                 <div class="row">
