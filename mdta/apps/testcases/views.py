@@ -2,14 +2,15 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, render, redirect
 
-from testrail import APIClient
 
 from mdta.apps.projects.models import Project, Module, TestRailInstance, TestRailConfiguration
 from mdta.apps.testcases.models import TestCaseResults
 from mdta.apps.testcases.tasks import create_testcases_celery, push_testcases_to_testrail_celery
 from mdta.apps.users.views import user_is_superuser, user_is_staff
-from .utils import context_testcases, get_projects_from_testrail, create_routing_test_suite
+from .utils import context_testcases, get_projects_from_testrail, create_routing_test_suite, \
+    create_hat_scripts_for_project_or_module
 from .forms import TestrailConfigurationForm
+from mdta.apps.testcases.testrail import APIClient
 
 
 @login_required
@@ -169,4 +170,30 @@ def testrail_configuration_update(request, testrail_id):
         testrail.save()
 
     return redirect('testcases:testcases')
+
+
+@user_passes_test(user_is_staff)
+def create_hat_scripts(request, object_id):
+    """
+    Create Hat Scripts per project/module
+    :param request:
+    :param object_id: project_id/module_id
+    :return:
+    """
+    link_id = ''
+    hs = ''
+    level = request.GET.get('level', '')
+    if level == 'project':
+        create_hat_scripts_for_project_or_module(project_id=object_id)
+        link_id = object_id
+    elif level == 'module':
+        create_hat_scripts_for_project_or_module(module_id=object_id)
+        module = get_object_or_404(Module, pk=object_id)
+        link_id = module.project.id
+
+    context = context_testcases()
+    context['link_id'] = link_id
+
+    return render(request, 'testcases/testcases.html', context)
+
 

@@ -1,7 +1,9 @@
 import ast
-from testrail import APIClient, APIError
+from django.shortcuts import get_object_or_404
+
 from mdta.apps.graphs.models import Node, Edge
-from mdta.apps.projects.models import Project, TestRailConfiguration
+from mdta.apps.projects.models import Project, TestRailConfiguration, Module
+from mdta.apps.testcases.testrail import APIClient, APIError
 
 START_NODE_NAME = ['Start', 'TestHeader Start']
 
@@ -483,3 +485,39 @@ def add_testcase_to_section(client, section_id, data):
 
 
 # --------------- TestRail End ---------------
+
+
+# --------------- Hat Scripts Start ---------------
+def create_hat_scripts_for_project_or_module(project_id=None, module_id=None):
+    """
+    Create Hat Scripts per Project
+    :param project_id:
+    :return:
+    """
+
+    if project_id:
+        project = get_object_or_404(Project, pk=project_id)
+        tcs = project.testcaseresults_set.latest('updated').results
+        for tc in tcs:
+            print(tc['module'])
+            if tc['data']:
+                for index, item in enumerate(tc['data']):
+                    create_hat_scripts_per_tc(index, item['tc_steps'])
+    elif module_id:
+        module = get_object_or_404(Module, pk=module_id)
+        tmp_tcs = module.project.testcaseresults_set.latest('updated').results
+        tcs = [(item for item in tmp_tcs if item['module'] == module.name).__next__()]
+        for tc in tcs:
+            print(tc['module'])
+            if tc['data']:
+                for index, item in enumerate(tc['data']):
+                    create_hat_scripts_per_tc(index, item['tc_steps'])
+
+
+def create_hat_scripts_per_tc(index, testcase):
+    print(index)
+    for step in testcase:
+        print(step)
+
+
+# --------------- Hat Scripts End ---------------
