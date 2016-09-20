@@ -10,6 +10,7 @@ DATABASES = {
         'USER': 'scorecard',
         'PASSWORD': 'scorecard_development',
         'HOST': 'qaci01.wic.west.com',
-        'PORT': '5432',
+        # 'PORT': '5432', #  Version 9.1.10
+        'PORT': '5433'  # Version 9.4.4
     }
 }

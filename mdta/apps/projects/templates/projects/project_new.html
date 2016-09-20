@@ -1,0 +1,34 @@
+{% extends 'core/base.html' %}
+
+{% block title %} Project New {% endblock %}
+
+{% block body %}
+    <div class="container newProject">
+        <h3>Add New Project</h3>
+        <form action="{% url 'projects:project_new' %}" method="post">
+            <div class="row">
+                {{ form }}
+            </div>
+            {% csrf_token %}
+            <div class="row" style="margin-top: 20px;">
+                <div class="col-xs-12">
+                    <div id="newProjectErrMessage"></div>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top: 50px;">
+                <div class="col-xs-12">
+                    <input id="project_new" class="btn btn-primary" type="submit" value="New Project">
+                    <input type="button" value="Cancel" class="btn btn-default" onclick="history.back(); return false;">
+                </div>
+            </div>
+
+            </form>
+    </div>
+{% endblock %}
+
+{% block footer %}
+    <script>
+        {% include 'projects/projects.js' %}
+    </script>
+{% endblock %}

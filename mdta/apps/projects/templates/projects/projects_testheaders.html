@@ -1,0 +1,35 @@
+<div class="container">
+    <div class="row">
+        <div class="col-xs-8">
+            {% if test_headers %}
+                <div class="col-xs-12 table-responsive">
+                    <table class="table table-striped table-hover table-condensed testHeadersTable">
+                        <thead>
+                            <tr>
+                                <th class="col-xs-2">Name</th>
+                                <th class="col-xs-2">Projects</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for test_header in test_headers %}
+                                <tr>
+                                    <td><a href="{% url 'projects:test_header_edit' test_header.id %}" >{{ test_header.name }} </a></td>
+                                    <td>
+                                        {% for p in test_header.th_related_projects %}
+                                            <a href="{% url 'projects:project_edit' p.id %}">{{ p.name }}</a>
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                No Test Headers
+            {% endif %}
+        </div>
+
+        <div class="col-xs-4">
+        </div>
+    </div>
+</div>

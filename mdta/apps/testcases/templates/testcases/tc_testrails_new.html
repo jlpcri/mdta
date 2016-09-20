@@ -1,0 +1,27 @@
+{% extends 'core/base.html' %}
+
+{% block title %} New TestRail Configs{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h3>Add New Testrail Configuration</h3>
+        <form action="{% url 'testcases:testrail_configuration_new' %}" method="post">
+            <div class="row">
+                {{ form }}
+            </div>
+            {% csrf_token %}
+            <div class="row" style="margin-top: 10px;">
+                <div class="col-xs-12">
+                    <div id="newTestrailConfigErrMessage"></div>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top: 10px;">
+                <div class="col-xs-12">
+                    <input id="module_new" class="btn btn-primary" type="submit" value="New TestRail Configuration">
+                    <input type="button" value="Cancel" class="btn btn-default" onclick="history.back(); return false;">
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

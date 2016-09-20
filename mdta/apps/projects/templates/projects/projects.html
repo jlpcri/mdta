@@ -7,62 +7,42 @@
         <div class="row" style="margin-bottom: 10px;">
             <small>
                 <i class="fa fa-pencil fa-fw"></i> Create
-                <a href="#" data-toggle="modal" data-target="#project-new-modal">New Project</a> |
-                <a href="#" data-toggle="modal" data-target="#module-new-modal">New Module</a>
+                <a href="{% url 'projects:project_new' %}" >New Project</a> |
+                <a href="{% url 'projects:module_new' %}" >New Module</a> |
+                <a href="{% url 'projects:test_header_new' %}">New TestHeader</a>
             </small>
+        </div>
+        <div class="row" style="margin-top: 10px;">
+            <ul id="subnav-tabs" class="nav nav-tabs">
+                <li><a href="#projects" data-toggle="tab">Projects</a> </li>
+                <li><a href="#test_headers" data-toggle="tab">Test Headers</a> </li>
+            </ul>
         </div>
     </div>
 {% endblock %}
 
 {% block body %}
-    <div class="container">
-        <div class="row">
-            <div class="col-xs-9">
-                <h1>Projects</h1>
-                {% if projects %}
-                    <div class="panel-group">
-                        <div class="panel panel-default">
-                            {% for project in projects %}
-                                <div class="panel-heading">
-                                    <h6 class="panel-title">
-                                        <a data-toggle="collapse" href="#collapse_{{ project.name|slugify }}">{{ project.name }}</a>
-                                        <a href="#project-edit-modal" data-toggle="modal"
-                                           data-project-id="{{ project.id }}"
-                                           data-project-name="{{ project.name }}"
-                                           data-project-lead="{{ project.lead.id }}"
-                                            ><i class="fa fa-edit fa-fw"></i>
-                                        </a>
-                                    </h6>
-                                </div>
-                                <div id="collapse_{{ project.name|slugify }}" class="panel-collapse collapse">
-                                    <ul class="list-group">
-                                        {% for module in project.modules %}
-                                            <li class="list-group-item">
-                                                <a href="#module-edit-modal" data-toggle="modal"
-                                                   data-module-id="{{ module.id }}"
-                                                   data-module-name="{{ module.name }}"
-                                                   data-module-project="{{ module.project.id }}"
-                                                > {{ module.name }}
-                                                </a>
-                                            </li>
-                                        {% endfor %}
-                                    </ul>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                {% else %}
-                    No Projects
-                {% endif %}
-            </div>
+    <div class="tab-content">
+        <div class="tab-pane" id="projects">
+            {% include 'projects/projects_projects.html' %}
         </div>
-        {% include 'projects/projects_modal.html' %}
-
+        <div class="tab-pane" id="test_headers">
+            {% include 'projects/projects_testheaders.html' %}
+        </div>
     </div>
-{% endblock %}
+{% endblock%}
 
 {% block footer %}
     <script>
+        $(document).ready(function(){
+            $('#subnav-tabs').find('a[href="#projects"]').tab('show');
+
+            var first_href = $('.projectsTable tbody tr:first td:first a').attr('href');
+
+            //console.log(first_href);
+            $('a[href="{0}"]'.format(first_href)).click();
+        });
+
         {% include 'projects/projects.js' %}
     </script>
 {% endblock %}

@@ -9,10 +9,11 @@ from mdta.apps.projects.models import Project, Module
 class NodeTypeNewForm(ModelForm):
     class Meta:
         model = NodeType
-        fields = ['name', 'keys']
+        exclude = []
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'keys': forms.TextInput(attrs={'class': 'form-control'}),
+            'subkeys': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
 
@@ -28,28 +29,7 @@ class NodeNewForm(ModelForm):
 
         for field_name in ['module', 'type']:
             self.fields[field_name].empty_label = None
-
-    class Meta:
-        model = Node
-        fields = ['module', 'type', 'name']
-        widgets = {
-            'module': forms.Select(attrs={'class': 'form-control'}),
-            'type': forms.Select(attrs={'class': 'form-control'}),
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
-        }
-
-
-class NodeNewNodeForm(ModelForm):
-    def __init__(self, *args, **kwargs):
-        module_id = kwargs.pop('module_id', '')
-        module = get_object_or_404(Module, pk=module_id)
-        super(NodeNewNodeForm, self).__init__(*args, **kwargs)
-        if module_id:
-            self.fields['module'].queryset = Module.objects.filter(project__id=module.project.id)
-            self.fields['module'].initial = module
-
-        for field_name in ['module', 'type']:
-            self.fields[field_name].empty_label = None
+            self.fields[field_name].label_from_instance = lambda obj: "%s" % obj.name
 
     class Meta:
         model = Node
@@ -64,10 +44,11 @@ class NodeNewNodeForm(ModelForm):
 class EdgeTypeNewForm(ModelForm):
     class Meta:
         model = EdgeType
-        fields = ['name', 'keys']
+        exclude = []
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'keys': forms.TextInput(attrs={'class': 'form-control'}),
+            'subkeys': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
 
@@ -85,6 +66,7 @@ class EdgeNewForm(ModelForm):
 
         for field_name in ['from_node', 'to_node', 'type']:
             self.fields[field_name].empty_label = None
+            self.fields[field_name].label_from_instance = lambda obj: "%s" % obj.name
 
     class Meta:
         model = Edge
@@ -93,5 +75,23 @@ class EdgeNewForm(ModelForm):
             'type': forms.Select(attrs={'class': 'form-control'}),
             'from_node': forms.Select(attrs={'class': 'form-control'}),
             'to_node': forms.Select(attrs={'class': 'form-control'}),
+            'priority': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+
+class EdgeAutoNewForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(EdgeAutoNewForm, self).__init__(*args, **kwargs)
+        self.fields['type'].empty_label = None
+        self.fields['type'].label_from_instance = lambda obj: "%s" % obj.name
+
+    class Meta:
+        model = Edge
+        fields = ['type', 'priority']
+        widgets = {
+            'type': forms.Select(attrs={
+                'class': 'form-control',
+                'id': 'id_edge_type'
+            }),
             'priority': forms.Select(attrs={'class': 'form-control'}),
         }

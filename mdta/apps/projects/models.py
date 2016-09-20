@@ -15,19 +15,52 @@ class TestRailInstance(models.Model):
     password = models.TextField()
 
     def __str__(self):
-        return '{0}'.format(self.host)
+        return '{0}: {1}'.format(self.host, self.username)
+
+    @property
+    def host_abbreviation(self):
+        abbr = self.host.split('.')
+        abbr_last = abbr[len(abbr) - 1].split('/')
+
+        return abbr[0] + '/' + abbr_last[-1]
 
 
 class TestRailConfiguration(models.Model):
     """
     Configuration connect to TestRail
+    project_name: Name of project in TestRail
+    project_id: Id of project in TestRail
     """
     instance = models.ForeignKey(TestRailInstance, blank=True, null=True)
-    project_name = models.TextField()
-    test_suite = ArrayField(models.CharField(max_length=200), blank=True)
+    project_name = models.TextField(unique=True)
+    project_id = models.CharField(max_length=20, blank=True, null=True)
+    test_suite = ArrayField(models.CharField(max_length=200), blank=True, null=True)
 
     def __str__(self):
-        return '{0}: {1}'.format(self.project_name, self.test_suite)
+        return '{0}: {1}'.format(self.project_name, self.project_id)
+
+    class Meta:
+        ordering = ['project_name']
+
+
+class CatalogItem(models.Model):
+    """
+    West service catalog item,
+    Five hierarchy: component, offering, feature, functionality, product
+    """
+    # project = models.ManyToManyField(Project, blank=True)
+    name = models.TextField()
+    parent = models.ForeignKey('self', blank=True, null=True, related_name='children_set')
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        if self.parent:
+            return '{0}: {1}'.format(self.name, self.parent.id)
+        else:
+            return '{0}'.format(self.name)
+
+    class Meta:
+        unique_together = ('parent', 'name')
 
 
 class Project(models.Model):
@@ -35,7 +68,15 @@ class Project(models.Model):
     Entry of each project which will be represented to Model Driven Graph
     """
     name = models.CharField(max_length=50, unique=True, default='')
-    testrail = models.ForeignKey(TestRailConfiguration, blank=True, null=True)
+    test_header = models.ForeignKey('Module', null=True, blank=True,
+                                    related_name='test_header')
+
+    version = models.TextField()  # relate to TestRail-TestSuites
+    testrail = models.ForeignKey(TestRailConfiguration,
+                                 models.SET_NULL,
+                                 blank=True,
+                                 null=True,)
+    catalog = models.ManyToManyField(CatalogItem, blank=True)
 
     lead = models.ForeignKey(HumanResource, related_name='project_lead', null=True, blank=True)
     members = models.ManyToManyField(HumanResource, related_name='project_members', blank=True)
@@ -91,13 +132,18 @@ class Module(models.Model):
     Modules per project
     """
     name = models.CharField(max_length=50, default='')
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, null=True, blank=True)  # if null, then it's Test Header
+    catalog = models.ManyToManyField(CatalogItem, blank=True)
 
     class Meta:
+        ordering = ['name']
         unique_together = ('project', 'name',)
 
     def __str__(self):
-        return '{0}: {1}'.format(self.project.name, self.name)
+        if self.project:
+            return '{0}: {1}'.format(self.project.name, self.name)
+        else:
+            return '{0}: {1}'.format('TestHeader', self.name)
 
     @property
     def nodes(self):
@@ -124,22 +170,46 @@ class Module(models.Model):
         edges = self.edges_all
         return Node.objects.filter(Q(from_node__in=edges) | Q(to_node__in=edges) | Q(module=self)).distinct()
 
+    @property
+    def th_related_projects(self):
+        """
+        Projects which test_header refers to this Module instance
+        :return:
+        """
+        data = []
+        projects = Project.objects.filter(test_header=self)
+        for project in projects:
+            data.append({
+                'name': project.name,
+                'id': project.id
+            })
 
-class CatalogItem(models.Model):
+        return data
+
+
+class ProjectVariable(models.Model):
     """
-    West service catalog item,
-    Five hierarchy: component, offering, feature, functionality, product
+    Variables of project level
     """
-    project = models.ManyToManyField(Project)
+    TESTHEADER = 1
+    PRECONDITION = 2
+    PROMPT = 3
+    DATA = 4
+    ORIGIN_TYPE_CHOICES = (
+        (TESTHEADER, 'TestHeader'),
+        (PRECONDITION, 'PreCondition'),
+        (PROMPT, 'Prompt'),
+        (DATA, 'Data')
+    )
+
+    project = models.ForeignKey(Project)
     name = models.TextField()
-    parent = models.ForeignKey('self', blank=True, null=True, related_name='children_set')
-    description = models.TextField(blank=True)
-
-    def __str__(self):
-        if self.parent:
-            return '{0}: {1}'.format(self.parent.name, self.name)
-        else:
-            return '{0}'.format(self.name)
+    origin_type = models.IntegerField(choices=ORIGIN_TYPE_CHOICES, default=TESTHEADER)
+    origin = models.ForeignKey('graphs.Node', null=True, blank=True)
 
     class Meta:
-        unique_together = ('parent', 'name')
+        ordering = ['name']
+        unique_together = ('project', 'name',)
+
+    def __str__(self):
+        return '{0}: {1}'.format(self.project.name, self.name)

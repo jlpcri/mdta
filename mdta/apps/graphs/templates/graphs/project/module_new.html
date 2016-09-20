@@ -1,0 +1,46 @@
+{% extends 'core/base.html' %}
+
+{% block title %} Module New {% endblock %}
+
+{% block body %}
+    <div class="container newModule">
+        <h3>Add New Module</h3>
+        <form action="{% url 'graphs:project_module_new' project_id %}" method="post">
+            <div class="row">
+                {{ form }}
+            </div>
+            {% csrf_token %}
+            <div class="row" style="margin-top: 20px;">
+                <div class="col-xs-12">
+                    <div id="newModuleErrMessage"></div>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top: 50px;">
+                <div class="col-xs-12">
+                    <input id="module_new" class="btn btn-primary" type="submit" value="New Module">
+                    <input type="button" value="Cancel" class="btn btn-default" onclick="history.back(); return false;">
+                </div>
+            </div>
+
+            </form>
+    </div>
+{% endblock %}
+
+{% block footer %}
+    <script>
+        $(document).ready(function(){
+            var project_id = $('#id_project').val(),
+                location = $('#id_catalog');
+
+            $.getJSON("{% url 'projects:fetch_project_catalogs_members' %}?id={0}&level=project".format(project_id)).done(function(data){
+                var option = '';
+                $.each(data['catalogs_module'], function(index, value){
+                    option += '<option value={0}>{1}</option>'.format(value['id'], value['name']);
+                });
+
+                location.empty().append(option);
+            })
+        });
+    </script>
+{% endblock %}

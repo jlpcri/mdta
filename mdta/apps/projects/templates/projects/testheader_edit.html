@@ -1,0 +1,35 @@
+{% extends 'core/base.html' %}
+
+{% block title %} TestHeader Edit {% endblock %}
+
+{% block body %}
+    <div class="container editTestHeader">
+        <h3>Edit TestHeader</h3>
+        <form action="{% url 'projects:test_header_edit' test_header.id%}" method="post">
+            <div class="row">
+                {{ form }}
+            </div>
+            {% csrf_token %}
+            <div class="row" style="margin-top: 20px;">
+                <div class="col-xs-12">
+                    <div id="editTestHeaderErrMessage"></div>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top: 50px;">
+                <div class="col-xs-12">
+                    <input name="test_header_save" class="btn btn-primary" type="submit" value="Save">
+                    {% if user.is_superuser %}
+                        <input name="test_header_delete" class="btn btn-danger" type="submit" value="Delete">
+                    {% endif %}
+                    <input type="button" value="Cancel" class="btn btn-default" onclick="history.back(); return false;">
+                </div>
+            </div>
+
+            </form>
+    </div>
+{% endblock %}
+
+{% block footer %}
+
+{% endblock %}

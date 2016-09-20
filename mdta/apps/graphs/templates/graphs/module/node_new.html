@@ -1,0 +1,38 @@
+{% extends 'core/base.html' %}
+
+{% block title %} Node New {% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <legend>Project: {{ module.project.name }}</legend>
+        </div>
+        <form action="{% url 'graphs:module_node_new' module.id %}" method="post" class="projectNodeNew">
+            <div class="row">
+                {{ form }}
+            </div>
+            <br>
+            <legend>Node Property:</legend>
+            <div class="row" style="margin-top: 10px;">
+                <div id="project-node-new-properties"></div>
+            </div>
+            <div class="row" style="margin-top: 10px;">
+                <div id="projectNodeNewErrMessage"></div>
+            </div>
+
+            {% csrf_token %}
+            <input type="hidden" name="property_data_index" value="">
+            <div class="row" style="margin-top: 20px;">
+                <input id="project_node_new" class="btn btn-primary" type="submit" value="New Node">
+                <input type="button" value="Cancel" class="btn btn-default" onclick="history.back(); return false;">
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block footer %}
+    <script>
+        {% include 'graphs/project/node_edge.js' %}
+        {% include 'graphs/node_edge_properties.js' %}
+    </script>
+{% endblock %}
