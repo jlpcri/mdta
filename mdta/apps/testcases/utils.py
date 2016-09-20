@@ -502,7 +502,7 @@ def create_hat_scripts_for_project_or_module(project_id=None, module_id=None):
             print(tc['module'])
             if tc['data']:
                 for index, item in enumerate(tc['data']):
-                    create_hat_scripts_per_tc(index, item['tc_steps'])
+                    create_hat_scripts_per_tc(index, item['pre_condition'], item['tc_steps'])
     elif module_id:
         module = get_object_or_404(Module, pk=module_id)
         tmp_tcs = module.project.testcaseresults_set.latest('updated').results
@@ -511,12 +511,12 @@ def create_hat_scripts_for_project_or_module(project_id=None, module_id=None):
             print(tc['module'])
             if tc['data']:
                 for index, item in enumerate(tc['data']):
-                    create_hat_scripts_per_tc(index, item['tc_steps'])
+                    create_hat_scripts_per_tc(index, item['pre_condition'], item['tc_steps'])
 
 
-def create_hat_scripts_per_tc(index, testcase):
-    print(index)
-    for step in testcase:
+def create_hat_scripts_per_tc(index, pre_condition, steps):
+    print(index, '\nPreCondition: ', pre_condition)
+    for step in steps:
         print(step)
 
 
