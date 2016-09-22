@@ -273,6 +273,8 @@ def traverse_node(node, tcs, preceding_edge=None):
         add_step(node_start(node), tcs)
     elif node.type.name in ['Menu Prompt', 'Menu Prompt with Confirmation', 'Play Prompt']:
         add_step(node_prompt(node, preceding_edge), tcs)
+    elif node.type.name in ['TestHeader Start', 'TestHeader End']:
+        pass
     else:
         add_step(node_check_holly_log(node), tcs)
 
@@ -515,9 +517,9 @@ def create_hat_scripts_for_project_or_module(project_id=None, module_id=None):
 
 
 def create_hat_scripts_per_tc(index, pre_condition, steps):
-    print(index, '\nPreCondition: ', pre_condition)
-    for step in steps:
-        print(step)
+    print(index, '\nPreCondition: ', pre_condition, len(steps))
+    # for step in steps:
+    #     print(step)
 
 
 # --------------- Hat Scripts End ---------------
