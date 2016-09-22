@@ -9,9 +9,14 @@
 #
 # Copyright Gurock Software GmbH. See license.md for details.
 #
+# Modified for Python 2.7 compatibility
+from __future__ import unicode_literals
 
-import urllib.request
-import urllib.error
+try:  # Python 3
+    from urllib.request import urlopen, Request
+    from urllib.error import HTTPError
+except ImportError:  # Python 2.7
+    from urllib2 import urlopen, Request, HTTPError
 import json
 import base64
 
@@ -56,22 +61,21 @@ class APIClient:
 
     def __send_request(self, method, uri, data):
         url = self.__url + uri
-        request = urllib.request.Request(url)
-        if (method == 'POST'):
+        request = Request(url)
+        if method == 'POST':
             request.data = bytes(json.dumps(data), 'utf-8')
         auth = str(
             base64.b64encode(
-                bytes('%s:%s' % (self.user, self.password), 'utf-8')
-            ),
-            'ascii'
-        ).strip()
+                '{0}:{1}'.format(self.user, self.password).encode('utf-8')
+            )
+        ).encode('ascii').strip()
         request.add_header('Authorization', 'Basic %s' % auth)
         request.add_header('Content-Type', 'application/json')
 
         e = None
         try:
-            response = urllib.request.urlopen(request).read()
-        except urllib.error.HTTPError as ex:
+            response = urlopen(request).read()
+        except HTTPError as ex:
             response = ex.read()
             e = ex
 
