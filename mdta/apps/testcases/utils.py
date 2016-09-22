@@ -273,6 +273,8 @@ def traverse_node(node, tcs, preceding_edge=None):
         add_step(node_start(node), tcs)
     elif node.type.name in ['Menu Prompt', 'Menu Prompt with Confirmation', 'Play Prompt']:
         add_step(node_prompt(node, preceding_edge), tcs)
+    elif node.type.name in ['TestHeader Start', 'TestHeader End']:
+        pass
     else:
         add_step(node_check_holly_log(node), tcs)
 
