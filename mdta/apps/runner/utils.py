@@ -95,4 +95,14 @@ class HATScript(object):
 
     def hatit_execute(self):
         """Uses Frank's HAT User Interface to initate a HAT test"""
-        requests.post("{0}/hatit/results/")
+        browser = requests.session()
+        browser.get('http://{0}/hatit'.format(self.hatit_server))
+        csrf_token = browser.cookies['csrftoken']
+        # headers = {'X-CSRFToken': csrf_token}
+        data = {'csrfmiddlewaretoken': csrf_token,
+                'apn': self.apn,
+                'port': '5060',
+                'hatscript': self.body}
+        response = browser.post("http://{0}/hatit/results/".format(self.hatit_server), data=data)
+        browser.close()
+        return response
