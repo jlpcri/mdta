@@ -64,11 +64,21 @@ class APIClient:
         request = Request(url)
         if method == 'POST':
             request.data = bytes(json.dumps(data), 'utf-8')
-        auth = str(
-            base64.b64encode(
-                '{0}:{1}'.format(self.user, self.password).encode('utf-8')
-            )
-        ).encode('ascii').strip()
+        # auth = str(
+        #     base64.b64encode(
+        #         '{0}:{1}'.format(self.user, self.password).encode('utf-8')
+        #     )
+        # ).encode('ascii').strip()
+        try:  # python 2.x
+            auth = base64.b64encode('%s:%s' % (self.user, self.password))
+        except TypeError:  # python 3.x
+            auth = str(
+                base64.b64encode(
+                    bytes('%s:%s' % (self.user, self.password), 'utf-8')
+                ),
+                'ascii'
+            ).strip()
+
         request.add_header('Authorization', 'Basic %s' % auth)
         request.add_header('Content-Type', 'application/json')
 
