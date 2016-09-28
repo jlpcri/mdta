@@ -15,5 +15,6 @@ urlpatterns = [
     url(r'^testrail_configuration_update/(?P<testrail_id>\d+)/$', views.testrail_configuration_update, name='testrail_configuration_update'),
 
     url(r'^create_hat_scripts/(?P<object_id>\d+)/$', views.create_hat_scripts, name='create_hat_scripts'),
+    url(r'^demo_hat_generation/$', views.demo_hat_generation, name='demo_hat_generation'),
 
 ]

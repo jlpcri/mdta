@@ -196,4 +196,15 @@ def create_hat_scripts(request, object_id):
 
     return render(request, 'testcases/testcases.html', context)
 
+def demo_hat_generation(request):
+    """Throwaway method for 9/28 demo"""
+    from django.http.response import JsonResponse
+    from mdta.apps.runner.utils import get_testrail_project
+
+    tri = TestRailInstance.objects.first()
+    testcase = get_testrail_project(tri, 6).get_suites()[-1].get_cases()[0]
+    testcase.generate_hat_script()
+    testcase.script.hatit_execute()
+    return JsonResponse({'testrail': testcase.custom_steps_separated, 'script': testcase.script.body})
+
 

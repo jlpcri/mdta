@@ -45,6 +45,40 @@ class TestRailCase(TestRailORM):
         else:
             return self.__dict__['custom_steps_separated']
 
+    def generate_hat_script(self):
+        self.script = HATScript()
+        for step in self.custom_steps_separated:
+            self._content_routing(step['content'])
+            self._expected_routing(step['expected'])
+        self._end_of_call()
+
+    def _content_routing(self, step):
+        if not step:
+            return
+        action = step.split(' ')[0].upper()
+        action_map = {'DNIS': self._start_of_call, 'PRESS': self._dtmf_step}
+        action_map[action](step)
+
+    def _start_of_call(self, step):
+        self.apn = step[5:]
+        assert(len(self.script.body) == 0)
+        self.script.body = 'STARTCALL\n' + 'IGNORE answer asr_session document_dump' +\
+            'document_transition fetch grammar_activation license log note prompt' +\
+            'recognition_start recognition_end redux severe$\n'
+        self.script.body += 'EXPECT call_start\n'
+
+    def _dtmf_step(self, step):
+        self.script.body += 'DTMF ' + step[6:] + '\n'
+
+    def _expected_routing(self, step):
+        if not step:
+            return
+        prompt = step.split(':')[0]
+        self.script.body += 'prompt ' + prompt + '\n'
+    def _end_of_call(self):
+        self.script.body += 'ENDCALL\n'
+
+
 def get_testrail_project(instance, identifier):
     """Returns a TestRail project by name or id"""
     # Name or id?
@@ -98,7 +132,6 @@ class HATScript(object):
         browser = requests.session()
         browser.get('http://{0}/hatit'.format(self.hatit_server))
         csrf_token = browser.cookies['csrftoken']
-        # headers = {'X-CSRFToken': csrf_token}
         data = {'csrfmiddlewaretoken': csrf_token,
                 'apn': self.apn,
                 'port': '5060',
