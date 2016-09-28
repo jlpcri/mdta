@@ -61,23 +61,22 @@ class TestRailCase(TestRailORM):
 
     def _start_of_call(self, step):
         self.apn = step[5:]
-        assert(len(self.body) == 0)
-        self.body = 'STARTCALL\n' + 'IGNORE answer asr_session document_dump' +\
+        assert(len(self.script.body) == 0)
+        self.script.body = 'STARTCALL\n' + 'IGNORE answer asr_session document_dump' +\
             'document_transition fetch grammar_activation license log note prompt' +\
             'recognition_start recognition_end redux severe$\n'
-        self.body += 'EXPECT call_start\n'
+        self.script.body += 'EXPECT call_start\n'
 
     def _dtmf_step(self, step):
-        self.body += 'DTMF ' + step[6:]
+        self.script.body += 'DTMF ' + step[6:] + '\n'
 
     def _expected_routing(self, step):
         if not step:
             return
         prompt = step.split(':')[0]
-        self.body += 'prompt ' + prompt
-            
+        self.script.body += 'prompt ' + prompt + '\n'
     def _end_of_call(self):
-        self.body += 'ENDCALL\n'
+        self.script.body += 'ENDCALL\n'
 
 
 def get_testrail_project(instance, identifier):

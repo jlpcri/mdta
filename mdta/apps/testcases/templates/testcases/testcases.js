@@ -8,6 +8,7 @@ $(document).ready(function () {
     if ('{{link_id}}') {
         $('a[href="#project-{0}"]'.format('{{link_id}}')).click();
     }
+    $('#hat-demo').click(quickDemo)
 });
 
 function deleteModal (project_name, project_id) {
@@ -15,4 +16,8 @@ function deleteModal (project_name, project_id) {
     $('#deleteTestRailButton').attr('href', '/mdta/testcases/testrail_configuration_delete/' + project_id);
 
     $('#confirmModal').modal('show');
+}
+
+function quickDemo(){
+    $.ajax()
 }
