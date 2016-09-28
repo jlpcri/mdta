@@ -37,6 +37,10 @@ class TestRailSuite(TestRailORM):
 
 
 class TestRailCase(TestRailORM):
+    def __init__(self, instance, api_return):
+        super(TestRailCase, self).__init__(instance, api_return)
+        self.script = HATScript()
+
     @property
     def custom_steps_separated(self):
         """Because someone made this field with a typo and it can't be changed."""
@@ -46,37 +50,24 @@ class TestRailCase(TestRailORM):
             return self.__dict__['custom_steps_separated']
 
     def generate_hat_script(self):
-        self.script = HATScript()
         for step in self.custom_steps_separated:
             self._content_routing(step['content'])
             self._expected_routing(step['expected'])
-        self._end_of_call()
+        self.script.end_of_call()
 
     def _content_routing(self, step):
         if not step:
             return
         action = step.split(' ')[0].upper()
-        action_map = {'DNIS': self._start_of_call, 'PRESS': self._dtmf_step}
+        action_map = {'DNIS': self.script.start_of_call,
+                      'PRESS': self.script.dtmf_step}
         action_map[action](step)
-
-    def _start_of_call(self, step):
-        self.apn = step[5:]
-        assert(len(self.script.body) == 0)
-        self.script.body = 'STARTCALL\n' + 'IGNORE answer asr_session document_dump' +\
-            'document_transition fetch grammar_activation license log note prompt' +\
-            'recognition_start recognition_end redux severe$\n'
-        self.script.body += 'EXPECT call_start\n'
-
-    def _dtmf_step(self, step):
-        self.script.body += 'DTMF ' + step[6:] + '\n'
 
     def _expected_routing(self, step):
         if not step:
             return
         prompt = step.split(':')[0]
-        self.script.body += 'prompt ' + prompt + '\n'
-    def _end_of_call(self):
-        self.script.body += 'ENDCALL\n'
+        self.body += 'EXPECT prompt ' + prompt + '\n'
 
 
 def get_testrail_project(instance, identifier):
@@ -139,3 +130,17 @@ class HATScript(object):
         response = browser.post("http://{0}/hatit/results/".format(self.hatit_server), data=data)
         browser.close()
         return response
+
+    def start_of_call(self, step):
+        self.apn = step[5:]
+        assert (len(self.script.body) == 0)
+        self.body = 'STARTCALL\n' + \
+                    'IGNORE answer asr_session document_dump document_transition fetch grammar_activation license' + \
+                    'log note prompt recognition_start recognition_end redux severe$\n' + \
+                    'EXPECT call_start\n'
+
+    def dtmf_step(self, step):
+        self.body += 'EXPECT recognition_start\nPAUSE 1\nDTMF ' + step[6:] + '\n'
+
+    def end_of_call(self):
+        self.body += 'ENDCALL\n'
