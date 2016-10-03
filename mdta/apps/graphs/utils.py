@@ -6,7 +6,7 @@ from django.db import IntegrityError
 from mdta.apps.graphs.models import NodeType, EdgeType
 
 
-NODE_TYPES_WITH_DATA = ['DataQueries Database', 'DataQueries WebService', 'Menu Prompt', 'Menu Prompt with Confirmation']
+NODE_TYPES_WITH_DATA = ['DataQueries Database', 'DataQueries WebService']
 EDGE_TYPES_WITH_DATA = ['Data', 'PreCondition']
 
 
@@ -148,12 +148,12 @@ def get_properties_for_node_or_edge(request, node_or_edge_type, auto_edge=None):
             properties[node_or_edge_type.keys_data_name] = tmp_data
             return properties
 
-        elif 'Menu Prompt' in node_or_edge_type.name:  # Node 'Menu Prompt' and 'Menu Prompt with Confirmation'
-            tmp_data = get_properties_from_multi_rows(request, node_or_edge_type)
-            for key in node_or_edge_type.keys:
-                properties[key] = request.POST.get(key, '')
-            properties[node_or_edge_type.keys_data_name] = tmp_data
-            return properties
+        # elif 'Menu Prompt' in node_or_edge_type.name:  # Node 'Menu Prompt' and 'Menu Prompt with Confirmation'
+        #     tmp_data = get_properties_from_multi_rows(request, node_or_edge_type)
+        #     for key in node_or_edge_type.keys:
+        #         properties[key] = request.POST.get(key, '')
+        #     properties[node_or_edge_type.keys_data_name] = tmp_data
+        #     return properties
         else:
             for key in node_or_edge_type.subkeys:
                 tmp[key] = request.POST.get(key + '_0', '')

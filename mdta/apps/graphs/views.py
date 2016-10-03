@@ -409,7 +409,7 @@ def module_node_new(request, module_id):
 def module_node_new_node_edge(request, node_id):
     node = get_object_or_404(Node, pk=node_id)
     form_node = NodeNewForm(project_id=node.module.project.id)
-    form_edge = EdgeAutoNewForm()
+    form_edge = EdgeAutoNewForm(prefix='edge')
     context = {
         'node': node,
         'form_node': form_node,
@@ -420,7 +420,7 @@ def module_node_new_node_edge(request, node_id):
     elif request.method == 'POST':
         # print(request.POST)
         to_node_form = NodeNewForm(request.POST)
-        edge_form = EdgeAutoNewForm(request.POST)
+        edge_form = EdgeAutoNewForm(request.POST, prefix='edge')
         if to_node_form.is_valid():
             # from_node = node
             to_node = to_node_form.save(commit=False)
