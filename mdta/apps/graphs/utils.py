@@ -6,7 +6,7 @@ from django.db import IntegrityError
 from mdta.apps.graphs.models import NodeType, EdgeType
 
 
-NODE_TYPES_WITH_DATA = ['DataQueries Database', 'DataQueries WebService', 'Menu Prompt', 'Menu Prompt with Confirmation']
+NODE_TYPES_WITH_DATA = ['DataQueries Database', 'DataQueries WebService']
 EDGE_TYPES_WITH_DATA = ['Data', 'PreCondition']
 
 
@@ -138,20 +138,18 @@ def get_properties_for_node_or_edge(request, node_or_edge_type, auto_edge=None):
         key_name = ''
 
     if auto_edge:
-        for key in node_or_edge_type.subkeys:
-            tmp[key] = request.POST.get(key_name + key, '')
-        for key in node_or_edge_type.keys:
-            properties[key] = request.POST.get(key_name + key, '')
+        if 'DataQueries' in node_or_edge_type.name:  # Node 'DataQueries Database' and 'DataQueries WebService'
+            tmp_data = get_properties_from_multi_rows(request, node_or_edge_type, key_name)
+            properties[node_or_edge_type.keys_data_name] = tmp_data
+            return properties
+        else:
+            for key in node_or_edge_type.subkeys:
+                tmp[key] = request.POST.get(key_name + key + '_0', '')
+            for key in node_or_edge_type.keys:
+                properties[key] = request.POST.get(key_name + key, '')
     else:
         if 'DataQueries' in node_or_edge_type.name:  # Node 'DataQueries Database' and 'DataQueries WebService'
             tmp_data = get_properties_from_multi_rows(request, node_or_edge_type)
-            properties[node_or_edge_type.keys_data_name] = tmp_data
-            return properties
-
-        elif 'Menu Prompt' in node_or_edge_type.name:  # Node 'Menu Prompt' and 'Menu Prompt with Confirmation'
-            tmp_data = get_properties_from_multi_rows(request, node_or_edge_type)
-            for key in node_or_edge_type.keys:
-                properties[key] = request.POST.get(key, '')
             properties[node_or_edge_type.keys_data_name] = tmp_data
             return properties
         else:
@@ -166,15 +164,22 @@ def get_properties_for_node_or_edge(request, node_or_edge_type, auto_edge=None):
     return properties
 
 
-def get_properties_from_multi_rows(request, node_or_edge_type):
-    data_index = request.POST.get('property_data_index', '').strip().split(' ')
+def get_properties_from_multi_rows(request, node_or_edge_type, key_name=None):
+    if key_name:
+        data_index = request.POST.get(key_name + 'property_data_index', '').strip().split(' ')
+    else:
+        data_index = request.POST.get('property_data_index', '').strip().split(' ')
+
     tmp_data = []
     for index in data_index:
         tmp_row = {}
         for key in node_or_edge_type.subkeys:
             key_data = {}
             try:
-                key_data_json = ast.literal_eval(request.POST.get('{0}_{1}'.format(key, index), ''))
+                if key_name:
+                    key_data_json = ast.literal_eval(request.POST.get(key_name + '{0}_{1}'.format(key, index), ''))
+                else:
+                    key_data_json = ast.literal_eval(request.POST.get('{0}_{1}'.format(key, index), ''))
                 for d_key in key_data_json:
                     key_data[d_key] = key_data_json[d_key]
             except Exception as e:
