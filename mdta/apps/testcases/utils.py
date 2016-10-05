@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from mdta.apps.graphs.models import Node, Edge
 from mdta.apps.projects.models import Project, TestRailConfiguration, Module
 from mdta.apps.testcases.testrail import APIClient, APIError
+from mdta.apps.testcases.utils_backwards_traverse import path_traverse_backwards
 
 START_NODE_NAME = ['Start', 'TestHeader Start']
 
@@ -110,8 +111,8 @@ def get_paths_through_all_edges(edges, th_module=None):
                         })
     else:
         for edge in edges:
-            # print(edge.id)
             path = routing_path_to_edge(edge)
+
             if path:
                 tcs = []
                 pre_condition = []
@@ -131,8 +132,11 @@ def get_paths_through_all_edges(edges, th_module=None):
                     data.append({
                         'pre_condition': pre_condition,
                         'tc_steps': tcs,
-                        'title': 'Route from \'' + edge.from_node.name + '\' to \'' + edge.to_node.name + '\''
+                        'title': 'Route from \'' + edge.from_node.name + '\' to \'' + edge.to_node.name + '\'' + str(edge.id)
                     })
+
+            if edge.id == 207:
+                path_traverse_backwards(path)
     # return check_subpath_in_all(data)
     return data
 
