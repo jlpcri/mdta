@@ -113,30 +113,35 @@ def get_paths_through_all_edges(edges, th_module=None):
         for edge in edges:
             path = routing_path_to_edge(edge)
 
-            if path:
-                tcs = []
-                pre_condition = []
-                # for index, step in enumerate(path, start=1):
-                if isinstance(path[0], Node) and path[0].type.name in START_NODE_NAME:
-                    for index, step in enumerate(path):
-                        if index == 0:
-                            traverse_node(step, tcs)
-                        else:
-                            if isinstance(step, Node):
-                                traverse_node(step, tcs, path[index - 1])
-                            elif isinstance(step, Edge):
-                                if step.type.name == 'PreCondition':
-                                    update_testcase_precondition(step, pre_condition)
-                                traverse_edge(step, tcs)
+            # if path:
+            #     tcs = []
+            #     pre_condition = []
+            #     # for index, step in enumerate(path, start=1):
+            #     if isinstance(path[0], Node) and path[0].type.name in START_NODE_NAME:
+            #         for index, step in enumerate(path):
+            #             if index == 0:
+            #                 traverse_node(step, tcs)
+            #             else:
+            #                 if isinstance(step, Node):
+            #                     traverse_node(step, tcs, path[index - 1])
+            #                 elif isinstance(step, Edge):
+            #                     if step.type.name == 'PreCondition':
+            #                         update_testcase_precondition(step, pre_condition)
+            #                     traverse_edge(step, tcs)
+            #
+            #         data.append({
+            #             'pre_condition': pre_condition,
+            #             'tc_steps': tcs,
+            #             'title': 'Route from \'' + edge.from_node.name + '\' to \'' + edge.to_node.name + '\'' + str(edge.id)
+            #         })
 
-                    data.append({
-                        'pre_condition': pre_condition,
-                        'tc_steps': tcs,
-                        'title': 'Route from \'' + edge.from_node.name + '\' to \'' + edge.to_node.name + '\'' + str(edge.id)
-                    })
+            path_data = path_traverse_backwards(path)
+            data.append({
+                'pre_condition': path_data['constraints'],
+                'tc_steps': path_data['tc_steps'],
+                'title': 'Route from \'' + edge.from_node.name + '\' to \'' + edge.to_node.name + '\'' + str(edge.id)
+            })
 
-            if edge.id == 207:
-                path_traverse_backwards(path)
     # return check_subpath_in_all(data)
     return data
 
@@ -398,7 +403,7 @@ def update_testcase_precondition(edge, pre_condition):
     try:
         for subkey in edge.properties[edge.type.keys_data_name]:
             tmp = edge.properties[edge.type.keys_data_name][subkey]
-            tmp = ast.literal_eval(tmp)
+            # tmp = ast.literal_eval(tmp)
             for idx, tmp_key in enumerate(tmp):
                 if idx == len(tmp) - 1:
                     data += tmp_key + ': ' + tmp[tmp_key]
