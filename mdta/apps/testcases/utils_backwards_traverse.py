@@ -4,7 +4,7 @@ START_NODE_NAME = ['Start', 'TestHeader Start']
 CONSTRAINTS_TRUE_OR_FALSE = 'tof'
 
 
-def path_traverse_backwards(path):
+def path_traverse_backwards(path, th_path=None):
     tcs = []
     constraints = []
     path.reverse()
@@ -19,7 +19,6 @@ def path_traverse_backwards(path):
                 else:
                     traverse_node(step, tcs, path[index + 1])
             elif isinstance(step, Edge):
-                # traverse_edge(step, tcs)
                 if step.type.name == 'Data':
                     constraints += assert_current_edge_constraint(step)
                     constraints += assert_high_priority_edges_negative(step)
@@ -28,6 +27,15 @@ def path_traverse_backwards(path):
                 if pre_condition not in constraints:
                     constraints += pre_condition
         else:
+            if th_path:
+                th_path.reverse()
+                for th_index, th_step in enumerate(th_path):
+                    if th_index < len(th_path) - 1:
+                        if isinstance(th_step, Node):
+                            traverse_node(th_step, tcs, th_path[th_index + 1])
+                    else:
+                        if isinstance(th_step, Node):
+                            traverse_node(th_step, tcs)
             traverse_node(step, tcs)
 
     tcs.reverse()
@@ -51,17 +59,23 @@ def get_data_node_result(node, constraints):
                 for key in constraint.keys():
                     if key != CONSTRAINTS_TRUE_OR_FALSE:
                         compare_key = key
-                if constraint[CONSTRAINTS_TRUE_OR_FALSE] == 'True' \
-                        and each['Outputs'][compare_key] != constraint[compare_key]:
-                    found = False
-                    break
-                elif constraint[CONSTRAINTS_TRUE_OR_FALSE] == 'False' \
-                        and each['Outputs'][compare_key] == constraint[compare_key]:
-                    found = False
-                    break
+                try:
+                    if constraint[CONSTRAINTS_TRUE_OR_FALSE] == 'True' \
+                            and each['Outputs'][compare_key] != constraint[compare_key]:
+                        found = False
+                        break
+                    elif constraint[CONSTRAINTS_TRUE_OR_FALSE] == 'False' \
+                            and each['Outputs'][compare_key] == constraint[compare_key]:
+                        found = False
+                        break
+                except Exception as e:
+                    pass
 
             if found:
-                data = each['Inputs']
+                try:
+                    data = each['Inputs']
+                except Exception as e:
+                    pass
                 break
 
     return data
@@ -111,7 +125,6 @@ def get_edge_constraints(item, rule):
                     }
 
             except (KeyError, TypeError) as e:
-                print(e.messages)
                 pass
     return data
 

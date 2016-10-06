@@ -1,7 +1,6 @@
-import ast
 from django.shortcuts import get_object_or_404
 
-from mdta.apps.graphs.models import Node, Edge
+from mdta.apps.graphs.models import Node
 from mdta.apps.projects.models import Project, TestRailConfiguration, Module
 from mdta.apps.testcases.testrail import APIClient, APIError
 from mdta.apps.testcases.utils_backwards_traverse import path_traverse_backwards
@@ -79,68 +78,31 @@ def get_paths_through_all_edges(edges, th_module=None):
             for edge in edges:
                 # print(edge.id)
                 path = routing_path_to_edge(edge)
-                if path:
-                    tcs = []
-                    pre_condition = []
-                    # for index, step in enumerate(path, start=1):
-                    if isinstance(path[0], Node) and path[0].type.name in START_NODE_NAME:
-                        for index, step in enumerate(path):
-                            if index == 0:
-                                traverse_node(step, tcs)
-                                if th_path:
-                                    for th_index, th_step in enumerate(th_path):
-                                        if th_index == 0:
-                                            traverse_node(th_step, tcs)
-                                        else:
-                                            if isinstance(th_step, Node):
-                                                traverse_node(th_step, tcs, th_path[th_index - 1])
-                                            elif isinstance(th_step, Edge):
-                                                traverse_edge(th_step, tcs)
-                            else:
-                                if isinstance(step, Node):
-                                    traverse_node(step, tcs, path[index - 1])
-                                elif isinstance(step, Edge):
-                                    if step.type.name == 'PreCondition':
-                                        update_testcase_precondition(step, pre_condition)
-                                    traverse_edge(step, tcs)
 
-                        data.append({
-                            'pre_condition': pre_condition,
-                            'tc_steps': tcs,
-                            'title': 'Route from \'' + edge.from_node.name + '\' to \'' + edge.to_node.name + '\''
-                        })
+                if path:
+                    path_data = path_traverse_backwards(path, th_path)
+                    data.append({
+                        'pre_condition': path_data['constraints'],
+                        'tc_steps': path_data['tc_steps'],
+                        'title': 'Route from \'' +
+                                 edge.from_node.name +
+                                 '\' to \'' +
+                                 edge.to_node.name + '\''
+                    })
     else:
         for edge in edges:
             path = routing_path_to_edge(edge)
 
-            # if path:
-            #     tcs = []
-            #     pre_condition = []
-            #     # for index, step in enumerate(path, start=1):
-            #     if isinstance(path[0], Node) and path[0].type.name in START_NODE_NAME:
-            #         for index, step in enumerate(path):
-            #             if index == 0:
-            #                 traverse_node(step, tcs)
-            #             else:
-            #                 if isinstance(step, Node):
-            #                     traverse_node(step, tcs, path[index - 1])
-            #                 elif isinstance(step, Edge):
-            #                     if step.type.name == 'PreCondition':
-            #                         update_testcase_precondition(step, pre_condition)
-            #                     traverse_edge(step, tcs)
-            #
-            #         data.append({
-            #             'pre_condition': pre_condition,
-            #             'tc_steps': tcs,
-            #             'title': 'Route from \'' + edge.from_node.name + '\' to \'' + edge.to_node.name + '\'' + str(edge.id)
-            #         })
-
-            path_data = path_traverse_backwards(path)
-            data.append({
-                'pre_condition': path_data['constraints'],
-                'tc_steps': path_data['tc_steps'],
-                'title': 'Route from \'' + edge.from_node.name + '\' to \'' + edge.to_node.name + '\'' + str(edge.id)
-            })
+            if path:
+                path_data = path_traverse_backwards(path)
+                data.append({
+                    'pre_condition': path_data['constraints'],
+                    'tc_steps': path_data['tc_steps'],
+                    'title': 'Route from \'' +
+                             edge.from_node.name +
+                             '\' to \'' +
+                             edge.to_node.name + '\''
+                })
 
     # return check_subpath_in_all(data)
     return data
@@ -168,7 +130,7 @@ def routing_path_to_node(node, visited_nodes):
     """
     Routing path to current Node
     :param node:
-    :param data:
+    :param visited_nodes:
     :return:
     """
 
@@ -209,7 +171,8 @@ def breadth_first_search(node, visited_nodes):
 
         if edge:
             start_node_found = False  # flag to find Start Node in current search
-            if edge.from_node not in visited_nodes or edge.from_node.type.name in START_NODE_NAME:  # if Node is not visited or Node is Start
+            if edge.from_node not in visited_nodes \
+                    or edge.from_node.type.name in START_NODE_NAME:  # if Node is not visited or Node is Start
                 if edge.from_node != edge.to_node:
                     if edge.from_node.type.name not in START_NODE_NAME:
                         if edge.from_node.arriving_edges.count() > 0:
@@ -270,151 +233,6 @@ def check_path_contains_in_result(path, result):
 
     return flag
 
-
-def traverse_node(node, tcs, preceding_edge=None):
-    """
-    Traverse Node based on node type
-    :param node:
-    :param tcs:
-    :return:
-    """
-    if node.type.name == START_NODE_NAME[0]:  # Start with Dial Number
-        add_step(node_start(node), tcs)
-    elif node.type.name in ['Menu Prompt', 'Menu Prompt with Confirmation', 'Play Prompt']:
-        add_step(node_prompt(node, preceding_edge), tcs)
-    elif node.type.name in ['TestHeader Start', 'TestHeader End']:
-        pass
-    else:
-        add_step(node_check_holly_log(node), tcs)
-
-
-def node_start(node):
-    return {
-        'content': get_item_properties(node),
-    }
-
-
-def node_prompt(node, preceding_edge=None):
-    content = ''
-    if preceding_edge:
-        if preceding_edge.type.name == 'DTMF':
-            content = 'press ' + preceding_edge.properties['Number']
-        elif preceding_edge.type.name == 'Speech':
-            content = preceding_edge.properties['Response']
-
-    return {
-        'content': content,
-        'expected': node.properties['Verbiage']
-    }
-
-
-def node_check_holly_log(node):
-    if node.properties:
-        data = {
-            'content': 'Node - ' + node.name + ', ' + get_item_properties(node)
-        }
-    else:
-        data = {
-            'content': 'Node - ' + node.name
-        }
-
-    return data
-
-
-def traverse_edge(edge, tcs):
-    """
-    Traverse Edge based on edge type
-    :param edge:
-    :param tcs:
-    :return:
-    """
-    # if edge.type.name == 'DTMF':
-    #     add_step(edge_dtmf_dial(edge), tcs)
-    # elif edge.type.name == 'Speech':
-    #     add_step(edge_speech_say(edge), tcs)
-    if edge.type.name == 'Data':
-        add_step(edge_alter_data_requirement(edge), tcs)
-    elif edge.type.name == 'PreCondition':
-        add_step(edge_precondition(edge), tcs)
-
-
-def add_step(step, tcs):
-    """
-    Add step to test cases
-    :param step:
-    :param tcs:
-    :return:
-    """
-    tcs.append({
-        'content': step['content'],
-        'expected': step['expected'] if 'expected' in step.keys() else ''
-    })
-
-
-def edge_dtmf_dial(edge):
-    return {
-        'content': 'DTMF Dial - ' + get_item_properties(edge)
-    }
-
-
-def edge_speech_say(edge):
-    return {
-        'content': 'Speech Say - ' + get_item_properties(edge)
-    }
-
-
-def edge_alter_data_requirement(edge):
-    return {
-        'content': 'Alter Data Requirement - ' + get_item_properties(edge)
-    }
-
-
-def edge_precondition(edge):
-    return {
-        'content': 'PreCondition - ' + get_item_properties(edge)
-    }
-
-
-def get_item_properties(item):
-    data = ''
-    for key in item.properties:
-        if key == 'InputData':
-            try:
-                for ele in item.properties[key]:
-                    data += 'Inputs: ' + str(ele['Inputs']) + ', Outputs: ' + str(ele['Outputs']) + '; '
-            except (KeyError, TypeError):
-                data += key
-        elif key == 'OutputData':
-            try:
-                data += str(item.properties[key][item.type.subkeys_data_name])
-            except KeyError:
-                data += key
-        else:
-            try:
-                data += key + ': ' + item.properties[key] + ', '
-            except (KeyError, TypeError):
-                data += key
-
-    return data
-
-
-def update_testcase_precondition(edge, pre_condition):
-    data = ''
-    try:
-        for subkey in edge.properties[edge.type.keys_data_name]:
-            tmp = edge.properties[edge.type.keys_data_name][subkey]
-            # tmp = ast.literal_eval(tmp)
-            for idx, tmp_key in enumerate(tmp):
-                if idx == len(tmp) - 1:
-                    data += tmp_key + ': ' + tmp[tmp_key]
-                else:
-                    data += tmp_key + ': ' + tmp[tmp_key] + ', '
-            # data += edge.properties[edge.type.keys_data_name][subkey]
-
-        pre_condition.append(data)
-    except (KeyError, TypeError) as e:
-        print('PreCondition update error: ', e)
-        pass
 
 # --------------- Routing Project/Module Graph End ---------------
 
