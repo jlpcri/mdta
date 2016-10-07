@@ -10,6 +10,7 @@ def path_traverse_backwards(path, th_path=None):
     tcs = []
     tcs_cannot_route = ''
     constraints = []
+    pre_conditions = []
     path.reverse()
 
     for index, step in enumerate(path):
@@ -18,7 +19,8 @@ def path_traverse_backwards(path, th_path=None):
                 if step.type.name in DATA_NODE_NAME:
                     result_found = get_data_node_result(step, constraints)
                     if result_found:
-                        constraints.append(result_found)
+                        # update next step content as found result from Data Node
+                        update_tcs_next_step_content(tcs, result_found)
                     else:
                         tcs_cannot_route = TESTCASE_NOT_ROUTE_MESSAGE
                         break
@@ -30,8 +32,8 @@ def path_traverse_backwards(path, th_path=None):
                     constraints += assert_high_priority_edges_negative(step)
 
                 pre_condition = assert_precondition(step)
-                if pre_condition not in constraints:
-                    constraints += pre_condition
+                if pre_condition not in pre_conditions:
+                    pre_conditions += pre_condition
         else:
             if th_path:
                 th_path.reverse()
@@ -51,7 +53,7 @@ def path_traverse_backwards(path, th_path=None):
     else:
         tcs.reverse()
         data = {
-            'constraints': constraints,
+            'pre_conditions': pre_conditions,
             'tc_steps': tcs,
         }
     return data
@@ -145,7 +147,13 @@ def get_edge_constraints(item, rule):
     return data
 
 
-# --------------- Old methods Start, might removed in the future ---------------
+def update_tcs_next_step_content(tcs, result_found):
+    if len(tcs) > 0:
+        step = tcs[-1]
+        for k in result_found:
+            step['content'] = 'press ' + result_found[k]
+
+
 def add_step(step, tcs):
     """
     Add step to test cases
@@ -216,4 +224,3 @@ def get_item_properties(item):
 
     return data
 
-# --------------- Old methods End, might removed in the future ---------------
