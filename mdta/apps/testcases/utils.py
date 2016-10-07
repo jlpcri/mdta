@@ -81,14 +81,23 @@ def get_paths_through_all_edges(edges, th_module=None):
 
                 if path:
                     path_data = path_traverse_backwards(path, th_path)
-                    data.append({
-                        'pre_condition': path_data['constraints'],
-                        'tc_steps': path_data['tc_steps'],
-                        'title': 'Route from \'' +
-                                 edge.from_node.name +
-                                 '\' to \'' +
-                                 edge.to_node.name + '\''
-                    })
+                    if 'tcs_cannot_route' in path_data.keys():
+                        data.append({
+                            'tcs_cannot_route': path_data['tcs_cannot_route'],
+                            'title': 'Route from \'' +
+                                     edge.from_node.name +
+                                     '\' to \'' +
+                                     edge.to_node.name + '\''
+                        })
+                    else:
+                        data.append({
+                            'pre_condition': path_data['constraints'],
+                            'tc_steps': path_data['tc_steps'],
+                            'title': 'Route from \'' +
+                                     edge.from_node.name +
+                                     '\' to \'' +
+                                     edge.to_node.name + '\''
+                        })
     else:
         for edge in edges:
             path = routing_path_to_edge(edge)

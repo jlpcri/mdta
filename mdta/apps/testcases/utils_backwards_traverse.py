@@ -1,23 +1,29 @@
 from mdta.apps.graphs.models import Node, Edge
 
 START_NODE_NAME = ['Start', 'TestHeader Start']
+DATA_NODE_NAME = ['DataQueries Database', 'DataQueries WebService']
 CONSTRAINTS_TRUE_OR_FALSE = 'tof'
+TESTCASE_NOT_ROUTE_MESSAGE = 'This edge cannot be routed'
 
 
 def path_traverse_backwards(path, th_path=None):
     tcs = []
+    tcs_cannot_route = ''
     constraints = []
     path.reverse()
 
     for index, step in enumerate(path):
         if index < len(path) - 1:
             if isinstance(step, Node):
-                if step.type.name in ['DataQueries Database', 'DataQueries WebService']:
+                if step.type.name in DATA_NODE_NAME:
                     result_found = get_data_node_result(step, constraints)
                     if result_found:
                         constraints.append(result_found)
+                    else:
+                        tcs_cannot_route = TESTCASE_NOT_ROUTE_MESSAGE
+                        break
                 else:
-                    traverse_node(step, tcs, path[index + 1])
+                    traverse_node(step, tcs, preceding_edge=path[index + 1])
             elif isinstance(step, Edge):
                 if step.type.name == 'Data':
                     constraints += assert_current_edge_constraint(step)
@@ -38,12 +44,16 @@ def path_traverse_backwards(path, th_path=None):
                             traverse_node(th_step, tcs)
             traverse_node(step, tcs)
 
-    tcs.reverse()
-
-    data = {
-        'constraints': constraints,
-        'tc_steps': tcs,
-    }
+    if tcs_cannot_route:
+        data = {
+            'tcs_cannot_route': tcs_cannot_route
+        }
+    else:
+        tcs.reverse()
+        data = {
+            'constraints': constraints,
+            'tc_steps': tcs,
+        }
     return data
 
 
@@ -69,12 +79,13 @@ def get_data_node_result(node, constraints):
                         found = False
                         break
                 except Exception as e:
-                    pass
+                    found = False
 
             if found:
                 try:
                     data = each['Inputs']
                 except Exception as e:
+                    print(e)
                     pass
                 break
 
@@ -82,7 +93,9 @@ def get_data_node_result(node, constraints):
 
 
 def assert_current_edge_constraint(edge):
-    data = [get_edge_constraints(edge, rule='True')]
+    data = []
+    current_edge_constraints = get_edge_constraints(edge, rule='True')
+    data += current_edge_constraints
 
     return data
 
@@ -92,7 +105,7 @@ def assert_high_priority_edges_negative(edge):
     edges = edge.from_node.leaving_edges.exclude(id=edge.id)
     for each_edge in edges:
         if each_edge.priority < edge.priority:
-            data.append(get_edge_constraints(each_edge, rule='False'))
+            data += get_edge_constraints(each_edge, rule='False')
 
     return data
 
@@ -114,18 +127,21 @@ def assert_precondition(edge):
 
 
 def get_edge_constraints(item, rule):
-    data = {}
+    data = []
     for key in item.properties:
         if key == 'OutputData':
             try:
-                for constraint_key in item.properties[key][item.type.subkeys_data_name]:
-                    data = {
+                # print(item.properties[key][item.type.subkeys_data_name])
+                for constraint_key in item.properties[key][item.type.subkeys_data_name].keys():
+                    tmp = {
                         constraint_key: item.properties[key][item.type.subkeys_data_name][constraint_key],
                         CONSTRAINTS_TRUE_OR_FALSE: rule  # True or False
                     }
-
+                    data.append(tmp)
             except (KeyError, TypeError) as e:
+                print(e)
                 pass
+    # print(data)
     return data
 
 
@@ -154,10 +170,6 @@ def traverse_node(node, tcs, preceding_edge=None):
         add_step(node_start(node), tcs)
     elif node.type.name in ['Menu Prompt', 'Menu Prompt with Confirmation', 'Play Prompt']:
         add_step(node_prompt(node, preceding_edge), tcs)
-    # elif node.type.name in ['TestHeader Start', 'TestHeader End']:
-    #     pass
-    # else:
-    #     add_step(node_check_holly_log(node), tcs)
 
 
 def node_start(node):
@@ -166,9 +178,11 @@ def node_start(node):
     }
 
 
-def node_prompt(node, preceding_edge=None):
+def node_prompt(node, preceding_edge=None, match_constraint=None):
     content = ''
-    if preceding_edge:
+    if match_constraint:
+        content = 'press ' + match_constraint
+    elif preceding_edge:
         if preceding_edge.type.name == 'DTMF':
             content = 'press ' + preceding_edge.properties['Number']
         elif preceding_edge.type.name == 'Speech':
