@@ -11,14 +11,17 @@ def path_traverse_backwards(path, th_path=None):
     tcs_cannot_route = ''
     constraints = []
     pre_conditions = []
+    match_constraint_found = False
+
     path.reverse()
 
     for index, step in enumerate(path):
         if index < len(path) - 1:
             if isinstance(step, Node):
-                if step.type.name in DATA_NODE_NAME:
-                    result_found = get_data_node_result(step, constraints)
+                if step.type.name in DATA_NODE_NAME and not match_constraint_found:
+                    result_found = get_data_node_result(step, constraints, index=index, path=path)
                     if result_found:
+                        match_constraint_found = True
                         # update next step content as found result from Data Node
                         update_tcs_next_step_content(tcs, result_found)
                     else:
@@ -59,12 +62,13 @@ def path_traverse_backwards(path, th_path=None):
     return data
 
 
-def get_data_node_result(node, constraints):
+def get_data_node_result(node, constraints, index=None, path=None):
     dicts = node.properties[node.type.keys_data_name]
     data = {}
     compare_key = ''
 
     if len(constraints) > 0:
+        found_current_node = False
         for each in dicts:
             found = True
             for constraint in constraints:
@@ -84,12 +88,18 @@ def get_data_node_result(node, constraints):
                     found = False
 
             if found:
+                found_current_node = True
                 try:
                     data = each['Inputs']
                 except Exception as e:
                     print(e)
                     pass
                 break
+        if not found_current_node:
+            for pre_index, pre_step in enumerate(path[(index + 1):]):
+                if isinstance(pre_step, Node) and pre_step.type.name in DATA_NODE_NAME:
+                    data = get_data_node_result(pre_step, constraints, index=pre_index, path=path[(index + 1):])
+                    break
 
     return data
 
