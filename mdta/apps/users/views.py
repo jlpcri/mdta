@@ -16,8 +16,8 @@ def user_is_staff(user):
 
 
 @login_required
-def home(request):
-    return render(request, 'users/home.html')
+def mdta(request):
+    return render(request, 'users/mdta.html')
 
 
 def sign_in(request):

@@ -9,7 +9,9 @@ def landing(request):
 
 
 def get_active_top_link(request):
-    if request.path.startswith(settings.LOGIN_URL + 'projects'):
+    if request.path.startswith(settings.LOGIN_URL + 'home'):
+        active = 'home'
+    elif request.path.startswith(settings.LOGIN_URL + 'projects'):
         active = 'projects'
     elif request.path.startswith(settings.LOGIN_URL + 'graphs'):
         active = 'graphs'
@@ -18,6 +20,6 @@ def get_active_top_link(request):
     elif request.path.startswith(settings.LOGIN_URL + 'help'):
         active = 'help'
     else:
-        active = 'home'
+        active = 'mdta'
 
     return {'active': active}
