@@ -127,13 +127,16 @@ def assert_precondition(edge):
     edges = edge.from_node.leaving_edges
     for each_edge in edges:
         if each_edge.type.name == 'PreCondition':
-            tmp = each_edge.properties[each_edge.type.keys_data_name][each_edge.type.subkeys_data_name]
+            tmp = ''
+            dicts = each_edge.properties[each_edge.type.keys_data_name][each_edge.type.subkeys_data_name]
             if each_edge.id == edge.id:
-                tmp['tof'] = 'True'
+                operator = ' = '
             else:
-                tmp['tof'] = 'False'
+                operator = ' != '
+            for key in dicts:
+                tmp = key + operator + dicts[key]
+
             data.append(tmp)
-            break
 
     return data
 

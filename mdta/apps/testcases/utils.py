@@ -318,15 +318,17 @@ def remove_section_from_testsuite(client, section_id):
 def add_testcase_to_section(client, section_id, data):
     try:
         for each_tc in data:
-            custom_preconds = ''
-            for pre_cond in each_tc['pre_condition']:
-                custom_preconds += ', '.join(pre_cond) + '; '
-            tc_data = {
-                'title': each_tc['title'],
-                'custom_preconds': custom_preconds,
-                'custom_steps_seperated': each_tc['tc_steps']
-            }
-            client.send_post('add_case/' + section_id, tc_data)
+            if 'tcs_cannot_route' not in each_tc.keys():
+                custom_preconds = ''
+                for pre_cond in each_tc['pre_conditions']:
+                    custom_preconds += pre_cond + '; '
+
+                tc_data = {
+                    'title': each_tc['title'],
+                    'custom_preconds': custom_preconds,
+                    'custom_steps_seperated': each_tc['tc_steps']
+                }
+                client.send_post('add_case/' + section_id, tc_data)
     except APIError as e:
         print('Add TestCase to Section error: ', e)
 
@@ -349,7 +351,8 @@ def create_hat_scripts_for_project_or_module(project_id=None, module_id=None):
             print(tc['module'])
             if tc['data']:
                 for index, item in enumerate(tc['data']):
-                    create_hat_scripts_per_tc(index, item['pre_condition'], item['tc_steps'])
+                    if 'pre_conditions' in item.keys():
+                        create_hat_scripts_per_tc(index, item['pre_conditions'], item['tc_steps'])
     elif module_id:
         module = get_object_or_404(Module, pk=module_id)
         tmp_tcs = module.project.testcaseresults_set.latest('updated').results
@@ -358,11 +361,12 @@ def create_hat_scripts_for_project_or_module(project_id=None, module_id=None):
             print(tc['module'])
             if tc['data']:
                 for index, item in enumerate(tc['data']):
-                    create_hat_scripts_per_tc(index, item['pre_condition'], item['tc_steps'])
+                    if 'pre_conditions' in item.keys():
+                        create_hat_scripts_per_tc(index, item['pre_conditions'], item['tc_steps'])
 
 
 def create_hat_scripts_per_tc(index, pre_condition, steps):
-    print(index, '\nPreCondition: ', pre_condition, len(steps))
+    print(index, '\nPreConditions: ', pre_condition, len(steps))
     # for step in steps:
     #     print(step)
 
