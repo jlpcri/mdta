@@ -142,6 +142,18 @@ def get_properties_for_node_or_edge(request, node_or_edge_type, auto_edge=None):
             tmp_data = get_properties_from_multi_rows(request, node_or_edge_type, key_name)
             properties[node_or_edge_type.keys_data_name] = tmp_data
             return properties
+        elif node_or_edge_type.name in ['Data', 'PreCondition'] and isinstance(node_or_edge_type, EdgeType):
+            key_data = {}
+            subkey_data = {}
+            try:
+                key_data_json = ast.literal_eval(request.POST.get(key_name + node_or_edge_type.subkeys_data_name + '_0', ''))
+                for d_key in key_data_json:
+                    subkey_data[d_key] = key_data_json[d_key]
+                key_data[node_or_edge_type.subkeys_data_name] = subkey_data
+                properties[node_or_edge_type.keys_data_name] = key_data
+            except Exception:
+                pass
+            return properties
         else:
             for key in node_or_edge_type.subkeys:
                 tmp[key] = request.POST.get(key_name + key + '_0', '')
@@ -151,6 +163,18 @@ def get_properties_for_node_or_edge(request, node_or_edge_type, auto_edge=None):
         if 'DataQueries' in node_or_edge_type.name:  # Node 'DataQueries Database' and 'DataQueries WebService'
             tmp_data = get_properties_from_multi_rows(request, node_or_edge_type)
             properties[node_or_edge_type.keys_data_name] = tmp_data
+            return properties
+        elif node_or_edge_type.name in ['Data', 'PreCondition'] and isinstance(node_or_edge_type, EdgeType):
+            key_data = {}
+            subkey_data = {}
+            try:
+                key_data_json = ast.literal_eval(request.POST.get(node_or_edge_type.subkeys_data_name + '_0', ''))
+                for d_key in key_data_json:
+                    subkey_data[d_key] = key_data_json[d_key]
+                key_data[node_or_edge_type.subkeys_data_name] = subkey_data
+                properties[node_or_edge_type.keys_data_name] = key_data
+            except Exception:
+                pass
             return properties
         else:
             for key in node_or_edge_type.subkeys:

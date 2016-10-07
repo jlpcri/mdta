@@ -39,17 +39,23 @@
                         <h4>Module: {{ item.module }}</h4>
                         {% for each_tc in item.data %}
                             {{ forloop.counter }}. {{ each_tc.title }}: <br>
-                            <ul>
-                                <li>PreCondition:</li>
-                                {{ each_tc.pre_condition }}
-
-                                <li>Steps:</li>
+                            {% if each_tc.tcs_cannot_route %}
                                 <ul>
-                                    {% for step in each_tc.tc_steps %}
-                                        <li>{{ forloop.counter }}, {{ step }}</li>
-                                    {% endfor %}
+                                    <li>Status:</li>
+                                    {{ each_tc.tcs_cannot_route }}
                                 </ul>
-                            </ul>
+                            {% else %}
+                                <ul>
+                                    <li>PreConditions:</li>
+                                    {{ each_tc.pre_conditions }}
+                                    <li>Steps:</li>
+                                    <ul>
+                                        {% for step in each_tc.tc_steps %}
+                                            <li>{{ forloop.counter }}, {{ step }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </ul>
+                            {% endif %}
                         {% endfor %}
                     {% endif %}
                 {% endfor %}
