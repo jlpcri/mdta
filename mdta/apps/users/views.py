@@ -16,8 +16,8 @@ def user_is_staff(user):
 
 
 @login_required
-def mdta(request):
-    return render(request, 'users/mdta.html')
+def intro(request):
+    return render(request, 'users/intro.html')
 
 
 def sign_in(request):
@@ -34,7 +34,7 @@ def sign_in(request):
                 if request.GET.get('next'):
                     return redirect(request.GET['next'])
                 else:
-                    return redirect('users:home')
+                    return redirect('intro')
             else:
                 messages.error(request, 'This account is inactive')
         else:

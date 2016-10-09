@@ -8,6 +8,8 @@ class HumanResource(models.Model):
     """
     user = models.OneToOneField(User)
 
+    # Last project user working on
+    project = models.ForeignKey('projects.Project', null=True, blank=True)
     manager = models.BooleanField(default=False)
     lead = models.BooleanField(default=False)
 

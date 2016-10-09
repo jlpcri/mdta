@@ -4,6 +4,7 @@ from mdta.apps.graphs import views
 
 urlpatterns = [
     url(r'^$', views.graphs, name='graphs'),
+    url(r'^projects_for_selection/$', views.projects_for_selection, name='projects_for_selection'),
     url(r'^node_type_new/$', views.node_type_new, name='node_type_new'),
     url(r'^node_type_edit/$', views.node_type_edit, name='node_type_edit'),
     url(r'^(?P<project_id>\d+)/project_node_new/$', views.project_node_new, name='project_node_new'),

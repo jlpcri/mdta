@@ -4,7 +4,7 @@ from django.conf import settings
 
 def landing(request):
     if request.user.is_authenticated():
-        return redirect('users:home')
+        return redirect('home')
     return render(request, 'core/landing.html')
 
 

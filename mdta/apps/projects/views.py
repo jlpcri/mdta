@@ -11,11 +11,6 @@ from .forms import ProjectForm, ModuleForm, TestHeaderForm
 
 
 @login_required
-def home(request):
-    return render(request, 'projects/home.html')
-
-
-@login_required
 def projects(request):
     """
     View of apps/projects

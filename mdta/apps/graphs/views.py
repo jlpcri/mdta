@@ -17,6 +17,25 @@ from mdta.apps.testcases.tasks import create_testcases_celery, push_testcases_to
 
 
 @login_required
+def home(request):
+    user = request.user
+    if user.humanresource.project:
+        return redirect('graphs:project_detail', user.humanresource.project.id)
+    else:
+        return redirect('graphs:projects_for_selection')
+
+
+@login_required
+def projects_for_selection(request):
+    projects = Project.objects.all()
+    context = {
+        'projects': projects
+    }
+
+    return render(request, 'graphs/projects_for_selection.html', context)
+
+
+@login_required
 def graphs(request):
     """
     View of apps/graphs, include projects list, node type, edge type
@@ -218,7 +237,13 @@ def project_detail(request, project_id):
     """
     network_nodes = []
     network_edges = []
+    projects = Project.objects.all()
     project = get_object_or_404(Project, pk=project_id)
+
+    user = request.user
+    user.humanresource.project = project
+    user.humanresource.save()
+
     for m in project.modules:
         network_nodes.append({
             'id': m.id,
@@ -244,6 +269,7 @@ def project_detail(request, project_id):
     # print('**: ', network_edges)
 
     context = {
+        'projects': projects,
         'project': project,
         'module_new_form': ModuleForm(project_id=project.id),
         'edge_types': EdgeType.objects.all(),
