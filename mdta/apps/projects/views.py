@@ -4,13 +4,13 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from mdta.apps.projects.utils import context_projects, check_testheader_duplicate
-from mdta.apps.users.views import user_is_staff
+from mdta.apps.users.views import user_is_staff, user_is_superuser
 
 from .models import Project, Module
 from .forms import ProjectForm, ModuleForm, TestHeaderForm
 
 
-@login_required
+@user_passes_test(user_is_superuser)
 def projects(request):
     """
     View of apps/projects

@@ -13,7 +13,7 @@ from .forms import TestrailConfigurationForm
 from mdta.apps.testcases.testrail import APIClient
 
 
-@login_required
+@user_passes_test(user_is_superuser)
 def testcases(request):
     context = context_testcases()
 

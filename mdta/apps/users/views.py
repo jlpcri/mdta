@@ -34,7 +34,7 @@ def sign_in(request):
                 if request.GET.get('next'):
                     return redirect(request.GET['next'])
                 else:
-                    return redirect('intro')
+                    return redirect('home')
             else:
                 messages.error(request, 'This account is inactive')
         else:

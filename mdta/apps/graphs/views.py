@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new, check_edge_in_set,\
     get_properties_for_node_or_edge
 from mdta.apps.projects.models import Project, Module
-from mdta.apps.users.views import user_is_staff
+from mdta.apps.users.views import user_is_staff, user_is_superuser
 from .models import NodeType, EdgeType, Node, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeNewForm, EdgeAutoNewForm
 from mdta.apps.projects.forms import ModuleForm
@@ -35,7 +35,7 @@ def projects_for_selection(request):
     return render(request, 'graphs/projects_for_selection.html', context)
 
 
-@login_required
+@user_passes_test(user_is_superuser)
 def graphs(request):
     """
     View of apps/graphs, include projects list, node type, edge type
