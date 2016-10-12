@@ -5,13 +5,15 @@ import os
 import sys
 
 import requests
+from paramiko.client import AutoAddPolicy
+from paramiko import SSHClient, SFTPClient, Transport
+
+import mdta.apps.testcases.testrail as testrail
+
 if os.name == 'posix' and sys.version_info[0] < 3:
     import subprocess32 as subprocess
 else:
     import subprocess
-from paramiko import SSHClient, SFTPClient, Transport
-
-import mdta.apps.testcases.testrail as testrail
 
 
 class TestRailORM(object):
@@ -47,7 +49,7 @@ class TestRailSuite(TestRailORM):
 class TestRailCase(TestRailORM):
     def __init__(self, instance, api_return):
         super(TestRailCase, self).__init__(instance, api_return)
-        self.script = HATScript()
+        self.script = None
 
     @property
     def custom_steps_separated(self):
@@ -58,6 +60,8 @@ class TestRailCase(TestRailORM):
             return self.__dict__['custom_steps_separated']
 
     def generate_hat_script(self):
+        if not self.script:
+            self.script = HATScript()
         for step in self.custom_steps_separated:
             self._content_routing(step['content'])
             self._expected_routing(step['expected'])
@@ -75,7 +79,7 @@ class TestRailCase(TestRailORM):
         if not step:
             return
         prompt = step.split(':')[0]
-        self.body += 'EXPECT prompt ' + prompt + '\n'
+        self.script.body += 'EXPECT prompt ' + prompt + '\n'
 
 
 def get_testrail_project(instance, identifier):
@@ -106,7 +110,7 @@ def _get_testrail_project_by_name(instance, identifier):
 
 
 class HATScript(object):
-    def __init__(self, apn, body='',
+    def __init__(self, apn='', body='',
                  holly_server='linux5578.wic.west.com',
                  remote_server='qaci01.wic.west.com', remote_user='', remote_password=''):
         self.apn = apn
@@ -157,23 +161,39 @@ class HATScript(object):
             script_file.close()
 
     def remote_hat_execute(self):
+        remote_filename = self._send_hat_script()
+        stdin, stdout, stderr = self._invoke_remote_hat(remote_filename)
+
+    def _send_hat_script(self, dest_directory='/tmp'):
         transport = Transport(self.remote_server, 22)
         transport.connect(username=self.remote_user, password=self.remote_password)
         file_client = SFTPClient.from_transport(transport)
-        script_file = NamedTemporaryFile(mode='w')
+        script_file = NamedTemporaryFile(mode='w', delete=False)
+        script_file.write(self.body)
+        script_file.close()
+        # remote_filename = '/tmp/{0}'.format(os.path.split(script_file.name)[-1])
+        print("Sending " + script_file.name + " to " + script_file.name)
+        # file_client.put(script_file.name, '{0}/{1}'.format(dest_directory, self.remote_filename))
+        file_client.put(script_file.name, script_file.name)
+        file_client.close()
+        return script_file.name
 
-        # TODO: Send HAT script
+    def _invoke_remote_hat(self, remote_filename):
         client = SSHClient()
+        client.set_missing_host_key_policy(AutoAddPolicy())
         client.load_system_host_keys()
-        client.connect(self.remote_server)
-        client.exec_command('hat')
+        client.connect(self.remote_server, username=self.remote_user, password=self.remote_password)
+        conn = client.exec_command('hat -s {0} -p sip:{1}@{2}:5060'.format(remote_filename, self.apn, self.holly_server))
+        client.close()
+        return conn
 
     def start_of_call(self, step):
         self.apn = step[5:]
-        assert (len(self.script.body) == 0)
+        assert (len(self.body) == 0)
         self.body = 'STARTCALL\n' + \
-                    'IGNORE answer asr_session document_dump document_transition fetch grammar_activation license' + \
-                    'log note prompt recognition_start recognition_end redux severe$\n' + \
+                    'IGNORE answer asr_session document_dump document_transition fetch grammar_activation license ' + \
+                    'log note prompt recognition_start recognition_end redux severe sip_session system_response ' + \
+                    'transfer_start transfer_end vxml_event vxml_trace warning\n' + \
                     'EXPECT call_start\n'
 
     def dtmf_step(self, step):
@@ -181,3 +201,15 @@ class HATScript(object):
 
     def end_of_call(self):
         self.body += 'ENDCALL\n'
+
+
+def emergency_test():
+    from mdta.apps.projects.models import TestRailInstance
+    tri = TestRailInstance.objects.first()
+    trp = get_testrail_project(tri, 6)
+    c = trp.get_suites()[-1].get_cases()[0]
+    c.generate_hat_script()
+    c.script.remote_user = 'caheyden'
+    c.script.remote_password = 'dsi787cAH16'
+    conn = c.script.remote_hat_execute()
+    return c, conn
