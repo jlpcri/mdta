@@ -6,9 +6,9 @@ function load_keys_from_type_contents(item_id, location, type, call_from_node_ed
             contents = '';
         $.each(keys, function(k, v){
             if ((keys[k].indexOf('Data') >= 0) ) {
-                contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
-                contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
-                contents += '</div>';
+                //contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
+                //contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
+                //contents += '</div>';
 
                 contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
                 contents += '<div class=\'col-xs-1\'></div>';
@@ -45,6 +45,7 @@ function load_keys_from_type_contents(item_id, location, type, call_from_node_ed
                 contents += '</div>';
             } else {
                 contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
+                contents += '<div class=\'col-xs-1\'></div>';
                 contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
                 contents += '<div class=\'col-xs-2\'><input name=\'{0}\'/></div>'.format(keys[k]);
                 contents += '</div>';

@@ -355,6 +355,8 @@ def project_module_detail(request, module_id):
 
     context = {
         'module': module,
+        'node_new_form': NodeNewForm(module_id=module.id),
+        'edge_new_form': EdgeNewForm(project_id=module.project.id),
 
         'node_types': NodeType.objects.all(),
         'edge_types': EdgeType.objects.all(),

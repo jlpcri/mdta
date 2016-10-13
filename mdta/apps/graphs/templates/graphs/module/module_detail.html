@@ -29,8 +29,8 @@
                         {% endif %}
                     </div>
                     <div class="col-xs-3 pull-right">
-                        <a href="{% url 'graphs:module_node_new' module.id %}" class="btn btn-default">New Node</a>
-                        <a href="{% url 'graphs:module_edge_new' module.id %}" class="btn btn-default">New Edge</a>
+                        <a href="#" data-toggle="modal" data-target="#module-node-new-modal" class="btn btn-default">New Node</a>
+                        <a href="#" data-toggle="modal" data-target="#module-edge-new-modal" class="btn btn-default">New Edge</a>
                     </div>
                 </div>
                 <div class="row">
@@ -352,10 +352,12 @@
                         </div>
                     </div>
                 </div>
-
-    </div>
+            </div>
         </div>
     </div>
+
+    {% include 'graphs/module/module_detail_modal.html' %}
+
 {% endblock %}
 
 {% block footer %}
@@ -364,5 +366,6 @@
         var edges = {{ network_edges|safe }};
         {% include 'graphs/module/module_detail.js' %}
         {% include 'graphs/node_edge_properties.js' %}
+        {% include 'graphs/project/node_edge.js' %}
     </script>
 {% endblock %}
