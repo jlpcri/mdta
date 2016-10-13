@@ -275,7 +275,7 @@
                                                 <div class="col-xs-12">
                                                     <label for="moduleEdgeEditPriority">Priority:</label>
                                                     <select class="form-control" id="moduleEdgeEditPriority" name="moduleEdgeEditPriority">
-                                                        {% for priority in edge_priority %}
+                                                        {% for priority in edge_priorities %}
                                                             <option value="{{ priority.0 }}" {% if item.priority == priority.0 %}selected{% endif %}>{{ priority.1 }}</option>
                                                         {% endfor %}
                                                     </select>
