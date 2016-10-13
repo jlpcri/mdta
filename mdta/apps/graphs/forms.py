@@ -87,7 +87,7 @@ class EdgeAutoNewForm(ModelForm):
 
     class Meta:
         model = Edge
-        fields = ['type', 'priority']
+        fields = ['priority', 'type']
         widgets = {
             'type': forms.Select(attrs={
                 'class': 'form-control',

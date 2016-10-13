@@ -360,6 +360,9 @@ def project_module_detail(request, module_id):
     project_modules = module.project.module_set.order_by('name')
     current_module_nodes = module.node_set.order_by('name')
 
+    node_new_node_form = NodeNewForm(project_id=module.project.id)
+    node_new_edge_form = EdgeAutoNewForm(prefix='edge')
+
     context = {
         'module': module,
         'node_new_form': node_new_form,
@@ -369,6 +372,9 @@ def project_module_detail(request, module_id):
         'edge_priorities': edge_priorities,
         'project_modules': project_modules,
         'current_module_nodes': current_module_nodes,
+
+        'node_new_node_form': node_new_node_form,
+        'node_new_edge_form': node_new_edge_form,
 
         'network_nodes': json.dumps(network_nodes),
         'network_edges': json.dumps(network_edges)

@@ -7,18 +7,22 @@ function load_keys_from_type_contents_edge(item_id, location, type){
             contents = '';
         $.each(keys, function(k, v){
             if ((keys[k].indexOf('Data') >= 0) || (keys[k] == 'Condition')) {
-                contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
-                contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
-                contents += '</div>';
+                //contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
+                //contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
+                //contents += '</div>';
 
                 contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
                 contents += '<div class=\'col-xs-1\'></div>';
                 contents += '<div class=\'col-xs-11\'>';
-                contents += '<table class=\'table\' id=\'{0}-property-table\'>'.format(type);
+                contents += '<table class=\'table\' id=\'{0}-together-property-table\'>'.format(type);
 
                 contents += '<thead><tr>';
                 $.each(subkeys, function(k, v){
-                    contents += '<th class=\'col-xs-2\'>{0}</th>'.format(subkeys[k]);
+                    if (subkeys[k] == 'Outputs'){
+                        contents += '<th class=\'col-xs-2\'>{0}</th>'.format('Follow If...');
+                    } else {
+                        contents += '<th class=\'col-xs-2\'>{0}:</th>'.format(subkeys[k]);
+                    }
                 });
                 contents += '<th class=\'col-xs-2\'></th>';
                 contents += '</tr></thead>';
@@ -36,8 +40,9 @@ function load_keys_from_type_contents_edge(item_id, location, type){
                 contents += '</div>';
             } else {
                 contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
+                contents += '<div class=\'col-xs-1\'></div>';
                 contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
-                contents += '<div class=\'col-xs-2\'><input name=\'edge_{0}\'/></div>'.format(keys[k]);
+                contents += '<div class=\'col-xs-8\'><input name=\'edge_{0}\'/></div>'.format(keys[k]);
                 contents += '</div>';
             }
         });
@@ -46,13 +51,13 @@ function load_keys_from_type_contents_edge(item_id, location, type){
     });
 }
 
-$(document).ready( function(){
+$('.moduleNodeEdgeNew').on('show.bs.modal', function(){
     var node_type_id = $('.moduleNodeEdgeNew #id_type').find('option:selected').val(),
         node_location = '#module-node-edge-new-node-properties',
         edge_type_id = $('.moduleNodeEdgeNew #id_edge-type').find('option:selected').val(),
         edge_location = '#module-node-edge-new-edge-properties';
 
-    load_keys_from_type_contents(node_type_id, node_location, 'node');
+    load_keys_from_type_contents_node(node_type_id, node_location, 'node');
     load_keys_from_type_contents_edge(edge_type_id, edge_location, 'edge');
 });
 
@@ -60,7 +65,7 @@ $('.moduleNodeEdgeNew #id_type').on('change', function(){
     var node_type_id = $(this).find('option:selected').val(),
         location = '#module-node-edge-new-node-properties';
 
-    load_keys_from_type_contents(node_type_id, location, 'node');
+    load_keys_from_type_contents_node(node_type_id, location, 'node');
 });
 
 $('.moduleNodeEdgeNew #id_edge-type').on('change', function(){
@@ -95,11 +100,12 @@ $('.moduleNodeEdgeNew').on('submit', function(e){
         return false;
     }
 
-    $('#node-property-table tbody tr').each(function(){
+    $('#node-together-property-table tbody tr').each(function(){
         data_index_node += this.id + ' ';
     });
     $('input[name="node_property_data_index"]').val(data_index_node);
-    $('#edge-property-table tbody tr').each(function(){
+
+    $('#edge-together-property-table tbody tr').each(function(){
         data_index_edge += this.id + ' ';
     });
     $('input[name="edge_property_data_index"]').val(data_index_edge);
@@ -108,7 +114,7 @@ $('.moduleNodeEdgeNew').on('submit', function(e){
 /* End Module Node New Node & Edge Code */
 
 
-function load_keys_from_type_contents(item_id, location, type, call_from_node_edit){
+function load_keys_from_type_contents_node(item_id, location, type, call_from_node_edit){
     $.getJSON("{% url 'graphs:get_keys_from_type' %}?id={0}&type={1}".format(item_id, type)).done(function(data){
         var keys = data['keys'],
             subkeys = data['subkeys'],
@@ -116,21 +122,21 @@ function load_keys_from_type_contents(item_id, location, type, call_from_node_ed
             contents = '';
         $.each(keys, function(k, v){
             if ((keys[k].indexOf('Data') >= 0) ) {
-                contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
-                contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
-                contents += '</div>';
+                //contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
+                //contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
+                //contents += '</div>';
 
                 contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
                 contents += '<div class=\'col-xs-1\'></div>';
                 contents += '<div class=\'col-xs-11\'>';
-                contents += '<table class=\'table moduleNodeEditPropertyTable\' id=\'{0}-property-table\'>'.format(type);
+                contents += '<table class=\'table moduleNodeEditPropertyTable\' id=\'{0}-together-property-table\'>'.format(type);
 
                 contents += '<thead><tr>';
                 $.each(subkeys, function(k, v){
                     contents += '<th class=\'col-xs-5\'>{0}</th>'.format(subkeys[k]);
                 });
                 if (keys[k].indexOf('InputData') >= 0) {
-                    contents += '<th class=\'col-xs-1\'><button id=\'buttonAddData\' class=\'btn btn-xs\' type=\'button\'>Add Data</button></th>';
+                    contents += '<th class=\'col-xs-1\'><button id=\'buttonTogetherAddData\' class=\'btn btn-xs\' type=\'button\'>Add Data</button></th>';
                 } else {
                     contents += '<th class=\'col-xs-1\'></th>';
                 }
@@ -155,15 +161,16 @@ function load_keys_from_type_contents(item_id, location, type, call_from_node_ed
                 contents += '</div>';
             } else {
                 contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
+                contents += '<div class=\'col-xs-1\'></div>';
                 contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
-                contents += '<div class=\'col-xs-2\'><input name=\'node_{0}\'/></div>'.format(keys[k]);
+                contents += '<div class=\'col-xs-8\'><input name=\'node_{0}\'/></div>'.format(keys[k]);
                 contents += '</div>';
             }
         });
         //console.log(contents)
         $(location).html(contents);
 
-        $('#buttonAddData').click(function(){
+        $('#buttonTogetherAddData').click(function(){
             rowCounter++;
             node_property_add_data(subkeys, rowCounter, '.moduleNodeEditPropertyTable', call_from_node_edit);
         });
