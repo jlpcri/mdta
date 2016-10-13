@@ -53,11 +53,7 @@
                             <label for="project-edge-new-from-module">From Module:</label>
                             <select id="project-edge-new-from-module" name="project-edge-new-from-module" class="form-control">
                                 {% for item in project_modules %}
-                                    {% if item.id == module.id %}
-                                        <option value="{{ item.id }}" selected>{{ item.name }}</option>
-                                    {% else %}
-                                        <option value="{{ item.id }}">{{ item.name }}</option>
-                                    {% endif %}
+                                    <option value="{{ item.id }}" {% if item.id == module.id %}selected{% endif %}>{{ item.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -76,11 +72,7 @@
                             <label for="project-edge-new-to-module">To Module:</label>
                             <select id="project-edge-new-to-module" name="project-edge-new-to-module" class="form-control">
                                 {% for item in project_modules %}
-                                    {% if item.id == module.id %}
-                                        <option value="{{ item.id }}" selected>{{ item.name }}</option>
-                                    {% else %}
-                                        <option value="{{ item.id }}">{{ item.name }}</option>
-                                    {% endif %}
+                                    <option value="{{ item.id }}" {% if item.id == module.id %}selected{% endif %}>{{ item.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -96,14 +88,6 @@
 
                     <div class="row" style="margin-top: 10px;">
                         <div class="col-xs-6">
-                            <label for="project-edge-new-type">Type:</label>
-                            <select id="project-edge-new-type" name="project-edge-new-type" class="form-control">
-                                {% for item in edge_types %}
-                                    <option value="{{ item.id }}">{{ item.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-xs-6">
                             <label for="project-edge-new-priority">Priority:</label>
                             <select id="project-edge-new-priority" name="project-edge-new-priority" class="form-control">
                                 {% for item in edge_priorities %}
@@ -114,8 +98,22 @@
                     </div>
 
                     <div class="row" style="margin-top: 10px;">
-                        <div id="project-edge-new-properties"></div>
+                        <div class="col-xs-6">
+                            <label for="project-edge-new-type">Type:</label>
+                            <select id="project-edge-new-type" name="project-edge-new-type" class="form-control">
+                                {% for item in edge_types %}
+                                    <option value="{{ item.id }}">{{ item.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-xs-6">
+                            <div id="project-edge-new-properties"></div>
+                        </div>
                     </div>
+
+{#                    <div class="row" style="margin-top: 10px;">#}
+{#                        <div id="project-edge-new-properties"></div>#}
+{#                    </div>#}
                     <div class="row" style="margin-top: 10px;">
                         <div id="projectEdgeNewErrMessage"></div>
                     </div>

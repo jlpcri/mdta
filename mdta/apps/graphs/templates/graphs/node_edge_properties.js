@@ -17,7 +17,11 @@ function load_keys_from_type_contents(item_id, location, type, call_from_node_ed
 
                 contents += '<thead><tr>';
                 $.each(subkeys, function(k, v){
-                    contents += '<th class=\'col-xs-5\'>{0}</th>'.format(subkeys[k]);
+                    if (type == 'edge' && subkeys[k] == 'Outputs'){
+                        contents += '<th class=\'col-xs-5\'>{0}</th>'.format('Follow If...');
+                    } else {
+                        contents += '<th class=\'col-xs-5\'>{0}</th>'.format(subkeys[k]);
+                    }
                 });
                 if (keys[k].indexOf('InputData') >= 0) {
                     contents += '<th class=\'col-xs-1\'><button id=\'buttonAddData\' class=\'btn btn-xs\' type=\'button\'>Add Data</button></th>';
@@ -46,8 +50,11 @@ function load_keys_from_type_contents(item_id, location, type, call_from_node_ed
             } else {
                 contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
                 contents += '<div class=\'col-xs-1\'></div>';
-                contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
-                contents += '<div class=\'col-xs-2\'><input name=\'{0}\'/></div>'.format(keys[k]);
+                contents += '<div class=\'col-xs-11\'><label>{0}: </label></div>'.format(keys[k]);
+                contents += '</div>';
+                contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
+                contents += '<div class=\'col-xs-1\'></div>';
+                contents += '<div class=\'col-xs-11\'><input name=\'{0}\'/></div>'.format(keys[k]);
                 contents += '</div>';
             }
         });
