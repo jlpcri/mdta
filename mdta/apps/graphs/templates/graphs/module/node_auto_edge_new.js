@@ -51,11 +51,16 @@ function load_keys_from_type_contents_edge(item_id, location, type){
     });
 }
 
-$('.moduleNodeEdgeNew').on('show.bs.modal', function(){
+$('.moduleNodeEdgeNew').on('show.bs.modal', function(e){
     var node_type_id = $('.moduleNodeEdgeNew #id_type').find('option:selected').val(),
         node_location = '#module-node-edge-new-node-properties',
         edge_type_id = $('.moduleNodeEdgeNew #id_edge-type').find('option:selected').val(),
-        edge_location = '#module-node-edge-new-edge-properties';
+        edge_location = '#module-node-edge-new-edge-properties',
+        from_node_id = $(e.relatedTarget).data('from-node-id'),
+        module_id = $(e.relatedTarget).data('module-id');
+
+    $(e.currentTarget).find('input[name="from_node_id"]').val(from_node_id);
+    $(e.currentTarget).find('select[name="module"]').val(module_id);
 
     load_keys_from_type_contents_node(node_type_id, node_location, 'node');
     load_keys_from_type_contents_edge(edge_type_id, edge_location, 'edge');

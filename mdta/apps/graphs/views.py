@@ -85,40 +85,40 @@ def node_type_edit(request):
         return redirect('graphs:graphs')
 
 
-@user_passes_test(user_is_staff)
-def project_node_new(request, project_id):
-    """
-    Add new Node from apps/graphs
-    :param request:
-    :param project_id:
-    :return:
-    """
-    if request.method == 'GET':
-        project = get_object_or_404(Project, pk=project_id)
-        form = NodeNewForm(project_id=project_id)
-        context = {
-            'form': form,
-            'project': project
-        }
-
-        return render(request, 'graphs/project/node_new.html', context)
-
-    elif request.method == 'POST':
-        form = NodeNewForm(request.POST, project_id=project_id)
-        if form.is_valid():
-            node = form.save(commit=False)
-
-            properties = get_properties_for_node_or_edge(request, node.type)
-
-            node.properties = properties
-            node.save()
-
-            messages.success(request, 'Node is added.')
-        else:
-            print(form.errors)
-            messages.error(request, 'Node new Error')
-
-        return redirect('graphs:graphs')
+# @user_passes_test(user_is_staff)
+# def project_node_new(request, project_id):
+#     """
+#     Add new Node from apps/graphs
+#     :param request:
+#     :param project_id:
+#     :return:
+#     """
+#     if request.method == 'GET':
+#         project = get_object_or_404(Project, pk=project_id)
+#         form = NodeNewForm(project_id=project_id)
+#         context = {
+#             'form': form,
+#             'project': project
+#         }
+#
+#         return render(request, 'graphs/project/node_new.html', context)
+#
+#     elif request.method == 'POST':
+#         form = NodeNewForm(request.POST, project_id=project_id)
+#         if form.is_valid():
+#             node = form.save(commit=False)
+#
+#             properties = get_properties_for_node_or_edge(request, node.type)
+#
+#             node.properties = properties
+#             node.save()
+#
+#             messages.success(request, 'Node is added.')
+#         else:
+#             print(form.errors)
+#             messages.error(request, 'Node new Error')
+#
+#         return redirect('graphs:graphs')
 
 
 @user_passes_test(user_is_staff)
@@ -151,59 +151,59 @@ def edge_type_edit(request):
         return redirect('graphs:graphs')
 
 
-@user_passes_test(user_is_staff)
-def project_edge_new(request, project_id):
-    """
-    Add new Edge from apps/graphs
-    :param request:
-    :param project_id:
-    :return:
-    """
-    project = get_object_or_404(Project, pk=project_id)
-    if request.method == 'GET':
-        edge_types = EdgeType.objects.order_by('name')
-        edge_priorities = Edge.PRIORITY_CHOICES
-        project_modules = project.module_set.order_by('name')
-        first_module_nodes = project_modules[0].node_set.order_by('name')
-
-        context = {
-            'project': project,
-
-            'edge_types': edge_types,
-            'edge_priorities': edge_priorities,
-            'project_modules': project_modules,
-            'first_module_nodes': first_module_nodes,
-        }
-
-        return render(request, 'graphs/project/edge_new.html', context)
-
-    elif request.method == 'POST':
-        edge_type_id = request.POST.get('project-edge-new-type', '')
-        edge_type = get_object_or_404(EdgeType, pk=edge_type_id)
-
-        properties = get_properties_for_node_or_edge(request, edge_type)
-
-        edge_priority = request.POST.get('project-edge-new-priority', '')
-
-        edge_from_node_id = request.POST.get('project-edge-new-from-node', '')
-        edge_from_node = get_object_or_404(Node, pk=edge_from_node_id)
-
-        edge_to_node_id = request.POST.get('project-edge-new-to-node', '')
-        edge_to_node = get_object_or_404(Node, pk=edge_to_node_id)
-
-        try:
-            edge = Edge.objects.create(
-                type=edge_type,
-                priority=edge_priority,
-                from_node=edge_from_node,
-                to_node=edge_to_node,
-                properties=properties
-            )
-            messages.success(request, 'Edge is added.')
-        except (ValueError, ValidationError) as e:
-            messages.error(request, str(e))
-
-        return redirect('graphs:graphs')
+# @user_passes_test(user_is_staff)
+# def project_edge_new(request, project_id):
+#     """
+#     Add new Edge from apps/graphs
+#     :param request:
+#     :param project_id:
+#     :return:
+#     """
+#     project = get_object_or_404(Project, pk=project_id)
+#     if request.method == 'GET':
+#         edge_types = EdgeType.objects.order_by('name')
+#         edge_priorities = Edge.PRIORITY_CHOICES
+#         project_modules = project.module_set.order_by('name')
+#         first_module_nodes = project_modules[0].node_set.order_by('name')
+#
+#         context = {
+#             'project': project,
+#
+#             'edge_types': edge_types,
+#             'edge_priorities': edge_priorities,
+#             'project_modules': project_modules,
+#             'first_module_nodes': first_module_nodes,
+#         }
+#
+#         return render(request, 'graphs/project/edge_new.html', context)
+#
+#     elif request.method == 'POST':
+#         edge_type_id = request.POST.get('project-edge-new-type', '')
+#         edge_type = get_object_or_404(EdgeType, pk=edge_type_id)
+#
+#         properties = get_properties_for_node_or_edge(request, edge_type)
+#
+#         edge_priority = request.POST.get('project-edge-new-priority', '')
+#
+#         edge_from_node_id = request.POST.get('project-edge-new-from-node', '')
+#         edge_from_node = get_object_or_404(Node, pk=edge_from_node_id)
+#
+#         edge_to_node_id = request.POST.get('project-edge-new-to-node', '')
+#         edge_to_node = get_object_or_404(Node, pk=edge_to_node_id)
+#
+#         try:
+#             edge = Edge.objects.create(
+#                 type=edge_type,
+#                 priority=edge_priority,
+#                 from_node=edge_from_node,
+#                 to_node=edge_to_node,
+#                 properties=properties
+#             )
+#             messages.success(request, 'Edge is added.')
+#         except (ValueError, ValidationError) as e:
+#             messages.error(request, str(e))
+#
+#         return redirect('graphs:graphs')
 
 
 def get_keys_from_type(request):
@@ -439,19 +439,12 @@ def module_node_new(request, module_id):
 
 
 @user_passes_test(user_is_staff)
-def module_node_new_node_edge(request, node_id):
-    node = get_object_or_404(Node, pk=node_id)
-    form_node = NodeNewForm(project_id=node.module.project.id)
-    form_edge = EdgeAutoNewForm(prefix='edge')
-    context = {
-        'node': node,
-        'form_node': form_node,
-        'form_edge': form_edge
-    }
-    if request.method == 'GET':
-        return render(request, 'graphs/module/node_auto_edge_new.html', context)
-    elif request.method == 'POST':
+def module_node_new_node_edge(request):
+    if request.method == 'POST':
         # print(request.POST)
+        from_node_id = request.POST.get('from_node_id', '')
+        from_node = get_object_or_404(Node, pk=from_node_id)
+
         to_node_form = NodeNewForm(request.POST)
         edge_form = EdgeAutoNewForm(request.POST, prefix='edge')
         if to_node_form.is_valid():
@@ -467,7 +460,7 @@ def module_node_new_node_edge(request, node_id):
             edge_properties = get_properties_for_node_or_edge(request, edge.type, auto_edge=True)
 
             try:
-                edge.from_node = node
+                edge.from_node = from_node
                 edge.to_node = to_node
                 edge.properties = edge_properties
                 edge.save()
@@ -481,7 +474,7 @@ def module_node_new_node_edge(request, node_id):
             print(to_node_form.errors)
             messages.error(request, to_node_form.errors)
 
-        return redirect('graphs:project_module_detail', node.module.id)
+        return redirect('graphs:project_module_detail', from_node.module.id)
 
 
 @user_passes_test(user_is_staff)
