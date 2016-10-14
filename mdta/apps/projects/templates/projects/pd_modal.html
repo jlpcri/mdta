@@ -1,0 +1,31 @@
+<!-- Project Config Modal -->
+<div class="modal fade projectConfig" id="project-config-modal">
+    <div class="modal-dialog">
+        <form action="{% url 'projects:project_config' project.id %}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4 class="modal-title">Project Configuration</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    {{ project_config_form }}
+                    <br>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div id="projectConfigErrMessage">&nbsp;</div>
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                </div>
+                <div class="modal-footer">
+                    <input id="project_config" class="btn btn-primary" type="submit" value="Save">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

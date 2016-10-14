@@ -1,0 +1,50 @@
+{% extends 'core/base.html' %}
+
+{% block title %} Projects {% endblock %}
+
+{% block subnav %}
+    <div class="container" style="margin-top: 10px;">
+        <div class="row">
+            <H4>Project Dashboard</H4>
+        </div>
+        <div class="row" style="margin-top: 10px;">
+            <ul id="subnav-tabs" class="nav nav-tabs">
+                <li><a href="#project" data-toggle="tab">Project</a> </li>
+                <li><a href="#test_headers" data-toggle="tab">TestHeaders</a> </li>
+                <li><a href="#test_rails" data-toggle="tab">TestRails</a></li>
+                <li><a href="#node_types" data-toggle="tab">NodeTypes</a> </li>
+                <li><a href="#edge_types" data-toggle="tab">EdgeTypes</a> </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block body %}
+    <div class="tab-content">
+        <div class="tab-pane" id="project">
+            {% include 'projects/pd_project.html' %}
+        </div>
+        <div class="tab-pane" id="test_headers">
+            {% include 'projects/pd_testheaders.html' %}
+        </div>
+        <div class="tab-pane" id="test_rails">
+            {% include 'projects/pd_testrails.html' %}
+        </div>
+        <div class="tab-pane" id="node_types">
+            {% include 'projects/pd_nodetypes.html' %}
+        </div>
+        <div class="tab-pane" id="edge_types">
+            {% include 'projects/pd_edgetypes.html' %}
+        </div>
+    </div>
+    {% include 'projects/pd_modal.html' %}
+{% endblock%}
+
+{% block footer %}
+    <script>
+        $(document).ready(function(){
+            $('#subnav-tabs').find('a[href="#project"]').tab('show');
+        });
+
+    </script>
+{% endblock %}

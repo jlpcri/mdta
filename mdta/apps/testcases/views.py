@@ -13,6 +13,25 @@ from .forms import TestrailConfigurationForm
 from mdta.apps.testcases.testrail import APIClient
 
 
+@login_required
+def tcs_project(request):
+    if request.user.humanresource.project:
+        project_id = request.user.humanresource.project.id
+        project = get_object_or_404(Project, pk=project_id)
+        try:
+            testcases = project.testcaseresults_set.latest('updated').results
+        except TestCaseResults.DoesNotExist:
+            testcases = []
+    else:
+        testcases = []
+
+    context = {
+        'testcases': testcases
+    }
+
+    return render(request, 'testcases/tcs_project.html', context)
+
+
 @user_passes_test(user_is_superuser)
 def testcases(request):
     context = context_testcases()

@@ -122,9 +122,7 @@
                 <div class="collapse navbar-collapse" id="main-navbar">
                     <ul class="nav navbar-nav">
                         <li{% if active == 'home' %} class="active" {% endif %}><a href="{% url 'home' %}"><i class="fa fa-home fa-fw"></i> Home </a></li>
-{#                        <li{% if active == 'projects' %} class="active" {% endif %}><a href="{% url 'projects:projects' %}"><i class="fa fa-sitemap fa-fw"></i> Projects</a> </li>#}
-{#                        <li{% if active == 'graphs' %} class="active" {% endif %}><a href="{% url 'graphs:graphs' %}"><i class="fa fa-automobile fa-fw"></i> Graphs</a> </li>#}
-                        <li{% if active == 'testcases' %} class="active" {% endif %}><a href="{% url 'testcases:testcases' %}"><i class="fa fa-automobile fa-fw"></i> TestCases</a> </li>
+                        <li{% if active == 'testcases' %} class="active" {% endif %}><a href="{% url 'testcases:tcs_project' %}"><i class="fa fa-automobile fa-fw"></i> TestCases</a> </li>
                         <li{% if active == 'help' %} class="active" {% endif %}><a href="{% url 'help:help' %}"><i class="fa fa-thumbs-o-up"></i> Help</a> </li>
                     </ul>
 
@@ -136,13 +134,16 @@
                                 <i class="fa fa-caret-down"></i>
                             </a>
                             <ul class="dropdown-menu navbar-dropdown-menu">
-                                <li><a href="{% url 'graphs:projects_for_selection' %}"><i class="fa fa-object-group fa-fw"></i> Projects</a></li>
+                                <li><a href="{% url 'projects:project_dashboard' %}"><i class="fa fa-wrench"></i> Project Dashboard</a></li>
+                                <li><a href="{% url 'graphs:projects_for_selection' %}"><i class="fa fa-object-group fa-fw"></i> Switch Projects</a></li>
                                 {% if user.is_superuser %}
-                                    <li><a href="{% url 'projects:projects' %}"><i class="fa fa-sitemap fa-fw"></i> ProjectsOld</a></li>
-                                    <li><a href="{% url 'graphs:graphs' %}"><i class="fa fa-automobile fa-fw"></i> GraphsOld</a> </li>
-                                    <li><a href="{% url 'testcases:testcases' %}"><i class="fa fa-reorder fa-fw"></i> TestCasesOld</a> </li>
-                                    <li><a href="{% url 'users:management' %}"><i class="fa fa-wrench"></i> User Management</a> </li>
+                                    <li class="divider"></li>
+                                    <li><a href="{% url 'users:management' %}"><i class="fa fa-random"></i> User Management</a> </li>
                                     <li><a href="{% url 'admin:index' %}" target="_blank"><i class="fa fa-cogs"></i> Django Admin</a> </li>
+                                    <li class="divider"></li>
+                                    <li><a href="{% url 'projects:projects' %}"><i class="fa fa-sitemap fa-fw"></i> Previous Projects</a></li>
+                                    <li><a href="{% url 'graphs:graphs' %}"><i class="fa fa-reorder fa-fw"></i> Previous Graphs</a> </li>
+                                    <li><a href="{% url 'testcases:testcases' %}"><i class="fa fa-automobile fa-fw"></i> Previous TCs</a> </li>
                                 {% endif %}
                             </ul>
                         </li>

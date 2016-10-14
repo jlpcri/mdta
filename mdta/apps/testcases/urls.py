@@ -3,6 +3,8 @@ from django.conf.urls import url
 from mdta.apps.testcases import views
 
 urlpatterns = [
+    url(r'^$', views.tcs_project, name='tcs_project'),
+
     url(r'^testcases/$', views.testcases, name='testcases'),
     url(r'^create_testcases/(?P<object_id>\d+)/$', views.create_testcases, name='create_testcases'),
     url(r'^create_testcases_all/$', views.create_testcases_all, name='create_testcases_all'),

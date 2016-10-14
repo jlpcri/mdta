@@ -4,6 +4,8 @@ from mdta.apps.projects import views
 
 urlpatterns = [
     url(r'^$', views.projects, name='projects'),
+    url(r'^project_dashboard', views.project_dashboard, name='project_dashboard'),
+    url(r'^project_config/(?P<project_id>\d+)/$', views.project_config, name='project_config'),
     url(r'^new/$', views.project_new, name='project_new'),
     url(r'^edit/(?P<project_id>\d+)/$', views.project_edit, name='project_edit'),
 

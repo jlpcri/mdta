@@ -3,11 +3,46 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+
+from mdta.apps.graphs.models import NodeType, EdgeType
 from mdta.apps.projects.utils import context_projects, check_testheader_duplicate
 from mdta.apps.users.views import user_is_staff, user_is_superuser
+from .models import Project, Module, TestRailConfiguration
+from .forms import ProjectForm, ModuleForm, TestHeaderForm, ProjectConfigForm
 
-from .models import Project, Module
-from .forms import ProjectForm, ModuleForm, TestHeaderForm
+
+@user_passes_test(user_is_staff)
+def project_dashboard(request):
+    project = request.user.humanresource.project
+    test_headers = Module.objects.filter(project=None)
+    testrails = TestRailConfiguration.objects.all()
+    node_types = NodeType.objects.all()
+    edge_types = EdgeType.objects.all()
+    project_config_form = ProjectConfigForm(instance=project)
+
+    context = {
+        'project': project,
+        'test_headers': test_headers,
+        'testrails': testrails,
+        'node_types': node_types,
+        'edge_types': edge_types,
+        'project_config_form': project_config_form,
+    }
+
+    return render(request, 'projects/project_dashboard.html', context)
+
+
+@user_passes_test(user_is_staff)
+def project_config(request, project_id):
+    if request.method == 'POST':
+        project = get_object_or_404(Project, pk=project_id)
+        form = ProjectConfigForm(request.POST, instance=project)
+        if form.is_valid():
+            form.save()
+        else:
+            messages.error(request, form.errors)
+
+        return redirect('projects:project_dashboard')
 
 
 @user_passes_test(user_is_superuser)
@@ -40,9 +75,13 @@ def project_new(request):
         form = ProjectForm(request.POST)
         if form.is_valid():
             project = form.save()
+            hr = request.user.humanresource
+            hr.project = project
+            hr.save()
+
             messages.success(request, 'Project is added.')
 
-            return redirect('projects:projects')
+            return redirect('home')
         else:
             messages.error(request, form.errors)
 
