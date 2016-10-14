@@ -13,7 +13,7 @@ urlpatterns = [
     url(r'^module_edit/(?P<module_id>\d+)/$', views.module_edit, name='module_edit'),
 
     url(r'^test_header_new/$', views.test_header_new, name='test_header_new'),
-    url(r'^test_header_edit/(?P<test_header_id>\d+)/$', views.test_header_edit, name='test_header_edit'),
+    url(r'^test_header_edit/$', views.test_header_edit, name='test_header_edit'),
 
     url(r'^fetch_project_catalogs_members', views.fetch_project_catalogs_members, name='fetch_project_catalogs_members'),
 

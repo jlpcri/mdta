@@ -18,7 +18,9 @@ def project_dashboard(request):
     testrails = TestRailConfiguration.objects.all()
     node_types = NodeType.objects.all()
     edge_types = EdgeType.objects.all()
+
     project_config_form = ProjectConfigForm(instance=project)
+    testheader_new_form = TestHeaderForm()
 
     context = {
         'project': project,
@@ -26,7 +28,9 @@ def project_dashboard(request):
         'testrails': testrails,
         'node_types': node_types,
         'edge_types': edge_types,
+
         'project_config_form': project_config_form,
+        'testheader_new_form': testheader_new_form,
     }
 
     return render(request, 'projects/project_dashboard.html', context)
@@ -246,81 +250,48 @@ def test_header_new(request):
     :param request:
     :return:
     """
-    if request.method == 'GET':
-        form = TestHeaderForm()
-        context = {
-            'form': form
-        }
-
-        return render(request, 'projects/testheader_new.html', context)
-    elif request.method == 'POST':
-        test_headers = Module.objects.filter(project=None)
+    if request.method == 'POST':
         form = TestHeaderForm(request.POST)
         if form.is_valid():
             test_header = form.save(commit=False)
-            if check_testheader_duplicate(test_header, test_headers):
+            test_headers = Module.objects.filter(project=None).exclude(pk=test_header.id)
+            if check_testheader_duplicate(test_header.name, test_headers):
                 messages.error(request, 'Test Header name duplicated')
-                context = {
-                    'form': form
-                }
-                return render(request, 'projects/testheader_new.html', context)
             else:
                 test_header = form.save()
                 messages.success(request, 'Test Header is added')
-                return redirect('projects:projects')
         else:
             messages.error(request, form.errors)
-            context = {
-                'form': form
-            }
 
-            return render(request, 'projects/testheader_new.html', context)
+        return redirect('projects:project_dashboard')
 
 
 @user_passes_test(user_is_staff)
-def test_header_edit(request, test_header_id):
+def test_header_edit(request):
     """
     Edit Test Header
     :param request:
     :param test_header_id:
     :return:
     """
-    test_header = get_object_or_404(Module, pk=test_header_id)
+    if request.method == 'POST':
+        test_header_id = request.POST.get('editTestHeaderId', '')
+        test_header_name = request.POST.get('editTestHeaderName', '')
+        test_header = get_object_or_404(Module, pk=test_header_id)
 
-    if request.method == 'GET':
-        form = TestHeaderForm(instance=test_header)
-        context = {
-            'test_header': test_header,
-            'form': form
-        }
-
-        return render(request, 'projects/testheader_edit.html', context)
-    elif request.method == 'POST':
         if 'test_header_save' in request.POST:
-            test_headers = Module.objects.filter(project=None)
-            form = TestHeaderForm(request.POST, instance=test_header)
+            test_headers = Module.objects.filter(project=None).exclude(pk=test_header.id)
             try:
-                test_header = form.save(commit=False)
-                if check_testheader_duplicate(test_header, test_headers):
+                if check_testheader_duplicate(test_header_name, test_headers):
                     messages.error(request, 'Test Header name duplicated')
-                    context = {
-                        'test_header': test_header,
-                        'form': form
-                    }
-                    return render(request, 'projects/testheader_edit.html', context)
                 else:
-                    test_header = form.save()
+                    test_header.name = test_header_name
+                    test_header.save()
                     messages.success(request, 'Test Header is saved.')
-                    return redirect('projects:projects')
             except ValueError as e:
                 messages.error(request, str(e))
-                context = {
-                    'test_header': test_header,
-                    'form': form
-                }
 
-                return render(request, 'projects/testheader_edit.html', context)
         elif 'test_header_delete' in request.POST:
             test_header.delete()
 
-            return redirect('projects:projects')
+        return redirect('projects:project_dashboard')

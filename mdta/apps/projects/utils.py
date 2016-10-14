@@ -14,9 +14,9 @@ def context_projects():
     return context
 
 
-def check_testheader_duplicate(test_header, test_headers):
+def check_testheader_duplicate(test_header_name, test_headers):
     for item in test_headers:
-        if item.name == test_header.name and item.id != test_header.id:
+        if item.name == test_header_name:
             return True
 
     return False
