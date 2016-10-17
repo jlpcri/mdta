@@ -1,3 +1,4 @@
+from mdta.apps.graphs.forms import NodeTypeNewForm, EdgeTypeNewForm
 from mdta.apps.graphs.models import NodeType, EdgeType
 from mdta.apps.projects.forms import ProjectConfigForm
 from mdta.apps.projects.forms import TestHeaderForm
@@ -15,6 +16,8 @@ def context_project_dashboard(request):
     project_config_form = ProjectConfigForm(instance=project)
     testheader_new_form = TestHeaderForm()
     testrail_new_form = TestrailConfigurationForm()
+    node_type_new_form = NodeTypeNewForm()
+    edge_type_new_form = EdgeTypeNewForm()
 
     context = {
         'project': project,
@@ -26,6 +29,8 @@ def context_project_dashboard(request):
         'project_config_form': project_config_form,
         'testheader_new_form': testheader_new_form,
         'testrail_new_form': testrail_new_form,
+        'node_type_new_form': node_type_new_form,
+        'edge_type_new_form': edge_type_new_form,
     }
 
     return context
