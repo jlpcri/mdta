@@ -13,7 +13,9 @@
                         <tbody>
                             {% for test_header in test_headers %}
                                 <tr>
-                                    <td><a href="{% url 'projects:test_header_edit' test_header.id %}" >{{ test_header.name }} </a></td>
+                                    <td>
+                                        <a href="#" >{{ test_header.name }} </a>
+                                    </td>
                                     <td>
                                         {% for p in test_header.th_related_projects %}
                                             <a href="{% url 'projects:project_edit' p.id %}">{{ p.name }}</a>

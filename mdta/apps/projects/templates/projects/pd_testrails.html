@@ -2,7 +2,7 @@
     <div class="row" style="margin-bottom: 10px;">
         <small>
             <i class="fa fa-pencil fa-fw"></i>
-            <a href="{% url 'testcases:testrail_configuration_new' %}">New TestRail Configuration</a>
+            <a href="#" data-toggle="modal" data-target="#testrail-new-modal">New TestRail Configuration</a>
         </small>
     </div>
 
@@ -31,7 +31,7 @@
                                         <a href="{% url 'testcases:testrail_configuration_update' testrail.id %}" class="btn btn-primary btn-xs">
                                             <i class="fa fa-refresh"></i>
                                         </a> &nbsp;&nbsp;&nbsp;&nbsp;
-                                        <a href="#" class="btn btn-danger btn-xs" onclick="deleteModal('{{ testrail.project_name }}', {{ testrail.id }})">
+                                        <a href="#" class="btn btn-danger btn-xs" onclick="deleteTestrailModal('{{ testrail.project_name }}', {{ testrail.id }})">
                                             <i class="fa fa-trash-o"></i>
                                         </a>
                                     {% endif %}

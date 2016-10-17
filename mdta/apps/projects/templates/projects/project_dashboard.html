@@ -42,11 +42,7 @@
 
 {% block footer %}
     <script>
-        $(document).ready(function(){
-            $('#subnav-tabs').find('a[href="#project"]').tab('show');
-        });
-
+        var last_tab = '{{ last_tab }}';
         {% include 'projects/project_dashboard.js' %}
-
     </script>
 {% endblock %}

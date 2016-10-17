@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 
 
 from mdta.apps.projects.models import Project, Module, TestRailInstance, TestRailConfiguration
+from mdta.apps.projects.utils import context_project_dashboard
 from mdta.apps.testcases.models import TestCaseResults
 from mdta.apps.testcases.tasks import create_testcases_celery, push_testcases_to_testrail_celery
 from mdta.apps.users.views import user_is_superuser, user_is_staff
@@ -160,7 +161,10 @@ def testrail_configuration_new(request):
         else:
             messages.error(request, form.errors)
 
-        return redirect('testcases:testcases')
+        context = context_project_dashboard(request)
+        context['last_tab'] = 'test_rails'
+
+        return render(request, 'projects/project_dashboard.html', context)
 
 
 @user_passes_test(user_is_superuser)
@@ -169,7 +173,10 @@ def testrail_configuration_delete(request, testrail_id):
 
     testrail.delete()
 
-    return redirect('testcases:testcases')
+    context = context_project_dashboard(request)
+    context['last_tab'] = 'test_rails'
+
+    return render(request, 'projects/project_dashboard.html', context)
 
 
 @user_passes_test(user_is_superuser)
@@ -188,7 +195,10 @@ def testrail_configuration_update(request, testrail_id):
         testrail.test_suite = suites
         testrail.save()
 
-    return redirect('testcases:testcases')
+    context = context_project_dashboard(request)
+    context['last_tab'] = 'test_rails'
+
+    return render(request, 'projects/project_dashboard.html', context)
 
 
 @user_passes_test(user_is_staff)

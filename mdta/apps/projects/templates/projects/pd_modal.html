@@ -102,3 +102,35 @@
         </form>
     </div>
 </div>
+
+<!-- TestRail Configuration New Modal -->
+<div class="modal fade newTestRail" id="testrail-new-modal">
+    <div class="modal-dialog">
+        <form action="{% url 'testcases:testrail_configuration_new' %}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4 class="modal-title">New TestRail Configuration</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    {{ testrail_new_form }}
+                    <br>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div id="testrailNewErrMessage">&nbsp;</div>
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                </div>
+                <div class="modal-footer">
+                    <input id="testrail_new" class="btn btn-primary" type="submit" value="New TestRail">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
