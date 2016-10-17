@@ -205,9 +205,9 @@ def node_prompt(node, preceding_edge=None, match_constraint=None):
         content = 'press ' + match_constraint
     elif preceding_edge:
         if preceding_edge.type.name == 'DTMF':
-            content = 'press ' + preceding_edge.properties['Number']
+            content = 'press ' + preceding_edge.properties['Press']
         elif preceding_edge.type.name == 'Speech':
-            content = preceding_edge.properties['Response']
+            content = preceding_edge.properties['Say']
 
     return {
         'content': content,

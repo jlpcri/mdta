@@ -28,10 +28,7 @@
                     </div>
                     <div class="col-xs-6 text-right">
                         <a href="#" data-toggle="modal" data-target="#module-new-modal" class="btn btn-default">New Module</a>
-                        <a href="#" class="btn btn-default">Start Test</a>
-                        {% if user.is_superuser %}
-                            <a href="{% url 'graphs:project_publish' project.id %}" class="btn btn-success">Publish</a>
-                        {% endif %}
+                        <a href="{% url 'testcases:tcs_project' %}" class="btn btn-default">Start Test</a>
                     </div>
                 </div>
                 <div class="row">

@@ -128,7 +128,7 @@
 
                     <ul class="nav navbar-nav navbar-right">
 
-                        <li class="dropdown">
+                        <li {% if active == 'config' %} class="dropdown active" {% else %} class="dropdown"{% endif %}>
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                 MDTA Configurations
                                 <i class="fa fa-caret-down"></i>

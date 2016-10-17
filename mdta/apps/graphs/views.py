@@ -670,4 +670,4 @@ def project_publish(request, project_id):
     create_testcases_celery.delay(project.id)
     push_testcases_to_testrail_celery.delay(project.id)
 
-    return redirect('graphs:project_detail', project.id)
+    return redirect('testcases:tcs_project')

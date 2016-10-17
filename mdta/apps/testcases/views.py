@@ -25,8 +25,10 @@ def tcs_project(request):
             testcases = []
     else:
         testcases = []
+        project = None
 
     context = {
+        'project': project,
         'testcases': testcases
     }
 
