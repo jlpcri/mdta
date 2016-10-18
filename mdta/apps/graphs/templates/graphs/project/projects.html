@@ -24,12 +24,12 @@
                                     <td style="text-align: right;">{{ project.nodes_count|default:0 }}
                                     </td>
                                     <td>
-                                        <a href="{% url 'graphs:project_node_new' project.id %}"> new</a>
+{#                                        <a href="{% url 'graphs:project_node_new' project.id %}"> new</a>#}
                                     </td>
                                     <td style="text-align: right;">{{ project.edges_count|default:0 }}
                                     </td>
                                     <td>
-                                        <a href="{% url 'graphs:project_edge_new' project.id %}"> new</a>
+{#                                        <a href="{% url 'graphs:project_edge_new' project.id %}"> new</a>#}
                                     </td>
                                 </tr>
                             {% endfor %}

@@ -1,0 +1,169 @@
+<!-- Node New Modal -->
+<div class="modal fade projectNodeNew" id="module-node-new-modal">
+    <div class="modal-dialog">
+        <form action="{% url 'graphs:module_node_new' module.id %}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4 class="modal-title">Node New</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    {{ node_new_form }}
+                    <br>
+                    <div class="row" style="margin-top: 10px;">
+                        <div id="project-node-new-properties"></div>
+                    </div>
+                    <div class="row" style="margin-top: 10px;">
+                        <div id="projectNodeNewErrMessage"></div>
+                    </div>
+
+                    {% csrf_token %}
+                    <input type="hidden" name="property_data_index" value="">
+                </div>
+                <div class="modal-footer">
+                    <input id="project_node_new" class="btn btn-primary" type="submit" value="New Node">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edge New Modal -->
+<div class="modal fade projectEdgeNew" id="module-edge-new-modal">
+    <div class="modal-dialog">
+        <form action="{% url 'graphs:module_edge_new' module.id %}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4 class="modal-title">Edge New</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-xs-6">
+                            <label for="project-edge-new-from-module">From Module:</label>
+                            <select id="project-edge-new-from-module" name="project-edge-new-from-module" class="form-control">
+                                {% for item in project_modules %}
+                                    <option value="{{ item.id }}" {% if item.id == module.id %}selected{% endif %}>{{ item.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-xs-6">
+                            <label for="project-edge-new-from-node">From Node:</label>
+                            <select id="project-edge-new-from-node" name="project-edge-new-from-node" class="form-control">
+                                {% for item in current_module_nodes %}
+                                    <option value="{{ item.id }}">{{ item.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-xs-6">
+                            <label for="project-edge-new-to-module">To Module:</label>
+                            <select id="project-edge-new-to-module" name="project-edge-new-to-module" class="form-control">
+                                {% for item in project_modules %}
+                                    <option value="{{ item.id }}" {% if item.id == module.id %}selected{% endif %}>{{ item.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-xs-6">
+                            <label for="project-edge-new-to-node">To Node:</label>
+                            <select id="project-edge-new-to-node" name="project-edge-new-to-node" class="form-control">
+                                {% for item in current_module_nodes %}
+                                    <option value="{{ item.id }}">{{ item.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row" style="margin-top: 10px;">
+                        <div class="col-xs-6">
+                            <label for="project-edge-new-priority">Priority:</label>
+                            <select id="project-edge-new-priority" name="project-edge-new-priority" class="form-control">
+                                {% for item in edge_priorities %}
+                                    <option value="{{ item.0 }}">{{ item.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row" style="margin-top: 10px;">
+                        <div class="col-xs-6">
+                            <label for="project-edge-new-type">Type:</label>
+                            <select id="project-edge-new-type" name="project-edge-new-type" class="form-control">
+                                {% for item in edge_types %}
+                                    <option value="{{ item.id }}">{{ item.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-xs-6">
+                            <div id="project-edge-new-properties"></div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top: 10px;">
+                        <div id="projectEdgeNewErrMessage"></div>
+                    </div>
+
+                    {% csrf_token %}
+                </div>
+                <div class="modal-footer">
+                    <input id="project_edge_new" class="btn btn-primary" type="submit" value="New Edge">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Node&Edge New Modal -->
+<div class="modal fade moduleNodeEdgeNew" id="module-node-edge-new-modal">
+    <div class="modal-dialog">
+        <form action="{% url 'graphs:module_node_new_node_edge' %}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4 class="modal-title">Node&Edge New</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <legend>Node</legend>
+                    {{ node_new_node_form }}
+					<div class="row" style="margin-top: 10px;">
+						<div id="module-node-edge-new-node-properties"></div>
+					</div>
+
+                    <legend>Edge</legend>
+
+                    {{ node_new_edge_form }}
+					<div class="row" style="margin-top: 10px;">
+						<div id="module-node-edge-new-edge-properties"></div>
+					</div>
+					<div class="row" style="margin-top: 10px;">
+						<div id="moduleNodeEdgeNewErrMessage"></div>
+					</div>
+
+					{% csrf_token %}
+                    <input type="hidden" name="from_node_id" value="">
+					<input type="hidden" name="node_property_data_index" value="">
+					<input type="hidden" name="edge_property_data_index" value="">
+                </div>
+                <div class="modal-footer">
+                     <input id="module_node_edge_new" class="btn btn-primary" type="submit" value="New Node&Edge">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

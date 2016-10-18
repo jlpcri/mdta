@@ -1,0 +1,307 @@
+<!-- Project Config Modal -->
+<div class="modal fade projectConfig" id="project-config-modal">
+    <div class="modal-dialog">
+        <form action="{% url 'projects:project_config' project.id %}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4 class="modal-title">Project Configuration</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    {{ project_config_form }}
+                    <br>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div id="projectConfigErrMessage">&nbsp;</div>
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                </div>
+                <div class="modal-footer">
+                    <input id="project_config" class="btn btn-primary" type="submit" value="Save">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- TestHeader New Modal -->
+<div class="modal fade newTestHeader" id="testheader-new-modal">
+    <div class="modal-dialog">
+        <form action="{% url 'projects:test_header_new' %}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4 class="modal-title">New TestHeader</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    {{ testheader_new_form }}
+                    <br>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div id="testheaderNewErrMessage">&nbsp;</div>
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                </div>
+                <div class="modal-footer">
+                    <input id="testheader_new" class="btn btn-primary" type="submit" value="New TestHeader">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- TestHeader Edit Modal -->
+<div class="modal fade editTestHeader" id="testheader-edit-modal">
+    <div class="modal-dialog">
+        <form action="{% url 'projects:test_header_edit' %}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4 class="modal-title">Edit TestHeader</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="editTestHeaderName">Name:</label>
+                            <input type="text" class="form-control input-sm" name="editTestHeaderName" id="editTestHeaderName">
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div id="testheaderEditErrMessage">&nbsp;</div>
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                    <input type="hidden" name="editTestHeaderId" value="">
+                </div>
+                <div class="modal-footer">
+                    <input name="test_header_save" class="btn btn-primary" type="submit" value="Save">
+                    {% if user.is_superuser %}
+                        <input name="test_header_delete" class="btn btn-danger" type="submit" value="Delete">
+                    {% endif %}
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- TestRail Configuration New Modal -->
+<div class="modal fade newTestRail" id="testrail-new-modal">
+    <div class="modal-dialog">
+        <form action="{% url 'testcases:testrail_configuration_new' %}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4 class="modal-title">New TestRail Configuration</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    {{ testrail_new_form }}
+                    <br>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div id="testrailNewErrMessage">&nbsp;</div>
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                </div>
+                <div class="modal-footer">
+                    <input id="testrail_new" class="btn btn-primary" type="submit" value="New TestRail">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Node Type New Modal -->
+<div class="modal fade newNodeType" id="node-type-new-modal">
+    <div class="modal-dialog">
+        <form action="{% url 'graphs:node_type_new' %}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4 class="modal-title">Node Type New</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    {{ node_type_new_form }}
+                    <br>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div id="newNodeTypeErrMessage">&nbsp;</div>
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                </div>
+                <div class="modal-footer">
+                    <input id="node_type_new" class="btn btn-primary" type="submit" value="New Node Type">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- Node Type Edit Modal -->
+<div class="modal fade editNodeType" id="node-type-edit-modal">
+    <div class="modal-dialog">
+        <form action="{% url 'graphs:node_type_edit' %}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <h4 class="modal-title"></h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="editNodeTypeName">Name:</label>
+                            <input type="text" class="form-control input-sm" name="editNodeTypeName" id="editNodeTypeName">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="editNodeTypeKeys">Keys(Separated with comma):</label>
+                            <input type="text" class="form-control input-sm" name="editNodeTypeKeys" id="editNodeTypeKeys">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="editNodeTypeSubKeys">SubKeys(Separated with comma):</label>
+                            <input type="text" class="form-control input-sm" name="editNodeTypeSubKeys" id="editNodeTypeSubKeys">
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-xs-10">
+                            <div id="editNodeTypeErrMessage">&nbsp;</div>
+                        </div>
+                        <div class="col-xs-1">
+                            <input type="hidden" name="editNodeTypeId">
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                </div>
+                <div class="modal-footer">
+                    <input id="node_type_edit" class="btn btn-primary" type="submit" value="Save Node Type">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- Edge Type New Modal -->
+<div class="modal fade newEdgeType" id="edge-type-new-modal">
+    <div class="modal-dialog">
+        <form action="{% url 'graphs:edge_type_new' %}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4 class="modal-title">Edge Type New</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    {{ edge_type_new_form }}
+                    <br>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div id="newEdgeTypeErrMessage">&nbsp;</div>
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                </div>
+                <div class="modal-footer">
+                    <input id="edge_type_new" class="btn btn-primary" type="submit" value="New Edge Type">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- Edge Type Edit Modal -->
+<div class="modal fade editEdgeType" id="edge-type-edit-modal">
+    <div class="modal-dialog">
+        <form action="{% url 'graphs:edge_type_edit' %}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <h4 class="modal-title"></h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="editEdgeTypeName">Name:</label>
+                            <input type="text" class="form-control input-sm" name="editEdgeTypeName" id="editEdgeTypeName">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="editEdgeTypeKeys">Keys(Separated with comma):</label>
+                            <input type="text" class="form-control input-sm" name="editEdgeTypeKeys" id="editEdgeTypeKeys">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="editEdgeTypeSubKeys">SubKeys(Separated with comma):</label>
+                            <input type="text" class="form-control input-sm" name="editEdgeTypeSubKeys" id="editEdgeTypeSubKeys">
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-xs-10">
+                            <div id="editEdgeTypeErrMessage">&nbsp;</div>
+                        </div>
+                        <div class="col-xs-1">
+                            <input type="hidden" name="editEdgeTypeId">
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                </div>
+                <div class="modal-footer">
+                    <input id="edge_type_edit" class="btn btn-primary" type="submit" value="Save Edge Type">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

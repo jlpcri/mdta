@@ -17,9 +17,13 @@ from django.conf.urls import url, include
 from django.contrib import admin
 
 from mdta.apps.core.views import landing
+from mdta.apps.graphs.views import home
+from mdta.apps.users.views import intro
 
 urlpatterns = [
     url(r'^mdta/$', landing, name='landing'),
+    url(r'^mdta/intro/$', intro, name='intro'),
+    url(r'^mdta/home/$', home, name='home'),
     url(r'^mdta/projects/', include('mdta.apps.projects.urls', namespace='projects')),
     url(r'^mdta/graphs/', include('mdta.apps.graphs.urls', namespace='graphs')),
     url(r'^mdta/users/', include('mdta.apps.users.urls', namespace='users')),
