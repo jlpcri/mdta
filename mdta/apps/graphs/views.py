@@ -11,7 +11,7 @@ from mdta.apps.projects.models import Project, Module
 from mdta.apps.projects.utils import context_project_dashboard
 from mdta.apps.users.views import user_is_staff, user_is_superuser
 from .models import NodeType, EdgeType, Node, Edge
-from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeNewForm, EdgeAutoNewForm
+from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeAutoNewForm
 from mdta.apps.projects.forms import ModuleForm
 from mdta.apps.testcases.utils import START_NODE_NAME
 from mdta.apps.testcases.tasks import create_testcases_celery, push_testcases_to_testrail_celery
@@ -80,8 +80,8 @@ def node_type_edit(request):
     :param request:
     :return:
     """
-    id = request.POST.get('editNodeTypeId', '')
-    node_type = get_object_or_404(NodeType, pk=id)
+    type_id = request.POST.get('editNodeTypeId', '')
+    node_type = get_object_or_404(NodeType, pk=type_id)
 
     if request.method == 'POST':
         node_or_edge_type_edit(request, node_type)
@@ -152,8 +152,8 @@ def edge_type_edit(request):
     :param request:
     :return:
     """
-    id = request.POST.get('editEdgeTypeId', '')
-    edge_type = get_object_or_404(EdgeType, pk=id)
+    type_id = request.POST.get('editEdgeTypeId', '')
+    edge_type = get_object_or_404(EdgeType, pk=type_id)
 
     if request.method == 'POST':
         node_or_edge_type_edit(request, edge_type)
@@ -225,12 +225,12 @@ def get_keys_from_type(request):
     :param request:
     :return:
     """
-    id = request.GET.get('id', '')
-    type = request.GET.get('type', '')
-    if type == 'node':
-        item = get_object_or_404(NodeType, pk=id)
+    object_id = request.GET.get('id', '')
+    object_type = request.GET.get('type', '')
+    if object_type == 'node':
+        item = get_object_or_404(NodeType, pk=object_id)
     else:
-        item = get_object_or_404(EdgeType, pk=id)
+        item = get_object_or_404(EdgeType, pk=object_id)
 
     data = {
         'keys': item.keys,
@@ -498,7 +498,7 @@ def module_node_edit(request, node_id):
     """
     Edit node from module view
     :param request:
-    :param module_id:
+    :param node_id:
     :return:
     """
     if request.method == 'POST':
@@ -551,7 +551,7 @@ def module_edge_new(request, module_id):
         edge_to_node = get_object_or_404(Node, pk=edge_to_node_id)
 
         try:
-            edge = Edge.objects.create(
+            Edge.objects.create(
                 type=edge_type,
                 priority=edge_priority,
                 from_node=edge_from_node,
@@ -570,7 +570,7 @@ def module_edge_edit(request, edge_id):
     """
     Edit edge from module view
     :param request:
-    :param module_id:
+    :param edge_id:
     :return:
     """
     if request.method == 'POST':

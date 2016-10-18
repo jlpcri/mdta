@@ -242,4 +242,3 @@ def get_item_properties(item):
                 data += key
 
     return data
-
