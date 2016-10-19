@@ -20,4 +20,7 @@ function showErrMsg(location, msg){
     $(location).html('Error: ' + msg);
 }
 
+$('.cursorWait').click(function(){
+    $('body').css('cursor', 'wait');
+});
 

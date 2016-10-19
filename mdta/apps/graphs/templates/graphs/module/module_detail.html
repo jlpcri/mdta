@@ -23,7 +23,7 @@
                 <div class="row">
                     <div class="col-xs-6">
                         {% if module.project %}
-                            <h4>Project: <a href="{% url 'graphs:project_detail' module.project.id %}">{{ module.project.name }}</a> - Module: {{ module.name }}</h4>
+                            <h4>Project: <a href="{% url 'graphs:project_detail' module.project.id %}" class="cursorWait">{{ module.project.name }}</a> - Module: {{ module.name }}</h4>
                         {% else %}
                             <h4>Test Header - {{ module.name }}</h4>
                         {% endif %}

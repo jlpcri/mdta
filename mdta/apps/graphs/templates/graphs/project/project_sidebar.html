@@ -93,7 +93,7 @@
             <ul class="list-group">
                 {% for p in projects %}
                     <li class="list-group-item">
-                        <a href="{% url 'graphs:project_detail' p.id %}">{{ p.name }}</a>
+                        <a href="{% url 'graphs:project_detail' p.id %}" class="cursorWait">{{ p.name }}</a>
                     </li>
                 {% endfor %}
                 <hr/>

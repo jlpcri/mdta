@@ -83,6 +83,7 @@ function draw_project_graph() {
                 current += tmp[i] + '/'
             }
             window.location.href = current + 'project_module_detail/' + params.nodes;
+            $('body').css('cursor', 'wait');
         } else if (!$.isEmptyObject(params.edges)){
             //console.log(params.edges)
             $('a[href="#projectEdges"]').click();
