@@ -658,6 +658,17 @@ def get_nodes_from_module(request):
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
+def get_module_id_from_node_id(request):
+    node_id = request.GET.get('node_id', '')
+    node = get_object_or_404(Node, pk=node_id)
+
+    data = {
+        'module_id': node.module.id
+    }
+
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
 @user_passes_test(user_is_staff)
 def project_publish(request, project_id):
     """
