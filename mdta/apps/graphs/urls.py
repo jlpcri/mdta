@@ -28,5 +28,6 @@ urlpatterns = [
 
     url(r'^get_keys_from_type/$', views.get_keys_from_type, name='get_keys_from_type'),
     url(r'^get_nodes_from_module/$', views.get_nodes_from_module, name='get_nodes_from_module'),
+    url(r'^get_module_id_from_node_id/$', views.get_module_id_from_node_id, name='get_module_id_from_node_id'),
 
 ]

@@ -1,6 +1,6 @@
 import json
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import user_passes_test
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
@@ -246,7 +246,7 @@ def test_header_new(request):
                 messages.error(request, 'Test Header name duplicated')
             else:
                 test_header = form.save()
-                messages.success(request, 'Test Header is added')
+                messages.success(request, 'Test Header {0} is added'.format(test_header.name))
         else:
             messages.error(request, form.errors)
 
@@ -261,7 +261,6 @@ def test_header_edit(request):
     """
     Edit Test Header
     :param request:
-    :param test_header_id:
     :return:
     """
     if request.method == 'POST':
