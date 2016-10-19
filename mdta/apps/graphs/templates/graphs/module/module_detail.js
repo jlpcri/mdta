@@ -119,7 +119,7 @@ function draw_module_graph(){
                 }
                 if (!( data['module_id'] == current_module_id)){
                     window.location.href = base_url + data['module_id'];
-                     $('body').css('cursor', 'wait');
+                     $('body').css('cursor', 'progress');
                 }
             })
         }

@@ -82,8 +82,9 @@ function draw_project_graph() {
             for (var i = 0; i < tmp.length - 3; i++) {
                 current += tmp[i] + '/'
             }
+            $('#module_in_project').css('cursor', 'progress');
             window.location.href = current + 'project_module_detail/' + params.nodes;
-            $('body').css('cursor', 'wait');
+
         } else if (!$.isEmptyObject(params.edges)){
             //console.log(params.edges)
             $('a[href="#projectEdges"]').click();
