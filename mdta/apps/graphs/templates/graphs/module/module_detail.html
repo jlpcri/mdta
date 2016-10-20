@@ -174,7 +174,17 @@
                                                                 <tr>
                                                                     <td>{{ edge.to_node.name }}</td>
                                                                     <td>{{ edge.priority }}</td>
-                                                                    <td>{{ edge.properties }}</td>
+                                                                    <td>
+                                                                        {% if edge.type.name in 'Data, PreCondition' %}
+                                                                            {% if edge.type.subkeys_data_name == 'Outputs' %}
+                                                                                {{ edge.properties.OutputData.Outputs }}
+                                                                            {% else %}
+                                                                                {{ edge.properties.OutputData.Condition }}
+                                                                            {% endif %}
+                                                                        {% else %}
+                                                                            {{ edge.properties }}
+                                                                        {% endif %}
+                                                                    </td>
                                                                 </tr>
                                                             {% endfor %}
                                                         </tbody>
@@ -200,7 +210,17 @@
                                                                 <tr>
                                                                     <td>{{ edge.from_node.name }}</td>
                                                                     <td>{{ edge.priority }}</td>
-                                                                    <td>{{ edge.properties }}</td>
+                                                                    <td>
+                                                                        {% if edge.type.name in 'Data, PreCondition' %}
+                                                                            {% if edge.type.subkeys_data_name == 'Outputs' %}
+                                                                                {{ edge.properties.OutputData.Outputs }}
+                                                                            {% else %}
+                                                                                {{ edge.properties.OutputData.Condition }}
+                                                                            {% endif %}
+                                                                        {% else %}
+                                                                            {{ edge.properties }}
+                                                                        {% endif %}
+                                                                    </td>
                                                                 </tr>
                                                             {% endfor %}
                                                         </tbody>
