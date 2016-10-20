@@ -339,8 +339,6 @@ def project_module_detail(request, module_id):
     network_nodes = []
 
     outside_module_node_color = 'rgb(211, 211, 211)'
-    start_node_shape = 'star'
-    normal_node_shape = 'box'
 
     for edge in module.edges_all:
         network_edges.append({
@@ -350,19 +348,22 @@ def project_module_detail(request, module_id):
         })
 
     for node in module.nodes_all:
-        if node.module != module:
-            network_nodes.append({
-                'id': node.id,
-                'label': node.name,
-                'color': outside_module_node_color,
-                'shape': start_node_shape if node.type.name in START_NODE_NAME else normal_node_shape
-            })
+        if node.type.name in START_NODE_NAME:
+            shape = 'star'
+        elif node.type.name in ['DataQueries Database', 'DataQueries WebService']:
+            shape = 'ellipse'
         else:
-            network_nodes.append({
-                'id': node.id,
-                'label': node.name,
-                'shape': start_node_shape if node.type.name in START_NODE_NAME else normal_node_shape
-            })
+            shape = 'box'
+
+        tmp = {
+            'id': node.id,
+            'label': node.name,
+            'shape': shape
+        }
+        if node.module != module:
+            tmp['color'] = outside_module_node_color
+
+        network_nodes.append(tmp)
 
     # print(module.nodes)
 
