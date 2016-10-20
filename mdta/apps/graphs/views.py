@@ -365,6 +365,40 @@ def project_module_detail(request, module_id):
 
         network_nodes.append(tmp)
 
+    # # try use custom icon for nodes
+    # image_url = 'http://apps.qaci01.wic.west.com/static/common/brand_icons/turnpost-png-graphics/'
+    # for node in module.nodes_all:
+    #     if node.type.name in START_NODE_NAME:
+    #         tmp = {
+    #             'id': node.id,
+    #             'label': node.name,
+    #             'shape': 'star'
+    #         }
+    #     else:
+    #         tmp = {
+    #             'id': node.id,
+    #             'label': node.name,
+    #             'shape': 'image',
+    #         }
+    #
+    #         if node.type.name == 'DataQueries Database':
+    #             tmp['image'] = image_url + 'mdta_database.png'
+    #         elif node.type.name == 'DataQueries WebService':
+    #             tmp['image'] = image_url + 'mdta_api_web_service.png'
+    #         elif node.type.name == 'Play Prompt':
+    #             tmp['image'] = image_url + 'mdta_play_prompt.png'
+    #         elif node.type.name == 'Menu Prompt':
+    #             tmp['image'] = image_url + 'mdta_menu_prompt.png'
+    #         elif node.type.name == 'Menu Prompt with Confirmation':
+    #             tmp['image'] = image_url + 'mdta_menu_prompt_with_confirm.png'
+    #         elif node.type.name == 'TestHeader End':
+    #             tmp['image'] = image_url + 'mdta_return.png'
+    #
+    #     if node.module != module:
+    #         tmp['color'] = outside_module_node_color
+    #
+    #     network_nodes.append(tmp)
+
     # print(module.nodes)
 
     node_new_form = NodeNewForm(module_id=module.id)
