@@ -42,6 +42,7 @@
                     <ul class="nav nav-tabs">
                         <li><a href="#moduleNodeEdit" data-toggle="tab">Node</a></li>
                         <li><a href="#moduleEdgeEdit" data-toggle="tab">Edge</a> </li>
+                        <li><a href="#moduleNodeEdgeEmpty" data-toggle="tab">NodeEdgeEmpty</a></li>
                     </ul>
                 </div>
 
@@ -174,7 +175,17 @@
                                                                 <tr>
                                                                     <td>{{ edge.to_node.name }}</td>
                                                                     <td>{{ edge.priority }}</td>
-                                                                    <td>{{ edge.properties }}</td>
+                                                                    <td>
+                                                                        {% if edge.type.name in 'Data, PreCondition' %}
+                                                                            {% if edge.type.subkeys_data_name == 'Outputs' %}
+                                                                                {{ edge.properties.OutputData.Outputs }}
+                                                                            {% else %}
+                                                                                {{ edge.properties.OutputData.Condition }}
+                                                                            {% endif %}
+                                                                        {% else %}
+                                                                            {{ edge.properties }}
+                                                                        {% endif %}
+                                                                    </td>
                                                                 </tr>
                                                             {% endfor %}
                                                         </tbody>
@@ -200,7 +211,17 @@
                                                                 <tr>
                                                                     <td>{{ edge.from_node.name }}</td>
                                                                     <td>{{ edge.priority }}</td>
-                                                                    <td>{{ edge.properties }}</td>
+                                                                    <td>
+                                                                        {% if edge.type.name in 'Data, PreCondition' %}
+                                                                            {% if edge.type.subkeys_data_name == 'Outputs' %}
+                                                                                {{ edge.properties.OutputData.Outputs }}
+                                                                            {% else %}
+                                                                                {{ edge.properties.OutputData.Condition }}
+                                                                            {% endif %}
+                                                                        {% else %}
+                                                                            {{ edge.properties }}
+                                                                        {% endif %}
+                                                                    </td>
                                                                 </tr>
                                                             {% endfor %}
                                                         </tbody>
@@ -350,6 +371,8 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="tab-pane" id="moduleNodeEdgeEmpty"></div>
                 </div>
             </div>
         </div>

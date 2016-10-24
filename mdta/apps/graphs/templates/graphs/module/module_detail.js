@@ -89,7 +89,12 @@ function draw_module_graph(){
             arrows: 'to'
         },
         width: '100%',
-        height: '800px'
+        height: '800px',
+        physics: {
+            barnesHut: {
+                gravitationalConstant: -4000
+            }
+        }
     };
 
     // initialize your network!
@@ -103,6 +108,8 @@ function draw_module_graph(){
         } else if (!$.isEmptyObject(params.edges)) {
             $('a[href="#moduleEdgeEdit"]').click();
             $('a[href="#edge-{0}"]'.format(params.edges)).click();
+        } else {
+            $('a[href="#moduleNodeEdgeEmpty"]').click();
         }
     });
 
