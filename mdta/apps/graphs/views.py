@@ -397,7 +397,7 @@ def project_module_detail(request, module_id):
                     tmp['image'] = image_url + 'mdta_return.png'
 
             if node.module != module:
-                tmp['color'] = outside_module_node_color
+                tmp['shadow'] = 'true'
 
             network_nodes.append(tmp)
 
