@@ -92,7 +92,7 @@ function draw_module_graph(){
         height: '800px',
         physics: {
             barnesHut: {
-                gravitationalConstant: -4000
+                gravitationalConstant: -2000
             }
         }
     };
