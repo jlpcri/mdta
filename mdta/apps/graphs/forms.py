@@ -33,7 +33,7 @@ class NodeNewForm(ModelForm):
 
     class Meta:
         model = Node
-        fields = ['module', 'type', 'name']
+        fields = ['module', 'name', 'type']
         widgets = {
             'module': forms.Select(attrs={'class': 'form-control'}),
             'type': forms.Select(attrs={'class': 'form-control'}),
@@ -87,11 +87,11 @@ class EdgeAutoNewForm(ModelForm):
 
     class Meta:
         model = Edge
-        fields = ['type', 'priority']
+        fields = ['priority', 'type']
         widgets = {
             'type': forms.Select(attrs={
                 'class': 'form-control',
-                'id': 'id_edge_type'
+                # 'id': 'id_edge_type'
             }),
             'priority': forms.Select(attrs={'class': 'form-control'}),
         }

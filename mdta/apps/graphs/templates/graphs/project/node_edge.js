@@ -57,7 +57,6 @@ $('.projectEdgeNew #project-edge-new-to-module').on('change', function(){
 $('.projectEdgeNew').on('submit', function(){
     var data = '',
         edge_type_project = $('#project-edge-new-type option:selected').text(),
-        edge_type_module = $('#id_type option:selected').text(),
         location = '#projectEdgeNewErrMessage',
         properties = $('#project-edge-new-properties input'),
         properties_no_input = true;
@@ -70,11 +69,6 @@ $('.projectEdgeNew').on('submit', function(){
     });
 
     if ((properties_no_input && edge_type_project != 'Connector') && edge_type_project) {
-        showErrMsg(location, 'Please Input property');
-        return false;
-    }
-
-    if ((properties_no_input && edge_type_module != 'Connector') && edge_type_module) {
         showErrMsg(location, 'Please Input property');
         return false;
     }

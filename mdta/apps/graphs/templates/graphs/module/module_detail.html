@@ -29,8 +29,8 @@
                         {% endif %}
                     </div>
                     <div class="col-xs-3 pull-right">
-                        <a href="{% url 'graphs:module_node_new' module.id %}" class="btn btn-default">New Node</a>
-                        <a href="{% url 'graphs:module_edge_new' module.id %}" class="btn btn-default">New Edge</a>
+                        <a href="#" data-toggle="modal" data-target="#module-node-new-modal" class="btn btn-default">New Node</a>
+                        <a href="#" data-toggle="modal" data-target="#module-edge-new-modal" class="btn btn-default">New Edge</a>
                     </div>
                 </div>
                 <div class="row">
@@ -42,6 +42,7 @@
                     <ul class="nav nav-tabs">
                         <li><a href="#moduleNodeEdit" data-toggle="tab">Node</a></li>
                         <li><a href="#moduleEdgeEdit" data-toggle="tab">Edge</a> </li>
+                        <li><a href="#moduleNodeEdgeEmpty" data-toggle="tab">NodeEdgeEmpty</a></li>
                     </ul>
                 </div>
 
@@ -73,6 +74,13 @@
                                         </div>
 
                                         <form method="post" action="{% url 'graphs:module_node_edit' item.id %}" class="moduleNodeEditForm">
+                                            <div class="row" style="margin-top: 5px;">
+                                                <div class="col-xs-12">
+                                                    <label for="moduleNodeEditName">Name:</label>
+                                                    <input type="text" class="form-control" name="moduleNodeEditName" id="moduleNodeEditName" value="{{ item.name }}">
+                                                </div>
+                                            </div>
+
                                             <div class="row">
                                                 <div class="col-xs-12">
                                                     <label for="moduleNodeEditType">Type:</label>
@@ -83,19 +91,13 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="row" style="margin-top: 5px;">
-                                                <div class="col-xs-12">
-                                                    <label for="moduleNodeEditName">Name:</label>
-                                                    <input type="text" class="form-control" name="moduleNodeEditName" id="moduleNodeEditName" value="{{ item.name }}">
-                                                </div>
-                                            </div>
+
+                                            <hr>
                                             <div class="row">
                                                 <div class="col-xs-12" >
-                                                    <h5>Node Properties:</h5>
                                                     <div id="module-node-edit-properties">
                                                         {% for key, value in item.properties.items %}
                                                             {% if key == 'InputData' %}
-                                                                <label style="margin-top: 5px;">{{ key }}:</label>
                                                                 <table class="table moduleNodeEditPropertyTable" id="node-property-table-{{ item.id }}">
                                                                     <thead>
                                                                         <tr>
@@ -110,22 +112,6 @@
                                                                                 <td><input name="Inputs_{{ forloop.counter0 }}" value="{{ rec.Inputs }}"></td>
                                                                                 <td><input name="Outputs_{{ forloop.counter0 }}" value="{{ rec.Outputs }}"> </td>
                                                                                 <td class="text-center"><a href="#" onclick="deleteRow(this);"><i class="fa fa-trash-o fa-lg"></i> </a> </td>
-                                                                            </tr>
-                                                                        {% endfor %}
-                                                                    </tbody>
-                                                                </table>
-                                                            {% elif key == 'OutputData' %}
-                                                                <label style="margin-top: 5px;">{{ key }}:</label>
-                                                                <table class="table moduleNodeEditPropertyTable" id="node-property-table">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <td>Outputs</td>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        {% for rec in item.properties.OutputData %}
-                                                                            <tr id="{{ forloop.counter0 }}">
-                                                                                <td><input name="Outputs_{{ forloop.counter0 }}" value="{{ rec.Outputs }}"> </td>
                                                                             </tr>
                                                                         {% endfor %}
                                                                     </tbody>
@@ -163,7 +149,11 @@
                                                 <div class="col-xs-12">
                                                     <button type="submit" name="node_save" class="btn btn-primary param-save">Save</button>
                                                     <button type="submit" name="node_delete" class="btn btn-danger param-delete">Delete</button>
-                                                    <a href="{% url 'graphs:module_node_new_node_edge' item.id %}" class="btn btn-primary" >NewNode</a>
+                                                    <a href="#" data-toggle="modal"
+                                                       data-target="#module-node-edge-new-modal"
+                                                       data-from-node-id="{{ item.id }}"
+                                                       data-module-id="{{ module.id }}"
+                                                       class="btn btn-primary" >NewNode</a>
                                                 </div>
                                             </div>
                                         </form>
@@ -185,7 +175,17 @@
                                                                 <tr>
                                                                     <td>{{ edge.to_node.name }}</td>
                                                                     <td>{{ edge.priority }}</td>
-                                                                    <td>{{ edge.properties }}</td>
+                                                                    <td>
+                                                                        {% if edge.type.name in 'Data, PreCondition' %}
+                                                                            {% if edge.type.subkeys_data_name == 'Outputs' %}
+                                                                                {{ edge.properties.OutputData.Outputs }}
+                                                                            {% else %}
+                                                                                {{ edge.properties.OutputData.Condition }}
+                                                                            {% endif %}
+                                                                        {% else %}
+                                                                            {{ edge.properties }}
+                                                                        {% endif %}
+                                                                    </td>
                                                                 </tr>
                                                             {% endfor %}
                                                         </tbody>
@@ -211,7 +211,17 @@
                                                                 <tr>
                                                                     <td>{{ edge.from_node.name }}</td>
                                                                     <td>{{ edge.priority }}</td>
-                                                                    <td>{{ edge.properties }}</td>
+                                                                    <td>
+                                                                        {% if edge.type.name in 'Data, PreCondition' %}
+                                                                            {% if edge.type.subkeys_data_name == 'Outputs' %}
+                                                                                {{ edge.properties.OutputData.Outputs }}
+                                                                            {% else %}
+                                                                                {{ edge.properties.OutputData.Condition }}
+                                                                            {% endif %}
+                                                                        {% else %}
+                                                                            {{ edge.properties }}
+                                                                        {% endif %}
+                                                                    </td>
                                                                 </tr>
                                                             {% endfor %}
                                                         </tbody>
@@ -243,6 +253,49 @@
                                         <form method="post" action="{% url 'graphs:module_edge_edit' item.id %}" class="moduleEdgeEditForm">
                                             <div class="row">
                                                 <div class="col-xs-12">
+                                                    <label for="moduleEdgeEditFromNode">FromNode:</label>
+                                                    <select class="form-control" id="moduleEdgeEditFromNode" name="moduleEdgeEditFromNode">
+                                                        {% if module.project %}
+                                                            {% for node in module.project.nodes %}
+                                                                <option value="{{ node.id }}" {% if item.from_node.id == node.id %}selected{% endif %}>{{ node.module.name }}:{{ node.name }}</option>
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            {% for node in module.nodes %}
+                                                                <option value="{{ node.id }}" {% if item.from_node.id == node.id %}selected{% endif %}>{{ node.module.name }}:{{ node.name }}</option>
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <label for="moduleEdgeEditToNode">ToNode:</label>
+                                                    <select class="form-control" id="moduleEdgeEditToNode" name="moduleEdgeEditToNode">
+                                                        {% if module.project %}
+                                                            {% for node in module.project.nodes %}
+                                                                <option value="{{ node.id }}" {% if item.to_node.id == node.id %}selected{% endif %}>{{ node.module.name }}:{{ node.name }}</option>
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            {% for node in module.nodes %}
+                                                                <option value="{{ node.id }}" {% if item.to_node.id == node.id %}selected{% endif %}>{{ node.module.name }}:{{ node.name }}</option>
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <label for="moduleEdgeEditPriority">Priority:</label>
+                                                    <select class="form-control" id="moduleEdgeEditPriority" name="moduleEdgeEditPriority">
+                                                        {% for priority in edge_priorities %}
+                                                            <option value="{{ priority.0 }}" {% if item.priority == priority.0 %}selected{% endif %}>{{ priority.1 }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-xs-12">
                                                     <label for="moduleEdgeEditType">Type:</label>
                                                     <select class="form-control " id="moduleEdgeEditType" name="moduleEdgeEditType">
                                                         {% for type in edge_types %}
@@ -251,74 +304,41 @@
                                                     </select>
                                                 </div>
                                             </div>
-                                            <div class="row">
-                                                <div class="col-xs-12">
-                                                    <label for="moduleEdgeEditFromNode">FromNode:</label>
-                                                    <select class="form-control" id="moduleEdgeEditFromNode" name="moduleEdgeEditFromNode">
-                                                        {% for node in module.nodes_all %}
-                                                            <option value="{{ node.id }}" {% if item.from_node.id == node.id %}selected{% endif %}>{{ node.name }}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-xs-12">
-                                                    <label for="moduleEdgeEditToNode">ToNode:</label>
-                                                    <select class="form-control" id="moduleEdgeEditToNode" name="moduleEdgeEditToNode">
-                                                        {% for node in module.nodes_all %}
-                                                            <option value="{{ node.id }}" {% if item.to_node.id == node.id %}selected{% endif %}>{{ node.name }}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div class="row">
-                                                <div class="col-xs-12">
-                                                    <label for="moduleEdgeEditPriority">Priority:</label>
-                                                    <select class="form-control" id="moduleEdgeEditPriority" name="moduleEdgeEditPriority">
-                                                        {% for priority in edge_priority %}
-                                                            <option value="{{ priority.0 }}" {% if item.priority == priority.0 %}selected{% endif %}>{{ priority.1 }}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                            </div>
 
+                                            <hr>
                                             <div class="row">
                                                 <div class="col-xs-12" >
-                                                    <h5>Edge Properties:</h5>
                                                     <div id="module-edge-edit-properties">
                                                         {% for key, value in item.properties.items %}
                                                             {% if key == 'OutputData' %}
-                                                                <label style="margin-top: 5px;">{{ key }}:</label>
                                                                 {% for subkey, subvalue in item.properties.OutputData.items %}
                                                                     <div class="row" style="margin-top: 5px;">
                                                                         <div class="col-xs-1"></div>
-                                                                        <div class="col-xs-5">
-                                                                            {{ subkey }}
-                                                                        </div>
-                                                                        <div class="col-xs-5">
-                                                                            <input name="{{ subkey }}_0" value="{{ subvalue }}" >
+                                                                        <div class="col-xs-11">
+                                                                            <label>
+                                                                                {% if subkey == 'Outputs' %}
+                                                                                    Follow If...
+                                                                                {% else %}
+                                                                                    {{ subkey }}:
+                                                                                {% endif %}
+                                                                            </label>
                                                                         </div>
                                                                     </div>
-                                                                {% endfor %}
-                                                            {% elif key == 'Condition' %}
-                                                                <label style="margin-top: 5px;">{{ key }}:</label>
-                                                                {% for subkey, subvalue in item.properties.Condition.items %}
-                                                                    <div class="row" style="margin-top: 5px;">
+                                                                    <div class="row">
                                                                         <div class="col-xs-1"></div>
-                                                                        <div class="col-xs-5">
-                                                                            {{ subkey }}
-                                                                        </div>
-                                                                        <div class="col-xs-5">
+                                                                        <div class="col-xs-11">
                                                                             <input name="{{ subkey }}_0" value="{{ subvalue }}" >
                                                                         </div>
                                                                     </div>
                                                                 {% endfor %}
                                                             {% else %}
                                                                 <div class="row" style="margin-top: 5px;">
-                                                                    <div class="col-xs-4">
+                                                                    <div class="col-xs-12">
                                                                         <label>{{ key }}:</label>
                                                                     </div>
-                                                                    <div class="col-xs-8">
+                                                                </div>
+                                                                <div class="row" style="margin-top: 5px;">
+                                                                    <div class="col-xs-12">
                                                                         <input name="{{ key }}" value="{{ value }}" >
                                                                     </div>
                                                                 </div>
@@ -351,11 +371,15 @@
                             </div>
                         </div>
                     </div>
-                </div>
 
-    </div>
+                    <div class="tab-pane" id="moduleNodeEdgeEmpty"></div>
+                </div>
+            </div>
         </div>
     </div>
+
+    {% include 'graphs/module/module_detail_modal.html' %}
+
 {% endblock %}
 
 {% block footer %}
@@ -364,5 +388,7 @@
         var edges = {{ network_edges|safe }};
         {% include 'graphs/module/module_detail.js' %}
         {% include 'graphs/node_edge_properties.js' %}
+        {% include 'graphs/project/node_edge.js' %}
+        {% include 'graphs/module/node_auto_edge_new.js' %}
     </script>
 {% endblock %}

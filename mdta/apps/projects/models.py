@@ -93,7 +93,7 @@ class Project(models.Model):
     @property
     def nodes(self):
         Node = mdta.apps.graphs.models.Node  # avoiding circular import
-        return Node.objects.filter(module__project=self)
+        return Node.objects.filter(module__project=self).order_by('module', 'name')
 
     @property
     def nodes_count(self):

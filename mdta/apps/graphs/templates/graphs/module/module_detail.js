@@ -89,7 +89,12 @@ function draw_module_graph(){
             arrows: 'to'
         },
         width: '100%',
-        height: '800px'
+        height: '800px',
+        physics: {
+            barnesHut: {
+                gravitationalConstant: -4000
+            }
+        }
     };
 
     // initialize your network!
@@ -103,6 +108,27 @@ function draw_module_graph(){
         } else if (!$.isEmptyObject(params.edges)) {
             $('a[href="#moduleEdgeEdit"]').click();
             $('a[href="#edge-{0}"]'.format(params.edges)).click();
+        } else {
+            $('a[href="#moduleNodeEdgeEmpty"]').click();
+        }
+    });
+
+    network.on('doubleClick', function(params){
+        if (!$.isEmptyObject(params.nodes)){
+            $.getJSON("{% url 'graphs:get_module_id_from_node_id' %}?node_id={0}".format(params.nodes)).done(function(data){
+                //console.log(data);
+                var base_url = '',
+                    tmp = window.location.href.split('/'),
+                    current_module_id = tmp[tmp.length - 2];
+
+                for (var i = 0; i < tmp.length - 2; i++) {
+                    base_url += tmp[i] + '/'
+                }
+                if (!( data['module_id'] == current_module_id)){
+                    window.location.href = base_url + data['module_id'];
+                     $('body').css('cursor', 'progress');
+                }
+            })
         }
     })
 

@@ -1,4 +1,11 @@
 <div class="container">
+    <div class="row" style="margin-bottom: 10px;">
+        <small>
+            <i class="fa fa-pencil fa-fw"></i>
+            <a href="#" data-toggle="modal" data-target="#testheader-new-modal">New TestHeader</a>
+        </small>
+    </div>
+
     <div class="row">
         <div class="col-xs-8">
             {% if test_headers %}
@@ -13,12 +20,14 @@
                         <tbody>
                             {% for test_header in test_headers %}
                                 <tr>
-                                    <td>
-                                        <a href="#" >{{ test_header.name }} </a>
-                                    </td>
+                                    <td><a href="#" data-toggle="modal"
+                                           data-target="#testheader-edit-modal"
+                                           data-testheader-id="{{ test_header.id }}"
+                                           data-testheader-name="{{ test_header.name }}"
+                                           >{{ test_header.name }} </a></td>
                                     <td>
                                         {% for p in test_header.th_related_projects %}
-                                            <a href="{% url 'projects:project_edit' p.id %}">{{ p.name }}</a>
+                                           {{ p.name }},
                                         {% endfor %}
                                     </td>
                                 </tr>

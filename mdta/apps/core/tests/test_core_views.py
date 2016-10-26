@@ -4,6 +4,7 @@ from django.core.urlresolvers import resolve, reverse
 
 
 from mdta.apps.core.views import landing
+from mdta.apps.users.models import HumanResource
 
 
 class CoreViewsTest(TestCase):
@@ -16,6 +17,9 @@ class CoreViewsTest(TestCase):
         self.user = User.objects.create_user(
             username=self.user_account['username'],
             password=self.user_account['password']
+        )
+        self.hr = HumanResource.objects.create(
+            user=self.user
         )
 
     def test_landing_url_resolve_to_view(self):
@@ -37,7 +41,7 @@ class CoreViewsTest(TestCase):
         )
         response = self.client.get(reverse('landing'), follow=True)
         self.assertNotContains(response, 'Please use your Active Directory credentials.')
-        self.assertContains(response, '<li><a href="/mdta/projects/"><i class="fa fa-sitemap fa-fw"></i> Projects</a> </li>')
-        self.assertContains(response, '<li><a href="/mdta/graphs/"><i class="fa fa-automobile fa-fw"></i> Graphs</a> </li>')
+        self.assertContains(response, '<li><a href="/mdta/home/"><i class="fa fa-home fa-fw"></i> Home </a></li>')
+        self.assertContains(response, '<li><a href="/mdta/testcases/"><i class="fa fa-automobile fa-fw"></i> TestCases</a> </li>')
         self.assertContains(response, '<li><a href="/mdta/help/"><i class="fa fa-thumbs-o-up"></i> Help</a> </li>')
 
