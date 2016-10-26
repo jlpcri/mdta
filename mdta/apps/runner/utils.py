@@ -3,6 +3,7 @@ import textwrap
 from tempfile import NamedTemporaryFile
 import os
 import sys
+import time
 
 import requests
 from paramiko.client import AutoAddPolicy
@@ -63,23 +64,31 @@ class TestRailCase(TestRailORM):
         if not self.script:
             self.script = HATScript()
         for step in self.custom_steps_separated:
+            print("STEP: {0}".format(step))
             self._content_routing(step['content'])
             self._expected_routing(step['expected'])
+            print("BODY: {0}".format(self.script.body))
+        print ("END OF STEPS")
         self.script.end_of_call()
+        print("BODY: {0}".format(self.script.body))
 
     def _content_routing(self, step):
         if not step:
             return
         action = step.split(' ')[0].upper()
         action_map = {'DNIS': self.script.start_of_call,
+                      'DIAL': self.script.start_of_call,
+                      'APN': self.script.start_of_call,
                       'PRESS': self.script.dtmf_step}
         action_map[action](step)
 
     def _expected_routing(self, step):
         if not step:
             return
+        # The following should be moved to HATScript, but because there is no real branching at this point yet,
+        # I'm leaving it as-is for now.
         prompt = step.split(':')[0]
-        self.script.body += 'EXPECT prompt ' + prompt + '\n'
+        self.script.body += 'EXPECT prompt URI=audio/' + prompt + '.wav\n'
 
 
 def get_testrail_project(instance, identifier):
@@ -109,13 +118,28 @@ def _get_testrail_project_by_name(instance, identifier):
     raise NotImplementedError
 
 
-class HATScript(object):
-    def __init__(self, apn='', body='',
-                 holly_server='linux5578.wic.west.com',
+class AutomationScript(object):
+    NOT_RUN = 0
+    PASS = 1
+    FAIL = 2
+
+    def results(self):
+        return NotImplementedError
+
+    def generate(self):
+        return NotImplementedError
+
+
+class HATScript(AutomationScript):
+    def __init__(self, apn='', body='', dialed_number='',
+                 holly_server='linux5578.wic.west.com', sonus_server='10.27.138.136',
                  remote_server='qaci01.wic.west.com', remote_user='', remote_password=''):
         self.apn = apn
+        self.dialed_number = dialed_number
         self.body = body
+        self.filename = ''
         self.holly_server = holly_server
+        self.sonus_server = sonus_server
         self.remote_server = remote_server
         self.remote_user = remote_user
         self.remote_password = remote_password
@@ -148,12 +172,17 @@ class HATScript(object):
         return response
 
     def local_hat_execute(self):
-        """Use a HAT instance on the local machine for test execution"""
+        """
+        Use a HAT instance on the local machine for test execution
+
+        Use in its current state is not recommended. Leaving it in code as a reference.
+        """
         try:
             script_file = NamedTemporaryFile(mode='w')
+            self.filename = script_file.name
             try:
                 subprocess.call(['hat',
-                                 '-s', script_file.name,
+                                 '-s', self.filename,
                                  '-p', 'sip:{0}@{1}:5060'.format(self.apn, self.holly_server)])
             except subprocess.CalledProcessError:
                 pass  # HAT exiting with a non-zero status code means remarkably little
@@ -161,34 +190,69 @@ class HATScript(object):
             script_file.close()
 
     def remote_hat_execute(self):
+        """
+        Use a HAT instance on a remote machine via SSH
+        """
         remote_filename = self._send_hat_script()
-        stdin, stdout, stderr = self._invoke_remote_hat(remote_filename)
+        self.filename = remote_filename.split('/')[-1]
+        stdin, stdout, stderr = self._invoke_remote_hat()
+        time.sleep(2)
+        return self._read_remote_results()
 
     def _send_hat_script(self, dest_directory='/tmp'):
         transport = Transport(self.remote_server, 22)
         transport.connect(username=self.remote_user, password=self.remote_password)
         file_client = SFTPClient.from_transport(transport)
+
         script_file = NamedTemporaryFile(mode='w', delete=False)
         script_file.write(self.body)
         script_file.close()
-        # remote_filename = '/tmp/{0}'.format(os.path.split(script_file.name)[-1])
-        print("Sending " + script_file.name + " to " + script_file.name)
-        # file_client.put(script_file.name, '{0}/{1}'.format(dest_directory, self.remote_filename))
+
         file_client.put(script_file.name, script_file.name)
         file_client.close()
         return script_file.name
 
-    def _invoke_remote_hat(self, remote_filename):
+    def _invoke_remote_hat(self):
         client = SSHClient()
         client.set_missing_host_key_policy(AutoAddPolicy())
         client.load_system_host_keys()
         client.connect(self.remote_server, username=self.remote_user, password=self.remote_password)
-        conn = client.exec_command('hat -s {0} -p sip:{1}@{2}:5060'.format(remote_filename, self.apn, self.holly_server))
+        command = 'hat -s /tmp/{0} -p {1} -i /var/mdta/report/ -o /var/mdta/log/{0}.log -b {2}:4080'.format(
+            self.filename, self.sip_string(), self.holly_server)
+        print(command)
+        conn = client.exec_command(command)
         client.close()
         return conn
 
+    def _read_remote_results(self):
+        client = SSHClient()
+        client.set_missing_host_key_policy(AutoAddPolicy())
+        client.load_system_host_keys()
+        client.connect(self.remote_server, username=self.remote_user, password=self.remote_password)
+        command = "grep {0} /var/mdta/report/CallReport.log".format(self.filename)
+        for i in range(20):
+            print("Attempt {0}".format(i))
+            stdin, stdout, stderr = client.exec_command(command)
+            result_line = stdout.read()
+            print(result_line)
+            if result_line:
+                break
+            time.sleep(0.25)
+        client.close()
+        result = result_line.split(",")[-4]
+        return result
+
     def start_of_call(self, step):
-        self.apn = step[5:]
+        print("start_of_call: {0}".format(step))
+        if step[:3].upper() == 'APN':
+            print("APN found")
+            self.apn = step[4:]
+        if step[:4].upper() == 'DNIS':
+            print("DNIS found")
+            self.apn = step[5:]
+        elif step[:4].upper() == 'DIAL':
+            print("DIAL found")
+            self.dialed_number = step[5:]
         assert (len(self.body) == 0)
         self.body = 'STARTCALL\n' + \
                     'IGNORE answer asr_session document_dump document_transition fetch grammar_activation license ' + \
@@ -202,14 +266,20 @@ class HATScript(object):
     def end_of_call(self):
         self.body += 'ENDCALL\n'
 
+    def sip_string(self):
+        if self.dialed_number:
+            return 'sip:999000017{0}@{1}:5060'.format(self.dialed_number, self.sonus_server)
+        else:
+            return 'sip:{0}@{1}:5060'.format(self.apn, self.holly_server)
+
 
 def emergency_test():
     from mdta.apps.projects.models import TestRailInstance
     tri = TestRailInstance.objects.first()
     trp = get_testrail_project(tri, 6)
-    c = trp.get_suites()[-1].get_cases()[0]
+    c = trp.get_suites()[7].get_cases()[0]
     c.generate_hat_script()
     c.script.remote_user = 'caheyden'
     c.script.remote_password = 'dsi787cAH16'
     conn = c.script.remote_hat_execute()
-    return c, conn
+    return c.id, c.script.filename, conn

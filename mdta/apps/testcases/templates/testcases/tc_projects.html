@@ -1,3 +1,4 @@
+{% load staticfiles %}
 <div class="container">
     <div class="row">
         <div class="col-xs-8">
@@ -81,6 +82,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-xs-12">
+                                    <a href="{% url 'runner:demo' project.id %}"><img src="{% static 'common/easy.png' %}" height="150px"></a>
                                     {% for module in project.modules %}
                                         <li>
                                             <a href="{% url 'testcases:demonstrate_testcases' module.id %}?level=module">{{ module.name }}</a>
