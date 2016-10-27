@@ -74,6 +74,7 @@ INSTALLED_APPS = [
     'mdta.apps.projects',
     'mdta.apps.testcases',
     'mdta.apps.users',
+    'mdta.apps.runner',
 ]
 
 MIDDLEWARE_CLASSES = [

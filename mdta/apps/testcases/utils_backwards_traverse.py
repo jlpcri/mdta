@@ -217,7 +217,7 @@ def node_prompt(node, preceding_edge=None, match_constraint=None):
 
     return {
         'content': content,
-        'expected': node.properties['Verbiage']
+        'expected': "{0}: {1}".format(node.name, node.properties['Verbiage'])
     }
 
 

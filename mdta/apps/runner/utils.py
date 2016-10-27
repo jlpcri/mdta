@@ -78,6 +78,7 @@ class TestRailCase(TestRailORM):
         action = step.split(' ')[0].upper()
         action_map = {'DNIS': self.script.start_of_call,
                       'DIAL': self.script.start_of_call,
+                      'DIALEDNUMBER:': self.script.start_of_call,
                       'APN': self.script.start_of_call,
                       'PRESS': self.script.dtmf_step}
         action_map[action](step)
@@ -245,14 +246,13 @@ class HATScript(AutomationScript):
     def start_of_call(self, step):
         print("start_of_call: {0}".format(step))
         if step[:3].upper() == 'APN':
-            print("APN found")
             self.apn = step[4:]
-        if step[:4].upper() == 'DNIS':
-            print("DNIS found")
+        elif step[:4].upper() == 'DNIS':
             self.apn = step[5:]
         elif step[:4].upper() == 'DIAL':
-            print("DIAL found")
             self.dialed_number = step[5:]
+        elif step[:4].upper() == 'DIALEDNUMBER:':
+            self.dialed_number = step[14:]
         assert (len(self.body) == 0)
         self.body = 'STARTCALL\n' + \
                     'IGNORE answer asr_session document_dump document_transition fetch grammar_activation license ' + \
