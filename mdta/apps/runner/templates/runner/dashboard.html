@@ -1,0 +1,47 @@
+{% extends 'core/base.html' %}
+{% block extrahead %}
+<script>
+{% include 'runner/dashboard.js' %}
+</script>
+{% endblock %}
+{% block body %}
+    <a href="{% url 'runner:suites' project.id %}">Suites</a>
+    <div class='container'>
+        <div class='row'>
+            <div id='suites' class='col-md-6'>
+                <h2>Suites</h2>
+                <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                    {% for suite in suites %}
+                        <div class="panel panel-primary">
+                            <div class="panel-heading" role="tab" id="h-{{ forloop.counter }}">
+                                <h4 class="panel-title">
+                                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#c-{{ forloop.counter }}">{{ suite.name }}</a>
+                                </h4>
+                            </div>
+                            <div id="c-{{ forloop.counter }}" class="panel-collapse collapse" role="tabpanel">
+                                <ul class="list-group" id="lg-{{ forloop.counter }}">
+                                    {% for case in suite.cases %}
+                                        <li class="list-group-item">
+                                            {{ case.title }}
+                                            <button data-case="{{ case.id }}" class="btn btn-success btn-xs pull-right run-btn">
+                                                Run <i class="fa fa-arrow-right"></i>
+                                            </button>
+                                            <i class="fa fa-check-square text-success pull-right hidden"></i>
+                                            <i class="fa fa-minus-square text-danger pull-right hidden"></i>
+                                            <i class="fa fa-spin fa-spinner pull-right hidden"></i>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class='col-md-6'>
+                <h2>Details</h2>
+                <div id="testcase"></div>
+                <div id="result"></div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

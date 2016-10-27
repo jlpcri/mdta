@@ -76,6 +76,7 @@ class TestRailCase(TestRailORM):
         if not step:
             return
         action = step.split(' ')[0].upper()
+        action = action.replace(":", "")
         action_map = {'DNIS': self.script.start_of_call,
                       'DIAL': self.script.start_of_call,
                       'DIALEDNUMBER:': self.script.start_of_call,
@@ -90,6 +91,14 @@ class TestRailCase(TestRailORM):
         # I'm leaving it as-is for now.
         prompt = step.split(':')[0]
         self.script.body += 'EXPECT prompt URI=audio/' + prompt + '.wav\n'
+
+
+def get_testrail_steps(instance, case_id):
+    client = testrail.APIClient(instance.host)
+    client.user = instance.username
+    client.password = instance.password
+
+    return TestRailCase(instance, client.send_get('get_case/{0}'.format(case_id)))
 
 
 def get_testrail_project(instance, identifier):
@@ -240,7 +249,8 @@ class HATScript(AutomationScript):
                 break
             time.sleep(0.25)
         client.close()
-        result = result_line.split(",")[-4]
+        result_fields = result_line.split(",")
+        result = {'result': result_fields[-4], }
         return result
 
     def start_of_call(self, step):
