@@ -35,7 +35,7 @@ def execute_test(request, mdta_project_id):
     case.script.remote_user = 'caheyden'
     case.script.remote_password = 'dsi787cAH16'
     result = case.script.remote_hat_execute()
-    return JsonResponse({'result': result})
+    return JsonResponse(result)
 
 
 @login_required

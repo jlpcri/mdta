@@ -230,6 +230,9 @@ class HATScript(AutomationScript):
         command = 'hat -s /tmp/{0} -p {1} -i /var/mdta/report/ -o /var/mdta/log/{0}.log -b {2}:4080'.format(
             self.filename, self.sip_string(), self.holly_server)
         print(command)
+        f = open('/home/caheyden/last-hat-command', 'w')
+        f.write(command)
+        f.close()
         conn = client.exec_command(command)
         client.close()
         return conn
@@ -250,19 +253,21 @@ class HATScript(AutomationScript):
             time.sleep(0.25)
         client.close()
         result_fields = result_line.split(",")
-        result = {'result': result_fields[-4], }
+        result = {'result': result_fields[-4], 
+                  'reason': result_fields[-2],
+                  'call_id': result_fields[2]}
         return result
 
     def start_of_call(self, step):
         print("start_of_call: {0}".format(step))
         if step[:3].upper() == 'APN':
-            self.apn = step[4:]
+            self.apn = step[4:].strip()
         elif step[:4].upper() == 'DNIS':
-            self.apn = step[5:]
+            self.apn = step[5:].strip()
         elif step[:4].upper() == 'DIAL':
-            self.dialed_number = step[5:]
+            self.dialed_number = step[5:].strip()
         elif step[:4].upper() == 'DIALEDNUMBER:':
-            self.dialed_number = step[14:]
+            self.dialed_number = step[14:].strip()
         assert (len(self.body) == 0)
         self.body = 'STARTCALL\n' + \
                     'IGNORE answer asr_session document_dump document_transition fetch grammar_activation license ' + \

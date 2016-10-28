@@ -5,6 +5,8 @@ $(function(){
 function populateSteps(){
     var case_id = this.getAttribute('data-case');
     var button = $(this);
+    $("#testcase").html("");
+    $("#result").html("");
     button.siblings(".fa-spin").removeClass("hidden");
     $.ajax('{% url "runner:steps" project.id %}?case_id=' + case_id, {
         success: function(data, textStatus, jqXHR){
@@ -22,6 +24,10 @@ function populateSteps(){
         success: function(data, textStatus, jqXHR){
             console.log(data.result);
             button.siblings(".fa-spin").addClass("hidden");
+            var result_table = "<table class='table table-bordered'><tr><th>Result</th><td>" + data.result + "</td></tr>"
+            result_table += "<tr><th>Call ID</th><td>" + data.call_id + "</td></tr>"
+            result_table += "<tr><th>Fail Reason</th><td>" + data.reason + "</td></tr></table>"
+            $("#result").html(result_table);
             if(data.result === 'PASS') {
                 button.siblings(".text-success").removeClass("hidden");
                 button.siblings(".text-danger").addClass("hidden");
