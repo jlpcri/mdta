@@ -2,6 +2,9 @@ __author__ = 'sliu'
 from mdta.settings.base import *
 
 DEBUG = True
+INSTALLED_APPS += ['debug_toolbar', ]
+MIDDLEWARE_CLASSES += ['debug_toolbar.middleware.DebugToolbarMiddleware', ]
+INTERNAL_IPS = ['127.0.0.1', '10.6.20.127', '10.27.170.225']
 
 DATABASES = {
     'default': {
