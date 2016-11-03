@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.conf import settings
 
 from mdta.apps.core.views import landing
 from mdta.apps.graphs.views import home
@@ -27,8 +28,14 @@ urlpatterns = [
     url(r'^mdta/projects/', include('mdta.apps.projects.urls', namespace='projects')),
     url(r'^mdta/graphs/', include('mdta.apps.graphs.urls', namespace='graphs')),
     url(r'^mdta/users/', include('mdta.apps.users.urls', namespace='users')),
-    url(r'mdta/help/', include('mdta.apps.help.urls', namespace='help')),
-    url(r'mdta/testcases/', include('mdta.apps.testcases.urls', namespace='testcases')),
-    url(r'mdta/runner/', include('mdta.apps.runner.urls', namespace='runner')),
+    url(r'^mdta/help/', include('mdta.apps.help.urls', namespace='help')),
+    url(r'^mdta/testcases/', include('mdta.apps.testcases.urls', namespace='testcases')),
+    url(r'^mdta/runner/', include('mdta.apps.runner.urls', namespace='runner')),
     url(r'^mdta/admin/', include(admin.site.urls)),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += [
+        url(r'^mdta/__debug__/', include(debug_toolbar.urls)),
+    ]

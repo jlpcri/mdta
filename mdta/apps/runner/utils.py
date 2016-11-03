@@ -106,7 +106,7 @@ def get_testrail_project(instance, identifier):
     # Name or id?
     if type(identifier) is int:
         project = _get_testrail_project_by_id(instance, identifier)
-    elif type(identifier) in [str, unicode]:
+    elif type(identifier) is str:  # Python 3 string are always Unicode
         if identifier.isdigit():
             project = _get_testrail_project_by_id(instance, identifier)
         else:
