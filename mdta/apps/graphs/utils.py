@@ -89,9 +89,9 @@ def check_edge_in_set(edge, network_edges):
                     {
                         'id': edge.id,
                         'edge_name': edge.from_node.name + '-' + edge.to_node.name,
-                        'type': edge.type.id,
-                        'to_node': edge.to_node.id,
-                        'from_node': edge.from_node.id,
+                        'type': edge.type.name,
+                        'to_node': edge.to_node.name,
+                        'from_node': edge.from_node.name,
                         'priority': edge.priority,
                         'properties': edge.properties
                     }
@@ -110,9 +110,9 @@ def check_edge_in_set(edge, network_edges):
                     {
                         'id': edge.id,
                         'edge_name': edge.from_node.name + '-' + edge.to_node.name,
-                        'type': edge.type.id,
-                        'to_node': edge.to_node.id,
-                        'from_node': edge.from_node.id,
+                        'type': edge.type.name,
+                        'to_node': edge.to_node.name,
+                        'from_node': edge.from_node.name,
                         'priority': edge.priority,
                         'properties': edge.properties
                     }
