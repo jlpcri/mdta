@@ -100,38 +100,22 @@
                                                             </div>
                                                         </div>
 
-                                                        <form method="post" action="{% url 'graphs:module_edge_edit' edge.id %}" class="projectEdgeEditForm">
-                                                            <div class="row">
-                                                                <label for="projectEdgeEditType">Type:</label>
-                                                                <select class="form-control" id="projectEdgeEditType" name="projectEdgeEditType">
-                                                                    {% for type in edge_types %}
-                                                                        <option value="{{ type.id }}" {% if edge.type == type.id %}selected{% endif %}>{{ type.name }}</option>
-                                                                    {% endfor %}
-                                                                </select>
-                                                            </div>
+{#                                                        <form method="post" action="{% url 'graphs:module_edge_edit' edge.id %}" class="projectEdgeEditForm">#}
                                                             <div class="row">
                                                                 <label for="projectEdgeEditFromNode">FromNode:</label>
-                                                                <select class="form-control" id="projectEdgeEditFromNode" name="projectEdgeEditFromNode">
-                                                                    {% for node in project.nodes %}
-                                                                        <option value="{{ node.id }}" {% if edge.from_node == node.id %}selected{% endif %}>{{ node.module.name }}:{{ node.name }}</option>
-                                                                    {% endfor %}
-                                                                </select>
+                                                                <input id="projectEdgeEditFromNode" class="form-control" value="{{ edge.from_node }}" />
                                                             </div>
                                                             <div class="row">
                                                                 <label for="projectEdgeEditToNode">ToNode:</label>
-                                                                <select class="form-control" id="projectEdgeEditToNode" name="projectEdgeEditToNode">
-                                                                    {% for node in project.nodes %}
-                                                                        <option value="{{ node.id }}" {% if edge.to_node == node.id %}selected{% endif %}>{{ node.module.name }}:{{ node.name }}</option>
-                                                                    {% endfor %}
-                                                                </select>
+                                                                <input id="projectEdgeEditToNode" class="form-control" value="{{ edge.to_node }}" />
                                                             </div>
                                                             <div class="row">
                                                                 <label for="projectEdgeEditPriority">Priority:</label>
-                                                                <select class="form-control" id="projectEdgeEditPriority" name="projectEdgeEditPriority">
-                                                                    {% for priority in edge_priority %}
-                                                                        <option value="{{ priority.0 }}" {% if edge.priority == priority.0 %}selected{% endif %}>{{ priority.1 }}</option>
-                                                                    {% endfor %}
-                                                                </select>
+                                                                <input id="projectEdgeEditPriority" class="form-control" value="{{ edge.priority }}" />
+                                                            </div>
+                                                            <div class="row">
+                                                                <label for="projectEdgeEditType">Type:</label>
+                                                                <input id="projectEdgeEditType" class="form-control" value="{{ edge.type }}" />
                                                             </div>
                                                             <div class="row">
                                                                 <div class="col-xs-12" >
@@ -174,61 +158,45 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <br>
-                                                            <div class="row">
-                                                                <div class="col-xs-10">
-                                                                    <div id="projectEdgeEditErrMessage">&nbsp;</div>
-                                                                </div>
-                                                            </div>
-                                                            <br>
-                                                            {% csrf_token %}
-                                                            <div class="row">
-                                                                <div class="col-xs-12">
-                                                                    <button type="submit" name="project_edge_save" class="btn btn-primary param-save">Save</button>
-                                                                    <button type="submit" name="project_edge_delete" class="btn btn-danger param-delete">Delete</button>
-                                                                    <button type="reset" class="btn btn-default">Reset</button>
-                                                                </div>
-                                                            </div>
-                                                        </form>
+{#                                                            <br>#}
+{#                                                            <div class="row">#}
+{#                                                                <div class="col-xs-10">#}
+{#                                                                    <div id="projectEdgeEditErrMessage">&nbsp;</div>#}
+{#                                                                </div>#}
+{#                                                            </div>#}
+{#                                                            <br>#}
+{#                                                            {% csrf_token %}#}
+{#                                                            <div class="row">#}
+{#                                                                <div class="col-xs-12">#}
+{#                                                                    <button type="submit" name="project_edge_save" class="btn btn-primary param-save">Save</button>#}
+{#                                                                    <button type="submit" name="project_edge_delete" class="btn btn-danger param-delete">Delete</button>#}
+{#                                                                    <button type="reset" class="btn btn-default">Reset</button>#}
+{#                                                                </div>#}
+{#                                                            </div>#}
+{#                                                        </form>#}
                                                     </div>
                                                 {% endfor %}
                                             </div>
 
                                         {% else %}
                                             <h4>Edge Detail</h4>
-                                            <form method="post" action="{% url 'graphs:module_edge_edit' item.id %}" class="projectEdgeEditForm">
+{#                                            <form method="post" action="{% url 'graphs:module_edge_edit' item.id %}" class="projectEdgeEditForm">#}
 
                                                 <div class="row">
                                                     <label for="projectEdgeEditFromNode">FromNode:</label>
-                                                    <select class="form-control" id="projectEdgeEditFromNode" name="projectEdgeEditFromNode">
-                                                        {% for node in project.nodes %}
-                                                            <option value="{{ node.id }}" {% if item.from_node == node.id %}selected{% endif %}>{{ node.module.name }}:{{ node.name }}</option>
-                                                        {% endfor %}
-                                                    </select>
+                                                    <input id="projectEdgeEditFromNode" class="form-control" value="{{ item.from_node }}" />
                                                 </div>
                                                 <div class="row">
                                                     <label for="projectEdgeEditToNode">ToNode:</label>
-                                                    <select class="form-control" id="projectEdgeEditToNode" name="projectEdgeEditToNode">
-                                                        {% for node in project.nodes %}
-                                                            <option value="{{ node.id }}" {% if item.to_node == node.id %}selected{% endif %}>{{ node.module.name }}:{{ node.name }}</option>
-                                                        {% endfor %}
-                                                    </select>
+                                                    <input id="projectEdgeEditToNode" class="form-control" value="{{ item.to_node }}" />
                                                 </div>
                                                 <div class="row">
                                                     <label for="projectEdgeEditPriority">Priority:</label>
-                                                    <select class="form-control" id="projectEdgeEditPriority" name="projectEdgeEditPriority">
-                                                        {% for priority in edge_priority %}
-                                                            <option value="{{ priority.0 }}" {% if item.priority == priority.0 %}selected{% endif %}>{{ priority.1 }}</option>
-                                                        {% endfor %}
-                                                    </select>
+                                                    <input id="projectEdgeEditPriority" class="form-control" value="{{ item.priority }}" />
                                                 </div>
                                                 <div class="row">
                                                     <label for="projectEdgeEditType">Type:</label>
-                                                    <select class="form-control" id="projectEdgeEditType" name="projectEdgeEditType">
-                                                        {% for type in edge_types %}
-                                                            <option value="{{ type.id }}" {% if item.type == type.id %}selected{% endif %}>{{ type.name }}</option>
-                                                        {% endfor %}
-                                                    </select>
+                                                    <input id="projectEdgeEditType" class="form-control" value="{{ item.type }}" />
                                                 </div>
                                                 <div class="row">
                                                     <div class="col-xs-12" >
@@ -271,23 +239,23 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <br>
-                                                <div class="row">
-                                                    <div class="col-xs-10">
-                                                        <div id="projectEdgeEditErrMessage">&nbsp;</div>
-                                                    </div>
-                                                </div>
-                                                <br>
-                                                {% csrf_token %}
-                                                <div class="row">
-                                                    <div class="col-xs-12">
-                                                        <button type="submit" name="project_edge_save" class="btn btn-primary param-save">Save</button>
-                                                        <button type="submit" name="project_edge_delete" class="btn btn-danger param-delete">Delete</button>
-                                                        <button type="reset" class="btn btn-default">Reset</button>
-                                                    </div>
-                                                </div>
-
-                                            </form>
+{#                                                <br>#}
+{#                                                <div class="row">#}
+{#                                                    <div class="col-xs-10">#}
+{#                                                        <div id="projectEdgeEditErrMessage">&nbsp;</div>#}
+{#                                                    </div>#}
+{#                                                </div>#}
+{#                                                <br>#}
+{#                                                {% csrf_token %}#}
+{#                                                <div class="row">#}
+{#                                                    <div class="col-xs-12">#}
+{#                                                        <button type="submit" name="project_edge_save" class="btn btn-primary param-save">Save</button>#}
+{#                                                        <button type="submit" name="project_edge_delete" class="btn btn-danger param-delete">Delete</button>#}
+{#                                                        <button type="reset" class="btn btn-default">Reset</button>#}
+{#                                                    </div>#}
+{#                                                </div>#}
+{##}
+{#                                            </form>#}
                                         {% endif %}
                                     </div>
                                 {% endfor %}
