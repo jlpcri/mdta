@@ -107,11 +107,11 @@ class Node(models.Model):
 
     @property
     def leaving_edges(self):
-        return self.from_node.order_by('priority')
+        return self.from_node.select_related('to_node', 'type').order_by('priority')
 
     @property
     def arriving_edges(self):
-        return self.to_node.order_by('priority')
+        return self.to_node.select_related('from_node', 'type').order_by('priority')
 
 
 class Edge(models.Model):
