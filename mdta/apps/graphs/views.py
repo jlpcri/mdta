@@ -263,7 +263,7 @@ def project_detail(request, project_id):
             'id': m.id,
             'label': m.name
         })
-
+    print(len(project.edges_between_modules))
     for edge in project.edges_between_modules:
         if not check_edge_in_set(edge, network_edges):
             network_edges.append({

@@ -273,11 +273,11 @@
                                                     <select class="form-control" id="moduleEdgeEditToNode" name="moduleEdgeEditToNode">
                                                         {% if module.project %}
                                                             {% for node in module.project.nodes %}
-                                                                <option value="{{ node.id }}" {% if item.to_node.id == node.id %}selected{% endif %}>{{ node.module.name }}:{{ node.name }}</option>
+                                                                <option value="{{ node.id }}" {% if item.to_node.id == node.id %}selected{% endif %}>{{ module.name }}:{{ node.name }}</option>
                                                             {% endfor %}
                                                         {% else %}
                                                             {% for node in module.nodes %}
-                                                                <option value="{{ node.id }}" {% if item.to_node.id == node.id %}selected{% endif %}>{{ node.module.name }}:{{ node.name }}</option>
+                                                                <option value="{{ node.id }}" {% if item.to_node.id == node.id %}selected{% endif %}>{{ module.name }}:{{ node.name }}</option>
                                                             {% endfor %}
                                                         {% endif %}
                                                     </select>

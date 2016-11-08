@@ -118,11 +118,12 @@ class Project(models.Model):
 
     @property
     def edges_between_modules(self):
+        Edge = mdta.apps.graphs.models.Edge  # avoiding circular import
         data = []
 
-        for edge in self.edges:
-            if edge.from_node.module != edge.to_node.module:
-                data.append(edge)
+        for module in self.modules:
+            cross_module_edges = Edge.objects.filter(from_node__module=module).exclude(to_node__module=module)
+            data.extend(cross_module_edges)
 
         return data
 
