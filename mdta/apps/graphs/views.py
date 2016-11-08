@@ -273,9 +273,9 @@ def project_detail(request, project_id):
                 'label': 1,
                 'edge_name': edge.from_node.name + '-' + edge.to_node.name,
 
-                'type': edge.type.id,
-                'to_node': edge.to_node.id,
-                'from_node': edge.from_node.id,
+                'type': edge.type.name,
+                'to_node': edge.to_node.name,
+                'from_node': edge.from_node.name,
                 'priority': edge.priority,
                 'properties': edge.properties
             })
