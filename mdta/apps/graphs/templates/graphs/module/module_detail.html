@@ -38,6 +38,7 @@
                 </div>
             </div>
             <div class="col-xs-3" >
+
                 <div class="row hidden">
                     <ul class="nav nav-tabs">
                         <li><a href="#moduleNodeEdit" data-toggle="tab">Node</a></li>
@@ -160,37 +161,39 @@
 
                                         <div class="row" style="margin-top: 10px;">
                                             <div class="col-xs-12">
-                                                {% if item.leaving_edges %}
-                                                    <h5>Leaving Edges:</h5>
-                                                    <table class="table table-hover table-bordered">
-                                                        <thead>
-                                                            <tr>
-                                                                <th class="col-xs-2">ToNode</th>
-                                                                <th class="col-xs-2">Priority</th>
-                                                                <th class="col-xs-2">Properties</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {% for edge in item.leaving_edges %}
+                                                {% with leaving_edges=item.leaving_edges %}
+                                                    {% if leaving_edges %}
+                                                        <h5>Leaving Edges:</h5>
+                                                        <table class="table table-hover table-bordered">
+                                                            <thead>
                                                                 <tr>
-                                                                    <td>{{ edge.to_node.name }}</td>
-                                                                    <td>{{ edge.priority }}</td>
-                                                                    <td>
-                                                                        {% if edge.type.name in 'Data, PreCondition' %}
-                                                                            {% if edge.type.subkeys_data_name == 'Outputs' %}
-                                                                                {{ edge.properties.OutputData.Outputs }}
-                                                                            {% else %}
-                                                                                {{ edge.properties.OutputData.Condition }}
-                                                                            {% endif %}
-                                                                        {% else %}
-                                                                            {{ edge.properties }}
-                                                                        {% endif %}
-                                                                    </td>
+                                                                    <th class="col-xs-2">ToNode</th>
+                                                                    <th class="col-xs-2">Priority</th>
+                                                                    <th class="col-xs-2">Properties</th>
                                                                 </tr>
-                                                            {% endfor %}
-                                                        </tbody>
-                                                    </table>
-                                                {% endif %}
+                                                            </thead>
+                                                            <tbody>
+                                                                {% for edge in leaving_edges %}
+                                                                    <tr>
+                                                                        <td>{{ edge.to_node.name }}</td>
+                                                                        <td>{{ edge.priority }}</td>
+                                                                        <td>
+                                                                            {% if edge.type.name in 'Data, PreCondition' %}
+                                                                                {% if edge.type.subkeys_data_name == 'Outputs' %}
+                                                                                    {{ edge.properties.OutputData.Outputs }}
+                                                                                {% else %}
+                                                                                    {{ edge.properties.OutputData.Condition }}
+                                                                                {% endif %}
+                                                                            {% else %}
+                                                                                {{ edge.properties }}
+                                                                            {% endif %}
+                                                                        </td>
+                                                                    </tr>
+                                                                {% endfor %}
+                                                            </tbody>
+                                                        </table>
+                                                    {% endif %}
+                                                {% endwith %}
                                             </div>
                                         </div>
 
@@ -255,15 +258,9 @@
                                                 <div class="col-xs-12">
                                                     <label for="moduleEdgeEditFromNode">FromNode:</label>
                                                     <select class="form-control" id="moduleEdgeEditFromNode" name="moduleEdgeEditFromNode">
-                                                        {% if module.project %}
-                                                            {% for node in module.project.nodes %}
-                                                                <option value="{{ node.id }}" {% if item.from_node.id == node.id %}selected{% endif %}>{{ node.module.name }}:{{ node.name }}</option>
-                                                            {% endfor %}
-                                                        {% else %}
-                                                            {% for node in module.nodes %}
-                                                                <option value="{{ node.id }}" {% if item.from_node.id == node.id %}selected{% endif %}>{{ node.module.name }}:{{ node.name }}</option>
-                                                            {% endfor %}
-                                                        {% endif %}
+                                                        {% for node in module_nodes_set %}
+                                                            <option value="{{ node.id }}" {% if item.from_node.id == node.id %}selected{% endif %}>{{ node.module.name }}:{{ node.name }}</option>
+                                                        {% endfor %}
                                                     </select>
                                                 </div>
                                             </div>
@@ -271,15 +268,9 @@
                                                 <div class="col-xs-12">
                                                     <label for="moduleEdgeEditToNode">ToNode:</label>
                                                     <select class="form-control" id="moduleEdgeEditToNode" name="moduleEdgeEditToNode">
-                                                        {% if module.project %}
-                                                            {% for node in module.project.nodes %}
-                                                                <option value="{{ node.id }}" {% if item.to_node.id == node.id %}selected{% endif %}>{{ module.name }}:{{ node.name }}</option>
-                                                            {% endfor %}
-                                                        {% else %}
-                                                            {% for node in module.nodes %}
-                                                                <option value="{{ node.id }}" {% if item.to_node.id == node.id %}selected{% endif %}>{{ module.name }}:{{ node.name }}</option>
-                                                            {% endfor %}
-                                                        {% endif %}
+                                                        {% for node in module_nodes_set %}
+                                                            <option value="{{ node.id }}" {% if item.to_node.id == node.id %}selected{% endif %}>{{ module.name }}:{{ node.name }}</option>
+                                                        {% endfor %}
                                                     </select>
                                                 </div>
                                             </div>
@@ -374,6 +365,7 @@
 
                     <div class="tab-pane" id="moduleNodeEdgeEmpty"></div>
                 </div>
+
             </div>
         </div>
     </div>

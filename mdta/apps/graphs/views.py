@@ -263,7 +263,6 @@ def project_detail(request, project_id):
             'id': m.id,
             'label': m.name
         })
-    print(len(project.edges_between_modules))
     for edge in project.edges_between_modules:
         if not check_edge_in_set(edge, network_edges):
             network_edges.append({
@@ -411,9 +410,12 @@ def project_module_detail(request, module_id):
     if module.project:
         project_modules = module.project.module_set.order_by('name')
         node_new_node_form = NodeNewForm(project_id=module.project.id)
+        module_nodes_set = module.project.nodes
     else:
         project_modules = [module]
         node_new_node_form = NodeNewForm(module_id=module.id)
+        module_nodes_set = current_module_nodes
+
     node_new_edge_form = EdgeAutoNewForm(prefix='edge')
 
     context = {
@@ -425,6 +427,7 @@ def project_module_detail(request, module_id):
         'edge_priorities': edge_priorities,
         'project_modules': project_modules,
         'current_module_nodes': current_module_nodes,
+        'module_nodes_set': module_nodes_set,
 
         'node_new_node_form': node_new_node_form,
         'node_new_edge_form': node_new_edge_form,
