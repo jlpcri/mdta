@@ -93,7 +93,7 @@ class Project(models.Model):
     @property
     def nodes(self):
         Node = mdta.apps.graphs.models.Node  # avoiding circular import
-        return Node.objects.filter(module__project=self).order_by('module', 'name')
+        return Node.objects.select_related('module').filter(module__project=self).order_by('module', 'name')
 
     @property
     def nodes_count(self):
@@ -160,7 +160,7 @@ class Module(models.Model):
         """
         Edge = mdta.apps.graphs.models.Edge  # avoiding circular import
         nodes = self.node_set.all()
-        return Edge.objects.filter(Q(from_node__in=nodes) | Q(to_node__in=nodes)).distinct()
+        return Edge.objects.select_related('from_node', 'to_node', 'type').filter(Q(from_node__in=nodes) | Q(to_node__in=nodes)).distinct()
 
     @property
     def nodes_all(self):
@@ -169,7 +169,7 @@ class Module(models.Model):
         """
         Node = mdta.apps.graphs.models.Node  # avoiding circular import
         edges = self.edges_all
-        return Node.objects.filter(Q(from_node__in=edges) | Q(to_node__in=edges) | Q(module=self)).distinct()
+        return Node.objects.select_related('type', 'module').filter(Q(from_node__in=edges) | Q(to_node__in=edges) | Q(module=self)).distinct()
 
     @property
     def th_related_projects(self):
