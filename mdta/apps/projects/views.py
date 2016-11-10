@@ -20,7 +20,10 @@ def project_dashboard(request):
     """
     context = context_project_dashboard(request)
 
-    return render(request, 'projects/project_dashboard.html', context)
+    if context['project']:
+        return render(request, 'projects/project_dashboard.html', context)
+    else:
+        return redirect('graphs:projects_for_selection')
 
 
 @user_passes_test(user_is_staff)

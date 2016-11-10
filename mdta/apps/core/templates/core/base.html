@@ -135,7 +135,9 @@
                             </a>
                             <ul class="dropdown-menu navbar-dropdown-menu">
                                 <li><a href="{% url 'projects:project_dashboard' %}"><i class="fa fa-wrench"></i> Project Dashboard</a></li>
-                                <li><a href="{% url 'graphs:projects_for_selection' %}"><i class="fa fa-object-group fa-fw"></i> Switch Projects</a></li>
+                                {% if request.user.humanresource.project %}
+                                    <li><a href="{% url 'graphs:projects_for_selection' %}"><i class="fa fa-object-group fa-fw"></i> Switch Projects</a></li>
+                                {% endif %}
                                 {% if user.is_superuser %}
                                     <li class="divider"></li>
                                     <li><a href="{% url 'users:management' %}"><i class="fa fa-random"></i> User Management</a> </li>

@@ -103,19 +103,19 @@
 {#                                                        <form method="post" action="{% url 'graphs:module_edge_edit' edge.id %}" class="projectEdgeEditForm">#}
                                                             <div class="row">
                                                                 <label for="projectEdgeEditFromNode">FromNode:</label>
-                                                                <input id="projectEdgeEditFromNode" class="form-control" value="{{ edge.from_node }}" />
+                                                                <input id="projectEdgeEditFromNode" class="form-control" value="{{ edge.from_node }}" readonly/>
                                                             </div>
                                                             <div class="row">
                                                                 <label for="projectEdgeEditToNode">ToNode:</label>
-                                                                <input id="projectEdgeEditToNode" class="form-control" value="{{ edge.to_node }}" />
+                                                                <input id="projectEdgeEditToNode" class="form-control" value="{{ edge.to_node }}" readonly/>
                                                             </div>
                                                             <div class="row">
                                                                 <label for="projectEdgeEditPriority">Priority:</label>
-                                                                <input id="projectEdgeEditPriority" class="form-control" value="{{ edge.priority }}" />
+                                                                <input id="projectEdgeEditPriority" class="form-control" value="{{ edge.priority }}" readonly/>
                                                             </div>
                                                             <div class="row">
                                                                 <label for="projectEdgeEditType">Type:</label>
-                                                                <input id="projectEdgeEditType" class="form-control" value="{{ edge.type }}" />
+                                                                <input id="projectEdgeEditType" class="form-control" value="{{ edge.type }}" readonly/>
                                                             </div>
                                                             <div class="row">
                                                                 <div class="col-xs-12" >
@@ -138,7 +138,7 @@
                                                                                     <div class="row">
                                                                                         <div class="col-xs-1"></div>
                                                                                         <div class="col-xs-11">
-                                                                                            <input name="{{ subkey }}_0" value="{{ subvalue }}" >
+                                                                                            <input class="form-control" name="{{ subkey }}_0" value="{{ subvalue }}" readonly/>
                                                                                         </div>
                                                                                     </div>
                                                                                 {% endfor %}
@@ -150,7 +150,7 @@
                                                                                 </div>
                                                                                 <div class="row" style="margin-top: 5px;">
                                                                                     <div class="col-xs-12">
-                                                                                        <input name="{{ key }}" value="{{ value }}" >
+                                                                                        <input class="form-control" name="{{ key }}" value="{{ value }}" readonly/>
                                                                                     </div>
                                                                                 </div>
                                                                             {% endif %}
@@ -184,19 +184,19 @@
 
                                                 <div class="row">
                                                     <label for="projectEdgeEditFromNode">FromNode:</label>
-                                                    <input id="projectEdgeEditFromNode" class="form-control" value="{{ item.from_node }}" />
+                                                    <input id="projectEdgeEditFromNode" class="form-control" value="{{ item.from_node }}" readonly/>
                                                 </div>
                                                 <div class="row">
                                                     <label for="projectEdgeEditToNode">ToNode:</label>
-                                                    <input id="projectEdgeEditToNode" class="form-control" value="{{ item.to_node }}" />
+                                                    <input id="projectEdgeEditToNode" class="form-control" value="{{ item.to_node }}" readonly/>
                                                 </div>
                                                 <div class="row">
                                                     <label for="projectEdgeEditPriority">Priority:</label>
-                                                    <input id="projectEdgeEditPriority" class="form-control" value="{{ item.priority }}" />
+                                                    <input id="projectEdgeEditPriority" class="form-control" value="{{ item.priority }}" readonly/>
                                                 </div>
                                                 <div class="row">
                                                     <label for="projectEdgeEditType">Type:</label>
-                                                    <input id="projectEdgeEditType" class="form-control" value="{{ item.type }}" />
+                                                    <input id="projectEdgeEditType" class="form-control" value="{{ item.type }}" readonly/>
                                                 </div>
                                                 <div class="row">
                                                     <div class="col-xs-12" >
@@ -219,7 +219,7 @@
                                                                         <div class="row">
                                                                             <div class="col-xs-1"></div>
                                                                             <div class="col-xs-11">
-                                                                                <input name="{{ subkey }}_0" value="{{ subvalue }}" >
+                                                                                <input class="form-control" name="{{ subkey }}_0" value="{{ subvalue }}" readonly/>
                                                                             </div>
                                                                         </div>
                                                                     {% endfor %}
@@ -231,7 +231,7 @@
                                                                     </div>
                                                                     <div class="row" style="margin-top: 5px;">
                                                                         <div class="col-xs-12">
-                                                                            <input name="{{ key }}" value="{{ value }}" >
+                                                                            <input class="form-control" name="{{ key }}" value="{{ value }}" readonly/>
                                                                         </div>
                                                                     </div>
                                                                 {% endif %}
