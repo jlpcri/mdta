@@ -9,7 +9,7 @@ from mdta.apps.testcases.forms import TestrailConfigurationForm
 def context_project_dashboard(request):
     project = request.user.humanresource.project
     test_headers = Module.objects.filter(project=None)
-    testrails = TestRailConfiguration.objects.all()
+    testrails = TestRailConfiguration.objects.select_related('instance').all()
     node_types = NodeType.objects.all()
     edge_types = EdgeType.objects.all()
 

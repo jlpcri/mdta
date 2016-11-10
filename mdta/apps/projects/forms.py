@@ -13,8 +13,9 @@ class ProjectForm(ModelForm):
 
         self.fields['test_header'].label_from_instance = lambda obj: "%s" % obj.name
         self.fields['testrail'].label_from_instance = lambda obj: "%s" % obj.project_name
+        self.fields['catalog'].queryset = CatalogItem.objects.select_related('parent').all()
         for field_name in ['lead', 'members']:
-            self.fields[field_name].queryset = HumanResource.objects.all().exclude(user__username='admin')
+            self.fields[field_name].queryset = HumanResource.objects.select_related('user').all().exclude(user__username='admin')
             self.fields[field_name].label_from_instance = lambda obj: "%s %s" % (obj.user.first_name, obj.user.last_name)
 
     class Meta:
@@ -47,6 +48,7 @@ class ModuleForm(ModelForm):
             self.fields['catalog'].queryset = project.catalog.all()
 
         self.fields['project'].empty_label = None
+        self.fields['catalog'].queryset = CatalogItem.objects.select_related('parent').all()
 
     class Meta:
         model = Module
