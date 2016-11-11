@@ -252,7 +252,10 @@ class HATScript(AutomationScript):
                 break
             time.sleep(0.25)
         client.close()
-        result_fields = result_line.split(",")
+        if sys.version_info[0] > 2:
+            result_fields = result_line.decode().split(",")
+        else:
+            result_fields = result_line.split(",")
         result = {'result': result_fields[-4], 
                   'reason': result_fields[-2],
                   'call_id': result_fields[2]}
