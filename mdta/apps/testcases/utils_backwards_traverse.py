@@ -187,7 +187,7 @@ def traverse_node(node, tcs, preceding_edge=None):
     :param tcs:
     :return:
     """
-    if node.type.name == START_NODE_NAME[0]:  # Start with Dial Number
+    if node.type.name in [START_NODE_NAME[0], 'Transfer']:  # Start with Dial Number
         add_step(node_start(node), tcs)
     elif node.type.name in ['Menu Prompt', 'Menu Prompt with Confirmation', 'Play Prompt']:
         add_step(node_prompt(node, preceding_edge), tcs)
@@ -211,7 +211,7 @@ def node_prompt(node, preceding_edge=None, match_constraint=None):
                 content = 'press '
         elif preceding_edge.type.name == 'Speech':
             try:
-                content = 'say' + preceding_edge.properties['Say']
+                content = 'say ' + preceding_edge.properties['Say']
             except KeyError:
                 content = 'say '
 
@@ -224,21 +224,21 @@ def node_prompt(node, preceding_edge=None, match_constraint=None):
 def get_item_properties(item):
     data = ''
     for key in item.properties:
-        if key == 'InputData':
-            try:
-                for ele in item.properties[key]:
-                    data += 'Inputs: ' + str(ele['Inputs']) + ', Outputs: ' + str(ele['Outputs']) + '; '
-            except (KeyError, TypeError):
-                data += key
-        elif key == 'OutputData':
-            try:
-                data += str(item.properties[key][item.type.subkeys_data_name])
-            except KeyError:
-                data += key
-        else:
-            try:
-                data += key + ': ' + item.properties[key] + ', '
-            except (KeyError, TypeError):
-                data += key
+        # if key == 'InputData':
+        #     try:
+        #         for ele in item.properties[key]:
+        #             data += 'Inputs: ' + str(ele['Inputs']) + ', Outputs: ' + str(ele['Outputs']) + '; '
+        #     except (KeyError, TypeError):
+        #         data += key
+        # elif key == 'OutputData':
+        #     try:
+        #         data += str(item.properties[key][item.type.subkeys_data_name])
+        #     except KeyError:
+        #         data += key
+        # else:
+        try:
+            data += key + ': ' + item.properties[key] + ', '
+        except (KeyError, TypeError):
+            data += key
 
     return data

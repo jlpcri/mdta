@@ -68,7 +68,7 @@ class TestRailCase(TestRailORM):
             self._content_routing(step['content'])
             self._expected_routing(step['expected'])
             print("BODY: {0}".format(self.script.body))
-        print ("END OF STEPS")
+        print("END OF STEPS")
         self.script.end_of_call()
         print("BODY: {0}".format(self.script.body))
 
@@ -243,6 +243,7 @@ class HATScript(AutomationScript):
         client.load_system_host_keys()
         client.connect(self.remote_server, username=self.remote_user, password=self.remote_password)
         command = "grep {0} /var/mdta/report/CallReport.log".format(self.filename)
+        result_line = ''
         for i in range(20):
             print("Attempt {0}".format(i))
             stdin, stdout, stderr = client.exec_command(command)
@@ -252,10 +253,23 @@ class HATScript(AutomationScript):
                 break
             time.sleep(0.25)
         client.close()
-        result_fields = result_line.split(",")
-        result = {'result': result_fields[-4], 
-                  'reason': result_fields[-2],
-                  'call_id': result_fields[2]}
+        if result_line:
+            if sys.version_info[0] > 2:
+                result_fields = result_line.decode().split(",")
+            else:
+                result_fields = result_line.split(",")
+
+            result = {
+                'result': result_fields[-4],
+                'reason': result_fields[-2],
+                'call_id': result_fields[2]
+            }
+        else:
+            result = {
+                'result': 'FAIL',
+                'reason': 'No Results',
+                'call_id': ''
+            }
         return result
 
     def start_of_call(self, step):
