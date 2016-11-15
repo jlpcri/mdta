@@ -106,7 +106,7 @@ def get_testrail_project(instance, identifier):
     # Name or id?
     if type(identifier) is int:
         project = _get_testrail_project_by_id(instance, identifier)
-    elif type(identifier) is str:  # Python 3 string are always Unicode
+    elif type(identifier) in [type(''), type(u'')]:
         if identifier.isdigit():
             project = _get_testrail_project_by_id(instance, identifier)
         else:
@@ -250,12 +250,17 @@ class HATScript(AutomationScript):
             print(result_line)
             if result_line:
                 break
-            time.sleep(0.25)
+            time.sleep(0.2)
         client.close()
         result_fields = result_line.split(",")
-        result = {'result': result_fields[-4], 
-                  'reason': result_fields[-2],
-                  'call_id': result_fields[2]}
+        try:
+            result = {'result': result_fields[-4],
+                      'reason': result_fields[-2],
+                      'call_id': result_fields[2]}
+        except IndexError:
+            result = {'result': 'FAIL',
+                      'reason': 'Failed to navigate call as expected',
+                      'call_id': 'e3525-20161111111306281-308'}
         return result
 
     def start_of_call(self, step):
