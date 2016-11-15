@@ -39,8 +39,8 @@ def path_traverse_backwards(path, th_path=None):
                     pre_conditions += pre_condition
         else:
             if th_path:
-                th_path.reverse()
-                for th_index, th_step in enumerate(th_path):
+                # th_path.reverse()
+                for th_index, th_step in enumerate(th_path[::-1]):
                     if th_index < len(th_path) - 1:
                         if isinstance(th_step, Node):
                             traverse_node(th_step, tcs, th_path[th_index + 1])

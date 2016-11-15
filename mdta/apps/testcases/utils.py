@@ -4,8 +4,10 @@ from mdta.apps.graphs.models import Node
 from mdta.apps.projects.models import Project, TestRailConfiguration, Module
 from mdta.apps.testcases.testrail import APIClient, APIError
 from mdta.apps.testcases.utils_backwards_traverse import path_traverse_backwards
+from mdta.apps.testcases.utils_negative_testcases import negative_testcase_generation
 
 START_NODE_NAME = ['Start', 'TestHeader Start']
+NEGATIVE_TEST_NODE_NAME = ['Menu Prompt']
 
 
 def context_testcases():
@@ -90,14 +92,17 @@ def get_paths_through_all_edges(edges, th_module=None):
                                      edge.to_node.name + '\''
                         })
                     else:
+                        title = 'Route from \'' + edge.from_node.name +\
+                                    '\' to \'' + edge.to_node.name + '\''
                         data.append({
-                            'pre_conditions': path_data['pre_conditions'],
-                            'tc_steps': path_data['tc_steps'],
-                            'title': 'Route from \'' +
-                                     edge.from_node.name +
-                                     '\' to \'' +
-                                     edge.to_node.name + '\''
-                        })
+                                'pre_conditions': path_data['pre_conditions'],
+                                'tc_steps': path_data['tc_steps'],
+                                'title': title
+                            })
+
+                        if edge.to_node.type.name in NEGATIVE_TEST_NODE_NAME:
+                            negative_testcase_generation(data, path_data, title)
+
     else:
         for edge in edges:
             path = routing_path_to_edge(edge)
