@@ -262,6 +262,11 @@ def check_path_contains_in_result(path, result):
 
 # --------------- Routing Test Header Graph End ---------------
 def get_paths_from_test_header(th_module):
+    """
+    Search paths from TestHeader and put it between Start Node and next Node
+    :param th_module: TestHeader module
+    :return: TestHeader route paths
+    """
     data = []
     if th_module:
         try:
@@ -281,8 +286,8 @@ def get_paths_from_test_header(th_module):
 def get_projects_from_testrail(instance):
     """
     Get Projects from TestRail to help adding TestRail Configuration
-    :param instance:
-    :return:
+    :param instance: TestRail instance
+    :return: Projects of TestRail
     """
     client = APIClient(instance.host)
     client.user = instance.username
@@ -292,6 +297,13 @@ def get_projects_from_testrail(instance):
 
 
 def add_testsuite_to_project(client, project_id, suite_name):
+    """
+    Add TestSuite to Project on TestRail
+    :param client:
+    :param project_id: Project ID of TestRail
+    :param suite_name: TestSuite name of TestRail Project, same as MDTA project version name
+    :return:
+    """
     data = {
         'name': suite_name,
         'description': ''
@@ -306,6 +318,14 @@ def add_testsuite_to_project(client, project_id, suite_name):
 
 
 def add_section_to_testsuite(client, project_id, suite_id, section_name):
+    """
+    Add section to TestSuite of Testrail project
+    :param client:
+    :param project_id: Project ID of TestRail
+    :param suite_id: TestSuite ID of TestRail Project == MDTA.project.version
+    :param section_name: Section name of TestRail-Project-TestSuite == MDTA.project.module.name
+    :return:
+    """
     data = {
         'suite_id': suite_id,
         'name': section_name
@@ -317,10 +337,23 @@ def add_section_to_testsuite(client, project_id, suite_id, section_name):
 
 
 def remove_section_from_testsuite(client, section_id):
+    """
+    Delete section from TestRail Project
+    :param client:
+    :param section_id: Section ID == MDTA.project.module
+    :return:
+    """
     client.send_post('delete_section/' + section_id, None)
 
 
 def add_testcase_to_section(client, section_id, data):
+    """
+    Add Testcases to TestRail.Project.TestSuites.Section
+    :param client:
+    :param section_id: Section Id == MDTA.project.module
+    :param data: TestCases
+    :return:
+    """
     try:
         for each_tc in data:
             if 'tcs_cannot_route' not in each_tc.keys():

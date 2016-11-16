@@ -7,6 +7,12 @@ TESTCASE_NOT_ROUTE_MESSAGE = 'This edge cannot be routed'
 
 
 def path_traverse_backwards(path, th_path=None):
+    """
+    Traverse path backwards to generate test steps
+    :param path: route path
+    :param th_path: test header path
+    :return:
+    """
     tcs = []
     tcs_cannot_route = ''
     constraints = []
@@ -63,6 +69,14 @@ def path_traverse_backwards(path, th_path=None):
 
 
 def get_data_node_result(node, constraints, index=None, path=None):
+    """
+    Get result from DataQueries Node
+    :param node: DataQueries Node
+    :param constraints: Constraints of current test case
+    :param index: index of current Node
+    :param path: route path
+    :return:
+    """
     dicts = node.properties[node.type.keys_data_name]
     data = {}
     compare_key = ''
@@ -105,6 +119,11 @@ def get_data_node_result(node, constraints, index=None, path=None):
 
 
 def assert_current_edge_constraint(edge):
+    """
+    Assert current edge constraints
+    :param edge:
+    :return:
+    """
     data = []
     current_edge_constraints = get_edge_constraints(edge, rule='True')
     data += current_edge_constraints
@@ -113,6 +132,11 @@ def assert_current_edge_constraint(edge):
 
 
 def assert_high_priority_edges_negative(edge):
+    """
+    Assert edge with high priority from leaving edges of from node
+    :param edge:
+    :return:
+    """
     data = []
     edges = edge.from_node.leaving_edges.exclude(id=edge.id)
     for each_edge in edges:
@@ -123,6 +147,11 @@ def assert_high_priority_edges_negative(edge):
 
 
 def assert_precondition(edge):
+    """
+    Assert PreCondition of edge of test case
+    :param edge:
+    :return:
+    """
     data = []
     edges = edge.from_node.leaving_edges
     for each_edge in edges:
@@ -142,6 +171,12 @@ def assert_precondition(edge):
 
 
 def get_edge_constraints(item, rule):
+    """
+    Get constraints from edge
+    :param item:
+    :param rule:
+    :return:
+    """
     data = []
     for key in item.properties:
         if key == 'OutputData':
@@ -161,6 +196,12 @@ def get_edge_constraints(item, rule):
 
 
 def update_tcs_next_step_content(tcs, result_found):
+    """
+    Update test case next step contents
+    :param tcs:
+    :param result_found:
+    :return:
+    """
     if len(tcs) > 0:
         step = tcs[-1]
         for k in result_found:
