@@ -113,6 +113,10 @@ class Node(models.Model):
     def arriving_edges(self):
         return self.to_node.select_related('from_node', 'type').order_by('priority')
 
+    @property
+    def properties_sorted(self):
+        return sorted(self.properties.items())
+
 
 class Edge(models.Model):
     """

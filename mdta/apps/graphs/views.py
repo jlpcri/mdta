@@ -234,7 +234,7 @@ def get_keys_from_type(request):
         item = get_object_or_404(EdgeType, pk=object_id)
 
     data = {
-        'keys': item.keys,
+        'keys': sorted(item.keys),
         'subkeys': item.subkeys
     }
 

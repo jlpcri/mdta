@@ -35,7 +35,7 @@ function load_keys_from_type_contents(item_id, location, type, call_from_node_ed
                 contents += '<tr id=\'{0}\'>'.format(rowCounter);
                 if (call_from_node_edit) {
                     $.each(subkeys, function (k, v) {
-                        contents += '<td><input name=\'{0}_{1}\' placeholder=\'JSON Format\'/></td>'.format(subkeys[k], rowCounter);
+                        contents += '<td><input name=\'{0}_{1}\' placeholder=\'JSON Format1\'/></td>'.format(subkeys[k], rowCounter);
                     });
                 } else {
                     $.each(subkeys, function (k, v) {
@@ -48,13 +48,17 @@ function load_keys_from_type_contents(item_id, location, type, call_from_node_ed
                 contents += '</div>';
                 contents += '</div>';
             } else {
-                contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
+                contents += '<div class=\'row\' style=\'margin-top: 0px;\'>';
                 contents += '<div class=\'col-xs-1\'></div>';
                 contents += '<div class=\'col-xs-11\'><label>{0}: </label></div>'.format(keys[k]);
                 contents += '</div>';
-                contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
+                contents += '<div class=\'row\' style=\'margin-top: 0px;\'>';
                 contents += '<div class=\'col-xs-1\'></div>';
-                contents += '<div class=\'col-xs-11\'><input name=\'{0}\'/></div>'.format(keys[k]);
+                if (call_from_node_edit){
+                    contents += '<div class=\'col-xs-11\'><input name=\'{0}\' style=\'width:110%\'/></div>'.format(keys[k]);
+                } else {
+                    contents += '<div class=\'col-xs-11\'><input name=\'{0}\' style=\'width:80%\'/></div>'.format(keys[k]);
+                }
                 contents += '</div>';
             }
         });

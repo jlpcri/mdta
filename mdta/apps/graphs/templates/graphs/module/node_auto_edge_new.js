@@ -31,7 +31,7 @@ function load_keys_from_type_contents_edge(item_id, location, type){
 
                 contents += '<tr id=\'{0}\'>'.format(rowCounter);
                 $.each(subkeys, function(k, v){
-                    contents += '<td><input name=\'edge_{0}_{1}\' style=\'width:100%\' placeholder=\'JSON Format\'/></td>'.format(subkeys[k], rowCounter);
+                    contents += '<td><input name=\'edge_{0}_{1}\' style=\'width:120%\' placeholder=\'JSON Format\'/></td>'.format(subkeys[k], rowCounter);
                 });
                 contents += '</tr>';
 
@@ -42,7 +42,7 @@ function load_keys_from_type_contents_edge(item_id, location, type){
                 contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
                 contents += '<div class=\'col-xs-1\'></div>';
                 contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
-                contents += '<div class=\'col-xs-8\'><input name=\'edge_{0}\'/></div>'.format(keys[k]);
+                contents += '<div class=\'col-xs-8\'><input name=\'edge_{0}\' style=\'width:80%\' /></div>'.format(keys[k]);
                 contents += '</div>';
             }
         });
@@ -168,7 +168,7 @@ function load_keys_from_type_contents_node(item_id, location, type, call_from_no
                 contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
                 contents += '<div class=\'col-xs-1\'></div>';
                 contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
-                contents += '<div class=\'col-xs-8\'><input name=\'node_{0}\'/></div>'.format(keys[k]);
+                contents += '<div class=\'col-xs-8\'><input name=\'node_{0}\' style=\'width:80%\' /></div>'.format(keys[k]);
                 contents += '</div>';
             }
         });
