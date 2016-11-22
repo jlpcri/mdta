@@ -105,7 +105,7 @@ function module_node_edit_add_data(node_id){
 }
 
 function get_placeholder(key){
-    var data = '{nodeName}_';
+    var data = '{prompt}';
     switch (key){
         case 'NoInput_1':
             data += 'NI1';

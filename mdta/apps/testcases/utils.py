@@ -101,7 +101,7 @@ def get_paths_through_all_edges(edges, th_module=None):
                             })
 
                         if edge.to_node.type.name in NEGATIVE_TEST_NODE_NAME:
-                            negative_testcase_generation(data, path_data, title)
+                            negative_testcase_generation(data, path_data, title, edge.to_node)
 
     else:
         for edge in edges:
