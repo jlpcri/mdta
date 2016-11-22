@@ -168,7 +168,7 @@ function load_keys_from_type_contents_node(item_id, location, type, call_from_no
                 contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
                 contents += '<div class=\'col-xs-1\'></div>';
                 contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
-                contents += '<div class=\'col-xs-8\'><input name=\'node_{0}\' style=\'width:80%\' /></div>'.format(keys[k]);
+                contents += '<div class=\'col-xs-8\'><input name=\'node_{0}\' style=\'width:80%\' placeholder=\'{1}\' /></div>'.format(keys[k], get_placeholder(keys[k]));
                 contents += '</div>';
             }
         });

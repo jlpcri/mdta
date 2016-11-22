@@ -1,5 +1,6 @@
 {% extends 'core/base.html' %}
 {% load staticfiles %}
+{% load placeholder_extras %}
 
 {% block title %} Module Detail {% endblock %}
 
@@ -17,7 +18,7 @@
             border: 1px solid lightgray;
         }
         @media (min-width: 768px){
-            .right {
+            .right1 {
                 position: absolute;
                 top: 15px;
                 bottom: 0;
@@ -146,7 +147,7 @@
                                                                         {% elif 'Verbiage' in key %}
                                                                             <textarea name="{{ key }}" rows="3" style="width:100%">{{ value }}</textarea>
                                                                         {% else %}
-                                                                            <input name="{{ key }}" style="width:100%" value="{{ value }}" >
+                                                                            <input name="{{ key }}" style="width:100%" value="{{ value }}" placeholder="{% placeholder_format key item.name %}">
                                                                         {% endif %}
                                                                     </div>
                                                                 </div>
