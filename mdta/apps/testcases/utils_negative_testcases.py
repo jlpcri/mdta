@@ -2,12 +2,13 @@ import random
 
 
 NEGATIVE_TESTS_LIST = ['NIR', 'NMR', 'NIF', 'NMF', 'NINMF']
+ON_FAIL_GO_TO_KEY = 'OnFailGoTo'
+NON_STANDARD_FAIL_KEY = 'NonStandardFail'
 
 
-def tc_no_input_recover(step, repeat=None, node=None):
+def tc_no_input_recover(node):
     """
     Test step of No Input and recover to self
-    :param step: self step
     :return:
     """
     data = [
@@ -20,10 +21,9 @@ def tc_no_input_recover(step, repeat=None, node=None):
     return data
 
 
-def tc_no_match_recover(step, repeat=None, node=None):
+def tc_no_match_recover(node):
     """
     Test step of No Match and recover to self
-    :param step: self step
     :return:
     """
     no_match_conent = get_no_match_content(node)
@@ -37,66 +37,118 @@ def tc_no_match_recover(step, repeat=None, node=None):
     return data
 
 
-def tc_no_input_3_fail(step=None, repeat=None, node=None):
+def tc_no_input_3_fail(node):
     """
     Test step of 3 times No Input then Fail
-    :param step: self step
     :return:
     """
     data = []
-    data.append({
-        'content': 'wait',
-        'expected': node.name + 'NI1: ' + node.properties['NoInput_1']
-    })
-    data.append({
-        'content': 'wait',
-        'expected': node.name + 'NI2: ' + node.properties['NoInput_2']
-    })
-    data.append({
-        'content': 'wait',
-        'expected': 'Test fail, route to: ' + node.properties['OnFailGoTo']
-    })
+    if node.properties[ON_FAIL_GO_TO_KEY] == '':
+        data.append({
+            'content': False,
+            'expected': 'This test cannot be routed, OnFailGoTo empty'
+        })
+    elif not search_node_name(node.module, node.properties[ON_FAIL_GO_TO_KEY]):
+        data.append({
+            'content': False,
+            'expected': 'This test cannot be routed, OnFailGoTo node name invalid'
+        })
+    else:
+        data.append({
+            'content': 'wait',
+            'expected': node.name + 'NI1: ' + node.properties['NoInput_1']
+        })
+        data.append({
+            'content': 'wait',
+            'expected': node.name + 'NI2: ' + node.properties['NoInput_2']
+        })
+        data.append({
+            'content': 'wait',
+            'expected': 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
+        })
 
     return data
 
 
-def tc_no_match_3_fail(step=None, repeat=None, node=None):
+def tc_no_match_3_fail(node):
     """
     Test step of 3 times No Match then Fail
-    :param step: self step
     :return:
     """
     data = []
-    for i in range(repeat - 1):
+
+    if node.properties[ON_FAIL_GO_TO_KEY] == '':
         data.append({
-            'content': 'No Match',
-            'expected': step['expected']
+            'content': False,
+            'expected': 'This test cannot be routed, OnFailGoTo empty'
         })
-    data.append({
-        'content': 'No Match',
-        'expected': 'Test Fail'
-    })
+    elif not search_node_name(node.module, node.properties[ON_FAIL_GO_TO_KEY]):
+        data.append({
+            'content': False,
+            'expected': 'This test cannot be routed, OnFailGoTo node name invalid'
+        })
+    else:
+        no_match_content = get_no_match_content(node)
+        data.append({
+            'content': no_match_content,
+            'expected': node.name + 'NM1: ' + node.properties['NoMatch_1']
+        })
+
+        no_match_content = get_no_match_content(node)
+        data.append({
+            'content': no_match_content,
+            'expected': node.name + 'NM2: ' + node.properties['NoMatch_2']
+        })
+
+        no_match_content = get_no_match_content(node)
+        data.append({
+            'content': no_match_content,
+            'expected': 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
+        })
 
     return data
 
 
-def tc_ni_nm_3_fail(step=None, repeat=None, node=None):
+def tc_ni_nm_3_fail(node):
     """
     Test step of 3 times 'No Input' or 'No Match' then Fail
-    :param step: self step
     :return:
     """
     data = []
-    combinations = random_combination(repeat)
-    for i in range(repeat - 1):
+    ni_index = 0
+    nm_index = 0
+
+    if node.properties[ON_FAIL_GO_TO_KEY] == '':
         data.append({
-            'content': combinations[i],
-            'expected': step['expected']
+            'content': False,
+            'expected': 'This test cannot be routed, OnFailGoTo empty'
         })
-    data.append({
-        'content': combinations[repeat - 1],
-        'expected': 'Test Fail'
-    })
+    elif not search_node_name(node.module, node.properties[ON_FAIL_GO_TO_KEY]):
+        data.append({
+            'content': False,
+            'expected': 'This test cannot be routed, OnFailGoTo node name invalid'
+        })
+    else:
+        combinations = random_combination(3)
+        for index, item in enumerate(combinations):
+            if item == 'NI':
+                content = 'wait'
+                ni_index += 1
+                if index == 2:
+                    expected = 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
+                else:
+                    expected = node.name + 'NI{0}: '.format(ni_index) + node.properties['NoInput_{0}'.format(ni_index)]
+            else:
+                content = get_no_match_content(node)
+                nm_index += 1
+                if index == 2:
+                    expected = 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
+                else:
+                    expected = node.name + 'NM{0}: '.format(nm_index) + node.properties['NoMatch_{0}'.format(nm_index)]
+            data.append({
+                'content': content,
+                'expected': expected
+            })
 
     return data
 
@@ -116,13 +168,13 @@ def get_negative_tc_steps(key):
     }.get(key, tc_no_input_recover)
 
 
-def get_negative_tc_title(key, repeat):
+def get_negative_tc_title(key):
     return {
         'NIR': 'No Input & Recover',
         'NMR': 'No Match & Recover',
-        'NIF': 'No Input {0} Times Fail'.format(repeat),
-        'NMF': 'No Match {0} Times Fail'.format(repeat),
-        'NINMF': 'No Input or No Match {0} Times Fail'.format(repeat)
+        'NIF': 'No Input 3 Times Fail',
+        'NMF': 'No Match 3 Times Fail',
+        'NINMF': 'No Input or No Match 3 Times Fail'
     }.get(key, 'No Input & Recover')
 
 
@@ -134,15 +186,30 @@ def negative_testcase_generation(data, path_data, title, node):
     :param title: title of current TestCase
     :return:
     """
-    repeat = 3
-    for key in NEGATIVE_TESTS_LIST:
-        _title = title + ', ' + get_negative_tc_title(key, repeat)
-        tc_steps = path_data['tc_steps'] + get_negative_tc_steps(key)(path_data['tc_steps'][-1], repeat, node)
-        data.append({
-            'pre_conditions': path_data['pre_conditions'],
-            'tc_steps': tc_steps,
-            'title': _title
-        })
+    if node.properties[NON_STANDARD_FAIL_KEY] == 'on':
+        for key in NEGATIVE_TESTS_LIST:
+            _title = title + ', ' + get_negative_tc_title(key)
+            data.append({
+                'tcs_cannot_route': 'This test cannot be routed, Non standard fail behavior',
+                'title': _title
+            })
+    else:
+        for key in NEGATIVE_TESTS_LIST:
+            _title = title + ', ' + get_negative_tc_title(key)
+            negative_tc_steps = get_negative_tc_steps(key)(node)
+
+            if not negative_tc_steps[0]['content']:
+                data.append({
+                    'tcs_cannot_route': negative_tc_steps[0]['expected'],
+                    'title': _title
+                })
+            else:
+                tc_steps = path_data['tc_steps'] + negative_tc_steps
+                data.append({
+                    'pre_conditions': path_data['pre_conditions'],
+                    'tc_steps': tc_steps,
+                    'title': _title
+                })
 
 
 def random_combination(random_size=None):
@@ -150,7 +217,7 @@ def random_combination(random_size=None):
     Generate random combination of pool
     :return:
     """
-    pool = ['No Input', 'No Match']
+    pool = ['NI', 'NM']
     if not random_size:
         random_size = 3
     pool_size = len(pool) - 1
@@ -189,6 +256,17 @@ def get_no_match_content(node):
         elif edge.type.name == 'Speech':
             valid_data.append(edge.properties['Say'])
 
+    if not valid_data:
+        for edge in node.leaving_edges:
+            next_node = edge.to_node
+            if next_node.type.name in ['DataQueries Database', 'DataQueries WebService']:
+                for item in next_node.properties['InputData']:
+                    # print(item['Inputs'], node.properties['Outputs'])
+                    try:
+                        valid_data.append(item['Inputs'][node.properties['Outputs']])
+                    except KeyError:
+                        pass
+
     data = generate_no_match_value(valid_data)
 
     return data
@@ -199,9 +277,19 @@ def generate_no_match_value(values):
     flag = True
 
     while flag:
-        tmp = random.randint(0, 9)
+        tmp = str(random.randint(1, 9))
         if tmp not in values:
-            data += str(tmp)
+            data += tmp
             flag = False
 
     return data
+
+
+def search_node_name(module, node_name):
+    flag = False
+    for node in module.nodes_all:
+        if node.name == node_name:
+            flag = True
+            break
+
+    return flag
