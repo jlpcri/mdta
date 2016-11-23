@@ -48,7 +48,7 @@ def tc_no_input_3_fail(node):
             'content': False,
             'expected': 'This test cannot be routed, OnFailGoTo empty'
         })
-    elif not search_node_name(node.module, node.properties[ON_FAIL_GO_TO_KEY]):
+    elif not search_node_name_inside_project(node.module.project, node.properties[ON_FAIL_GO_TO_KEY]):
         data.append({
             'content': False,
             'expected': 'This test cannot be routed, OnFailGoTo node name invalid'
@@ -82,7 +82,7 @@ def tc_no_match_3_fail(node):
             'content': False,
             'expected': 'This test cannot be routed, OnFailGoTo empty'
         })
-    elif not search_node_name(node.module, node.properties[ON_FAIL_GO_TO_KEY]):
+    elif not search_node_name_inside_project(node.module.project, node.properties[ON_FAIL_GO_TO_KEY]):
         data.append({
             'content': False,
             'expected': 'This test cannot be routed, OnFailGoTo node name invalid'
@@ -123,7 +123,7 @@ def tc_ni_nm_3_fail(node):
             'content': False,
             'expected': 'This test cannot be routed, OnFailGoTo empty'
         })
-    elif not search_node_name(node.module, node.properties[ON_FAIL_GO_TO_KEY]):
+    elif not search_node_name_inside_project(node.module.project, node.properties[ON_FAIL_GO_TO_KEY]):
         data.append({
             'content': False,
             'expected': 'This test cannot be routed, OnFailGoTo node name invalid'
@@ -285,9 +285,9 @@ def generate_no_match_value(values):
     return data
 
 
-def search_node_name(module, node_name):
+def search_node_name_inside_project(project, node_name):
     flag = False
-    for node in module.nodes_all:
+    for node in project.nodes:
         if node.name == node_name:
             flag = True
             break
