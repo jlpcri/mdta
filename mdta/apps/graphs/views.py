@@ -488,8 +488,8 @@ def module_node_new(request, module_id):
 
             messages.success(request, 'Node is Added')
         else:
-            print(form.errors)
-            messages.error(request, 'Module new node error.')
+            # print(form.errors)
+            messages.error(request, form.errors)
 
         return redirect('graphs:project_module_detail', module_id)
 
