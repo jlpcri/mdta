@@ -134,14 +134,14 @@ def tc_ni_nm_3_fail(node):
             if item == 'NI':
                 content = 'wait'
                 ni_index += 1
-                if index == 2:
+                if index >= 2:
                     expected = 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
                 else:
                     expected = node.name + 'NI{0}: '.format(ni_index) + node.properties['NoInput_{0}'.format(ni_index)]
             else:
                 content = get_no_match_content(node)
                 nm_index += 1
-                if index == 2:
+                if index >= 2:
                     expected = 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
                 else:
                     expected = node.name + 'NM{0}: '.format(nm_index) + node.properties['NoMatch_{0}'.format(nm_index)]
@@ -238,9 +238,9 @@ def random_combination(random_size=None):
 
 def check_identical(data):
     """
-    Check elements of list are identical
-    :param data:
-    :return:
+    Check elements of list are identical, since 3 NoInputs and 3 NoMatch are covered
+    :param data: list of three elements
+    :return: True or False
     """
     if data.count(data[0]) == len(data):
         return True
@@ -249,6 +249,11 @@ def check_identical(data):
 
 
 def get_no_match_content(node):
+    """
+    Get a no match content from valid input for NoMatch input
+    :param node: current Node
+    :return:
+    """
     valid_data = []
     for edge in node.leaving_edges:
         if edge.type.name == 'DTMF':
@@ -256,23 +261,43 @@ def get_no_match_content(node):
         elif edge.type.name == 'Speech':
             valid_data.append(edge.properties['Say'])
 
-    if not valid_data:
-        for edge in node.leaving_edges:
-            next_node = edge.to_node
-            if next_node.type.name in ['DataQueries Database', 'DataQueries WebService']:
-                for item in next_node.properties['InputData']:
-                    # print(item['Inputs'], node.properties['Outputs'])
-                    try:
-                        valid_data.append(item['Inputs'][node.properties['Outputs']])
-                    except KeyError:
-                        pass
+        # Search all following DataQueries node connected to current node
+        valid_data += following_dataqueries_node_valid_data(node=edge.to_node,
+                                                            subkey=node.properties['Outputs'])
 
     data = generate_no_match_value(valid_data)
 
     return data
 
 
+def following_dataqueries_node_valid_data(node, subkey):
+    """
+    Search all following DataQueries node connected to current node
+    :param node:
+    :param subkey:
+    :return:
+    """
+    data = []
+    if node.type.name in ['DataQueries Database', 'DataQueries WebService']:
+        for item in node.properties['InputData']:
+            # print(item['Inputs'], node.properties['Outputs'])
+            try:
+                data.append(item['Inputs'][subkey])
+            except KeyError:
+                pass
+
+    for edge in node.leaving_edges:
+        data += following_dataqueries_node_valid_data(edge.to_node, subkey)
+
+    return data
+
+
 def generate_no_match_value(values):
+    """
+    Generate a random 1 digit number which is different from the number in values
+    :param values: list of numbers
+    :return:
+    """
     data = 'press '
     flag = True
 
@@ -286,6 +311,12 @@ def generate_no_match_value(values):
 
 
 def search_node_name_inside_project(project, node_name):
+    """
+    Search node name of OnFailGoTo is a valid node name
+    :param project:
+    :param node_name:
+    :return:
+    """
     flag = False
     for node in project.nodes:
         if node.name == node_name:
