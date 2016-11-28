@@ -234,7 +234,7 @@ def get_keys_from_type(request):
         item = get_object_or_404(EdgeType, pk=object_id)
 
     data = {
-        'keys': item.keys,
+        'keys': sorted(item.keys),
         'subkeys': item.subkeys
     }
 
@@ -488,8 +488,8 @@ def module_node_new(request, module_id):
 
             messages.success(request, 'Node is Added')
         else:
-            print(form.errors)
-            messages.error(request, 'Module new node error.')
+            # print(form.errors)
+            messages.error(request, form.errors)
 
         return redirect('graphs:project_module_detail', module_id)
 

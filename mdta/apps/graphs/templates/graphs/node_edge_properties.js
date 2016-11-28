@@ -35,7 +35,7 @@ function load_keys_from_type_contents(item_id, location, type, call_from_node_ed
                 contents += '<tr id=\'{0}\'>'.format(rowCounter);
                 if (call_from_node_edit) {
                     $.each(subkeys, function (k, v) {
-                        contents += '<td><input name=\'{0}_{1}\' placeholder=\'JSON Format\'/></td>'.format(subkeys[k], rowCounter);
+                        contents += '<td><input name=\'{0}_{1}\' placeholder=\'JSON Format1\'/></td>'.format(subkeys[k], rowCounter);
                     });
                 } else {
                     $.each(subkeys, function (k, v) {
@@ -48,13 +48,17 @@ function load_keys_from_type_contents(item_id, location, type, call_from_node_ed
                 contents += '</div>';
                 contents += '</div>';
             } else {
-                contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
+                contents += '<div class=\'row\' style=\'margin-top: 0px;\'>';
                 contents += '<div class=\'col-xs-1\'></div>';
                 contents += '<div class=\'col-xs-11\'><label>{0}: </label></div>'.format(keys[k]);
                 contents += '</div>';
-                contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
+                contents += '<div class=\'row\' style=\'margin-top: 0px;\'>';
                 contents += '<div class=\'col-xs-1\'></div>';
-                contents += '<div class=\'col-xs-11\'><input name=\'{0}\'/></div>'.format(keys[k]);
+                if (call_from_node_edit){
+                    contents += '<div class=\'col-xs-11\'><input name=\'{0}\' style=\'width:110%\' placeholder=\'{1}\'/></div>'.format(keys[k], get_placeholder(keys[k]));
+                } else {
+                    contents += '<div class=\'col-xs-11\'><input name=\'{0}\' style=\'width:80%\' placeholder=\'{1}\'/></div>'.format(keys[k], get_placeholder(keys[k]));
+                }
                 contents += '</div>';
             }
         });
@@ -98,4 +102,26 @@ function module_node_edit_add_data(node_id){
     var rowCounter = parseInt($('{0} tr:last'.format(location)).attr('id')) + 1;
 
     node_property_add_data(subkeys, rowCounter, location);
+}
+
+function get_placeholder(key){
+    var data = '{prompt}';
+    switch (key){
+        case 'NoInput_1':
+            data += 'NI1';
+            break;
+        case 'NoInput_2':
+            data += 'NI2';
+            break;
+        case 'NoMatch_1':
+            data += 'NM1';
+            break;
+        case 'NoMatch_2':
+            data += 'NM2';
+            break;
+        default :
+            data = ''
+    }
+
+    return data
 }
