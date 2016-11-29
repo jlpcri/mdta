@@ -43,7 +43,7 @@ function load_keys_from_type_contents_edge(item_id, location, type){
                 contents += '<div class=\'col-xs-1\'></div>';
                 contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
                 if (keys[k] == 'Invisible'){
-                    contents += '<div class=\'col-xs-8\'><input name=\'edge_{0}\' type=\'checkbox\' data-toggle=\'toggle\' style=\'width:80% align:left\' /></div>'.format(keys[k]);
+                    contents += '<div class=\'col-xs-8\'><input name=\'edge_{0}\' type=\'checkbox\' data-toggle=\'toggle\' class=\'myToggle\' data-on=\'True\' data-width=\'100\' data-onstyle=\'success\' data-off=\'False\' style=\'width:80% align:left\' /></div>'.format(keys[k]);
                 } else {
                     contents += '<div class=\'col-xs-8\'><input name=\'edge_{0}\' style=\'width:80%\' /></div>'.format(keys[k]);
                 }
@@ -52,6 +52,7 @@ function load_keys_from_type_contents_edge(item_id, location, type){
         });
         //console.log(contents)
         $(location).html(contents);
+        $('.myToggle').bootstrapToggle();
     });
 }
 
@@ -173,7 +174,7 @@ function load_keys_from_type_contents_node(item_id, location, type, call_from_no
                 contents += '<div class=\'col-xs-1\'></div>';
                 contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
                 if (keys[k] == 'NonStandardFail'){
-                    contents += '<div class=\'col-xs-8\'><input name=\'node_{0}\' type=\'checkbox\' data-toggle=\'toggle\' style=\'width:80% align:left;\' /></div>'.format(keys[k]);
+                    contents += '<div class=\'col-xs-8\'><input name=\'node_{0}\' type=\'checkbox\' data-toggle=\'toggle\' class=\'myToggle\' data-on=\'True\' data-width=\'100\' data-onstyle=\'success\' data-off=\'False\' style=\'width:80% align:left;\' /></div>'.format(keys[k]);
                 } else {
                     contents += '<div class=\'col-xs-8\'><input name=\'node_{0}\' style=\'width:80%\' placeholder=\'{1}\' /></div>'.format(keys[k], get_placeholder(keys[k]));
                 }
@@ -182,6 +183,7 @@ function load_keys_from_type_contents_node(item_id, location, type, call_from_no
         });
         //console.log(contents)
         $(location).html(contents);
+        $('.myToggle').bootstrapToggle();
 
         $('#buttonTogetherAddData').click(function(){
             rowCounter++;

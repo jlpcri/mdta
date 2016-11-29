@@ -56,13 +56,13 @@ function load_keys_from_type_contents(item_id, location, type, call_from_node_ed
                 contents += '<div class=\'col-xs-1\'></div>';
                 if (call_from_node_edit){
                     if (['NonStandardFail', 'Invisible'].indexOf(keys[k]) >= 0){
-                        contents += '<div class=\'col-xs-11\'><input name=\'{0}\' type=\'checkbox\' data-toggle=\'toggle\'/></div>'.format(keys[k]);
+                        contents += '<div class=\'col-xs-11\'><input name=\'{0}\' type=\'checkbox\' class=\'myToggle\' data-on=\'True\' data-width=\'100\' data-onstyle=\'success\' data-off=\'False\'/></div>'.format(keys[k]);
                     } else {
                         contents += '<div class=\'col-xs-11\'><input name=\'{0}\' style=\'width:110%\' placeholder=\'{1}\'/></div>'.format(keys[k], get_placeholder(keys[k]));
                     }
                 } else {
                     if (['NonStandardFail', 'Invisible'].indexOf(keys[k]) >= 0){
-                        contents += '<div class=\'col-xs-11\'><input name=\'{0}\' type=\'checkbox\' data-toggle=\'toggle\'/></div>'.format(keys[k]);
+                        contents += '<div class=\'col-xs-11\'><input name=\'{0}\' type=\'checkbox\' class=\'myToggle\' data-on=\'True\' data-width=\'100\' data-onstyle=\'success\' data-off=\'False\'/></div>'.format(keys[k]);
                     } else {
                         contents += '<div class=\'col-xs-11\'><input name=\'{0}\' style=\'width:80%\' placeholder=\'{1}\'/></div>'.format(keys[k], get_placeholder(keys[k]));
                     }
@@ -72,6 +72,7 @@ function load_keys_from_type_contents(item_id, location, type, call_from_node_ed
         });
         //console.log(contents)
         $(location).html(contents);
+        $('.myToggle').bootstrapToggle();
 
         $('#buttonAddData').click(function(){
             rowCounter++;
