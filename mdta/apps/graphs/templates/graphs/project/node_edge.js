@@ -89,7 +89,8 @@ $(document).ready(function(){
         edge_location = '#project-edge-new-properties';
     if (node_id) {
         load_keys_from_type_contents(node_id, node_location, 'node');
-    } else if (edge_id_project) {
+    }
+    if (edge_id_project) {
         load_keys_from_type_contents(edge_id_project, edge_location, 'edge');
     } else if (edge_id_module) {
         load_keys_from_type_contents(edge_id_module, edge_location, 'edge');

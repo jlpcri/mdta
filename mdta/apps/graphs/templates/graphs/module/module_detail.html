@@ -275,7 +275,16 @@
                             <div class="tab-content">
                                 {% for item in module.edges_all %}
                                     <div class="tab-pane" id="edge-{{ item.id }}">
-                                        <h4>Edge Detail</h4>
+                                        <div class="row">
+                                            <div class="col-xs-6"><h4>Edge Detail</h4></div>
+                                            <div class="col-xs-6" style="position: relative; bottom: 0;">
+                                                {% if all_edges %}
+                                                    <a href="{% url 'graphs:project_module_detail' module.id %}" class="btn btn-default">DrawVisible</a>
+                                                {% else %}
+                                                    <a href="{% url 'graphs:project_module_detail' module.id %}?all_edges=true" class="btn btn-default">DrawAll</a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
                                         <form method="post" action="{% url 'graphs:module_edge_edit' item.id %}" class="moduleEdgeEditForm">
                                             <div class="row">
                                                 <div class="col-xs-12">
