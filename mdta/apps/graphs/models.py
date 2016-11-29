@@ -100,7 +100,7 @@ class Node(models.Model):
         # Node name should be unique for node.module.project
         project = self.module.project
         for each_node in project.nodes:
-            if each_node.name.casefold() == self.name.casefold():
+            if each_node.name.casefold() == self.name.casefold() and each_node.id != self.id:
                 if each_node.module == self.module:
                     msg = 'Node with this Module and Name already exists.'
                 else:
