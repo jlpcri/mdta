@@ -118,14 +118,16 @@ def get_paths_through_all_edges(edges, th_module=None):
                                  edge.to_node.name + '\''
                     })
                 else:
+                    title = 'Route from \'' + edge.from_node.name +\
+                                    '\' to \'' + edge.to_node.name + '\''
                     data.append({
-                        'pre_conditions': path_data['pre_conditions'],
-                        'tc_steps': path_data['tc_steps'],
-                        'title': 'Route from \'' +
-                                 edge.from_node.name +
-                                 '\' to \'' +
-                                 edge.to_node.name + '\''
-                    })
+                            'pre_conditions': path_data['pre_conditions'],
+                            'tc_steps': path_data['tc_steps'],
+                            'title': title
+                        })
+
+                    if edge.to_node.type.name in NEGATIVE_TEST_NODE_NAME:
+                        negative_testcase_generation(data, path_data, title, edge.to_node)
 
     # return check_subpath_in_all(data)
     return data
