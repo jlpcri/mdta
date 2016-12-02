@@ -98,16 +98,17 @@ class Node(models.Model):
 
     def clean(self):
         # Node name should be unique for node.module.project
-        project = self.module.project
-        for each_node in project.nodes:
-            if each_node.name.casefold() == self.name.casefold():
-                if each_node.module == self.module:
-                    msg = 'Node with this Module and Name already exists.'
-                else:
-                    msg = 'Node with this Project and Name already exists.'
-                raise ValidationError({
-                    'name': msg
-                })
+        if self.module.project:
+            project = self.module.project
+            for each_node in project.nodes:
+                if each_node.name.casefold() == self.name.casefold() and each_node.id != self.id:
+                    if each_node.module == self.module:
+                        msg = 'Node with this Module and Name already exists.'
+                    else:
+                        msg = 'Node with this Project and Name already exists.'
+                    raise ValidationError({
+                        'name': msg
+                    })
 
     def save(self, *args, **kwargs):
         self.full_clean()

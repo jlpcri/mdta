@@ -7,7 +7,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new, check_edge_in_set,\
-    get_properties_for_node_or_edge
+    get_properties_for_node_or_edge, EDGE_TYPES_INVISIBLE_KEY
 from mdta.apps.projects.models import Project, Module
 from mdta.apps.projects.utils import context_project_dashboard
 from mdta.apps.users.views import user_is_staff, user_is_superuser
@@ -332,6 +332,8 @@ def project_module_detail(request, module_id):
     :param module_id:
     :return:
     """
+    all_edges = request.GET.get('all_edges', '')
+
     module = get_object_or_404(Module, pk=module_id)
 
     # for module level graph
@@ -341,6 +343,12 @@ def project_module_detail(request, module_id):
     outside_module_node_color = 'rgb(211, 211, 211)'
 
     for edge in module.edges_all:
+        try:
+            if edge.properties[EDGE_TYPES_INVISIBLE_KEY] == 'on' and not all_edges:
+                continue
+        except KeyError:
+            pass
+
         network_edges.append({
             'id': edge.id,
             'to': edge.to_node.id,
@@ -420,6 +428,7 @@ def project_module_detail(request, module_id):
 
     context = {
         'module': module,
+        'all_edges': all_edges,
         'node_new_form': node_new_form,
 
         'node_types': node_types,

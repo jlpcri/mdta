@@ -8,6 +8,7 @@ from mdta.apps.graphs.models import NodeType, EdgeType
 
 NODE_TYPES_WITH_DATA = ['DataQueries Database', 'DataQueries WebService']
 EDGE_TYPES_WITH_DATA = ['Data', 'PreCondition']
+EDGE_TYPES_INVISIBLE_KEY = 'Invisible'
 
 
 def node_or_edge_type_new(request, form):
@@ -150,9 +151,20 @@ def get_properties_for_node_or_edge(request, node_or_edge_type, auto_edge=None):
                 for d_key in key_data_json:
                     subkey_data[d_key] = key_data_json[d_key]
                 key_data[node_or_edge_type.subkeys_data_name] = subkey_data
-                properties[node_or_edge_type.keys_data_name] = key_data
+                for key in node_or_edge_type.keys:
+                    if key == EDGE_TYPES_INVISIBLE_KEY:
+                        properties[key] = request.POST.get(key, '')
+                    else:
+                        properties[key] = key_data
             except Exception:
-                pass
+                for key in node_or_edge_type.keys:
+                    if key == EDGE_TYPES_INVISIBLE_KEY:
+                        properties[key] = request.POST.get(key, '')
+                    else:
+                        properties[key] = {
+                            node_or_edge_type.subkeys_data_name: ''
+                        }
+
             return properties
         else:
             for key in node_or_edge_type.subkeys:
@@ -172,9 +184,20 @@ def get_properties_for_node_or_edge(request, node_or_edge_type, auto_edge=None):
                 for d_key in key_data_json:
                     subkey_data[d_key] = key_data_json[d_key]
                 key_data[node_or_edge_type.subkeys_data_name] = subkey_data
-                properties[node_or_edge_type.keys_data_name] = key_data
+                for key in node_or_edge_type.keys:
+                    if key == EDGE_TYPES_INVISIBLE_KEY:
+                        properties[key] = request.POST.get(key, '')
+                    else:
+                        properties[key] = key_data
             except Exception:
-                pass
+                for key in node_or_edge_type.keys:
+                    if key == EDGE_TYPES_INVISIBLE_KEY:
+                        properties[key] = request.POST.get(key, '')
+                    else:
+                        properties[key] = {
+                            node_or_edge_type.subkeys_data_name: ''
+                        }
+
             return properties
         else:
             for key in node_or_edge_type.subkeys:
