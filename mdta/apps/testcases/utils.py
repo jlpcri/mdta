@@ -3,10 +3,10 @@ from django.shortcuts import get_object_or_404
 from mdta.apps.graphs.models import Node
 from mdta.apps.projects.models import Project, TestRailConfiguration, Module
 from mdta.apps.testcases.testrail import APIClient, APIError
-from mdta.apps.testcases.utils_backwards_traverse import path_traverse_backwards
+from mdta.apps.testcases.utils_backwards_traverse import path_traverse_backwards, START_NODE_NAME
 from mdta.apps.testcases.utils_negative_testcases import negative_testcase_generation
 
-START_NODE_NAME = ['Start', 'TestHeader Start']
+# START_NODE_NAME = ['Start', 'TestHeader Start']
 NEGATIVE_TEST_NODE_NAME = ['Menu Prompt']
 
 

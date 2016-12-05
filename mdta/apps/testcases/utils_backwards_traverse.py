@@ -4,6 +4,8 @@ START_NODE_NAME = ['Start', 'TestHeader Start']
 DATA_NODE_NAME = ['DataQueries Database', 'DataQueries WebService']
 CONSTRAINTS_TRUE_OR_FALSE = 'tof'
 TESTCASE_NOT_ROUTE_MESSAGE = 'This edge cannot be routed'
+MENU_PROMPT_OUTPUTS_KEY_NODE_NAME = ['Menu Prompt', 'Menu Prompt with Confirmation']
+MENU_PROMPT_OUTPUTS_KEY_NAME = 'Outputs'
 
 
 def path_traverse_backwards(path, th_path=None):
@@ -28,10 +30,15 @@ def path_traverse_backwards(path, th_path=None):
                     result_found = get_data_node_result(step, constraints, index=index, path=path)
                     if result_found:
                         match_constraint_found = True
-                        # update next step content as found result from Data Node
-                        update_tcs_next_step_content(tcs, result_found)
+
+                        menu_prompt_outputs_key = get_menu_prompt_outputs_key(path, index)
+                        if menu_prompt_outputs_key in result_found.keys():
+                            # update next step content as found result from Data Node
+                            update_tcs_next_step_content(tcs, result_found)
+                        else:
+                            tcs_cannot_route = TESTCASE_NOT_ROUTE_MESSAGE + ', key name from MenuPrompt/MenuPromptWithConfirmation incorrect'
                     else:
-                        tcs_cannot_route = TESTCASE_NOT_ROUTE_MESSAGE
+                        tcs_cannot_route = TESTCASE_NOT_ROUTE_MESSAGE + ', No match result found in DataQueries Node'
                         break
                 else:
                     traverse_node(step, tcs, preceding_edge=path[index + 1])
@@ -193,6 +200,23 @@ def get_edge_constraints(item, rule):
                 pass
     # print(data)
     return data
+
+
+def get_menu_prompt_outputs_key(path, index_start):
+    """
+    Search Menu Prompt / Menu Prompt with Confirmation, fetch node.properties['Outputs']
+    as key in Data Node inputs key
+    :param path:
+    :param index:
+    :return:
+    """
+    key = ''
+    for index, step in enumerate(path[index_start:]):
+        if step.type.name in MENU_PROMPT_OUTPUTS_KEY_NODE_NAME:
+            key = step.properties[MENU_PROMPT_OUTPUTS_KEY_NAME]
+            break
+
+    return key
 
 
 def update_tcs_next_step_content(tcs, result_found):

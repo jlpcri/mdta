@@ -1,5 +1,7 @@
 import random
 
+from mdta.apps.testcases.utils_backwards_traverse import TESTCASE_NOT_ROUTE_MESSAGE
+
 
 NEGATIVE_TESTS_LIST = ['NIR', 'NMR', 'NIF', 'NMF', 'NINMF']
 ON_FAIL_GO_TO_KEY = 'OnFailGoTo'
@@ -46,12 +48,12 @@ def tc_no_input_3_fail(node):
     if node.properties[ON_FAIL_GO_TO_KEY] == '':
         data.append({
             'content': False,
-            'expected': 'This test cannot be routed, OnFailGoTo empty'
+            'expected': TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo empty'
         })
     elif not search_node_name_inside_project(node.module.project, node.properties[ON_FAIL_GO_TO_KEY]):
         data.append({
             'content': False,
-            'expected': 'This test cannot be routed, OnFailGoTo node name invalid'
+            'expected': TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo node name invalid'
         })
     else:
         data.append({
@@ -80,12 +82,12 @@ def tc_no_match_3_fail(node):
     if node.properties[ON_FAIL_GO_TO_KEY] == '':
         data.append({
             'content': False,
-            'expected': 'This test cannot be routed, OnFailGoTo empty'
+            'expected': TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo empty'
         })
     elif not search_node_name_inside_project(node.module.project, node.properties[ON_FAIL_GO_TO_KEY]):
         data.append({
             'content': False,
-            'expected': 'This test cannot be routed, OnFailGoTo node name invalid'
+            'expected': TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo node name invalid'
         })
     else:
         no_match_content = get_no_match_content(node)
@@ -121,15 +123,15 @@ def tc_ni_nm_3_fail(node):
     if node.properties[ON_FAIL_GO_TO_KEY] == '':
         data.append({
             'content': False,
-            'expected': 'This test cannot be routed, OnFailGoTo empty'
+            'expected': TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo empty'
         })
     elif not search_node_name_inside_project(node.module.project, node.properties[ON_FAIL_GO_TO_KEY]):
         data.append({
             'content': False,
-            'expected': 'This test cannot be routed, OnFailGoTo node name invalid'
+            'expected': TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo node name invalid'
         })
     else:
-        combinations = random_combination(3)
+        combinations = random_combination(random_size=3)
         for index, item in enumerate(combinations):
             if item == 'NI':
                 content = 'wait'
