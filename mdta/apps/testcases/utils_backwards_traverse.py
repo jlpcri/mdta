@@ -46,7 +46,7 @@ def path_traverse_backwards(path, th_path=None):
                         if menu_prompt_outputs_keys and menu_prompt_outputs_keys[0] in result_found.keys():
                             # update next step content as found result from Data Node
                             update_tcs_next_step_content(tcs, result_found)
-                            break
+                            # break
                         else:
                             tcs_cannot_route_flag = True
                             # tcs_cannot_route = TESTCASE_NOT_ROUTE_MESSAGE + ', key name from MenuPrompt/MenuPromptWithConfirmation incorrect'
@@ -81,15 +81,14 @@ def path_traverse_backwards(path, th_path=None):
                                         for th_key in th_menu_prompt_outputs_keys:
                                             if th_key in result_found.keys() and th_key == th_step.properties['Outputs']:
                                                 update_tcs_next_step_content(tcs, result_found)
-                                        else:
-                                            traverse_node(th_step, tcs, th_path[th_index + 1])
-                                    else:
-                                        traverse_node(th_step, tcs, th_path[th_index + 1])
+
+                                    traverse_node(th_step, tcs, th_path[::-1][th_index + 1])
                                 else:
                                     th_tcs_cannot_route_flag = True
+                                    traverse_node(th_step, tcs, th_path[::-1][th_index + 1])
 
                             else:
-                                traverse_node(th_step, tcs, th_path[th_index + 1])
+                                traverse_node(th_step, tcs, th_path[::-1][th_index + 1])
                     else:
                         if isinstance(th_step, Node):
                             traverse_node(th_step, tcs)
