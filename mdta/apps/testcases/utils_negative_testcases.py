@@ -233,6 +233,8 @@ def random_combination(random_size=None):
 
         if not check_identical(data):
             flag = False
+        else:
+            data = []
 
     # print(data)
     return data

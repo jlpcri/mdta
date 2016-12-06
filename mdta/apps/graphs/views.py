@@ -355,7 +355,7 @@ def project_module_detail(request, module_id):
             'from': edge.from_node.id
         })
 
-    if request.user.username != 'test':
+    if request.user.username != 'test_blah':
         for node in module.nodes_all:
             if node.type.name in START_NODE_NAME:
                 shape = 'star'
