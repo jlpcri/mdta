@@ -1,5 +1,6 @@
 from __future__ import print_function
 import textwrap
+from contextlib import contextmanager
 from tempfile import NamedTemporaryFile
 import os
 import sys
@@ -18,10 +19,11 @@ else:
 
 
 class TestRailORM(object):
-    def __init__(self, instance, api_return):
+    def __init__(self, instance, api_return, parent=None):
         """Takes JSON from API call and returns a wrapped object"""
+        self.instance = instance
+        self.parent = parent
         try:
-            self.instance = instance
             for k, v in api_return.items():
                 self.__dict__[k] = v
         except KeyError as e:
@@ -38,18 +40,40 @@ class TestRailORM(object):
 
 class TestRailProject(TestRailORM):
     def get_suites(self):
-        return [TestRailSuite(self.instance, res) for res in self.client().send_get('get_suites/{0}'.format(self.id))]
+        return [TestRailSuite(self.instance, res, self) for res in self.client().send_get('get_suites/{0}'.format(self.id))]
+
+
+class TestRailRun(TestRailORM):
+    def get_tests(self):
+        return [TestRailCase(self.instance, res, self) for res in self.client().send_get('get_tests/{0}'.format(self.id))]
 
 
 class TestRailSuite(TestRailORM):
     def get_cases(self):
-        return [TestRailCase(self.instance, res)
+        return [TestRailCase(self.instance, res, self)
                 for res in self.client().send_get('get_cases/{0}&suite_id={1}'.format(self.project_id, self.id))]
+
+    @contextmanager
+    def test_run(self):
+        payload = {'suite_id': self.id}
+        res = self.client().send_post('add_run/{0}'.format(self.parent.id), payload)
+        trr = TestRailRun(self.instance,
+                          self.client().send_post('add_run/{0}'.format(self.parent.id), payload),
+                          parent=self)
+        yield trr
+        self.client().send_post('close_run/{0}'.format(trr.id), {})
+        return True
+
+    def test(self):
+        with self.test_run() as tr:
+            for case in tr.get_tests():
+                case.generate_hat_script()
+                print(case.script.body)
 
 
 class TestRailCase(TestRailORM):
-    def __init__(self, instance, api_return):
-        super(TestRailCase, self).__init__(instance, api_return)
+    def __init__(self, instance, api_return, parent=None):
+        super(TestRailCase, self).__init__(instance, api_return, parent)
         self.script = None
 
     @property
@@ -64,13 +88,9 @@ class TestRailCase(TestRailORM):
         if not self.script:
             self.script = HATScript()
         for step in self.custom_steps_separated:
-            print("STEP: {0}".format(step))
             self._content_routing(step['content'])
             self._expected_routing(step['expected'])
-            print("BODY: {0}".format(self.script.body))
-        print ("END OF STEPS")
         self.script.end_of_call()
-        print("BODY: {0}".format(self.script.body))
 
     def _content_routing(self, step):
         if not step:
@@ -79,7 +99,7 @@ class TestRailCase(TestRailORM):
         action = action.replace(":", "")
         action_map = {'DNIS': self.script.start_of_call,
                       'DIAL': self.script.start_of_call,
-                      'DIALEDNUMBER:': self.script.start_of_call,
+                      'DIALEDNUMBER': self.script.start_of_call,
                       'APN': self.script.start_of_call,
                       'PRESS': self.script.dtmf_step}
         action_map[action](step)
@@ -291,6 +311,23 @@ class HATScript(AutomationScript):
             return 'sip:999000017{0}@{1}:5060'.format(self.dialed_number, self.sonus_server)
         else:
             return 'sip:{0}@{1}:5060'.format(self.apn, self.holly_server)
+
+
+def bulk_remote_hat_execute(case_list):
+    filename_list = []
+    hat_script_list = NamedTemporaryFile(mode='wt', prefix='HAT')
+    for case in case_list:
+        case.generate_hat_script()
+        f = case._send_hat_script()
+        filename_list.append(f)
+        hat_script_list.write('destination: {0}\nscript: {1}\n'.format(case.sip_string(), f))
+    transport = Transport(case_list[0].remote_server, 22)
+    transport.connect(username=case_list[0].remote_user, password=case_list[0].remote_password)
+    file_client = SFTPClient.from_transport(transport)
+    file_client.put(hat_script_list.name, hat_script_list.name)
+    file_client.close()
+
+    # TODO: Run tests
 
 
 def emergency_test():
