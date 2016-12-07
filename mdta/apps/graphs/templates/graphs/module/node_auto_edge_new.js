@@ -184,6 +184,9 @@ function load_keys_from_type_contents_node(item_id, location, type, call_from_no
         //console.log(contents)
         $(location).html(contents);
         $('.myToggle').bootstrapToggle();
+        $('.moduleNodeEdgeNew input[name="node_OnFailGoTo"]').autocomplete({
+            source: node_names_autocomplete
+        });
 
         $('#buttonTogetherAddData').click(function(){
             rowCounter++;

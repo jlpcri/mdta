@@ -74,6 +74,13 @@ function load_keys_from_type_contents(item_id, location, type, call_from_node_ed
         $(location).html(contents);
         $('.myToggle').bootstrapToggle();
 
+        $('.moduleNodeEditForm input[name="OnFailGoTo"]').autocomplete({
+            source: node_names_autocomplete
+        });
+        $('.projectNodeNew input[name="OnFailGoTo"]').autocomplete({
+            source: node_names_autocomplete
+        });
+
         $('#buttonAddData').click(function(){
             rowCounter++;
             node_property_add_data(subkeys, rowCounter, '.moduleNodeEditPropertyTable', call_from_node_edit);

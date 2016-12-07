@@ -26,6 +26,9 @@
                 overflow: auto;
             }
         }
+        .ui-autocomplete{
+            z-index: 1050;
+        }
     </style>
 {% endblock%}
 
@@ -418,6 +421,7 @@
     <script>
         var nodes = {{ network_nodes|safe }};
         var edges = {{ network_edges|safe }};
+        var node_names_autocomplete = {{node_names_autocomplete|safe}};
         {% include 'graphs/module/module_detail.js' %}
         {% include 'graphs/node_edge_properties.js' %}
         {% include 'graphs/project/node_edge.js' %}

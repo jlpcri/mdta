@@ -426,6 +426,10 @@ def project_module_detail(request, module_id):
         node_new_node_form = NodeNewForm(module_id=module.id)
         module_nodes_set = current_module_nodes
 
+    node_names_autocomplete = []
+    for node in module_nodes_set:
+        node_names_autocomplete.append(node.name)
+
     node_new_edge_form = EdgeAutoNewForm(prefix='edge')
 
     context = {
@@ -439,6 +443,7 @@ def project_module_detail(request, module_id):
         'project_modules': project_modules,
         'current_module_nodes': current_module_nodes,
         'module_nodes_set': module_nodes_set,
+        'node_names_autocomplete': sorted(node_names_autocomplete),
 
         'node_new_node_form': node_new_node_form,
         'node_new_edge_form': node_new_edge_form,
