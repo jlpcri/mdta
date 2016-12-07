@@ -355,7 +355,7 @@ def project_module_detail(request, module_id):
             'from': edge.from_node.id
         })
 
-    if request.user.username != 'test_blah':
+    if request.user.username != 'test':
         for node in module.nodes_all:
             if node.type.name in START_NODE_NAME:
                 shape = 'star'
@@ -401,7 +401,9 @@ def project_module_detail(request, module_id):
                 elif node.type.name == 'Menu Prompt with Confirmation':
                     tmp['image'] = image_url + 'mdta_menu_prompt_with_confirm.png'
                 elif node.type.name == 'TestHeader End':
-                    tmp['image'] = image_url + 'mdta_return.png'
+                    tmp['image'] = image_url + 'mdta_west_male.png'
+                else:
+                    tmp['image'] = image_url + 'mdta_west_female.png'
 
             if node.module != module:
                 tmp['shadow'] = 'true'
