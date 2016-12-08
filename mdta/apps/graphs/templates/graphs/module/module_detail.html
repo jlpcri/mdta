@@ -80,7 +80,7 @@
                                         <div class="row">
                                             <h4>Node Detail</h4>
                                         </div>
-                                        <div class="row">
+                                        <div class="row" style="margin-bottom: 10px;">
                                             <div class="col-xs-12">
                                                 {% if item.module != module %}
                                                     <label>Module:</label>
@@ -91,6 +91,17 @@
                                         </div>
 
                                         <form method="post" action="{% url 'graphs:module_node_edit' item.id %}" class="moduleNodeEditForm">
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <button type="submit" name="node_save" class="btn btn-primary btn-sm param-save">Save</button>
+                                                    <button type="submit" name="node_delete" class="btn btn-danger btn-sm param-delete">Delete</button>
+                                                    <a href="#" data-toggle="modal"
+                                                       data-target="#module-node-edge-new-modal"
+                                                       data-from-node-id="{{ item.id }}"
+                                                       data-module-id="{{ module.id }}"
+                                                       class="btn btn-primary btn-sm" >NewNode</a>
+                                                </div>
+                                            </div>
                                             <div class="row" style="margin-top: 5px;">
                                                 <div class="col-xs-12">
                                                     <label for="moduleNodeEditName">Name:</label>
@@ -172,17 +183,17 @@
                                             <br>
                                             {% csrf_token %}
 
-                                            <div class="row">
-                                                <div class="col-xs-12">
-                                                    <button type="submit" name="node_save" class="btn btn-primary btn-sm param-save">Save</button>
-                                                    <button type="submit" name="node_delete" class="btn btn-danger btn-sm param-delete">Delete</button>
-                                                    <a href="#" data-toggle="modal"
-                                                       data-target="#module-node-edge-new-modal"
-                                                       data-from-node-id="{{ item.id }}"
-                                                       data-module-id="{{ module.id }}"
-                                                       class="btn btn-primary btn-sm" >NewNode</a>
-                                                </div>
-                                            </div>
+{#                                            <div class="row">#}
+{#                                                <div class="col-xs-12">#}
+{#                                                    <button type="submit" name="node_save" class="btn btn-primary btn-sm param-save">Save</button>#}
+{#                                                    <button type="submit" name="node_delete" class="btn btn-danger btn-sm param-delete">Delete</button>#}
+{#                                                    <a href="#" data-toggle="modal"#}
+{#                                                       data-target="#module-node-edge-new-modal"#}
+{#                                                       data-from-node-id="{{ item.id }}"#}
+{#                                                       data-module-id="{{ module.id }}"#}
+{#                                                       class="btn btn-primary btn-sm" >NewNode</a>#}
+{#                                                </div>#}
+{#                                            </div>#}
                                         </form>
 
                                         <div class="row" style="margin-top: 10px;">
@@ -278,7 +289,7 @@
                             <div class="tab-content">
                                 {% for item in module.edges_all %}
                                     <div class="tab-pane" id="edge-{{ item.id }}">
-                                        <div class="row">
+                                        <div class="row" style="margin-bottom: 10px;">
                                             <div class="col-xs-6"><h4>Edge Detail</h4></div>
                                             <div class="col-xs-6" style="position: relative; bottom: 0;">
                                                 {% if all_edges %}
@@ -289,6 +300,13 @@
                                             </div>
                                         </div>
                                         <form method="post" action="{% url 'graphs:module_edge_edit' item.id %}" class="moduleEdgeEditForm">
+                                            <div class="row">
+                                                <div class="col-xs-12">
+                                                    <button type="submit" name="edge_save" class="btn btn-primary btn-sm param-save">Save</button>
+                                                    <button type="submit" name="edge_delete" class="btn btn-danger btn-sm param-delete">Delete</button>
+                                                    <button type="reset" class="btn btn-default btn-sm">Reset</button>
+                                                </div>
+                                            </div>
                                             <div class="row">
                                                 <div class="col-xs-12">
                                                     <label for="moduleEdgeEditFromNode">FromNode:</label>
@@ -392,13 +410,13 @@
                                             </div>
                                             <br>
                                             {% csrf_token %}
-                                            <div class="row">
-                                                <div class="col-xs-12">
-                                                    <button type="submit" name="edge_save" class="btn btn-primary param-save">Save</button>
-                                                    <button type="submit" name="edge_delete" class="btn btn-danger param-delete">Delete</button>
-                                                    <button type="reset" class="btn btn-default">Reset</button>
-                                                </div>
-                                            </div>
+{#                                            <div class="row">#}
+{#                                                <div class="col-xs-12">#}
+{#                                                    <button type="submit" name="edge_save" class="btn btn-primary btn-sm param-save">Save</button>#}
+{#                                                    <button type="submit" name="edge_delete" class="btn btn-danger btn-sm param-delete">Delete</button>#}
+{#                                                    <button type="reset" class="btn btn-default btn-sm">Reset</button>#}
+{#                                                </div>#}
+{#                                            </div>#}
                                         </form>
                                     </div>
                                 {% endfor %}
