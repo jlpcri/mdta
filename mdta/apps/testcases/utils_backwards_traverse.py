@@ -19,7 +19,7 @@ def path_traverse_backwards(path, th_path=None):
     tcs_cannot_route_msg = ''
     constraints = []
     pre_conditions = []
-    match_constraint_found = False
+    # match_constraint_found = False
     tcs_cannot_route_flag = False
     th_tcs_cannot_route_flag = False
 
@@ -32,17 +32,15 @@ def path_traverse_backwards(path, th_path=None):
 
     _result_found = []
 
-    # print('----------------------')
     for index, step in enumerate(path):
         if index < len(path) - 1:
             if isinstance(step, Node):
-                if step.type.name in DATA_NODE_NAME and not match_constraint_found:
-                    # print(step.name, constraints)
+                if step.type.name in DATA_NODE_NAME:
                     result_found = get_data_node_result(step, constraints, index=index, path=path)
                     _result_found.append(result_found)
                     if result_found:
-                        match_constraint_found = True
-                        # constraints = []
+                        # match_constraint_found = True
+                        constraints = []
 
                         menu_prompt_outputs_keys = get_menu_prompt_outputs_key(path, index, th_path=None)
                         # print('r: ', result_found, step.name)
@@ -50,8 +48,9 @@ def path_traverse_backwards(path, th_path=None):
 
                         if menu_prompt_outputs_keys:
                             # update next step content as found result from Data Node
-                            update_tcs_next_step_content(tcs, result_found, menu_prompt_outputs_keys)
-                            # break
+                            update_tcs_next_step_content(tcs=tcs,
+                                                         result_found=result_found,
+                                                         menu_prompt_outputs_keys=menu_prompt_outputs_keys)
                         else:
                             tcs_cannot_route_flag = True
                             tcs_cannot_route_msg = 'MenuPrompt/MenuPromptWC property \'Outputs\' incorrect'
@@ -86,7 +85,10 @@ def path_traverse_backwards(path, th_path=None):
                                     if th_menu_prompt_outputs_keys:
                                         for th_key in th_menu_prompt_outputs_keys:
                                             if th_key in result_found.keys() and th_key == th_step.properties['Outputs']:
-                                                update_tcs_next_step_content(tcs, result_found)
+                                                update_tcs_next_step_content(tcs=tcs,
+                                                                             result_found=result_found,
+                                                                             menu_prompt_outputs_keys=th_menu_prompt_outputs_keys,
+                                                                             test_header=True)
                                         else:
                                             th_tcs_cannot_route_flag = True
                                     else:
@@ -272,7 +274,7 @@ def get_menu_prompt_outputs_key(path, index_start, th_path):
     return keys
 
 
-def update_tcs_next_step_content(tcs, result_found, menu_prompt_outputs_keys):
+def update_tcs_next_step_content(tcs, result_found, menu_prompt_outputs_keys, test_header=None):
     """
     Update test case next step contents
     :param tcs:
@@ -287,7 +289,7 @@ def update_tcs_next_step_content(tcs, result_found, menu_prompt_outputs_keys):
             key_found = False
             break
 
-    if key_found:
+    if key_found or test_header:
         if len(tcs) > 0:
             step = tcs[-1]
             if len(result_found) == 1:
@@ -296,7 +298,7 @@ def update_tcs_next_step_content(tcs, result_found, menu_prompt_outputs_keys):
             else:
                 tmp = 'press '
                 for k in result_found:
-                    tmp += result_found[k] + ', '
+                    tmp += k + ':' + result_found[k] + ', '
                 step['content'] = tmp
 
 
