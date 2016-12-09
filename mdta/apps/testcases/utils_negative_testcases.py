@@ -1,6 +1,6 @@
 import random
 
-from mdta.apps.testcases.utils_backwards_traverse import TESTCASE_NOT_ROUTE_MESSAGE
+from mdta.apps.testcases.utils_backwards_traverse import TESTCASE_NOT_ROUTE_MESSAGE, DATA_NODE_NAME
 
 
 NEGATIVE_TESTS_LIST = ['NIR', 'NMR', 'NIF', 'NMF', 'NINMF']
@@ -328,3 +328,60 @@ def search_node_name_inside_project(project, node_name):
             break
 
     return flag
+
+
+def rejected_testcase_generation(data, path_data, title, node):
+    """
+    Generate rejected TestCase for MenuPromptWithConfirmation Node
+    :param data: Output TestCases
+    :param path_data: test steps of current TestCase
+    :param title: title of current TestCase
+    :param node: MenuPromptWithConfirmation Node as last node of current path
+    :return: updated param data
+    """
+    tc_title = title + ', ' + 'Confirmation rejected Fail'
+
+    if node.properties[ON_FAIL_GO_TO_KEY] == '':
+        data.append({
+            'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo empty',
+            'title': tc_title
+        })
+    elif not search_node_name_inside_project(node.module.project, node.properties[ON_FAIL_GO_TO_KEY]):
+        data.append({
+            'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo node name invalid',
+            'title': tc_title
+        })
+    else:
+        valid_inputs = []
+        for edge in node.leaving_edges:
+            next_node = edge.to_node
+            if next_node.type.name in DATA_NODE_NAME:
+                for item in next_node.properties[next_node.type.keys_data_name]:
+                    valid_inputs.append(item['Inputs'])
+        if valid_inputs:
+            contents = 'press '
+            # print(valid_inputs[0])
+            for k in valid_inputs[0]:
+                contents += k + ':' + valid_inputs[0][k] + ', '
+        else:
+            contents = 'No valid inputs'
+
+        rejected_steps = [{
+            'content': contents,
+            'expected': "{0}: {1}".format(node.name, node.properties['ConfirmVerbiage'])
+        }, {
+            'content': 'press 2',  # rejected confirm
+            'expected': "{0}: {1}".format(node.name, node.properties['Verbiage'])
+        }, {
+            'content': contents,
+            'expected': "{0}: {1}".format(node.name, node.properties['ConfirmVerbiage'])
+        }, {
+            'content': 'press 2',  # rejected confirm
+            'expected': 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
+        }]
+
+        data.append({
+            'pre_conditions': path_data['pre_conditions'],
+            'tc_steps': path_data['tc_steps'] + rejected_steps,
+            'title': tc_title
+        })

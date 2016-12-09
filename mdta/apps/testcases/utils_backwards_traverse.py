@@ -324,8 +324,23 @@ def traverse_node(node, tcs, preceding_edge=None):
     """
     if node.type.name in [START_NODE_NAME[0], 'Transfer']:  # Start with Dial Number
         add_step(node_start(node), tcs)
-    elif node.type.name in ['Menu Prompt', 'Menu Prompt with Confirmation', 'Play Prompt']:
+    # elif node.type.name in ['Menu Prompt', 'Menu Prompt with Confirmation', 'Play Prompt']:
+    elif node.type.name in MENU_PROMPT_OUTPUTS_KEY_NODE_NAME + ['Play Prompt']:
         add_step(node_prompt(node, preceding_edge), tcs)
+
+    if node.type.name == MENU_PROMPT_OUTPUTS_KEY_NODE_NAME[1]:
+        confirm_idx = 0
+        for idx, tc in enumerate(tcs):
+            if node.name in tc['expected']:
+                confirm_idx = idx
+                break
+        if confirm_idx > 0:
+            content = tcs[confirm_idx - 1]['content']
+            tcs[confirm_idx - 1]['content'] = 'press 1'  # confirm input
+            tcs.insert(confirm_idx, {
+                'content': content,
+                'expected': "{0}: {1}".format(node.name, node.properties['ConfirmVerbiage'])
+            })
 
 
 def node_start(node):
