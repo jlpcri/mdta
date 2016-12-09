@@ -133,3 +133,12 @@ function draw_module_graph(){
     })
 
 }
+
+
+/* Start Node Name for OnFailGoTo of MenuPrompt Code */
+
+$('.moduleNodeEditForm input[name="OnFailGoTo"]').autocomplete({
+    source: node_names_autocomplete
+});
+
+/* End   Node Name for OnFailGoTo of MenuPrompt Code */
