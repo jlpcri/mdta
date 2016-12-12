@@ -22,10 +22,10 @@ def path_traverse_backwards(path, th_path=None):
     # match_constraint_found = False
     tcs_cannot_route_flag = False
 
-    if th_path:
-        th_menu_prompt_outputs_keys = get_menu_prompt_outputs_key(path=None, index_start=None, th_path=th_path)
-    else:
-        th_menu_prompt_outputs_keys = []
+    # if th_path:
+    #     th_menu_prompt_outputs_keys = get_menu_prompt_outputs_key(path=None, index_start=None, th_path=th_path)
+    # else:
+    #     th_menu_prompt_outputs_keys = []
 
     path.reverse()
 
@@ -89,7 +89,8 @@ def path_traverse_backwards(path, th_path=None):
                                     else:
                                         result = {th_key: th_step.properties['Default']}
                                     update_tcs_next_step_content(tcs=tcs,
-                                                                 result_found=result)
+                                                                 result_found=result,
+                                                                 test_header=True)
                             traverse_node(th_step, tcs, th_path[::-1][th_index + 1])
                     else:
                         if isinstance(th_step, Node):
@@ -263,11 +264,12 @@ def get_menu_prompt_outputs_key(path, index_start, th_path):
     return keys
 
 
-def update_tcs_next_step_content(tcs, result_found, menu_prompt_outputs_keys=None):
+def update_tcs_next_step_content(tcs, result_found, menu_prompt_outputs_keys=None, test_header=None):
     """
     Update test case next step contents
     :param tcs:
     :param result_found:
+    :param menu_prompt_outputs_keys: node.properties['Outputs']
     :return:
     """
     key_found = True
@@ -278,8 +280,10 @@ def update_tcs_next_step_content(tcs, result_found, menu_prompt_outputs_keys=Non
             if key not in result_found.keys():
                 key_found = False
                 break
+    else:
+        key_found = False
 
-    if key_found:
+    if key_found or test_header:
         if len(tcs) > 0:
             step = tcs[-1]
             if len(result_found) == 1:
