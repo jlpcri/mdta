@@ -1,5 +1,5 @@
 /* Start Module Node New Node & Edge Code */
-function load_keys_from_type_contents_edge(item_id, location, type){
+function load_keys_from_type_contents_edge_auto(item_id, location, type){
     $.getJSON("{% url 'graphs:get_keys_from_type' %}?id={0}&type={1}".format(item_id, type)).done(function(data){
         var keys = data['keys'],
             subkeys = data['subkeys'],
@@ -31,7 +31,7 @@ function load_keys_from_type_contents_edge(item_id, location, type){
 
                 contents += '<tr id=\'{0}\'>'.format(rowCounter);
                 $.each(subkeys, function(k, v){
-                    contents += '<td><input name=\'edge_{0}_{1}\' style=\'width:120%\' placeholder=\'JSON Format\'/></td>'.format(subkeys[k], rowCounter);
+                    contents += '<td><input name=\'edge_{0}_{1}\' style=\'width:120%\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
                 });
                 contents += '</tr>';
 
@@ -67,22 +67,22 @@ $('.moduleNodeEdgeNew').on('show.bs.modal', function(e){
     $(e.currentTarget).find('input[name="from_node_id"]').val(from_node_id);
     $(e.currentTarget).find('select[name="module"]').val(module_id);
 
-    load_keys_from_type_contents_node(node_type_id, node_location, 'node');
-    load_keys_from_type_contents_edge(edge_type_id, edge_location, 'edge');
+    load_keys_from_type_contents_node_auto(node_type_id, node_location, 'node');
+    load_keys_from_type_contents_edge_auto(edge_type_id, edge_location, 'edge');
 });
 
 $('.moduleNodeEdgeNew #id_type').on('change', function(){
     var node_type_id = $(this).find('option:selected').val(),
         location = '#module-node-edge-new-node-properties';
 
-    load_keys_from_type_contents_node(node_type_id, location, 'node');
+    load_keys_from_type_contents_node_auto(node_type_id, location, 'node');
 });
 
 $('.moduleNodeEdgeNew #id_edge-type').on('change', function(){
     var edge_type_id = $(this).find('option:selected').val(),
         location = '#module-node-edge-new-edge-properties';
 
-    load_keys_from_type_contents_edge(edge_type_id, location, 'edge');
+    load_keys_from_type_contents_edge_auto(edge_type_id, location, 'edge');
 });
 
 $('.moduleNodeEdgeNew').on('submit', function(e){
@@ -124,7 +124,7 @@ $('.moduleNodeEdgeNew').on('submit', function(e){
 /* End Module Node New Node & Edge Code */
 
 
-function load_keys_from_type_contents_node(item_id, location, type, call_from_node_edit){
+function load_keys_from_type_contents_node_auto(item_id, location, type, call_from_node_edit){
     $.getJSON("{% url 'graphs:get_keys_from_type' %}?id={0}&type={1}".format(item_id, type)).done(function(data){
         var keys = data['keys'],
             subkeys = data['subkeys'],
@@ -157,11 +157,11 @@ function load_keys_from_type_contents_node(item_id, location, type, call_from_no
                 contents += '<tr id=\'{0}\'>'.format(rowCounter);
                 if (call_from_node_edit) {
                     $.each(subkeys, function (k, v) {
-                        contents += '<td><input name=\'{0}_{1}\' placeholder=\'JSON Format\'/></td>'.format(subkeys[k], rowCounter);
+                        contents += '<td><input name=\'{0}_{1}\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
                     });
                 } else {
                     $.each(subkeys, function (k, v) {
-                        contents += '<td><input name=\'node_{0}_{1}\' style=\'width:100%\' placeholder=\'JSON Format\'/></td>'.format(subkeys[k], rowCounter);
+                        contents += '<td><input name=\'node_{0}_{1}\' style=\'width:100%\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
                     });
                 }
                 contents += '</tr>';
@@ -190,22 +190,22 @@ function load_keys_from_type_contents_node(item_id, location, type, call_from_no
 
         $('#buttonTogetherAddData').click(function(){
             rowCounter++;
-            node_property_add_data(subkeys, rowCounter, '.moduleNodeEditPropertyTable', call_from_node_edit);
+            node_property_add_data_auto(subkeys, rowCounter, '.moduleNodeEditPropertyTable', call_from_node_edit);
         });
     });
 }
 
-function node_property_add_data(subkeys, rowCounter, location, call_from_node_edit){
+function node_property_add_data_auto(subkeys, rowCounter, location, call_from_node_edit){
     var newRow = '';
 
     newRow += '<tr id=\'{0}\'>'.format(rowCounter);
     if (call_from_node_edit) {
         $.each(subkeys, function (k, v) {
-            newRow += '<td><input name=\'{0}_{1}\' placeholder=\'JSON Format\'/></td>'.format(subkeys[k], rowCounter);
+            newRow += '<td><input name=\'{0}_{1}\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
         });
     } else {
         $.each(subkeys, function (k, v) {
-            newRow += '<td><input name=\'node_{0}_{1}\' style=\'width:100%\' placeholder=\'JSON Format\'/></td>'.format(subkeys[k], rowCounter);
+            newRow += '<td><input name=\'node_{0}_{1}\' style=\'width:100%\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
         });
     }
     newRow += '<td class=\'text-center\'><a href=\'#\' onclick=\'deleteRow(this);\'><i class=\'fa fa-trash-o fa-lg\'></i></a></td>';

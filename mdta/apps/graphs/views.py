@@ -412,18 +412,21 @@ def project_module_detail(request, module_id):
 
     # print(module.nodes)
 
-    node_new_form = NodeNewForm(module_id=module.id)
+    node_form_type_default = get_object_or_404(NodeType, name='Play Prompt')
+    node_new_form = NodeNewForm(module_id=module.id, initial={'type': node_form_type_default.id})
     node_types = NodeType.objects.all()
     edge_types = EdgeType.objects.all()
     edge_priorities = Edge.PRIORITY_CHOICES
     current_module_nodes = module.node_set.order_by('name')
     if module.project:
         project_modules = module.project.module_set.order_by('name')
-        node_new_node_form = NodeNewForm(project_id=module.project.id)
+        node_new_node_form = NodeNewForm(project_id=module.project.id,
+                                         initial={'type': node_form_type_default.id})
         module_nodes_set = module.project.nodes
     else:
         project_modules = [module]
-        node_new_node_form = NodeNewForm(module_id=module.id)
+        node_new_node_form = NodeNewForm(module_id=module.id,
+                                         initial={'type': node_form_type_default.id})
         module_nodes_set = current_module_nodes
 
     node_names_autocomplete = []
