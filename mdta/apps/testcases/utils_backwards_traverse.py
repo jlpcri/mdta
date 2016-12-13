@@ -22,10 +22,10 @@ def path_traverse_backwards(path, th_path=None):
     # match_constraint_found = False
     tcs_cannot_route_flag = False
 
-    # if th_path:
-    #     th_menu_prompt_outputs_keys = get_menu_prompt_outputs_key(path=None, index_start=None, th_path=th_path)
-    # else:
-    #     th_menu_prompt_outputs_keys = []
+    if th_path:
+        th_menu_prompt_outputs_keys = get_menu_prompt_outputs_key(path=None, index_start=None, th_path=th_path)
+    else:
+        th_menu_prompt_outputs_keys = []
 
     path.reverse()
 
@@ -36,8 +36,9 @@ def path_traverse_backwards(path, th_path=None):
             if isinstance(step, Node):
                 if step.type.name in DATA_NODE_NAME:
                     result_found = get_data_node_result(step, constraints, index=index, path=path)
-                    _result_found.append(result_found)
+                    # _result_found.append(result_found)
                     if result_found:
+                        _result_found.append(result_found)
                         # match_constraint_found = True
                         constraints = []
 
@@ -59,7 +60,8 @@ def path_traverse_backwards(path, th_path=None):
                     else:
                         tcs_cannot_route_flag = True
                         tcs_cannot_route_msg = 'No match result found in DataQueries Node'
-                        break
+                        if not th_menu_prompt_outputs_keys:
+                            break
                 else:
                     traverse_node(step, tcs, preceding_edge=path[index + 1])
             elif isinstance(step, Edge):
@@ -68,7 +70,7 @@ def path_traverse_backwards(path, th_path=None):
                     constraints += assert_high_priority_edges_negative(step)
 
                 pre_condition = assert_precondition(step)
-                if pre_condition not in pre_conditions:
+                if pre_condition and pre_condition not in pre_conditions:
                     pre_conditions += pre_condition
         else:
             if len(_result_found) > 0:
@@ -86,6 +88,8 @@ def path_traverse_backwards(path, th_path=None):
                                 if result_found:
                                     if th_key in result_found.keys():
                                         result = result_found
+                                        # Then this test case can be routed
+                                        tcs_cannot_route_flag = False
                                     else:
                                         result = {th_key: th_step.properties['Default']}
                                     update_tcs_next_step_content(tcs=tcs,
@@ -102,7 +106,7 @@ def path_traverse_backwards(path, th_path=None):
             else:
                 traverse_node(step, tcs)
 
-    if tcs_cannot_route_flag and path[0].module.project.name != 'HAP':
+    if tcs_cannot_route_flag:
         data = {
             'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + ': ' + tcs_cannot_route_msg
         }
