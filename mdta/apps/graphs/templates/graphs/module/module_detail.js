@@ -15,6 +15,11 @@ $('.moduleNodeEditForm #moduleNodeEditType').on('change', function(e){
 $('.moduleNodeEditForm').on('submit', function(e){
     var name = $(e.currentTarget).find('input[name="moduleNodeEditName"]').val(),
         location = $(e.currentTarget).find('#moduleNodeEditErrMessage'),
+        properties = $(e.currentTarget).find('#module-node-edit-properties input'),
+        item = '',
+        item_str = '',
+        is_json_format = true,
+        json_msg = '',
         data = '';
 
     if (name == ''){
@@ -22,10 +27,32 @@ $('.moduleNodeEditForm').on('submit', function(e){
         return false;
     }
 
+    $.each(properties, function(index){
+        item = properties[index];
+        if (item.name.indexOf('Inputs_') >= 0 || item.name.indexOf('Outputs_') >= 0) {
+            item_str = item.value.replace(/'/g, '"');
+            if (!isJsonFormat(item_str)){
+                if (item_str.length > 0){
+                    json_msg = 'JSON format incorrect: {0}'.format(item.name);
+                } else {
+                    json_msg = 'JSON input empty: {0}'.format(item.name);
+                }
+                is_json_format = false;
+                return false;
+            }
+        }
+    });
+
+    if (!is_json_format) {
+        showErrMsg(location, json_msg);
+        return false;
+    }
+
     $(e.currentTarget).find('.moduleNodeEditPropertyTable tbody tr').each(function(){
         data += this.id + ' ';
     });
     $(e.currentTarget).find('input[name="property_data_index"]').val(data);
+
 });
 /* End Module Node Edit Code */
 
