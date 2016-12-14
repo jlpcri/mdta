@@ -137,8 +137,8 @@
                                                                     <tbody>
                                                                         {% for rec in item.properties.InputData %}
                                                                             <tr id="{{ forloop.counter0 }}">
-                                                                                <td><input name="Inputs_{{ forloop.counter0 }}" value="{{ rec.Inputs }}"></td>
-                                                                                <td><input name="Outputs_{{ forloop.counter0 }}" value="{{ rec.Outputs }}"> </td>
+                                                                                <td><input name="Inputs_{{ forloop.counter0 }}" value="{{ rec.Inputs }}" placeholder="JSON {'key': 'value'}" ></td>
+                                                                                <td><input name="Outputs_{{ forloop.counter0 }}" value="{{ rec.Outputs }}" placeholder="JSON {'key': 'value'}" > </td>
                                                                                 <td class="text-center"><a href="#" onclick="deleteRow(this);"><i class="fa fa-trash-o fa-lg"></i> </a> </td>
                                                                             </tr>
                                                                         {% endfor %}
@@ -172,7 +172,7 @@
                                             </div>
                                             <br>
                                             <div class="row">
-                                                <div class="col-xs-10">
+                                                <div class="col-xs-11">
                                                     <div id="moduleNodeEditErrMessage">&nbsp;</div>
                                                 </div>
                                                 <div class="cos-xs-1">
@@ -371,7 +371,7 @@
                                                                     <div class="row">
                                                                         <div class="col-xs-1"></div>
                                                                         <div class="col-xs-11">
-                                                                            <input name="{{ subkey }}_0" style="width:100%" value="{{ subvalue }}" >
+                                                                            <input name="{{ subkey }}_0" style="width:100%" value="{{ subvalue }}" placeholder="JSON {'key': 'value'}" >
                                                                         </div>
                                                                     </div>
                                                                 {% endfor %}
@@ -401,7 +401,7 @@
                                             </div>
                                             <br>
                                             <div class="row">
-                                                <div class="col-xs-10">
+                                                <div class="col-xs-11">
                                                     <div id="moduleEdgeEditErrMessage">&nbsp;</div>
                                                 </div>
                                                 <div class="col-xs-1">
@@ -440,6 +440,7 @@
         var nodes = {{ network_nodes|safe }};
         var edges = {{ network_edges|safe }};
         var node_names_autocomplete = {{node_names_autocomplete|safe}};
+        var place_holder_json = '\"JSON {\'key\': \'value\'}\"';
         {% include 'graphs/module/module_detail.js' %}
         {% include 'graphs/node_edge_properties.js' %}
         {% include 'graphs/project/node_edge.js' %}

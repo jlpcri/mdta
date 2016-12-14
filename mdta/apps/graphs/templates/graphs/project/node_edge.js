@@ -12,7 +12,8 @@ $('.projectNodeNew #id_type').on('change', function(){
 $('.projectNodeNew').on('submit', function(){
     var data = '',
         location = '#projectNodeNewErrMessage',
-        name = $('.projectNodeNew #id_name').val();
+        name = $('.projectNodeNew #id_name').val(),
+        properties = $('#project-node-new-properties input');
 
     if (name == ''){
         showErrMsg(location, 'Name is empty.');
@@ -23,6 +24,12 @@ $('.projectNodeNew').on('submit', function(){
         data += this.id + ' ';
     });
     $('input[name="property_data_index"]').val(data);
+
+    var check_json = check_node_properties_json(properties);
+    if (!check_json['is_json_format']) {
+        showErrMsg(location, check_json['json_msg']);
+        return false;
+    }
 });
 
 /* ---------------End Project/Module Node New ---------------*/
@@ -56,20 +63,19 @@ $('.projectEdgeNew #project-edge-new-to-module').on('change', function(){
 
 $('.projectEdgeNew').on('submit', function(){
     var data = '',
-        edge_type_project = $('#project-edge-new-type option:selected').text(),
+        //edge_type_project = $('#project-edge-new-type option:selected').text(),
         location = '#projectEdgeNewErrMessage',
-        properties = $('#project-edge-new-properties input'),
-        properties_no_input = true;
+        properties = $('#project-edge-new-properties input');
 
-    $.each(properties, function(index){
-        if (properties[index].value != ''){
-            properties_no_input = false;
-            return false;
-        }
-    });
+    var check_json = check_edge_properties_json(properties);
 
-    if ((properties_no_input && edge_type_project != 'Connector') && edge_type_project) {
-        showErrMsg(location, 'Please Input property');
+    //if ((check_json['properties_no_input'] && edge_type_project != 'Connector') && edge_type_project) {
+    //    showErrMsg(location, 'Please Input property');
+    //    return false;
+    //}
+
+    if (!check_json['is_json_format']){
+        showErrMsg(location, check_json['json_msg']);
         return false;
     }
 

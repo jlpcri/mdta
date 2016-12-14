@@ -21,7 +21,6 @@ def path_traverse_backwards(path, th_path=None):
     pre_conditions = []
     # match_constraint_found = False
     tcs_cannot_route_flag = False
-    th_tcs_cannot_route_flag = False
 
     if th_path:
         th_menu_prompt_outputs_keys = get_menu_prompt_outputs_key(path=None, index_start=None, th_path=th_path)
@@ -37,8 +36,9 @@ def path_traverse_backwards(path, th_path=None):
             if isinstance(step, Node):
                 if step.type.name in DATA_NODE_NAME:
                     result_found = get_data_node_result(step, constraints, index=index, path=path)
-                    _result_found.append(result_found)
+                    # _result_found.append(result_found)
                     if result_found:
+                        _result_found.append(result_found)
                         # match_constraint_found = True
                         constraints = []
 
@@ -48,16 +48,20 @@ def path_traverse_backwards(path, th_path=None):
 
                         if menu_prompt_outputs_keys:
                             # update next step content as found result from Data Node
-                            update_tcs_next_step_content(tcs=tcs,
-                                                         result_found=result_found,
-                                                         menu_prompt_outputs_keys=menu_prompt_outputs_keys)
+                            test_success = update_tcs_next_step_content(tcs=tcs,
+                                                                        result_found=result_found,
+                                                                        menu_prompt_outputs_keys=menu_prompt_outputs_keys)
+                            if not test_success['Success']:
+                                tcs_cannot_route_flag = True
+                                tcs_cannot_route_msg = 'MenuPrompt/MenuPromptWC property \'Outputs\' incorrect'
                         else:
                             tcs_cannot_route_flag = True
                             tcs_cannot_route_msg = 'MenuPrompt/MenuPromptWC property \'Outputs\' incorrect'
                     else:
                         tcs_cannot_route_flag = True
                         tcs_cannot_route_msg = 'No match result found in DataQueries Node'
-                        break
+                        if not th_menu_prompt_outputs_keys:
+                            break
                 else:
                     traverse_node(step, tcs, preceding_edge=path[index + 1])
             elif isinstance(step, Edge):
@@ -66,7 +70,7 @@ def path_traverse_backwards(path, th_path=None):
                     constraints += assert_high_priority_edges_negative(step)
 
                 pre_condition = assert_precondition(step)
-                if pre_condition not in pre_conditions:
+                if pre_condition and pre_condition not in pre_conditions:
                     pre_conditions += pre_condition
         else:
             if len(_result_found) > 0:
@@ -80,28 +84,18 @@ def path_traverse_backwards(path, th_path=None):
                     if th_index < len(th_path) - 1:
                         if isinstance(th_step, Node):
                             if th_step.type.name in MENU_PROMPT_OUTPUTS_KEY_NODE_NAME:
+                                th_key = th_step.properties['Outputs']
                                 if result_found:
-                                    # print(th_menu_prompt_outputs_keys)
-                                    if th_menu_prompt_outputs_keys:
-                                        for th_key in th_menu_prompt_outputs_keys:
-                                            if th_key in result_found.keys() and th_key == th_step.properties['Outputs']:
-                                                update_tcs_next_step_content(tcs=tcs,
-                                                                             result_found=result_found,
-                                                                             menu_prompt_outputs_keys=th_menu_prompt_outputs_keys,
-                                                                             test_header=True)
-                                        else:
-                                            th_tcs_cannot_route_flag = True
+                                    if th_key in result_found.keys():
+                                        result = result_found
+                                        # Then this test case can be routed
+                                        tcs_cannot_route_flag = False
                                     else:
-                                        th_tcs_cannot_route_flag = True
-
-                                    traverse_node(th_step, tcs, th_path[::-1][th_index + 1])
-                                else:
-                                    th_tcs_cannot_route_flag = True
-                                    traverse_node(th_step, tcs, th_path[::-1][th_index + 1])
-
-                            else:
-                                th_tcs_cannot_route_flag = True
-                                traverse_node(th_step, tcs, th_path[::-1][th_index + 1])
+                                        result = {th_key: th_step.properties['Default']}
+                                    update_tcs_next_step_content(tcs=tcs,
+                                                                 result_found=result,
+                                                                 test_header=True)
+                            traverse_node(th_step, tcs, th_path[::-1][th_index + 1])
                     else:
                         if isinstance(th_step, Node):
                             traverse_node(th_step, tcs)
@@ -112,7 +106,7 @@ def path_traverse_backwards(path, th_path=None):
             else:
                 traverse_node(step, tcs)
 
-    if tcs_cannot_route_flag and path[0].module.project.name != 'HAP':
+    if tcs_cannot_route_flag:
         data = {
             'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + ': ' + tcs_cannot_route_msg
         }
@@ -274,20 +268,24 @@ def get_menu_prompt_outputs_key(path, index_start, th_path):
     return keys
 
 
-def update_tcs_next_step_content(tcs, result_found, menu_prompt_outputs_keys, test_header=None):
+def update_tcs_next_step_content(tcs, result_found, menu_prompt_outputs_keys=None, test_header=None):
     """
     Update test case next step contents
     :param tcs:
     :param result_found:
+    :param menu_prompt_outputs_keys: node.properties['Outputs']
     :return:
     """
     key_found = True
-    keys = [x.strip() for x in menu_prompt_outputs_keys[0].split(',')]
+    if menu_prompt_outputs_keys:
+        keys = [x.strip() for x in menu_prompt_outputs_keys[0].split(',')]
 
-    for key in keys:
-        if key not in result_found.keys():
-            key_found = False
-            break
+        for key in keys:
+            if key not in result_found.keys():
+                key_found = False
+                break
+    else:
+        key_found = False
 
     if key_found or test_header:
         if len(tcs) > 0:
@@ -300,6 +298,11 @@ def update_tcs_next_step_content(tcs, result_found, menu_prompt_outputs_keys, te
                 for k in result_found:
                     tmp += k + ':' + result_found[k] + ', '
                 step['content'] = tmp
+        data = {'Success': True}
+    else:
+        data = {'Success': False}
+
+    return data
 
 
 def add_step(step, tcs):

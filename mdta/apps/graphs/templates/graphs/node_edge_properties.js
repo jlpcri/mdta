@@ -35,11 +35,11 @@ function load_keys_from_type_contents(item_id, location, type, call_from_node_ed
                 contents += '<tr id=\'{0}\'>'.format(rowCounter);
                 if (call_from_node_edit) {
                     $.each(subkeys, function (k, v) {
-                        contents += '<td><input name=\'{0}_{1}\' placeholder=\'JSON Format1\'/></td>'.format(subkeys[k], rowCounter);
+                        contents += '<td><input name=\'{0}_{1}\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
                     });
                 } else {
                     $.each(subkeys, function (k, v) {
-                        contents += '<td><input name=\'{0}_{1}\' style=\'width:100%\' placeholder=\'JSON Format\'/></td>'.format(subkeys[k], rowCounter);
+                        contents += '<td><input name=\'{0}_{1}\' style=\'width:100%\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
                     });
                 }
                 contents += '</tr>';
@@ -94,11 +94,11 @@ function node_property_add_data(subkeys, rowCounter, location, call_from_node_ed
     newRow += '<tr id=\'{0}\'>'.format(rowCounter);
     if (call_from_node_edit) {
         $.each(subkeys, function (k, v) {
-            newRow += '<td><input name=\'{0}_{1}\' placeholder=\'JSON Format\'/></td>'.format(subkeys[k], rowCounter);
+            newRow += '<td><input name=\'{0}_{1}\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
         });
     } else {
         $.each(subkeys, function (k, v) {
-            newRow += '<td><input name=\'{0}_{1}\' style=\'width:100%\' placeholder=\'JSON Format\'/></td>'.format(subkeys[k], rowCounter);
+            newRow += '<td><input name=\'{0}_{1}\' style=\'width:100%\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
         });
     }
     newRow += '<td class=\'text-center\'><a href=\'#\' onclick=\'deleteRow(this);\'><i class=\'fa fa-trash-o fa-lg\'></i></a></td>';
