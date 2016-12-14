@@ -43,23 +43,42 @@ $('.moduleEdgeEditForm').on('submit', function(e){
         location = $(e.currentTarget).find('#moduleEdgeEditErrMessage'),
         properties = $(e.currentTarget).find('#module-edge-edit-properties input'),
         properties_no_input = true,
+        is_json_format = '',
         submit = $(e.currentTarget).find('button[type="submit"]:focus');
 
     //console.log(edge_type)
 
     $.each(properties, function(index){
-        //console.log(index, properties[index].value);
-        if (properties[index].value != ''){
-            properties_no_input = false;
-            return false;
+        if (properties[index].name != 'Invisible') {
+            var str = properties[index].value.replace(/'/g, '"');
+            //console.log(str.length)
+            if (str.length > 0){
+                properties_no_input = false;
+                is_json_format = isJsonFormat(str);
+                return false;
+            }
         }
     });
 
     if (properties_no_input && edge_type != 'Connector' && submit[0].textContent == 'Save'){
-        showErrMsg(location, 'At lease input one property');
+        showErrMsg(location, 'Input of property empty');
+        return false;
+    }
+    if (!is_json_format){
+        showErrMsg(location, 'JSON format incorrect.');
         return false;
     }
 });
+
+function isJsonFormat(str){
+    var is_json = true;
+    try {
+        var json = $.parseJSON(str);
+    } catch(e){
+        is_json = false
+    }
+    return is_json
+}
 /* End Module Edge Edit Code */
 
 
