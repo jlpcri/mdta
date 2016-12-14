@@ -87,6 +87,7 @@ $('.moduleNodeEdgeNew #id_edge-type').on('change', function(){
 
 $('.moduleNodeEdgeNew').on('submit', function(e){
     var node_name = $('.moduleNodeEdgeNew #id_name').val(),
+        node_properties = $(e.currentTarget).find('#module-node-edge-new-node-properties input'),
         err_location = '#moduleNodeEdgeNewErrMessage',
         edge_type = $('.moduleNodeEdgeNew #id_edge-type option:selected').text(),
         edge_properties = $(e.currentTarget).find('#module-node-edge-new-edge-properties input'),
@@ -105,8 +106,17 @@ $('.moduleNodeEdgeNew').on('submit', function(e){
             return false;
         }
     });
-    if (edge_properties_no_input && edge_type != 'Connector'){
-        showErrMsg(err_location, 'At least input on edge property');
+
+    var check_json_node = check_node_properties_json(node_properties),
+        check_json_edge = check_edge_properties_json(edge_properties);
+
+    if (!check_json_node['is_json_format']) {
+        showErrMsg(err_location, 'Node ' + check_json_node['json_msg']);
+        return false;
+    }
+
+    if (!check_json_edge['is_json_format']){
+        showErrMsg(err_location, 'Edge ' + check_json_edge['json_msg']);
         return false;
     }
 

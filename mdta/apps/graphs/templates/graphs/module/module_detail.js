@@ -16,8 +16,6 @@ $('.moduleNodeEditForm').on('submit', function(e){
     var name = $(e.currentTarget).find('input[name="moduleNodeEditName"]').val(),
         location = $(e.currentTarget).find('#moduleNodeEditErrMessage'),
         properties = $(e.currentTarget).find('#module-node-edit-properties input'),
-        item = '',
-        item_str = '',
         is_json_format = true,
         json_msg = '',
         data = '';
@@ -26,6 +24,28 @@ $('.moduleNodeEditForm').on('submit', function(e){
         showErrMsg(location, 'Name is Empty');
         return false;
     }
+
+    var check_json = check_node_properties_json(properties);
+
+
+    if (!check_json['is_json_format']) {
+        showErrMsg(location, check_json['json_msg']);
+        return false;
+    }
+
+    $(e.currentTarget).find('.moduleNodeEditPropertyTable tbody tr').each(function(){
+        data += this.id + ' ';
+    });
+    $(e.currentTarget).find('input[name="property_data_index"]').val(data);
+
+});
+
+function check_node_properties_json(properties){
+    var data = {},
+        item = '',
+        item_str = '',
+        json_msg = '',
+        is_json_format = true;
 
     $.each(properties, function(index){
         item = properties[index];
@@ -43,17 +63,11 @@ $('.moduleNodeEditForm').on('submit', function(e){
         }
     });
 
-    if (!is_json_format) {
-        showErrMsg(location, json_msg);
-        return false;
-    }
+    data['is_json_format'] = is_json_format;
+    data['json_msg'] = json_msg;
 
-    $(e.currentTarget).find('.moduleNodeEditPropertyTable tbody tr').each(function(){
-        data += this.id + ' ';
-    });
-    $(e.currentTarget).find('input[name="property_data_index"]').val(data);
-
-});
+    return data;
+}
 /* End Module Node Edit Code */
 
 
@@ -66,36 +80,54 @@ $('.moduleEdgeEditForm #moduleEdgeEditType').on('change', function(){
 });
 
 $('.moduleEdgeEditForm').on('submit', function(e){
-    var edge_type = $(e.currentTarget).find('#moduleEdgeEditType option:selected').text(),
-        location = $(e.currentTarget).find('#moduleEdgeEditErrMessage'),
+    var location = $(e.currentTarget).find('#moduleEdgeEditErrMessage'),
         properties = $(e.currentTarget).find('#module-edge-edit-properties input'),
-        properties_no_input = true,
-        is_json_format = '',
+        //edge_type = $(e.currentTarget).find('#moduleEdgeEditType option:selected').text(),
         submit = $(e.currentTarget).find('button[type="submit"]:focus');
 
     //console.log(edge_type)
 
+    var check_json = check_edge_properties_json(properties);
+
+    //if (check_json['properties_no_input'] && edge_type != 'Connector' && submit[0].textContent == 'Save'){
+    //    showErrMsg(location, 'Input of property empty');
+    //    return false;
+    //}
+
+    if (!check_json['is_json_format']){
+        showErrMsg(location, check_json['json_msg']);
+        return false;
+    }
+});
+
+function check_edge_properties_json(properties){
+    var data = {},
+        item = '',
+        item_str = '',
+        json_msg = '',
+        is_json_format = '';
+
     $.each(properties, function(index){
-        if (properties[index].name != 'Invisible') {
-            var str = properties[index].value.replace(/'/g, '"');
-            //console.log(str.length)
-            if (str.length > 0){
-                properties_no_input = false;
-                is_json_format = isJsonFormat(str);
+        item = properties[index];
+        if (item.name.indexOf('Outputs_') >= 0 || item.name.indexOf('Condition_') >= 0) {
+            item_str = properties[index].value.replace(/'/g, '"');
+            if (!isJsonFormat(item_str)){
+                if (item_str.length > 0){
+                    json_msg = 'JSON format incorrect: {0}'.format(item.name);
+                } else {
+                    json_msg = 'JSON input empty: {0}'.format(item.name);
+                }
+                is_json_format = false;
                 return false;
             }
         }
     });
 
-    if (properties_no_input && edge_type != 'Connector' && submit[0].textContent == 'Save'){
-        showErrMsg(location, 'Input of property empty');
-        return false;
-    }
-    if (!is_json_format){
-        showErrMsg(location, 'JSON format incorrect.');
-        return false;
-    }
-});
+    data['is_json_format'] = is_json_format;
+    data['json_msg'] = json_msg;
+
+    return data;
+}
 
 function isJsonFormat(str){
     var is_json = true;
