@@ -18,7 +18,7 @@ function load_keys_from_type_contents(item_id, location, type, call_from_node_ed
                 contents += '<thead><tr>';
                 $.each(subkeys, function(k, v){
                     if (type == 'edge' && subkeys[k] == 'Outputs'){
-                        contents += '<th class=\'col-xs-5\'>{0}&nbsp;&nbsp;<input class=\'data_edge_keys\' style=\'width: 50%;\' title=\'Select Key\'></th>'.format('Follow If...');
+                        contents += '<th class=\'col-xs-5\'>{0}</th>'.format('Follow If...');
                     } else {
                         contents += '<th class=\'col-xs-5\'>{0}</th>'.format(subkeys[k]);
                     }
@@ -35,11 +35,19 @@ function load_keys_from_type_contents(item_id, location, type, call_from_node_ed
                 contents += '<tr id=\'{0}\'>'.format(rowCounter);
                 if (call_from_node_edit) {
                     $.each(subkeys, function (k, v) {
-                        contents += '<td><input name=\'{0}_{1}\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
+                        if (type == 'edge' && subkeys[k] == 'Outputs'){
+                            contents += '<td><input name=\'{0}_{1}\' class=\'data_edge_keys\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
+                        } else {
+                            contents += '<td><input name=\'{0}_{1}\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
+                        }
                     });
                 } else {
                     $.each(subkeys, function (k, v) {
-                        contents += '<td><input name=\'{0}_{1}\' style=\'width:100%\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
+                        if (type == 'edge' && subkeys[k] == 'Outputs'){
+                            contents += '<td><input name=\'{0}_{1}\' class=\'data_edge_keys\' style=\'width:100%\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
+                        } else {
+                            contents += '<td><input name=\'{0}_{1}\' style=\'width:100%\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
+                        }
                     });
                 }
                 contents += '</tr>';

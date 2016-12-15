@@ -360,7 +360,7 @@
                                                                         <div class="col-xs-1"></div>
                                                                         <div class="col-xs-11">
                                                                             {% if subkey == 'Outputs' %}
-                                                                                <label>Follow If...</label>&nbsp;&nbsp; <input name="data_edge_keys" class="data_edge_keys" placeholder="keys" style="width: 60%" title="Select Key">
+                                                                                <label>Follow If...</label>
                                                                             {% else %}
                                                                                 <label>{{ subkey }}:</label>
                                                                             {% endif %}
@@ -369,7 +369,9 @@
                                                                     <div class="row">
                                                                         <div class="col-xs-1"></div>
                                                                         <div class="col-xs-11">
-                                                                            <input name="{{ subkey }}_0" style="width:100%" value="{{ subvalue }}" placeholder="JSON {'key': 'value'}" >
+                                                                            <input name="{{ subkey }}_0" style="width:100%"
+                                                                                   {% if subkey == 'Outputs' %} class="data_edge_keys" {% endif %}
+                                                                                   value="{{ subvalue }}" placeholder="JSON {'key': 'value'}" >
                                                                         </div>
                                                                     </div>
                                                                 {% endfor %}

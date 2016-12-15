@@ -19,19 +19,23 @@ function load_keys_from_type_contents_edge_auto(item_id, location, type){
                 contents += '<thead><tr>';
                 $.each(subkeys, function(k, v){
                     if (subkeys[k] == 'Outputs'){
-                        contents += '<th class=\'col-xs-2\'>{0}</th><th class=\'col-xs-2\'><input class=\'data_edge_keys\' title=\'Select Key\'></th>'.format('Follow If...');
+                        contents += '<th class=\'col-xs-2\'>{0}</th>'.format('Follow If...');
                     } else {
-                        contents += '<th class=\'col-xs-2\'>{0}:</th><th class=\'col-xs-2\'></th>'.format(subkeys[k]);
+                        contents += '<th class=\'col-xs-2\'>{0}:</th>'.format(subkeys[k]);
                     }
                 });
-                //contents += '<th class=\'col-xs-2\'></th>';
+                contents += '<th class=\'col-xs-2\'></th>';
                 contents += '</tr></thead>';
 
                 contents += '<tbody>';
 
                 contents += '<tr id=\'{0}\'>'.format(rowCounter);
                 $.each(subkeys, function(k, v){
-                    contents += '<td><input name=\'edge_{0}_{1}\' style=\'width:120%\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
+                    if (subkeys[k] == 'Outputs'){
+                        contents += '<td><input name=\'edge_{0}_{1}\' class=\'data_edge_keys\' style=\'width:120%\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
+                    } else {
+                        contents += '<td><input name=\'edge_{0}_{1}\' style=\'width:120%\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
+                    }
                 });
                 contents += '</tr>';
 
