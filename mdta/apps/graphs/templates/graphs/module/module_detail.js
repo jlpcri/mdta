@@ -105,7 +105,7 @@ function check_edge_properties_json(properties){
         item = '',
         item_str = '',
         json_msg = '',
-        is_json_format = '';
+        is_json_format = true;
 
     $.each(properties, function(index){
         item = properties[index];
@@ -143,6 +143,7 @@ function isJsonFormat(str){
 
 $(document).ready(function(){
     draw_module_graph();
+    autocomplete_nodename_and_edgekeys();
 });
 
 function draw_module_graph(){
@@ -215,8 +216,76 @@ function draw_module_graph(){
 
 /* Start Node Name for OnFailGoTo of MenuPrompt Code */
 
-$('.moduleNodeEditForm input[name="OnFailGoTo"]').autocomplete({
-    source: node_names_autocomplete
-});
+function autocomplete_nodename_and_edgekeys(call_from) {
+    var myToggle = $('.myToggle'),
+        project_node_new = $('.projectNodeNew input[name="OnFailGoTo"]'),
+        module_node_edit = $('.moduleNodeEditForm input[name="OnFailGoTo"]'),
+        data_edge_keys = $('.data_edge_keys'),
+        node_edge_new = $('.moduleNodeEdgeNew input[name="node_OnFailGoTo"]'),
+        input_element = $('input[name="Outputs_0"]'),
+        input_edge_element = $('input[name="edge_Outputs_0"]');
+
+    switch (call_from){
+        case 'node':
+            myToggle.bootstrapToggle();
+            project_node_new.autocomplete({
+                source: node_names_autocomplete
+            });
+            module_node_edit.autocomplete({
+                source: node_names_autocomplete
+            });
+            data_edge_keys.autocomplete({
+                source: data_edge_keys_autocomplete,
+                select: function (event, ui) {
+                    var str = '{\'{0}\': \' \'}'.format(ui.item.value);
+                    input_element.val(str);
+                }
+            });
+            break;
+        case 'auto_node':
+            myToggle.bootstrapToggle();
+            node_edge_new.autocomplete({
+                source: node_names_autocomplete
+            });
+            break;
+        case 'edge':
+            myToggle.bootstrapToggle();
+            data_edge_keys.autocomplete({
+                source: data_edge_keys_autocomplete,
+                select: function (event, ui) {
+                    var str = '{\'{0}\': \' \'}'.format(ui.item.value);
+                    input_element.val(str);
+                }
+            });
+            break;
+        case 'auto_edge':
+            myToggle.bootstrapToggle();
+            data_edge_keys.autocomplete({
+                source: data_edge_keys_autocomplete,
+                select: function (event, ui) {
+                    var str = '{\'{0}\': \' \'}'.format(ui.item.value);
+                    input_edge_element.val(str);
+                }
+            });
+            break;
+        default:
+            project_node_new.autocomplete({
+                source: node_names_autocomplete
+            });
+
+            module_node_edit.autocomplete({
+                source: node_names_autocomplete
+            });
+
+            data_edge_keys.autocomplete({
+                source: data_edge_keys_autocomplete,
+                select: function (event, ui) {
+                    var str = '{\'{0}\': \' \'}'.format(ui.item.value);
+                    input_element.val(str);
+                }
+            });
+    }
+}
+
 
 /* End   Node Name for OnFailGoTo of MenuPrompt Code */

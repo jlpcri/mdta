@@ -187,6 +187,22 @@ class Module(models.Model):
 
         return data
 
+    @property
+    def data_edge_keys(self):
+        """
+        Get node DataQueries Database/ DataQueries WebService, node.properties['InputData']['Outputs'] keys
+        As data edge Follow if  keys
+        """
+        data = []
+        for node in self.nodes:
+            if 'DataQueries' in node.type.name:
+                for item in node.properties['InputData']:
+                    for key in item['Outputs'].keys():
+                        if key not in data:
+                            data.append(key)
+
+        return sorted(data)
+
 
 class ProjectVariable(models.Model):
     """

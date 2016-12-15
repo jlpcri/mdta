@@ -19,12 +19,12 @@ function load_keys_from_type_contents_edge_auto(item_id, location, type){
                 contents += '<thead><tr>';
                 $.each(subkeys, function(k, v){
                     if (subkeys[k] == 'Outputs'){
-                        contents += '<th class=\'col-xs-2\'>{0}</th>'.format('Follow If...');
+                        contents += '<th class=\'col-xs-2\'>{0}</th><th class=\'col-xs-2\'><input class=\'data_edge_keys\' title=\'Select Key\'></th>'.format('Follow If...');
                     } else {
-                        contents += '<th class=\'col-xs-2\'>{0}:</th>'.format(subkeys[k]);
+                        contents += '<th class=\'col-xs-2\'>{0}:</th><th class=\'col-xs-2\'></th>'.format(subkeys[k]);
                     }
                 });
-                contents += '<th class=\'col-xs-2\'></th>';
+                //contents += '<th class=\'col-xs-2\'></th>';
                 contents += '</tr></thead>';
 
                 contents += '<tbody>';
@@ -52,7 +52,8 @@ function load_keys_from_type_contents_edge_auto(item_id, location, type){
         });
         //console.log(contents)
         $(location).html(contents);
-        $('.myToggle').bootstrapToggle();
+
+        autocomplete_nodename_and_edgekeys('auto_' + type)
     });
 }
 
@@ -193,10 +194,8 @@ function load_keys_from_type_contents_node_auto(item_id, location, type, call_fr
         });
         //console.log(contents)
         $(location).html(contents);
-        $('.myToggle').bootstrapToggle();
-        $('.moduleNodeEdgeNew input[name="node_OnFailGoTo"]').autocomplete({
-            source: node_names_autocomplete
-        });
+
+        autocomplete_nodename_and_edgekeys('auto_' + type);
 
         $('#buttonTogetherAddData').click(function(){
             rowCounter++;

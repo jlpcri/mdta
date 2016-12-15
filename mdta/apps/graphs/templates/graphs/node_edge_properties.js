@@ -18,7 +18,7 @@ function load_keys_from_type_contents(item_id, location, type, call_from_node_ed
                 contents += '<thead><tr>';
                 $.each(subkeys, function(k, v){
                     if (type == 'edge' && subkeys[k] == 'Outputs'){
-                        contents += '<th class=\'col-xs-5\'>{0}</th>'.format('Follow If...');
+                        contents += '<th class=\'col-xs-5\'>{0}&nbsp;&nbsp;<input class=\'data_edge_keys\' style=\'width: 50%;\' title=\'Select Key\'></th>'.format('Follow If...');
                     } else {
                         contents += '<th class=\'col-xs-5\'>{0}</th>'.format(subkeys[k]);
                     }
@@ -72,14 +72,8 @@ function load_keys_from_type_contents(item_id, location, type, call_from_node_ed
         });
         //console.log(contents)
         $(location).html(contents);
-        $('.myToggle').bootstrapToggle();
 
-        $('.moduleNodeEditForm input[name="OnFailGoTo"]').autocomplete({
-            source: node_names_autocomplete
-        });
-        $('.projectNodeNew input[name="OnFailGoTo"]').autocomplete({
-            source: node_names_autocomplete
-        });
+        autocomplete_nodename_and_edgekeys(type);
 
         $('#buttonAddData').click(function(){
             rowCounter++;

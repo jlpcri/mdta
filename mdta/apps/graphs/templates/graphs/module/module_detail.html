@@ -359,13 +359,11 @@
                                                                     <div class="row" style="margin-top: 5px;">
                                                                         <div class="col-xs-1"></div>
                                                                         <div class="col-xs-11">
-                                                                            <label>
-                                                                                {% if subkey == 'Outputs' %}
-                                                                                    Follow If...
-                                                                                {% else %}
-                                                                                    {{ subkey }}:
-                                                                                {% endif %}
-                                                                            </label>
+                                                                            {% if subkey == 'Outputs' %}
+                                                                                <label>Follow If...</label>&nbsp;&nbsp; <input name="data_edge_keys" class="data_edge_keys" placeholder="keys" style="width: 60%" title="Select Key">
+                                                                            {% else %}
+                                                                                <label>{{ subkey }}:</label>
+                                                                            {% endif %}
                                                                         </div>
                                                                     </div>
                                                                     <div class="row">
@@ -440,7 +438,9 @@
         var nodes = {{ network_nodes|safe }};
         var edges = {{ network_edges|safe }};
         var node_names_autocomplete = {{node_names_autocomplete|safe}};
+        var data_edge_keys_autocomplete = {{ data_edge_keys_autocomplete|safe }};
         var place_holder_json = '\"JSON {\'key\': \'value\'}\"';
+
         {% include 'graphs/module/module_detail.js' %}
         {% include 'graphs/node_edge_properties.js' %}
         {% include 'graphs/project/node_edge.js' %}
