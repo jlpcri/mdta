@@ -35,11 +35,19 @@ function load_keys_from_type_contents(item_id, location, type, call_from_node_ed
                 contents += '<tr id=\'{0}\'>'.format(rowCounter);
                 if (call_from_node_edit) {
                     $.each(subkeys, function (k, v) {
-                        contents += '<td><input name=\'{0}_{1}\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
+                        if (type == 'edge' && subkeys[k] == 'Outputs'){
+                            contents += '<td><input name=\'{0}_{1}\' class=\'data_edge_keys\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
+                        } else {
+                            contents += '<td><input name=\'{0}_{1}\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
+                        }
                     });
                 } else {
                     $.each(subkeys, function (k, v) {
-                        contents += '<td><input name=\'{0}_{1}\' style=\'width:100%\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
+                        if (type == 'edge' && subkeys[k] == 'Outputs'){
+                            contents += '<td><input name=\'{0}_{1}\' class=\'data_edge_keys\' style=\'width:100%\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
+                        } else {
+                            contents += '<td><input name=\'{0}_{1}\' style=\'width:100%\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
+                        }
                     });
                 }
                 contents += '</tr>';
@@ -72,14 +80,8 @@ function load_keys_from_type_contents(item_id, location, type, call_from_node_ed
         });
         //console.log(contents)
         $(location).html(contents);
-        $('.myToggle').bootstrapToggle();
 
-        $('.moduleNodeEditForm input[name="OnFailGoTo"]').autocomplete({
-            source: node_names_autocomplete
-        });
-        $('.projectNodeNew input[name="OnFailGoTo"]').autocomplete({
-            source: node_names_autocomplete
-        });
+        autocomplete_nodename_and_edgekeys(type);
 
         $('#buttonAddData').click(function(){
             rowCounter++;

@@ -31,7 +31,11 @@ function load_keys_from_type_contents_edge_auto(item_id, location, type){
 
                 contents += '<tr id=\'{0}\'>'.format(rowCounter);
                 $.each(subkeys, function(k, v){
-                    contents += '<td><input name=\'edge_{0}_{1}\' style=\'width:120%\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
+                    if (subkeys[k] == 'Outputs'){
+                        contents += '<td><input name=\'edge_{0}_{1}\' class=\'data_edge_keys\' style=\'width:120%\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
+                    } else {
+                        contents += '<td><input name=\'edge_{0}_{1}\' style=\'width:120%\' placeholder={2}/></td>'.format(subkeys[k], rowCounter, place_holder_json);
+                    }
                 });
                 contents += '</tr>';
 
@@ -52,7 +56,8 @@ function load_keys_from_type_contents_edge_auto(item_id, location, type){
         });
         //console.log(contents)
         $(location).html(contents);
-        $('.myToggle').bootstrapToggle();
+
+        autocomplete_nodename_and_edgekeys('auto_' + type)
     });
 }
 
@@ -193,10 +198,8 @@ function load_keys_from_type_contents_node_auto(item_id, location, type, call_fr
         });
         //console.log(contents)
         $(location).html(contents);
-        $('.myToggle').bootstrapToggle();
-        $('.moduleNodeEdgeNew input[name="node_OnFailGoTo"]').autocomplete({
-            source: node_names_autocomplete
-        });
+
+        autocomplete_nodename_and_edgekeys('auto_' + type);
 
         $('#buttonTogetherAddData').click(function(){
             rowCounter++;
