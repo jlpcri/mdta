@@ -441,6 +441,7 @@
         var edges = {{ network_edges|safe }};
         var node_names_autocomplete = {{node_names_autocomplete|safe}};
         var data_edge_keys_autocomplete = {{ data_edge_keys_autocomplete|safe }};
+        var menu_prompt_outputs_keys_autocomplete = {{ menu_prompt_outputs_keys_autocomplete|safe }};
         var place_holder_json = '\"JSON {\'key\': \'value\'}\"';
 
         {% include 'graphs/module/module_detail.js' %}

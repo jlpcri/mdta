@@ -85,7 +85,7 @@ def path_traverse_backwards(path, th_path=None):
                         if isinstance(th_step, Node):
                             if th_step.type.name in MENU_PROMPT_OUTPUTS_KEY_NODE_NAME:
                                 th_key = th_step.properties['Outputs']
-                                if result_found:
+                                if result_found and th_key:
                                     if th_key in result_found.keys():
                                         result = result_found
                                         # Then this test case can be routed

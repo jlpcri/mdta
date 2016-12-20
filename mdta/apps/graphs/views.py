@@ -429,7 +429,8 @@ def project_module_detail(request, module_id):
                                          initial={'type': node_form_type_default.id})
         module_nodes_set = current_module_nodes
 
-    data_edge_keys_autocomplete = module.data_edge_keys
+    data_edge_keys_autocomplete = module.data_autocomplete['data_edge_keys']
+    menu_prompt_outputs_keys_autocomplete = module.data_autocomplete['menu_prompt_outputs_keys']
     node_names_autocomplete = []
     for node in module_nodes_set:
         node_names_autocomplete.append(node.name)
@@ -449,6 +450,7 @@ def project_module_detail(request, module_id):
         'module_nodes_set': module_nodes_set,
         'node_names_autocomplete': sorted(node_names_autocomplete),
         'data_edge_keys_autocomplete': data_edge_keys_autocomplete,
+        'menu_prompt_outputs_keys_autocomplete': menu_prompt_outputs_keys_autocomplete,
 
         'node_new_node_form': node_new_node_form,
         'node_new_edge_form': node_new_edge_form,

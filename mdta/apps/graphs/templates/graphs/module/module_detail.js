@@ -218,28 +218,42 @@ function draw_module_graph(){
 
 function autocomplete_nodename_and_edgekeys(call_from) {
     var myToggle = $('.myToggle'),
-        project_node_new = $('.projectNodeNew input[name="OnFailGoTo"]'),
-        module_node_edit = $('.moduleNodeEditForm input[name="OnFailGoTo"]'),
-        data_edge_keys = $('.data_edge_keys'),
-        node_edge_new = $('.moduleNodeEdgeNew input[name="node_OnFailGoTo"]');
+        project_node_new_fail = $('.projectNodeNew input[name="OnFailGoTo"]'),
+        module_node_edit_fail = $('.moduleNodeEditForm input[name="OnFailGoTo"]'),
+        node_edge_new_fail = $('.moduleNodeEdgeNew input[name="node_OnFailGoTo"]'),
+        project_node_new_outputs = $('.projectNodeNew input[name="Outputs"]'),
+        module_node_edit_outputs = $('.moduleNodeEditForm input[name="Outputs"]'),
+        node_edge_new_outputs = $('.moduleNodeEdgeNew input[name="node_Outputs"]'),
+        data_edge_keys = $('.data_edge_keys');
 
     switch (call_from){
         case 'node':
             myToggle.bootstrapToggle();
-            project_node_new.autocomplete({
+            project_node_new_fail.autocomplete({
                 source: node_names_autocomplete
             });
-            module_node_edit.autocomplete({
+            module_node_edit_fail.autocomplete({
                 source: node_names_autocomplete
             });
+
+            project_node_new_outputs.autocomplete({
+                source: menu_prompt_outputs_keys_autocomplete
+            });
+            module_node_edit_outputs.autocomplete({
+                source: menu_prompt_outputs_keys_autocomplete
+            });
+
             data_edge_keys.autocomplete({
                 source: data_edge_keys_autocomplete
             });
             break;
         case 'auto_node':
             myToggle.bootstrapToggle();
-            node_edge_new.autocomplete({
+            node_edge_new_fail.autocomplete({
                 source: node_names_autocomplete
+            });
+            node_edge_new_outputs.autocomplete({
+                source: menu_prompt_outputs_keys_autocomplete
             });
             break;
         case 'edge':
@@ -255,12 +269,18 @@ function autocomplete_nodename_and_edgekeys(call_from) {
             });
             break;
         default:
-            project_node_new.autocomplete({
+            project_node_new_fail.autocomplete({
+                source: node_names_autocomplete
+            });
+            module_node_edit_fail.autocomplete({
                 source: node_names_autocomplete
             });
 
-            module_node_edit.autocomplete({
-                source: node_names_autocomplete
+            project_node_new_outputs.autocomplete({
+                source: menu_prompt_outputs_keys_autocomplete
+            });
+            module_node_edit_outputs.autocomplete({
+                source: menu_prompt_outputs_keys_autocomplete
             });
 
             data_edge_keys.autocomplete({
