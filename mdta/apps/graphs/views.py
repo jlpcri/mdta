@@ -429,8 +429,9 @@ def project_module_detail(request, module_id):
                                          initial={'type': node_form_type_default.id})
         module_nodes_set = current_module_nodes
 
-    data_edge_keys_autocomplete = module.data_autocomplete['data_edge_keys']
-    menu_prompt_outputs_keys_autocomplete = module.data_autocomplete['menu_prompt_outputs_keys']
+    module_data_autocomplete = module.data_autocomplete
+    data_edge_keys_autocomplete = module_data_autocomplete['data_edge_keys']
+    menu_prompt_outputs_keys_autocomplete = module_data_autocomplete['menu_prompt_outputs_keys']
     node_names_autocomplete = []
     for node in module_nodes_set:
         node_names_autocomplete.append(node.name)
