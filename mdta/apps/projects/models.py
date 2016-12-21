@@ -195,25 +195,33 @@ class Module(models.Model):
         """
         data_edge_keys = []
         menu_prompt_outputs_keys = []
-        for node in self.nodes:
-            if 'DataQueries' in node.type.name:
-                for item in node.properties[node.type.keys_data_name]:
-                    for key in item['Outputs'].keys():
-                        tmp = {
-                            'label': key + ': ' + item['Outputs'][key],
-                            'value': '{{\'{0}\': \'{1}\'}}'.format(key, item['Outputs'][key])
-                        }
-                        if tmp not in data_edge_keys:
-                            data_edge_keys.append(tmp)
-                    for key in item['Inputs'].keys():
-                        if key not in menu_prompt_outputs_keys:
-                            menu_prompt_outputs_keys.append(key)
 
-        # data = sorted(data_edge_keys, key=lambda k: k['label'])
-        data = {
-            'data_edge_keys': sorted(data_edge_keys, key=lambda k: k['label']),
-            'menu_prompt_outputs_keys': menu_prompt_outputs_keys
-        }
+        if self.project:
+            for module in self.project.modules:
+                for node in module.nodes.filter(type__name__in=['DataQueries Database', 'DataQueries WebService']):
+                    for item in node.properties[node.type.keys_data_name]:
+                        for key in item['Outputs'].keys():
+                            tmp = {
+                                'label': key + ': ' + item['Outputs'][key],
+                                'value': '{{\'{0}\': \'{1}\'}}'.format(key, item['Outputs'][key])
+                            }
+                            if tmp not in data_edge_keys:
+                                data_edge_keys.append(tmp)
+                        for key in item['Inputs'].keys():
+                            if key not in menu_prompt_outputs_keys:
+                                menu_prompt_outputs_keys.append(key)
+
+            data = {
+                'data_edge_keys': sorted(data_edge_keys, key=lambda k: k['label']),
+                'menu_prompt_outputs_keys': menu_prompt_outputs_keys
+            }
+        else:
+            data = {
+                'data_edge_keys': data_edge_keys,
+                'menu_prompt_outputs_keys': menu_prompt_outputs_keys
+            }
+
+        # print(data)
         return data
 
 
