@@ -39,6 +39,17 @@ function populateSteps(){
                 button.siblings(".text-success").addClass("hidden");
             }
             
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.log("FAIL: " + textStatus);
+            console.log(errorThrown);
+            button.siblings(".fa-spin").addClass("hidden");
+            button.siblings(".text-danger").removeClass("hidden");
+            button.siblings(".text-success").addClass("hidden");
+            var result_table = "<table class='table table-bordered'><tr><th>Result</th><td>ERROR</td></tr>"
+            result_table += "<tr><th>Call ID</th><td>N/A</td></tr>"
+            result_table += "<tr><th>Fail Reason</th><td>" + textStatus + ": " + errorThrown +  "</td></tr></table>"
+            $("#result").html(result_table);
         }
     });
     

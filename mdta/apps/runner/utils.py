@@ -37,6 +37,9 @@ class TestRailORM(object):
         client.password = self.instance.password
         return client
 
+    def __str__(self):
+        return "{0}: {1}".format(self.id, self.title)
+
 
 class TestRailProject(TestRailORM):
     def get_suites(self):
@@ -163,7 +166,7 @@ class AutomationScript(object):
 class HATScript(AutomationScript):
     def __init__(self, apn='', body='', dialed_number='',
                  holly_server='linux5578.wic.west.com', sonus_server='10.27.138.136',
-                 remote_server='qaci01.wic.west.com', remote_user='', remote_password=''):
+                 remote_server='qaci01.wic.west.com', remote_user='wicqacip', remote_password='LogFiles'):
         self.apn = apn
         self.dialed_number = dialed_number
         self.body = body
@@ -225,8 +228,8 @@ class HATScript(AutomationScript):
         """
         remote_filename = self._send_hat_script()
         self.filename = remote_filename.split('/')[-1]
-        stdin, stdout, stderr = self._invoke_remote_hat()
-        time.sleep(2)
+        self._invoke_remote_hat()
+        # time.sleep(2)
         return self._read_remote_results()
 
     def _send_hat_script(self, dest_directory='/tmp'):
@@ -253,35 +256,71 @@ class HATScript(AutomationScript):
         f = open('/home/caheyden/last-hat-command', 'w')
         f.write(command)
         f.close()
-        conn = client.exec_command(command)
+        channel = client.get_transport().open_session()
+        channel.exec_command(command)
+        channel.recv_exit_status()
+        channel.close()
         client.close()
-        return conn
 
-    def _read_remote_results(self):
+    def _read_remote_results(self, retry_attempts=3):
         client = SSHClient()
         client.set_missing_host_key_policy(AutoAddPolicy())
         client.load_system_host_keys()
         client.connect(self.remote_server, username=self.remote_user, password=self.remote_password)
         command = "grep {0} /var/mdta/report/CallReport.log".format(self.filename)
-        for i in range(20):
+        for i in range(15):
             print("Attempt {0}".format(i))
             stdin, stdout, stderr = client.exec_command(command)
             result_line = stdout.read()
             print(result_line)
             if result_line:
                 break
-            time.sleep(0.2)
+            time.sleep(0.25)
         client.close()
-        result_fields = result_line.split(",")
         try:
+            result_fields = result_line.decode('utf-8').split(",")
             result = {'result': result_fields[-4],
                       'reason': result_fields[-2],
                       'call_id': result_fields[2]}
         except IndexError:
+            address_in_use = self._check_call_start_failure()
+            if address_in_use:
+                if retry_attempts >= 1:
+                    time.sleep(6)
+                    print("Retries left: {0}".format(retry_attempts-1))
+                    self._invoke_remote_hat()
+                    result = self._read_remote_results(retry_attempts=retry_attempts-1)
+                else:
+                    result = {'result': 'FAIL',
+                              'reason': 'Unable to place call, port in use',
+                              'call_id': '0'}
+            elif not result_line:
+                result = {'result': 'FAIL',
+                          'reason': 'No results for this test case were found in the logs.',
+                          'call_id': '0'}
+            else:
+                result = {'result': 'FAIL',
+                          'reason': 'Failed to read results: ' + str(result_line),
+                          'call_id': '0'}
+        except Exception as e:
             result = {'result': 'FAIL',
-                      'reason': 'Failed to navigate call as expected',
-                      'call_id': 'e3525-20161111111306281-308'}
+                      'reason': 'An untrapped error occurred: ' + str(e.args),
+                      'call_id': '0'}
         return result
+
+    def _check_call_start_failure(self):
+        """Can't find your result? Go check for the call log."""
+        client = SSHClient()
+        client.set_missing_host_key_policy(AutoAddPolicy())
+        client.load_system_host_keys()
+        client.connect(self.remote_server, username=self.remote_user, password=self.remote_password)
+        command = 'grep "Address already in use." /var/mdta/log/{0}.log'.format(self.filename)
+        print(command)
+        stdin, stdout, stderr = client.exec_command(command)
+        result_line = stdout.read()
+        if result_line:
+            return True
+        return False
 
     def start_of_call(self, step):
         print("start_of_call: {0}".format(step))
@@ -289,10 +328,10 @@ class HATScript(AutomationScript):
             self.apn = step[4:].strip()
         elif step[:4].upper() == 'DNIS':
             self.apn = step[5:].strip()
+        elif step[:13].upper() == 'DIALEDNUMBER:':
+            self.dialed_number = step[14:].strip()
         elif step[:4].upper() == 'DIAL':
             self.dialed_number = step[5:].strip()
-        elif step[:4].upper() == 'DIALEDNUMBER:':
-            self.dialed_number = step[14:].strip()
         assert (len(self.body) == 0)
         self.body = 'STARTCALL\n' + \
                     'IGNORE answer asr_session document_dump document_transition fetch grammar_activation license ' + \
@@ -327,6 +366,19 @@ def bulk_remote_hat_execute(case_list):
     file_client.put(hat_script_list.name, hat_script_list.name)
     file_client.close()
 
+    client = SSHClient()
+    client.set_missing_host_key_policy(AutoAddPolicy())
+    client.load_system_host_keys()
+    client.connect(case_list[0].remote_server, username=case_list[0].remote_user, password=case_list[0].remote_password)
+    command = 'hat -L {0} -p {1} -i /var/mdta/report/ -o /var/mdta/log/{0}.log -b {2}:4080'.format(
+        hat_script_list.name, case_list[0].sip_string(), case_list[0].holly_server)
+    print(command)
+    f = open('/home/caheyden/last-hat-command', 'w')
+    f.write(command)
+    f.close()
+    # conn = client.exec_command(command)
+    client.close()
+
     # TODO: Run tests
 
 
@@ -340,3 +392,4 @@ def emergency_test():
     c.script.remote_password = 'dsi787cAH16'
     conn = c.script.remote_hat_execute()
     return c.id, c.script.filename, conn
+

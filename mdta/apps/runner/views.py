@@ -32,8 +32,8 @@ def execute_test(request, mdta_project_id):
     tri = p.testrail.instance
     case = get_testrail_steps(tri, request.GET['case_id'])
     case.generate_hat_script()
-    case.script.remote_user = 'caheyden'
-    case.script.remote_password = 'dsi787cAH16'
+    case.script.remote_user = 'wicqacip'
+    case.script.remote_password = 'LogFiles'
     result = case.script.remote_hat_execute()
     return JsonResponse(result)
 
