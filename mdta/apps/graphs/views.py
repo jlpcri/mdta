@@ -432,9 +432,9 @@ def project_module_detail(request, module_id):
     module_data_autocomplete = module.data_autocomplete
     data_edge_keys_autocomplete = module_data_autocomplete['data_edge_keys']
     menu_prompt_outputs_keys_autocomplete = module_data_autocomplete['menu_prompt_outputs_keys']
-    node_names_autocomplete = []
-    for node in module_nodes_set:
-        node_names_autocomplete.append(node.name)
+    node_names_autocomplete = module_data_autocomplete['node_names']
+    # for node in module_nodes_set:
+    #     node_names_autocomplete.append(node.name)
 
     node_new_edge_form = EdgeAutoNewForm(prefix='edge')
 
