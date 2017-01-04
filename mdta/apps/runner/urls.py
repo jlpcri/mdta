@@ -7,5 +7,6 @@ urlpatterns = [
     url(r'^suites/(?P<project_id>\d+)/$', views.display_project_suites, name='suites'),
     url(r'^steps/(?P<mdta_project_id>\d+)/$', views.display_testrail_steps, name='steps'),
     url(r'^run/(?P<mdta_project_id>\d+)/$', views.execute_test, name='run'),
+    url(r'^runall/$', views.run_test_suite, name='runall'),
     url(r'^dashboard/$', views.dashboard, name='dashboard'),
 ]

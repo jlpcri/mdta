@@ -21,6 +21,7 @@ else:
 class TestRailORM(object):
     def __init__(self, instance, api_return, parent=None):
         """Takes JSON from API call and returns a wrapped object"""
+        self.api_return = api_return
         self.instance = instance
         self.parent = parent
         try:
@@ -37,9 +38,6 @@ class TestRailORM(object):
         client.password = self.instance.password
         return client
 
-    def __str__(self):
-        return "{0}: {1}".format(self.id, self.title)
-
 
 class TestRailProject(TestRailORM):
     def get_suites(self):
@@ -55,6 +53,7 @@ class TestRailSuite(TestRailORM):
     def get_cases(self):
         return [TestRailCase(self.instance, res, self)
                 for res in self.client().send_get('get_cases/{0}&suite_id={1}'.format(self.project_id, self.id))]
+
 
     @contextmanager
     def test_run(self):
@@ -229,7 +228,6 @@ class HATScript(AutomationScript):
         remote_filename = self._send_hat_script()
         self.filename = remote_filename.split('/')[-1]
         self._invoke_remote_hat()
-        # time.sleep(2)
         return self._read_remote_results()
 
     def _send_hat_script(self, dest_directory='/tmp'):
@@ -357,11 +355,12 @@ def bulk_remote_hat_execute(case_list):
     hat_script_list = NamedTemporaryFile(mode='wt', prefix='HAT')
     for case in case_list:
         case.generate_hat_script()
-        f = case._send_hat_script()
+        f = case.script._send_hat_script()
         filename_list.append(f)
-        hat_script_list.write('destination: {0}\nscript: {1}\n'.format(case.sip_string(), f))
-    transport = Transport(case_list[0].remote_server, 22)
-    transport.connect(username=case_list[0].remote_user, password=case_list[0].remote_password)
+        hat_script_list.write('destination: {0}\nscript: {1}\n'.format(case.script.sip_string(), f))
+    transport = Transport(case_list[0].script.remote_server, 22)
+    transport.connect(username=case_list[0].script.remote_user,
+                      password=case_list[0].script.remote_password)
     file_client = SFTPClient.from_transport(transport)
     file_client.put(hat_script_list.name, hat_script_list.name)
     file_client.close()
@@ -369,17 +368,23 @@ def bulk_remote_hat_execute(case_list):
     client = SSHClient()
     client.set_missing_host_key_policy(AutoAddPolicy())
     client.load_system_host_keys()
-    client.connect(case_list[0].remote_server, username=case_list[0].remote_user, password=case_list[0].remote_password)
+    client.connect(case_list[0].script.remote_server,
+                   username=case_list[0].script.remote_user,
+                   password=case_list[0].script.remote_password)
     command = 'hat -L {0} -p {1} -i /var/mdta/report/ -o /var/mdta/log/{0}.log -b {2}:4080'.format(
-        hat_script_list.name, case_list[0].sip_string(), case_list[0].holly_server)
+        hat_script_list.name, case_list[0].script.sip_string(), case_list[0].script.holly_server)
     print(command)
     f = open('/home/caheyden/last-hat-command', 'w')
     f.write(command)
     f.close()
     # conn = client.exec_command(command)
     client.close()
-
+    return filename_list
     # TODO: Run tests
+
+
+def check_result(filename):
+    pass
 
 
 def emergency_test():

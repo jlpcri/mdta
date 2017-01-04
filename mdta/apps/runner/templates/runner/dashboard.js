@@ -1,6 +1,20 @@
 $(function(){
     $(".run-btn").click(populateSteps)
+    $(".run-all-btn").click(runAll)
 });
+
+function runAll(){
+    var suite_id = this.getAttribute('data-suite')
+    var button = $(this);
+    $("#testcase").html("");
+    $("#result").html("");
+    $.ajax('{% url "runner:runall" %}?suite=' + suite_id, {
+        success: function(data, textStatus, jqXHR){
+            var div = $("#testcase");
+            console.log(data)
+        }
+    })
+}
 
 function populateSteps(){
     var case_id = this.getAttribute('data-case');
