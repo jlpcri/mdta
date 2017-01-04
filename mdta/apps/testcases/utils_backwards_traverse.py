@@ -100,11 +100,11 @@ def path_traverse_backwards(path, th_path=None):
                         if isinstance(th_step, Node):
                             traverse_node(th_step, tcs)
 
-            # traverse Start Node
-            if th_path[2].type.name in MENU_PROMPT_OUTPUTS_KEY_NODE_NAME:
-                tcs[-1]['content'] = get_item_properties(step)
-            else:
-                traverse_node(step, tcs)
+                # traverse Start Node
+                if th_path[2].type.name in MENU_PROMPT_OUTPUTS_KEY_NODE_NAME:
+                    tcs[-1]['content'] = get_item_properties(step)
+                else:
+                    traverse_node(step, tcs)
 
     if tcs_cannot_route_flag:
         data = {
