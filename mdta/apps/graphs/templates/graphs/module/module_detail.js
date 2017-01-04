@@ -15,6 +15,9 @@ $('.moduleNodeEditForm #moduleNodeEditType').on('change', function(e){
 $('.moduleNodeEditForm').on('submit', function(e){
     var name = $(e.currentTarget).find('input[name="moduleNodeEditName"]').val(),
         location = $(e.currentTarget).find('#moduleNodeEditErrMessage'),
+        properties = $(e.currentTarget).find('#module-node-edit-properties input'),
+        is_json_format = true,
+        json_msg = '',
         data = '';
 
     if (name == ''){
@@ -22,11 +25,49 @@ $('.moduleNodeEditForm').on('submit', function(e){
         return false;
     }
 
+    var check_json = check_node_properties_json(properties);
+
+
+    if (!check_json['is_json_format']) {
+        showErrMsg(location, check_json['json_msg']);
+        return false;
+    }
+
     $(e.currentTarget).find('.moduleNodeEditPropertyTable tbody tr').each(function(){
         data += this.id + ' ';
     });
     $(e.currentTarget).find('input[name="property_data_index"]').val(data);
+
 });
+
+function check_node_properties_json(properties){
+    var data = {},
+        item = '',
+        item_str = '',
+        json_msg = '',
+        is_json_format = true;
+
+    $.each(properties, function(index){
+        item = properties[index];
+        if (item.name.indexOf('Inputs_') >= 0 || item.name.indexOf('Outputs_') >= 0) {
+            item_str = item.value.replace(/'/g, '"');
+            if (!isJsonFormat(item_str)){
+                if (item_str.length > 0){
+                    json_msg = 'JSON format incorrect: {0}'.format(item.name);
+                } else {
+                    json_msg = 'JSON input empty: {0}'.format(item.name);
+                }
+                is_json_format = false;
+                return false;
+            }
+        }
+    });
+
+    data['is_json_format'] = is_json_format;
+    data['json_msg'] = json_msg;
+
+    return data;
+}
 /* End Module Node Edit Code */
 
 
@@ -39,32 +80,70 @@ $('.moduleEdgeEditForm #moduleEdgeEditType').on('change', function(){
 });
 
 $('.moduleEdgeEditForm').on('submit', function(e){
-    var edge_type = $(e.currentTarget).find('#moduleEdgeEditType option:selected').text(),
-        location = $(e.currentTarget).find('#moduleEdgeEditErrMessage'),
+    var location = $(e.currentTarget).find('#moduleEdgeEditErrMessage'),
         properties = $(e.currentTarget).find('#module-edge-edit-properties input'),
-        properties_no_input = true,
+        //edge_type = $(e.currentTarget).find('#moduleEdgeEditType option:selected').text(),
         submit = $(e.currentTarget).find('button[type="submit"]:focus');
 
     //console.log(edge_type)
 
-    $.each(properties, function(index){
-        //console.log(index, properties[index].value);
-        if (properties[index].value != ''){
-            properties_no_input = false;
-            return false;
-        }
-    });
+    var check_json = check_edge_properties_json(properties);
 
-    if (properties_no_input && edge_type != 'Connector' && submit[0].textContent == 'Save'){
-        showErrMsg(location, 'At lease input one property');
+    //if (check_json['properties_no_input'] && edge_type != 'Connector' && submit[0].textContent == 'Save'){
+    //    showErrMsg(location, 'Input of property empty');
+    //    return false;
+    //}
+
+    if (!check_json['is_json_format']){
+        showErrMsg(location, check_json['json_msg']);
         return false;
     }
 });
+
+function check_edge_properties_json(properties){
+    var data = {},
+        item = '',
+        item_str = '',
+        json_msg = '',
+        is_json_format = true;
+
+    $.each(properties, function(index){
+        item = properties[index];
+        if (item.name.indexOf('Outputs_') >= 0 || item.name.indexOf('Condition_') >= 0) {
+            item_str = properties[index].value.replace(/'/g, '"');
+            if (!isJsonFormat(item_str)){
+                if (item_str.length > 0){
+                    json_msg = 'JSON format incorrect: {0}'.format(item.name);
+                } else {
+                    json_msg = 'JSON input empty: {0}'.format(item.name);
+                }
+                is_json_format = false;
+                return false;
+            }
+        }
+    });
+
+    data['is_json_format'] = is_json_format;
+    data['json_msg'] = json_msg;
+
+    return data;
+}
+
+function isJsonFormat(str){
+    var is_json = true;
+    try {
+        var json = $.parseJSON(str);
+    } catch(e){
+        is_json = false
+    }
+    return is_json
+}
 /* End Module Edge Edit Code */
 
 
 $(document).ready(function(){
     draw_module_graph();
+    autocomplete_nodename_and_edgekeys();
 });
 
 function draw_module_graph(){
@@ -133,3 +212,82 @@ function draw_module_graph(){
     })
 
 }
+
+
+/* Start Node Name for OnFailGoTo of MenuPrompt Code */
+
+function autocomplete_nodename_and_edgekeys(call_from) {
+    var myToggle = $('.myToggle'),
+        project_node_new_fail = $('.projectNodeNew input[name="OnFailGoTo"]'),
+        module_node_edit_fail = $('.moduleNodeEditForm input[name="OnFailGoTo"]'),
+        node_edge_new_fail = $('.moduleNodeEdgeNew input[name="node_OnFailGoTo"]'),
+        project_node_new_outputs = $('.projectNodeNew input[name="Outputs"]'),
+        module_node_edit_outputs = $('.moduleNodeEditForm input[name="Outputs"]'),
+        node_edge_new_outputs = $('.moduleNodeEdgeNew input[name="node_Outputs"]'),
+        data_edge_keys = $('.data_edge_keys');
+
+    switch (call_from){
+        case 'node':
+            myToggle.bootstrapToggle();
+            project_node_new_fail.autocomplete({
+                source: node_names_autocomplete
+            });
+            module_node_edit_fail.autocomplete({
+                source: node_names_autocomplete
+            });
+
+            project_node_new_outputs.autocomplete({
+                source: menu_prompt_outputs_keys_autocomplete
+            });
+            module_node_edit_outputs.autocomplete({
+                source: menu_prompt_outputs_keys_autocomplete
+            });
+
+            data_edge_keys.autocomplete({
+                source: data_edge_keys_autocomplete
+            });
+            break;
+        case 'auto_node':
+            myToggle.bootstrapToggle();
+            node_edge_new_fail.autocomplete({
+                source: node_names_autocomplete
+            });
+            node_edge_new_outputs.autocomplete({
+                source: menu_prompt_outputs_keys_autocomplete
+            });
+            break;
+        case 'edge':
+            myToggle.bootstrapToggle();
+            data_edge_keys.autocomplete({
+                source: data_edge_keys_autocomplete
+            });
+            break;
+        case 'auto_edge':
+            myToggle.bootstrapToggle();
+            data_edge_keys.autocomplete({
+                source: data_edge_keys_autocomplete
+            });
+            break;
+        default:
+            project_node_new_fail.autocomplete({
+                source: node_names_autocomplete
+            });
+            module_node_edit_fail.autocomplete({
+                source: node_names_autocomplete
+            });
+
+            project_node_new_outputs.autocomplete({
+                source: menu_prompt_outputs_keys_autocomplete
+            });
+            module_node_edit_outputs.autocomplete({
+                source: menu_prompt_outputs_keys_autocomplete
+            });
+
+            data_edge_keys.autocomplete({
+                source: data_edge_keys_autocomplete
+            });
+    }
+}
+
+
+/* End   Node Name for OnFailGoTo of MenuPrompt Code */

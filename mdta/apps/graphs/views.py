@@ -7,7 +7,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new, check_edge_in_set,\
-    get_properties_for_node_or_edge
+    get_properties_for_node_or_edge, EDGE_TYPES_INVISIBLE_KEY
 from mdta.apps.projects.models import Project, Module
 from mdta.apps.projects.utils import context_project_dashboard
 from mdta.apps.users.views import user_is_staff, user_is_superuser
@@ -234,7 +234,7 @@ def get_keys_from_type(request):
         item = get_object_or_404(EdgeType, pk=object_id)
 
     data = {
-        'keys': item.keys,
+        'keys': sorted(item.keys),
         'subkeys': item.subkeys
     }
 
@@ -332,6 +332,8 @@ def project_module_detail(request, module_id):
     :param module_id:
     :return:
     """
+    all_edges = request.GET.get('all_edges', '')
+
     module = get_object_or_404(Module, pk=module_id)
 
     # for module level graph
@@ -341,6 +343,12 @@ def project_module_detail(request, module_id):
     outside_module_node_color = 'rgb(211, 211, 211)'
 
     for edge in module.edges_all:
+        try:
+            if edge.properties[EDGE_TYPES_INVISIBLE_KEY] == 'on' and not all_edges:
+                continue
+        except KeyError:
+            pass
+
         network_edges.append({
             'id': edge.id,
             'to': edge.to_node.id,
@@ -393,7 +401,9 @@ def project_module_detail(request, module_id):
                 elif node.type.name == 'Menu Prompt with Confirmation':
                     tmp['image'] = image_url + 'mdta_menu_prompt_with_confirm.png'
                 elif node.type.name == 'TestHeader End':
-                    tmp['image'] = image_url + 'mdta_return.png'
+                    tmp['image'] = image_url + 'mdta_west_male.png'
+                else:
+                    tmp['image'] = image_url + 'mdta_west_female.png'
 
             if node.module != module:
                 tmp['shadow'] = 'true'
@@ -402,24 +412,35 @@ def project_module_detail(request, module_id):
 
     # print(module.nodes)
 
-    node_new_form = NodeNewForm(module_id=module.id)
+    node_form_type_default = get_object_or_404(NodeType, name='Play Prompt')
+    node_new_form = NodeNewForm(module_id=module.id, initial={'type': node_form_type_default.id})
     node_types = NodeType.objects.all()
     edge_types = EdgeType.objects.all()
     edge_priorities = Edge.PRIORITY_CHOICES
     current_module_nodes = module.node_set.order_by('name')
     if module.project:
         project_modules = module.project.module_set.order_by('name')
-        node_new_node_form = NodeNewForm(project_id=module.project.id)
+        node_new_node_form = NodeNewForm(project_id=module.project.id,
+                                         initial={'type': node_form_type_default.id})
         module_nodes_set = module.project.nodes
     else:
         project_modules = [module]
-        node_new_node_form = NodeNewForm(module_id=module.id)
+        node_new_node_form = NodeNewForm(module_id=module.id,
+                                         initial={'type': node_form_type_default.id})
         module_nodes_set = current_module_nodes
+
+    module_data_autocomplete = module.data_autocomplete
+    data_edge_keys_autocomplete = module_data_autocomplete['data_edge_keys']
+    menu_prompt_outputs_keys_autocomplete = module_data_autocomplete['menu_prompt_outputs_keys']
+    node_names_autocomplete = module_data_autocomplete['node_names']
+    # for node in module_nodes_set:
+    #     node_names_autocomplete.append(node.name)
 
     node_new_edge_form = EdgeAutoNewForm(prefix='edge')
 
     context = {
         'module': module,
+        'all_edges': all_edges,
         'node_new_form': node_new_form,
 
         'node_types': node_types,
@@ -428,6 +449,9 @@ def project_module_detail(request, module_id):
         'project_modules': project_modules,
         'current_module_nodes': current_module_nodes,
         'module_nodes_set': module_nodes_set,
+        'node_names_autocomplete': sorted(node_names_autocomplete),
+        'data_edge_keys_autocomplete': data_edge_keys_autocomplete,
+        'menu_prompt_outputs_keys_autocomplete': menu_prompt_outputs_keys_autocomplete,
 
         'node_new_node_form': node_new_node_form,
         'node_new_edge_form': node_new_edge_form,
@@ -488,8 +512,8 @@ def module_node_new(request, module_id):
 
             messages.success(request, 'Node is Added')
         else:
-            print(form.errors)
-            messages.error(request, 'Module new node error.')
+            # print(form.errors)
+            messages.error(request, form.errors)
 
         return redirect('graphs:project_module_detail', module_id)
 

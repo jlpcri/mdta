@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.postgres.fields import HStoreField, ArrayField, JSONField
 
@@ -95,6 +96,24 @@ class Node(models.Model):
     class Meta:
         unique_together = ('module', 'name',)
 
+    def clean(self):
+        # Node name should be unique for node.module.project
+        if self.module.project:
+            project = self.module.project
+            for each_node in project.nodes:
+                if each_node.name.casefold() == self.name.casefold() and each_node.id != self.id:
+                    if each_node.module == self.module:
+                        msg = 'Node with this Module and Name already exists.'
+                    else:
+                        msg = 'Node with this Project and Name already exists.'
+                    raise ValidationError({
+                        'name': msg
+                    })
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super(Node, self).save(*args, **kwargs)
+
     def __str__(self):
         return '{0}: {1}: {2}'.format(self.module, self.name, self.type.name)
 
@@ -112,6 +131,10 @@ class Node(models.Model):
     @property
     def arriving_edges(self):
         return self.to_node.select_related('from_node', 'type').order_by('priority')
+
+    @property
+    def properties_sorted(self):
+        return sorted(self.properties.items())
 
 
 class Edge(models.Model):

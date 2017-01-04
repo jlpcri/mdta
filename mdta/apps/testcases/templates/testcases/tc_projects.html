@@ -55,6 +55,24 @@
                                             <li>{{ forloop.counter }}, {{ step }}</li>
                                         {% endfor %}
                                     </ul>
+{#                                    <table class="table">#}
+{#                                        <thead>#}
+{#                                            <tr>#}
+{#                                                <th></th>#}
+{#                                                <th>Step</th>#}
+{#                                                <th>Expected Result</th>#}
+{#                                            </tr>#}
+{#                                        </thead>#}
+{#                                        <tbody>#}
+{#                                            {% for step in each_tc.tc_steps %}#}
+{#                                                <tr>#}
+{#                                                    <td>{{ forloop.counter }}</td>#}
+{#                                                    <td>{{ step.content }}</td>#}
+{#                                                    <td>{{ step.expected }}</td>#}
+{#                                                </tr>#}
+{#                                            {% endfor %}#}
+{#                                        </tbody>#}
+{#                                    </table>#}
                                 </ul>
                             {% endif %}
                         {% endfor %}

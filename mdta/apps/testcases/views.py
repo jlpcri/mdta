@@ -17,8 +17,7 @@ from mdta.apps.testcases.testrail import APIClient
 @login_required
 def tcs_project(request):
     if request.user.humanresource.project:
-        project_id = request.user.humanresource.project.id
-        project = get_object_or_404(Project, pk=project_id)
+        project = request.user.humanresource.project
         try:
             testcases = project.testcaseresults_set.latest('updated').results
         except TestCaseResults.DoesNotExist:
@@ -32,7 +31,10 @@ def tcs_project(request):
         'testcases': testcases
     }
 
-    return render(request, 'testcases/tcs_project.html', context)
+    if project:
+        return render(request, 'testcases/tcs_project.html', context)
+    else:
+        return redirect('graphs:projects_for_selection')
 
 
 @user_passes_test(user_is_superuser)

@@ -187,6 +187,51 @@ class Module(models.Model):
 
         return data
 
+    @property
+    def data_autocomplete(self):
+        """
+        Get node DataQueries Database/ DataQueries WebService, node.properties['InputData']['Outputs'] keys
+        As data edge Follow if  keys
+        """
+        Node = mdta.apps.graphs.models.Node  # avoiding circular import
+
+        node_names = []
+        data_edge_keys = []
+        menu_prompt_outputs_keys = []
+
+        try:
+            if self.project:
+                node_names = Node.objects.filter(module__project=self.project).values_list('name', flat=True).order_by('name')
+                for module in self.project.modules:
+                    for node in module.nodes.filter(type__name__in=['DataQueries Database', 'DataQueries WebService']):
+                        for item in node.properties[node.type.keys_data_name]:
+                            for key in item['Outputs'].keys():
+                                tmp = {
+                                    'label': key + ': ' + item['Outputs'][key],
+                                    'value': '{{\'{0}\': \'{1}\'}}'.format(key, item['Outputs'][key])
+                                }
+                                if tmp not in data_edge_keys:
+                                    data_edge_keys.append(tmp)
+                            for key in item['Inputs'].keys():
+                                if key not in menu_prompt_outputs_keys:
+                                    menu_prompt_outputs_keys.append(key)
+
+                data_edge_keys = sorted(data_edge_keys, key=lambda k: k['label'])
+            else:
+                node_names = Node.objects.filter(module=self).values_list('name', flat=True).order_by('name')
+
+        except TypeError:
+            pass
+
+        data = {
+            'node_names': node_names,
+            'data_edge_keys': data_edge_keys,
+            'menu_prompt_outputs_keys': menu_prompt_outputs_keys
+        }
+
+        # print(node_names)
+        return data
+
 
 class ProjectVariable(models.Model):
     """
