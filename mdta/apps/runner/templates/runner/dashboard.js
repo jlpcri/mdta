@@ -6,14 +6,64 @@ $(function(){
 function runAll(){
     var suite_id = this.getAttribute('data-suite')
     var button = $(this);
-    $("#testcase").html("");
+    $("#testcase").html("Generating tests. Please wait.");
     $("#result").html("");
     $.ajax('{% url "runner:runall" %}?suite=' + suite_id, {
         success: function(data, textStatus, jqXHR){
             var div = $("#testcase");
-            console.log(data)
+            var table_draw = '<table class="table table-bordered"><tr><th>Title</th><th>Script</th><th>Status</th><th>Call ID</th><th>Failure reason</th></tr>'
+            console.log(data);
+            $.each(data.scripts, function(index, value){
+                table_draw += "<tr><td class='title'></td>" +
+                    "<td class='script'>" + value + "</td>" +
+                    "<td class='status'><i class='fa fa-spin fa-spinner'></i> <span> Running...</span></td>" +
+                    "<td class='call-id'></td>" +
+                    "<td class='reason'></td></tr>"
+            });
+            table_draw += "</table>";
+            div.html(table_draw);
+            var counter = 0;
+            var poll = setInterval(function() {
+                checkScript(data.scripts[counter])
+                counter++;
+                if (counter == data.scripts.length){
+                    counter = 0
+                }
+
+            }, 750)
         }
     })
+}
+
+function checkScript(script){
+    $.ajax('{% url "runner:check_result" %}' + "?filename=" + script, {
+        success: function(data, textStatus, jqXHR){
+            console.log(data)
+            if (!data.running) {
+                if (data.success) {
+                    markSuccess(script)
+                }
+                else {
+                    markFailure(script)
+                }
+            }
+        }
+    })
+
+}
+
+function markSuccess(script){
+    updateStatusClassAndText(script, "fa fa-check-square text-success", "Pass")
+}
+
+function markFailure(script){
+    updateStatusClassAndText(script, "fa fa-minus-square text-danger", "Fail")
+}
+
+function updateStatusClassAndText(script, cls, text){
+    var status_td = $("#testcase table").find('td.script:contains("' + script + '")').siblings(".status")
+    status_td.find("i").attr("class", cls)
+    status_td.find("span").html(text)
 }
 
 function populateSteps(){

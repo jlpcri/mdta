@@ -11,6 +11,7 @@ from paramiko.client import AutoAddPolicy
 from paramiko import SSHClient, SFTPClient, Transport
 
 import mdta.apps.testcases.testrail as testrail
+from mdta.apps.runner.models import TestServer
 
 if os.name == 'posix' and sys.version_info[0] < 3:
     import subprocess32 as subprocess
@@ -352,12 +353,13 @@ class HATScript(AutomationScript):
 
 def bulk_remote_hat_execute(case_list):
     filename_list = []
-    hat_script_list = NamedTemporaryFile(mode='wt', prefix='HAT')
+    hat_script_list = NamedTemporaryFile(mode='wt', prefix='HAT', delete=False)
     for case in case_list:
         case.generate_hat_script()
         f = case.script._send_hat_script()
         filename_list.append(f)
         hat_script_list.write('destination: {0}\nscript: {1}\n'.format(case.script.sip_string(), f))
+    hat_script_list.close()
     transport = Transport(case_list[0].script.remote_server, 22)
     transport.connect(username=case_list[0].script.remote_user,
                       password=case_list[0].script.remote_password)
@@ -371,30 +373,34 @@ def bulk_remote_hat_execute(case_list):
     client.connect(case_list[0].script.remote_server,
                    username=case_list[0].script.remote_user,
                    password=case_list[0].script.remote_password)
-    command = 'hat -L {0} -p {1} -i /var/mdta/report/ -o /var/mdta/log/{0}.log -b {2}:4080'.format(
+    command = 'hat -P {0} -p {1} -i /var/mdta/report/ -o /var/mdta/log{0}.log -b {2}:4080'.format(
         hat_script_list.name, case_list[0].script.sip_string(), case_list[0].script.holly_server)
     print(command)
     f = open('/home/caheyden/last-hat-command', 'w')
     f.write(command)
     f.close()
-    # conn = client.exec_command(command)
+    conn = client.exec_command(command)
     client.close()
     return filename_list
     # TODO: Run tests
 
 
 def check_result(filename):
-    pass
+    ts = TestServer.objects.first()
+    client = SSHClient()
+    client.set_missing_host_key_policy(AutoAddPolicy())
+    client.load_system_host_keys()
+    client.connect(ts.host, username=ts.remote_user, password=ts.remote_password)
+    command = "grep {0} /var/mdta/report/CallReport.log".format(filename)
+    stdin, stdout, stderr = client.exec_command(command)
+    result_line = stdout.read()
+    try:
+        result_fields = result_line.decode('utf-8').split(",")
+        result = {'result': result_fields[-4],
+                  'reason': result_fields[-2],
+                  'call_id': result_fields[2]}
+        return result
+    except IndexError:
+        return False
 
-
-def emergency_test():
-    from mdta.apps.projects.models import TestRailInstance
-    tri = TestRailInstance.objects.first()
-    trp = get_testrail_project(tri, 6)
-    c = trp.get_suites()[7].get_cases()[0]
-    c.generate_hat_script()
-    c.script.remote_user = 'caheyden'
-    c.script.remote_password = 'dsi787cAH16'
-    conn = c.script.remote_hat_execute()
-    return c.id, c.script.filename, conn
 

@@ -3,12 +3,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 
 from mdta.apps.projects.models import TestRailInstance, Project
-from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, emergency_test, bulk_remote_hat_execute
-
-
-def demo(request, project_id):
-    c, f, result = emergency_test()
-    return JsonResponse({'c': c, 'f': f, 'result': result})
+from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, check_result
 
 
 def display_project_suites(request, project_id):
@@ -48,6 +43,20 @@ def run_test_suite(request):
     testrail_cases = testrail_suite.get_cases()
     files_to_monitor = bulk_remote_hat_execute(testrail_cases)
     return JsonResponse({'success': True, 'scripts': files_to_monitor})
+
+
+def check_test_result(request):
+    try:
+        filename = request.GET.get('filename', False)
+        if not filename:
+            return JsonResponse({'success': False, 'reason': 'Could not read filename'})
+        response = check_result(filename)
+        if response:
+            response['running'] = False
+            return JsonResponse(response)
+        return JsonResponse({'running': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'reason': 'An untrapped error occurred: ' + str(e.args)})
 
 
 @login_required
