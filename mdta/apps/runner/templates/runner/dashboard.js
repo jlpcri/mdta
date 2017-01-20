@@ -26,7 +26,11 @@ function runAll(){
             var poll = setInterval(function() {
                 checkScript(data.scripts[counter])
                 counter++;
-                if (counter == data.scripts.length){
+                if (counter >= data.scripts.length){
+                    if (checkCompletion()) {
+                        console.log('Run complete')
+                        clearInterval(poll)
+                    }
                     counter = 0
                 }
 
@@ -35,16 +39,26 @@ function runAll(){
     })
 }
 
+function checkCompletion(script){
+    var done = true
+    $(".status span").each(function(i, element){
+        if (element.innerHTML === " Running...") {
+            done = false
+        }
+    })
+    return done
+}
+
 function checkScript(script){
     $.ajax('{% url "runner:check_result" %}' + "?filename=" + script, {
         success: function(data, textStatus, jqXHR){
             console.log(data)
             if (!data.running) {
                 if (data.success) {
-                    markSuccess(script)
+                    markSuccess(script, data.call_id)
                 }
                 else {
-                    markFailure(script)
+                    markFailure(script, data.call_id, data.reason)
                 }
             }
         }
@@ -52,18 +66,31 @@ function checkScript(script){
 
 }
 
-function markSuccess(script){
+function markSuccess(script, callId){
     updateStatusClassAndText(script, "fa fa-check-square text-success", "Pass")
+    updateCallID(script, callId)
 }
 
-function markFailure(script){
+function markFailure(script, callId, failureReason){
     updateStatusClassAndText(script, "fa fa-minus-square text-danger", "Fail")
+    updateCallID(script, callId)
+    updateFailureReason(script, failureReason)
 }
 
 function updateStatusClassAndText(script, cls, text){
     var status_td = $("#testcase table").find('td.script:contains("' + script + '")').siblings(".status")
     status_td.find("i").attr("class", cls)
     status_td.find("span").html(text)
+}
+
+function updateCallID(script, callId){
+    var id_td = $("#testcase table").find('td.script:contains("' + script + '")').siblings(".call-id")
+    id_td.html(callId)
+}
+
+function updateFailureReason(script, failureReason){
+    var reason_td = $("#testcase table").find('td.script:contains("' + script + '")').siblings(".reason")
+    reason_td.html(failureReason)
 }
 
 function populateSteps(){

@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 
-from mdta.apps.projects.models import TestRailInstance, Project
+from mdta.apps.projects.models import TestRailInstance, Project, TestRailConfiguration
 from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, check_result
 
 
@@ -63,7 +63,11 @@ def check_test_result(request):
 def dashboard(request):
     p = request.user.humanresource.project
     assert p
-    trp = get_testrail_project(p.testrail.instance, p.testrail.project_id)
+    try:
+        trp = get_testrail_project(p.testrail.instance, p.testrail.project_id)
+    except AttributeError:
+        p.testrail = TestRailConfiguration.objects.first()
+        trp = get_testrail_project(p.testrail.instance, p.testrail.project_id)
     suites = trp.get_suites()
     for suite in suites:
         suite.cases = suite.get_cases()

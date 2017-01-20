@@ -373,16 +373,16 @@ def bulk_remote_hat_execute(case_list):
     client.connect(case_list[0].script.remote_server,
                    username=case_list[0].script.remote_user,
                    password=case_list[0].script.remote_password)
-    command = 'hat -P {0} -p {1} -i /var/mdta/report/ -o /var/mdta/log{0}.log -b {2}:4080'.format(
+    command = 'nohup hat -P {0} -p {1} -i /var/mdta/report/ -o /var/mdta/log{0}.log -b {2}:4080'.format(
         hat_script_list.name, case_list[0].script.sip_string(), case_list[0].script.holly_server)
     print(command)
     f = open('/home/caheyden/last-hat-command', 'w')
     f.write(command)
     f.close()
     conn = client.exec_command(command)
+    time.sleep(50)  # Why? Don't know. Kinda don't care anymore. It runs better when it's here.
     client.close()
     return filename_list
-    # TODO: Run tests
 
 
 def check_result(filename):
