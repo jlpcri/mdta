@@ -17,14 +17,9 @@
             height: auto;
             border: 1px solid lightgray;
         }
-        @media (min-width: 768px){
-            .right1 {
-                position: absolute;
-                top: 15px;
-                bottom: 0;
-                right: 0;
-                overflow: auto;
-            }
+        .pre-scrollable {
+            max-height: 1024px;
+            overflow-y: auto;
         }
         .ui-autocomplete{
             z-index: 1050;
@@ -53,7 +48,7 @@
                     <div id="node_in_module" style="margin-top: 10px;"></div>
                 </div>
             </div>
-            <div class="col-xs-3 right" >
+            <div class="col-xs-3" >
 
                 <div class="row hidden">
                     <ul class="nav nav-tabs">
