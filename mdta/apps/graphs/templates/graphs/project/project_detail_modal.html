@@ -12,14 +12,20 @@
                     </div>
                 </div>
                 <div class="modal-body">
-                    {{ module_new_form }}
+                    {{ module_import_form }}
                     <br>
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <div id="newModuleErrMessage">&nbsp;</div>
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label class="control-label">Upload .xlsx File (optional, can upload later)</label>
+                        <div class="input-group">
+                            <span class="input-group-btn">
+                                <span class="btn btn-default btn-file">
+                                    <i class="fa fa-folder-open fa-fw"></i>{{ project_form.file }}
+                                </span>
+                            </span>
+                            <input type="text" id="filenames" class="form-control" readonly>
                         </div>
                     </div>
-                    {% csrf_token %}
                 </div>
                 <div class="modal-footer">
                     <input id="module_import" class="btn btn-primary" type="submit" value="Import Module">
