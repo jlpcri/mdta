@@ -162,6 +162,34 @@ def fetch_project_catalogs_members(request):
 
     return HttpResponse(json.dumps(data), content_type='application/json')
 
+@user_passes_test(user_is_staff)
+def module_import(request):
+    """
+    Add new module of project
+    :param request:
+    :return:
+    """
+    if request.method == 'GET':
+        form = ModuleForm()
+        context = {
+            'form': form
+        }
+
+        return render(request, 'projects/module_import', context)
+        form = ModuleForm(request.POST)
+        if form.is_valid():
+            module = form.save()
+            messages.success(request, 'Module \'{0}\' is added to \'{1}\''.format(module.name, module.project.name))
+
+            return redirect('projects:projects')
+        else:
+            messages.error(request, form.errors)
+
+            context = {
+                'form': form
+            }
+
+            return render(request, 'projects/module_import.html', context)
 
 @user_passes_test(user_is_staff)
 def module_new(request):

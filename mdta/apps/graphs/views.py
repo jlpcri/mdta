@@ -296,6 +296,31 @@ def project_detail(request, project_id):
 
     return render(request, 'graphs/project/project_detail.html', context)
 
+@user_passes_test(user_is_staff)
+def project_module_import(request, project_id):
+    """
+    Add new module from project view
+    :param request:
+    :param project_id:
+    :return:
+    """
+    if request.method == 'GET':
+        form = ModuleForm(project_id=project_id)
+        context = {
+            'form': form,
+            'project_id': project_id
+        }
+        return render(request, 'graphs/project/module_import.html', context)
+    elif request.method == 'POST':
+        form = ModuleForm(request.POST)
+        if form.is_valid():
+            module = form.save()
+            messages.success(request, 'Module \'{0}\' is added to \'{1}\''.format(module.name, module.project.name))
+        else:
+            print(form.errors)
+            messages.error(request, 'Errors found.')
+
+        return redirect('graphs:project_detail', project_id)
 
 @user_passes_test(user_is_staff)
 def project_module_new(request, project_id):
