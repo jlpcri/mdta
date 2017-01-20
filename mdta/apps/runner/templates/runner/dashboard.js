@@ -1,6 +1,97 @@
 $(function(){
     $(".run-btn").click(populateSteps)
+    $(".run-all-btn").click(runAll)
 });
+
+function runAll(){
+    var suite_id = this.getAttribute('data-suite')
+    var button = $(this);
+    $("#testcase").html("Generating tests. Please wait.");
+    $("#result").html("");
+    $.ajax('{% url "runner:runall" %}?suite=' + suite_id, {
+        success: function(data, textStatus, jqXHR){
+            var div = $("#testcase");
+            var table_draw = '<table class="table table-bordered"><tr><th>Title</th><th>Script</th><th>Status</th><th>Call ID</th><th>Failure reason</th></tr>'
+            console.log(data);
+            $.each(data.scripts, function(index, value){
+                table_draw += "<tr><td class='title'></td>" +
+                    "<td class='script'>" + value + "</td>" +
+                    "<td class='status'><i class='fa fa-spin fa-spinner'></i> <span> Running...</span></td>" +
+                    "<td class='call-id'></td>" +
+                    "<td class='reason'></td></tr>"
+            });
+            table_draw += "</table>";
+            div.html(table_draw);
+            var counter = 0;
+            var poll = setInterval(function() {
+                checkScript(data.scripts[counter])
+                counter++;
+                if (counter >= data.scripts.length){
+                    if (checkCompletion()) {
+                        console.log('Run complete')
+                        clearInterval(poll)
+                    }
+                    counter = 0
+                }
+
+            }, 750)
+        }
+    })
+}
+
+function checkCompletion(script){
+    var done = true
+    $(".status span").each(function(i, element){
+        if (element.innerHTML === " Running...") {
+            done = false
+        }
+    })
+    return done
+}
+
+function checkScript(script){
+    $.ajax('{% url "runner:check_result" %}' + "?filename=" + script, {
+        success: function(data, textStatus, jqXHR){
+            console.log(data)
+            if (!data.running) {
+                if (data.success) {
+                    markSuccess(script, data.call_id)
+                }
+                else {
+                    markFailure(script, data.call_id, data.reason)
+                }
+            }
+        }
+    })
+
+}
+
+function markSuccess(script, callId){
+    updateStatusClassAndText(script, "fa fa-check-square text-success", "Pass")
+    updateCallID(script, callId)
+}
+
+function markFailure(script, callId, failureReason){
+    updateStatusClassAndText(script, "fa fa-minus-square text-danger", "Fail")
+    updateCallID(script, callId)
+    updateFailureReason(script, failureReason)
+}
+
+function updateStatusClassAndText(script, cls, text){
+    var status_td = $("#testcase table").find('td.script:contains("' + script + '")').siblings(".status")
+    status_td.find("i").attr("class", cls)
+    status_td.find("span").html(text)
+}
+
+function updateCallID(script, callId){
+    var id_td = $("#testcase table").find('td.script:contains("' + script + '")').siblings(".call-id")
+    id_td.html(callId)
+}
+
+function updateFailureReason(script, failureReason){
+    var reason_td = $("#testcase table").find('td.script:contains("' + script + '")').siblings(".reason")
+    reason_td.html(failureReason)
+}
 
 function populateSteps(){
     var case_id = this.getAttribute('data-case');
@@ -39,6 +130,17 @@ function populateSteps(){
                 button.siblings(".text-success").addClass("hidden");
             }
             
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            console.log("FAIL: " + textStatus);
+            console.log(errorThrown);
+            button.siblings(".fa-spin").addClass("hidden");
+            button.siblings(".text-danger").removeClass("hidden");
+            button.siblings(".text-success").addClass("hidden");
+            var result_table = "<table class='table table-bordered'><tr><th>Result</th><td>ERROR</td></tr>"
+            result_table += "<tr><th>Call ID</th><td>N/A</td></tr>"
+            result_table += "<tr><th>Fail Reason</th><td>" + textStatus + ": " + errorThrown +  "</td></tr></table>"
+            $("#result").html(result_table);
         }
     });
     
