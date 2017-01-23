@@ -15,11 +15,11 @@
                     <br>
                     {% csrf_token %}
                     <div class="form-group">
-                        <label class="control-label">Upload .xlsx File</label>
+                        <label class="control-label">Upload Prompt List .xlsx File</label>
                         <div class="input-group">
                             <span class="input-group-btn">
                                 <span class="btn btn-default btn-file">
-                                    <i class="fa fa-folder-open fa-fw"></i>{{ project_form.file }}
+                                    <i class="fa fa-folder-open fa-fw"></i>{{ module_import_form.file }}
                                 </span>
                             </span>
                             <input type="text" id="filenames" class="form-control" readonly>

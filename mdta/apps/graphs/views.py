@@ -285,7 +285,7 @@ def project_detail(request, project_id):
         'projects': projects,
         'project': project,
         'module_new_form': ModuleForm(project_id=project.id),
-        'module_import_form': UploadForm(request),
+        'module_import_form': UploadForm(),
         'edge_types': EdgeType.objects.all(),
         'edge_priority': Edge.PRIORITY_CHOICES,
 
