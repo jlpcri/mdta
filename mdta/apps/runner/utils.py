@@ -239,10 +239,11 @@ class HATScript(AutomationScript):
         script_file = NamedTemporaryFile(mode='w', delete=False)
         script_file.write(self.body)
         script_file.close()
+        moveable_script_name = script_file.name + '_'
 
-        file_client.put(script_file.name, script_file.name)
+        file_client.put(script_file.name, moveable_script_name)
         file_client.close()
-        return script_file.name
+        return moveable_script_name
 
     def _invoke_remote_hat(self):
         client = SSHClient()
@@ -252,9 +253,6 @@ class HATScript(AutomationScript):
         command = 'hat -s /tmp/{0} -p {1} -i /var/mdta/report/ -o /var/mdta/log/{0}.log -b {2}:4080'.format(
             self.filename, self.sip_string(), self.holly_server)
         print(command)
-        f = open('/home/caheyden/last-hat-command', 'w')
-        f.write(command)
-        f.close()
         channel = client.get_transport().open_session()
         channel.exec_command(command)
         channel.recv_exit_status()
