@@ -239,10 +239,11 @@ class HATScript(AutomationScript):
         script_file = NamedTemporaryFile(mode='w', delete=False)
         script_file.write(self.body)
         script_file.close()
+        moveable_script_name = script_file.name + '_'
 
-        file_client.put(script_file.name, script_file.name)
+        file_client.put(script_file.name, moveable_script_name)
         file_client.close()
-        return script_file.name
+        return moveable_script_name
 
     def _invoke_remote_hat(self):
         client = SSHClient()
