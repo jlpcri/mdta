@@ -253,9 +253,6 @@ class HATScript(AutomationScript):
         command = 'hat -s /tmp/{0} -p {1} -i /var/mdta/report/ -o /var/mdta/log/{0}.log -b {2}:4080'.format(
             self.filename, self.sip_string(), self.holly_server)
         print(command)
-        f = open('/home/caheyden/last-hat-command', 'w')
-        f.write(command)
-        f.close()
         channel = client.get_transport().open_session()
         channel.exec_command(command)
         channel.recv_exit_status()
