@@ -3,11 +3,10 @@ from itertools import izip, takewhile
 from django.conf import settings
 from django.utils import timezone
 from openpyxl import load_workbook
-
+# import pysftp
 from django.db import transaction
-import pysftp
 
-from mdta.apps.projects.models import Project, Module, VUID
+from mdta.apps.projects.models import Project, Module, VUID, Language
 from .models import NodeType, EdgeType, Node, Edge
 
 PAGE_NAME = "page name"
@@ -80,24 +79,6 @@ def parse_vuid(vuid):
         verbiage = unicode(w[prompt_text_i].value).strip()
         vuid_time = w[date_changed_i].value.date() if w[date_changed_i].value is datetime else None
 
-        try:
-            vs = VoiceSlot.objects.get(name=name, path=path, language=language)
-            if vuid_time > vs.vuid_time:
-                vs.vuid_time = vuid_time.date()
-                vs.verbiage = verbiage
-                vs.vuid = vuid
-            elif vuid_time == vs.vuid_time:
-                if vs.verbiage != verbiage:
-                    vs.verbiage = verbiage
-                    vs.vuid = vuid
-            slots.append(vs)
-            vs.save()
-        except VoiceSlot.DoesNotExist:
-            vs = VoiceSlot(name=name, path=path, verbiage=verbiage, language=language, vuid_time=vuid_time, vuid=vuid)
-            slots.append(vs)
-            vs.save()
-        except VoiceSlot.MultipleObjectsReturned:
-            return {"valid": False, "message": "Parser error, multiple voice slots returned"}
     return {"valid": True, "message": "Parsed file successfully"}
 
 
@@ -127,19 +108,17 @@ def upload_vuid(uploaded_file, user, project):
     if not result['valid']:
         vuid.delete()
         return result
-    Action.log(user, Action.UPLOAD_VUID, 'Prompt list {0} uploaded'.format(uploaded_file.name), project)
 
     if project.status == Project.TESTING:
         # set project status to "Initial"
         project.status = Project.INITIAL
         project.save()
-        Action.log(user, Action.PROJECT_RECALLED, 'Project is recalled', project)
 
-    status = UpdateStatus.objects.get_or_create(project=project)[0]
-    query_item = update_file_statuses.delay(project_id=project.pk, user_id=user.id)
-    status.query_id = query_item
-    status.running = True
-    status.save()
+    # status = UpdateStatus.objects.get_or_create(project=project)[0]
+    # query_item = update_file_statuses.delay(project_id=project.pk, user_id=user.id)
+    # status.query_id = query_item
+    # status.running = True
+    # status.save()
     return {"valid": True, "message": "File uploaded and parsed successfully"}
 
 
@@ -205,26 +184,26 @@ def verify_root_path(vuid):
         return False
 
 
-def verify_update_root_path(project, new_path):
-    # if no vuids allow update root path
-    if project.vuid_set.all().count() == 0:
-        return True
-
-    old_path = project.root_path
-    if old_path.startswith(new_path):  # go up level, allowed
-        try:
-            with pysftp.Connection(project.bravo_server.address,
-                                   username=project.bravo_server.account,
-                                   private_key=settings.PRIVATE_KEY) as sftp:
-                wc = sftp.execute('ls {0} -Rf | wc --l'.format(new_path))
-                if int(wc[0]) > 15000:  # word count > 15k not allowed
-                    return False
-                else:
-                    return True
-        except (pysftp.ConnectionException,
-                pysftp.CredentialException,
-                pysftp.AuthenticationException,
-                pysftp.SSHException):
-            return False
-    else:  # go deep level, not allowed
-        return False
+# def verify_update_root_path(project, new_path):
+#     # if no vuids allow update root path
+#     if project.vuid_set.all().count() == 0:
+#         return True
+#
+#     old_path = project.root_path
+#     if old_path.startswith(new_path):  # go up level, allowed
+#         try:
+#             with pysftp.Connection(project.bravo_server.address,
+#                                    username=project.bravo_server.account,
+#                                    private_key=settings.PRIVATE_KEY) as sftp:
+#                 wc = sftp.execute('ls {0} -Rf | wc --l'.format(new_path))
+#                 if int(wc[0]) > 15000:  # word count > 15k not allowed
+#                     return False
+#                 else:
+#                     return True
+#         except (pysftp.ConnectionException,
+#                 pysftp.CredentialException,
+#                 pysftp.AuthenticationException,
+#                 pysftp.SSHException):
+#             return False
+#     else:  # go deep level, not allowed
+#         return False
