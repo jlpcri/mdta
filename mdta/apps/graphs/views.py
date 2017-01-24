@@ -18,6 +18,7 @@ from mdta.apps.testcases.utils import START_NODE_NAME
 from mdta.apps.testcases.tasks import create_testcases_celery, push_testcases_to_testrail_celery
 
 
+
 @login_required
 def home(request):
     user = request.user
