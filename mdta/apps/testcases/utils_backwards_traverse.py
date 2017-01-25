@@ -29,7 +29,7 @@ def path_traverse_backwards(path, th_path=None):
 
     path.reverse()
 
-    _result_found = []
+    result_found_all = []
 
     sibling_edges_key_in_th_menuprompt = []
 
@@ -38,9 +38,9 @@ def path_traverse_backwards(path, th_path=None):
             if isinstance(step, Node):
                 if step.type.name in DATA_NODE_NAME:
                     result_found = get_data_node_result(step, constraints, index=index, path=path)
-                    # _result_found.append(result_found)
+                    # result_found_all.append(result_found)
                     if result_found:
-                        _result_found.append(result_found)
+                        result_found_all.append(result_found)
                         # match_constraint_found = True
                         constraints = []
 
@@ -81,7 +81,7 @@ def path_traverse_backwards(path, th_path=None):
                 if step.type.name == 'Data':
                     if edge_property_key_in_th_menuprompt(step, th_path):
                         result_found = step.properties[step.type.keys_data_name][step.type.subkeys_data_name]
-                        _result_found.append(result_found)
+                        result_found_all.append(result_found)
 
                     constraints += assert_current_edge_constraint(step)
                     constraints += assert_high_priority_edges_negative(step)
@@ -90,8 +90,8 @@ def path_traverse_backwards(path, th_path=None):
                 if pre_condition and pre_condition not in pre_conditions:
                     pre_conditions += pre_condition
         else:
-            if len(_result_found) > 0:
-                result_found = _result_found[0]
+            if len(result_found_all) > 0:
+                result_found = result_found_all[0]
             else:
                 result_found = None
             # print('t: ', result_found)
