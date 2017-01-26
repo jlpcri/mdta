@@ -82,12 +82,12 @@ def parse_vuid(vuid):
     return {"valid": True, "message": "Parsed file successfully"}
 
 
-def upload_vuid(uploaded_file, user, project):
+def upload_vuid(uploaded_file, user, project_id):
     # check if project root path is set
-    if not project.root_path:
-        return {"valid": False, "message": "Please set root path, unable to upload"}
+    # if not project_id.root_path:
+    #     return {"valid": False, "message": "Please set root path, unable to upload"}
 
-    vuid = VUID(filename=uploaded_file.name, file=uploaded_file, project=project, upload_by=user)
+    vuid = VUID(filename=uploaded_file.name, file=uploaded_file, project_id=project_id, upload_by=user)
     vuid.save()
 
     # # check if any cell of 'vuid file header' is empty

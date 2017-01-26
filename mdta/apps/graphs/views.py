@@ -309,13 +309,10 @@ def project_module_import(request, project_id):
     """
     if request.method == 'POST':
         form = UploadForm(request.POST, request.FILES)
-        p = get_object_or_404(Project, project_id)
+        # p = get_object_or_404(Project, project_id)
         if form.is_valid():
-            if not (
-                    request.user.usersettings.creative_services or request.user.usersettings.project_manager or request.user.is_superuser):
-                messages.error(request, 'You have no authority to upload.')
-            elif 'file' in request.FILES and request.FILES['file'].name.endswith('.xlsx'):
-                result = helpers.upload_vuid(form.cleaned_data['file'], request.user, p)
+            if 'file' in request.FILES and request.FILES['file'].name.endswith('.xlsx'):
+                result = helpers.upload_vuid(form.cleaned_data['file'], request.user, project_id)
                 if result['valid']:
                     messages.success(request, result["message"])
                 else:
