@@ -1,13 +1,13 @@
 from datetime import datetime
-from itertools import izip, takewhile
-from django.conf import settings
-from django.utils import timezone
+# from itertools import izip, takewhile
+# from django.conf import settings
+# from django.utils import timezone
 from openpyxl import load_workbook
 # import pysftp
 from django.db import transaction
 
 from mdta.apps.projects.models import Project, Module, VUID, Language
-from .models import NodeType, EdgeType, Node, Edge
+
 
 PAGE_NAME = "page name"
 PROMPT_NAME = "prompt name"
@@ -90,29 +90,29 @@ def upload_vuid(uploaded_file, user, project):
     vuid = VUID(filename=uploaded_file.name, file=uploaded_file, project=project, upload_by=user)
     vuid.save()
 
-    # check if any cell of 'vuid file header' is empty
-    if not verify_vuid_headers_empty(vuid):
-        vuid.delete()
-        return {"valid": False, "message": "Invalid file structure, unable to upload"}
-
-    # check conflict between root path and vuid path
-    if not verify_root_path(vuid):
-        vuid.delete()
-        return {"valid": False, "message": "Invalid vuid path, unable to upload"}
-
-    result = verify_vuid(vuid)
-    if not result['valid']:
-        vuid.delete()
-        return result
-    result = parse_vuid(vuid)
-    if not result['valid']:
-        vuid.delete()
-        return result
-
-    if project.status == Project.TESTING:
-        # set project status to "Initial"
-        project.status = Project.INITIAL
-        project.save()
+    # # check if any cell of 'vuid file header' is empty
+    # if not verify_vuid_headers_empty(vuid):
+    #     vuid.delete()
+    #     return {"valid": False, "message": "Invalid file structure, unable to upload"}
+    #
+    # # check conflict between root path and vuid path
+    # if not verify_root_path(vuid):
+    #     vuid.delete()
+    #     return {"valid": False, "message": "Invalid vuid path, unable to upload"}
+    #
+    # result = verify_vuid(vuid)
+    # if not result['valid']:
+    #     vuid.delete()
+    #     return result
+    # result = parse_vuid(vuid)
+    # if not result['valid']:
+    #     vuid.delete()
+    #     return result
+    #
+    # if project.status == Project.TESTING:
+    #     # set project status to "Initial"
+    #     project.status = Project.INITIAL
+    #     project.save()
 
     # status = UpdateStatus.objects.get_or_create(project=project)[0]
     # query_item = update_file_statuses.delay(project_id=project.pk, user_id=user.id)
@@ -122,66 +122,66 @@ def upload_vuid(uploaded_file, user, project):
     return {"valid": True, "message": "File uploaded and parsed successfully"}
 
 
-def verify_vuid(vuid):
-    wb = load_workbook(vuid.file.path)
-    ws = wb.active
-    valid = False
-    message = "Invalid file structure, unable to upload"
-    if len(ws.rows) > 2:
-        if not verify_vuid_headers(vuid):
-            message = "Invalid file headers, unable to upload"
-        elif not verify_root_path(vuid):
-            message = "Invalid vuid path, unable to upload"
-        else:
-            valid = True
-            message = "Uploaded file successfully"
-    elif len(ws.rows) == 2:
-        if verify_vuid_headers(vuid):
-            message = "No records in file, unable to upload"
-    return {"valid": valid, "message": message}
+# def verify_vuid(vuid):
+#     wb = load_workbook(vuid.file.path)
+#     ws = wb.active
+#     valid = False
+#     message = "Invalid file structure, unable to upload"
+#     if len(ws.rows) > 2:
+#         if not verify_vuid_headers(vuid):
+#             message = "Invalid file headers, unable to upload"
+#         elif not verify_root_path(vuid):
+#             message = "Invalid vuid path, unable to upload"
+#         else:
+#             valid = True
+#             message = "Uploaded file successfully"
+#     elif len(ws.rows) == 2:
+#         if verify_vuid_headers(vuid):
+#             message = "No records in file, unable to upload"
+#     return {"valid": valid, "message": message}
+#
+#
+# def verify_vuid_headers(vuid):
+#     wb = load_workbook(vuid.file.path)
+#     ws = wb.active
+#     if len(ws.rows) >= 2:
+#         try:
+#             headers = set([str(i.value).lower() for i in ws.rows[0]])
+#         except AttributeError:
+#             return False
+#         i = unicode(ws['A2'].value).strip().find('/')
+#         if VUID_HEADER_NAME_SET.issubset(headers) and i != -1:
+#             return True
+#     return False
 
 
-def verify_vuid_headers(vuid):
-    wb = load_workbook(vuid.file.path)
-    ws = wb.active
-    if len(ws.rows) >= 2:
-        try:
-            headers = set([str(i.value).lower() for i in ws.rows[0]])
-        except AttributeError:
-            return False
-        i = unicode(ws['A2'].value).strip().find('/')
-        if VUID_HEADER_NAME_SET.issubset(headers) and i != -1:
-            return True
-    return False
-
-
-def verify_vuid_headers_empty(vuid):
-    wb = load_workbook(vuid.file.path)
-    ws = wb.active
-    try:
-        headers = set([str(i.value).lower() for i in ws.rows[0]])
-    except AttributeError:
-        return False
-
-    try:
-        index = unicode(ws['A2'].value).strip().find('/')
-        vuid_path = ws['A2'].value.strip()[index:]
-    except AttributeError:
-        return False
-
-    return True
-
-
-def verify_root_path(vuid):
-    wb = load_workbook(vuid.file.path)
-    ws = wb.active
-    index = unicode(ws['A2'].value).strip().find('/')
-    vuid_path = ws['A2'].value.strip()[index:]
-    #print vuid_path, '-', vuid.project.root_path
-    if vuid_path.startswith(vuid.project.root_path):
-        return True
-    else:
-        return False
+# def verify_vuid_headers_empty(vuid):
+#     wb = load_workbook(vuid.file.path)
+#     ws = wb.active
+#     try:
+#         headers = set([str(i.value).lower() for i in ws.rows[0]])
+#     except AttributeError:
+#         return False
+#
+#     try:
+#         index = unicode(ws['A2'].value).strip().find('/')
+#         vuid_path = ws['A2'].value.strip()[index:]
+#     except AttributeError:
+#         return False
+#
+#     return True
+#
+#
+# def verify_root_path(vuid):
+#     wb = load_workbook(vuid.file.path)
+#     ws = wb.active
+#     index = unicode(ws['A2'].value).strip().find('/')
+#     vuid_path = ws['A2'].value.strip()[index:]
+#     #print vuid_path, '-', vuid.project.root_path
+#     if vuid_path.startswith(vuid.project.root_path):
+#         return True
+#     else:
+#         return False
 
 
 # def verify_update_root_path(project, new_path):

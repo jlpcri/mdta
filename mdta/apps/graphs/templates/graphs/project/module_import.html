@@ -1,10 +1,10 @@
 {% extends 'core/base.html' %}
 
-{% block title %} Module New {% endblock %}
+{% block title %} Module Import {% endblock %}
 
 {% block body %}
     <div class="container newModule">
-        <h3>Add New Module</h3>
+        <h3>Import New Module</h3>
         <form action="{% url 'graphs:project_module_import' project_id %}" method="post">
             <div class="row">
                 {{ form }}
