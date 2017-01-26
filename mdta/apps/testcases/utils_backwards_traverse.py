@@ -29,16 +29,18 @@ def path_traverse_backwards(path, th_path=None):
 
     path.reverse()
 
-    _result_found = []
+    result_found_all = []
+
+    sibling_edges_key_in_th_menuprompt = []
 
     for index, step in enumerate(path):
         if index < len(path) - 1:
             if isinstance(step, Node):
                 if step.type.name in DATA_NODE_NAME:
                     result_found = get_data_node_result(step, constraints, index=index, path=path)
-                    # _result_found.append(result_found)
+                    # result_found_all.append(result_found)
                     if result_found:
-                        _result_found.append(result_found)
+                        result_found_all.append(result_found)
                         # match_constraint_found = True
                         constraints = []
 
@@ -57,6 +59,8 @@ def path_traverse_backwards(path, th_path=None):
                         else:
                             tcs_cannot_route_flag = True
                             tcs_cannot_route_msg = 'MenuPrompt/MenuPromptWC property \'Outputs\' incorrect'
+                    elif sibling_edges_key_in_th_menuprompt:
+                        pass
                     else:
                         tcs_cannot_route_flag = True
                         tcs_cannot_route_msg = 'No match result found in DataQueries Node'
@@ -65,7 +69,20 @@ def path_traverse_backwards(path, th_path=None):
                 else:
                     traverse_node(step, tcs, preceding_edge=path[index + 1])
             elif isinstance(step, Edge):
+                if step.from_node.leaving_edges.count() > 1:
+                    for edge in step.from_node.leaving_edges.exclude(id=step.id):
+                        if edge.type.name == 'Data':
+                            current_edges_key_in_th_menuprompt = edge_property_key_in_th_menuprompt(edge, th_path)
+                            if current_edges_key_in_th_menuprompt and edge.priority < step.priority:
+                                sibling_edges_key_in_th_menuprompt.append(current_edges_key_in_th_menuprompt)
+                                # print(edge.properties[edge.type.keys_data_name][edge.type.subkeys_data_name])
+                                break
+
                 if step.type.name == 'Data':
+                    if edge_property_key_in_th_menuprompt(step, th_path):
+                        result_found = step.properties[step.type.keys_data_name][step.type.subkeys_data_name]
+                        result_found_all.append(result_found)
+
                     constraints += assert_current_edge_constraint(step)
                     constraints += assert_high_priority_edges_negative(step)
 
@@ -73,8 +90,8 @@ def path_traverse_backwards(path, th_path=None):
                 if pre_condition and pre_condition not in pre_conditions:
                     pre_conditions += pre_condition
         else:
-            if len(_result_found) > 0:
-                result_found = _result_found[0]
+            if len(result_found_all) > 0:
+                result_found = result_found_all[0]
             else:
                 result_found = None
             # print('t: ', result_found)
@@ -95,6 +112,17 @@ def path_traverse_backwards(path, th_path=None):
                                     update_tcs_next_step_content(tcs=tcs,
                                                                  result_found=result,
                                                                  test_header=True)
+                                elif sibling_edges_key_in_th_menuprompt:
+                                    if th_step.properties['Outputs'] in sibling_edges_key_in_th_menuprompt:
+                                        if th_step.properties['Default']:
+                                            result = {th_key: th_step.properties['Default']}
+                                            update_tcs_next_step_content(tcs=tcs,
+                                                                         result_found=result,
+                                                                         test_header=True)
+                                        else:
+                                            tcs_cannot_route_flag = True
+                                            tcs_cannot_route_msg = 'TestHeader Node \'{0}: Default\' empty'.format(th_step.name)
+
                             traverse_node(th_step, tcs, th_path[::-1][th_index + 1])
                     else:
                         if isinstance(th_step, Node):
@@ -214,7 +242,7 @@ def assert_precondition(edge):
             else:
                 operator = ' != '
             for key in dicts:
-                tmp = key + operator + dicts[key]
+                tmp = key + operator + str(dicts[key])
 
             data.append(tmp)
 
@@ -276,6 +304,7 @@ def update_tcs_next_step_content(tcs, result_found, menu_prompt_outputs_keys=Non
     :param menu_prompt_outputs_keys: node.properties['Outputs']
     :return:
     """
+    # print(test_header, result_found)
     key_found = True
     if menu_prompt_outputs_keys:
         keys = [x.strip() for x in menu_prompt_outputs_keys[0].split(',')]
@@ -292,11 +321,11 @@ def update_tcs_next_step_content(tcs, result_found, menu_prompt_outputs_keys=Non
             step = tcs[-1]
             if len(result_found) == 1:
                 for k in result_found:
-                    step['content'] = 'press ' + result_found[k]
+                    step['content'] = 'press ' + str(result_found[k])
             else:
                 tmp = 'press '
                 for k in result_found:
-                    tmp += k + ':' + result_found[k] + ', '
+                    tmp += k + ':' + str(result_found[k]) + ', '
                 step['content'] = tmp
         data = {'Success': True}
     else:
@@ -395,3 +424,21 @@ def get_item_properties(item):
             data += key
 
     return data
+
+
+def edge_property_key_in_th_menuprompt(step, th_path):
+    """
+    check current step property key is in test header menuprompt Outputs
+    :param step:
+    :param th_path:
+    :return:
+    """
+    data = ''
+    step_key = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())[0]
+    for th_step in th_path:
+        if th_step.type.name in MENU_PROMPT_OUTPUTS_KEY_NODE_NAME and step_key == th_step.properties['Outputs']:
+            data = step_key
+            break
+
+    return data
+
