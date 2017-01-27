@@ -3,7 +3,6 @@ from datetime import datetime
 # from django.conf import settings
 # from django.utils import timezone
 from openpyxl import load_workbook
-import unicodecsv
 from django.db import transaction
 
 from mdta.apps.projects.models import Project, Module, VUID, Language
@@ -41,6 +40,8 @@ def parse_vuid(vuid):
         prompt_name_i = headers.index(PROMPT_NAME)
         prompt_text_i = headers.index(PROMPT_TEXT)
         date_changed_i = headers.index(DATE_CHANGED)
+        page_name_i = headers.index(PAGE_NAME)
+        state_name_i = headers.index(STATE_NAME)
     except ValueError:
         return {"valid": False, "message": "Parser error, invalid headers"}
 
@@ -66,9 +67,17 @@ def parse_vuid(vuid):
             language.save()
         except Language.MultipleObjectsReturned:
             return {"valid": False, "message": "Parser error, multiple languages returned"}
-
-        name = str(w[prompt_name_i].value).strip()
-
+        name = str(w[prompt_name_i].value.strip())
+        page = str(w[page_name_i].value.strip())
+        state = str(w[state_name_i].value.strip())
+        verbiage = str(w[prompt_text_i].value).strip()
+        vuid_time = w[date_changed_i].value.date() if w[date_changed_i].value is datetime else None
+    print(verbiage)
+    print(tuple(ws.columns))
+    print(tuple(ws.columns).value)
+    print(page)
+    print(state)
+    print(headers)
     return {"valid": True, "message": "Parsed file successfully"}
 
 

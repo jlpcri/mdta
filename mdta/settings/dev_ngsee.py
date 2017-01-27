@@ -1,4 +1,4 @@
-__author__ = 'sliu'
+
 from mdta.settings.base import *
 
 DEBUG = True
