@@ -50,33 +50,33 @@ def parse_vuid(vuid):
     except ValueError:
         no_language = True
 
-    v = unicode(ws['A2'].value).strip()
-    # if endswith '/', remove it
-    if v[-1] == '/':
-        v = v[:-1]
-    i = v.find('/')
-    path = v[i:].strip()
-    slots = []
+    # v = ws['A2'].value.strip()
+    # # if endswith '/', remove it
+    # if v[-1] == '/':
+    #     v = v[:-1]
+    # i = v.find('/')
+    # path = v[i:].strip()
+    # slots = []
 
     for w in ws.rows[2:]:
         try:
             if no_language:
-                language = Language.objects.get(project=vuid.project, name=unicode('english'))
+                language = Language.objects.get(project=vuid.project, name='english')
             elif w[language_i].value is not None:
-                language = Language.objects.get(project=vuid.project, name=unicode(w[language_i].value).strip().lower())
+                language = Language.objects.get(project=vuid.project, name=name.decode(w[language_i].value).strip().lower())
             else:
-                language = Language.objects.get(project=vuid.project, name=unicode('english'))
+                language = Language.objects.get(project=vuid.project, name='english')
         except Language.DoesNotExist:
             if no_language:
-                language = Language(project=vuid.project, name=unicode('english'))
+                language = Language(project=vuid.project, name='english')
             else:
-                language = Language(project=vuid.project, name=unicode(w[language_i].value).strip().lower())
+                language = Language(project=vuid.project, name=name.decode(w[language_i].value).strip().lower())
             language.save()
         except Language.MultipleObjectsReturned:
             return {"valid": False, "message": "Parser error, multiple languages returned"}
 
-        name = unicode(w[prompt_name_i].value).strip()
-        verbiage = unicode(w[prompt_text_i].value).strip()
+        name = w[prompt_name_i].value.strip()
+        verbiage = w[prompt_text_i].value.strip()
         vuid_time = w[date_changed_i].value.date() if w[date_changed_i].value is datetime else None
 
     return {"valid": True, "message": "Parsed file successfully"}
@@ -95,19 +95,19 @@ def upload_vuid(uploaded_file, user, project_id):
     #     vuid.delete()
     #     return {"valid": False, "message": "Invalid file structure, unable to upload"}
     #
-    # # check conflict between root path and vuid path
+    # # # check conflict between root path and vuid path
     # if not verify_root_path(vuid):
     #     vuid.delete()
     #     return {"valid": False, "message": "Invalid vuid path, unable to upload"}
-    #
+
     # result = verify_vuid(vuid)
     # if not result['valid']:
     #     vuid.delete()
     #     return result
-    # result = parse_vuid(vuid)
-    # if not result['valid']:
-    #     vuid.delete()
-    #     return result
+    result = parse_vuid(vuid)
+    if not result['valid']:
+        vuid.delete()
+        return result
     #
     # if project.status == Project.TESTING:
     #     # set project status to "Initial"
@@ -122,37 +122,37 @@ def upload_vuid(uploaded_file, user, project_id):
     return {"valid": True, "message": "File uploaded and parsed successfully"}
 
 
-# def verify_vuid(vuid):
-#     wb = load_workbook(vuid.file.path)
-#     ws = wb.active
-#     valid = False
-#     message = "Invalid file structure, unable to upload"
-#     if len(ws.rows) > 2:
-#         if not verify_vuid_headers(vuid):
-#             message = "Invalid file headers, unable to upload"
-#         elif not verify_root_path(vuid):
-#             message = "Invalid vuid path, unable to upload"
-#         else:
-#             valid = True
-#             message = "Uploaded file successfully"
-#     elif len(ws.rows) == 2:
-#         if verify_vuid_headers(vuid):
-#             message = "No records in file, unable to upload"
-#     return {"valid": valid, "message": message}
-#
-#
-# def verify_vuid_headers(vuid):
-#     wb = load_workbook(vuid.file.path)
-#     ws = wb.active
-#     if len(ws.rows) >= 2:
-#         try:
-#             headers = set([str(i.value).lower() for i in ws.rows[0]])
-#         except AttributeError:
-#             return False
-#         i = unicode(ws['A2'].value).strip().find('/')
-#         if VUID_HEADER_NAME_SET.issubset(headers) and i != -1:
-#             return True
-#     return False
+def verify_vuid(vuid):
+    wb = load_workbook(vuid.file.path)
+    ws = wb.active
+    valid = False
+    message = "Invalid file structure, unable to upload"
+    if len(ws.rows) > 2:
+        if not verify_vuid_headers(vuid):
+            message = "Invalid file headers, unable to upload"
+        # elif not verify_root_path(vuid):
+        #     message = "Invalid vuid path, unable to upload"
+        else:
+            valid = True
+            message = "Uploaded file successfully"
+    elif len(ws.rows) == 2:
+        if verify_vuid_headers(vuid):
+            message = "No records in file, unable to upload"
+    return {"valid": valid, "message": message}
+
+
+def verify_vuid_headers(vuid):
+    wb = load_workbook(vuid.file.path)
+    ws = wb.active
+    if len(ws.rows) >= 2:
+        try:
+            headers = set([str(i.value).lower() for i in ws.rows[0]])
+        except AttributeError:
+            return False
+        # i = ws.decode(ws['A2'].value).strip().find('/')
+        # if VUID_HEADER_NAME_SET.issubset(headers) and i != -1:
+        #     return True
+    return False
 
 
 # def verify_vuid_headers_empty(vuid):
@@ -164,7 +164,7 @@ def upload_vuid(uploaded_file, user, project_id):
 #         return False
 #
 #     try:
-#         index = unicode(ws['A2'].value).strip().find('/')
+#         index = ws.decode(['A2'].value).strip().find('/')
 #         vuid_path = ws['A2'].value.strip()[index:]
 #     except AttributeError:
 #         return False
@@ -175,9 +175,9 @@ def upload_vuid(uploaded_file, user, project_id):
 # def verify_root_path(vuid):
 #     wb = load_workbook(vuid.file.path)
 #     ws = wb.active
-#     index = unicode(ws['A2'].value).strip().find('/')
+#     index = ws.decode(['A2'].value).strip().find('/')
 #     vuid_path = ws['A2'].value.strip()[index:]
-#     #print vuid_path, '-', vuid.project.root_path
+#     # print vuid_path, '-', vuid.project.root_path
 #     if vuid_path.startswith(vuid.project.root_path):
 #         return True
 #     else:
