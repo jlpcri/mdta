@@ -4,6 +4,7 @@ from datetime import datetime
 # from django.utils import timezone
 from openpyxl import load_workbook
 from django.db import transaction
+import pandas as pd
 
 from mdta.apps.projects.models import Project, Module, VUID, Language
 
@@ -33,9 +34,13 @@ VUID_HEADER_NAME_SET = {
 @transaction.atomic
 def parse_vuid(vuid):
     wb = load_workbook(vuid.file.path)
+    df = pd.read_excel(vuid.file.path)
     ws = wb.active
 
+    df_dup = df.groupby(axis=1, level=0).apply(lambda x: x.duplicated())
     headers = [str(i.value).lower() for i in ws.rows[0]]
+    df[~df_dup].iloc[:, 0].to_csv("file_unique_col1.csv")
+    df.save()
     try:
         prompt_name_i = headers.index(PROMPT_NAME)
         prompt_text_i = headers.index(PROMPT_TEXT)
@@ -77,6 +82,7 @@ def parse_vuid(vuid):
     print(page)
     print(state)
     print(headers)
+    print(df[~df_dup])
     return {"valid": True, "message": "Parsed file successfully"}
 
 
@@ -89,15 +95,26 @@ def upload_vuid(uploaded_file, user, project_id):
         vuid.delete()
         return result
 
+    # result = dict(create_modules(vuid))
+    # if not result['valid']:
+    #     vuid.delete()
+    #     return result
+    #     print(result)
+
     return {"valid": True, "message": "File uploaded and parsed successfully"}
 
 
-def create_modules(vuid):
-    wb = load_workbook(vuid.file.path)
-    ws = wb.active
-
-    for cell0bj in ws.columns[0]:
-        print(cell0bj.value)
+# def create_modules(vuid):
+#     wb = load_workbook(vuid.file.path)
+#     ws = wb.active
+#     indexes = [ws.columns[0].index(x) for x in set(ws.columns[0])]
+#     # uq = set(ws.columns[0])
+#
+#     for index in indexes:
+#         yield (index, wb[index])
+#
+#     # for cell0bj in uq:
+#     #     print(cell0bj.value)
 
 
 
