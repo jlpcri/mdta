@@ -22,15 +22,6 @@ VUID_HEADER_NAME_SET = {
     DATE_CHANGED
 }
 
-
-# def make_filename(path, name):
-#     if path.endswith('/') and name.startswith('/'):
-#         return "{0}{1}".format(path[:-1], name)
-#     elif path.endswith('/') or name.startswith('/'):
-#         return "{0}{1}".format(path, name)
-#     return "{0}/{1}".format(path, name)
-
-
 @transaction.atomic
 def parse_vuid(vuid):
     wb = load_workbook(vuid.file.path)
@@ -39,8 +30,9 @@ def parse_vuid(vuid):
 
     df_dup = df.groupby(axis=1, level=0).apply(lambda x: x.duplicated())
     headers = [str(i.value).lower() for i in ws.rows[0]]
-    df[~df_dup].iloc[:, 0].to_csv("file_unique_col1.csv")
-    df.save()
+    df[~df_dup].iloc[:, 0].to_csv("media/file_unique_col1.csv")
+    df[~df_dup].to_csv("media/file_unique_valuesALL.csv")
+
     try:
         prompt_name_i = headers.index(PROMPT_NAME)
         prompt_text_i = headers.index(PROMPT_TEXT)
