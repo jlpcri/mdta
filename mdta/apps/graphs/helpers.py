@@ -74,7 +74,6 @@ def parse_vuid(vuid):
         vuid_time = w[date_changed_i].value.date() if w[date_changed_i].value is datetime else None
     print(verbiage)
     print(tuple(ws.columns))
-    print(tuple(ws.columns).value)
     print(page)
     print(state)
     print(headers)
@@ -91,5 +90,14 @@ def upload_vuid(uploaded_file, user, project_id):
         return result
 
     return {"valid": True, "message": "File uploaded and parsed successfully"}
+
+
+def create_modules(vuid):
+    wb = load_workbook(vuid.file.path)
+    ws = wb.active
+
+    for cell0bj in ws.columns[0]:
+        print(cell0bj.value)
+
 
 
