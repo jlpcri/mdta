@@ -31,17 +31,30 @@ def path_traverse_backwards(path, th_path=None):
 
     result_found_all = []
 
-    sibling_edges_key_in_th_menuprompt = []
+    # sibling_edges_key_in_th_menuprompt = []
 
     for index, step in enumerate(path):
         if index < len(path) - 1:
             if isinstance(step, Node):
-                if step.type.name in DATA_NODE_NAME:
-                    result_found = get_data_node_result(step, constraints, index=index, path=path)
-                    # result_found_all.append(result_found)
+                if step.type.name not in DATA_NODE_NAME:
+                    traverse_node(step, tcs, preceding_edge=path[index + 1])
+            elif isinstance(step, Edge):
+                if step.type.name == 'Data':
+                    if step.from_node.leaving_edges.count() > 1:
+                        if non_data_edge_has_higher_priority(step):
+                            tcs_cannot_route_flag = True
+                            tcs_cannot_route_msg = 'Non Data Edge has higher priority.'
+                            break
+
+                    if edge_property_key_in_th_menuprompt(step, th_path):
+                        result_found = step.properties[step.type.keys_data_name][step.type.subkeys_data_name]
+                    else:
+                        constraints += assert_current_edge_constraint(step)
+                        constraints += assert_high_priority_edges_negative(step)
+
+                        result_found = get_data_node_result(step, constraints, index=index, path=path)
                     if result_found:
                         result_found_all.append(result_found)
-                        # match_constraint_found = True
                         constraints = []
 
                         menu_prompt_outputs_keys = get_menu_prompt_outputs_key(path, index, th_path=None)
@@ -59,32 +72,20 @@ def path_traverse_backwards(path, th_path=None):
                         else:
                             tcs_cannot_route_flag = True
                             tcs_cannot_route_msg = 'MenuPrompt/MenuPromptWC property \'Outputs\' incorrect'
-                    elif sibling_edges_key_in_th_menuprompt:
-                        pass
                     else:
                         tcs_cannot_route_flag = True
                         tcs_cannot_route_msg = 'No match result found in DataQueries Node'
                         if not th_menu_prompt_outputs_keys:
                             break
-                else:
-                    traverse_node(step, tcs, preceding_edge=path[index + 1])
-            elif isinstance(step, Edge):
-                if step.from_node.leaving_edges.count() > 1:
+
+                elif step.from_node.leaving_edges.count() > 1:
                     for edge in step.from_node.leaving_edges.exclude(id=step.id):
                         if edge.type.name == 'Data':
                             current_edges_key_in_th_menuprompt = edge_property_key_in_th_menuprompt(edge, th_path)
                             if current_edges_key_in_th_menuprompt and edge.priority < step.priority:
-                                sibling_edges_key_in_th_menuprompt.append(current_edges_key_in_th_menuprompt)
+                                # sibling_edges_key_in_th_menuprompt.append(current_edges_key_in_th_menuprompt)
                                 # print(edge.properties[edge.type.keys_data_name][edge.type.subkeys_data_name])
                                 break
-
-                if step.type.name == 'Data':
-                    if edge_property_key_in_th_menuprompt(step, th_path):
-                        result_found = step.properties[step.type.keys_data_name][step.type.subkeys_data_name]
-                        result_found_all.append(result_found)
-
-                    constraints += assert_current_edge_constraint(step)
-                    constraints += assert_high_priority_edges_negative(step)
 
                 pre_condition = assert_precondition(step)
                 if pre_condition and pre_condition not in pre_conditions:
@@ -112,16 +113,15 @@ def path_traverse_backwards(path, th_path=None):
                                     update_tcs_next_step_content(tcs=tcs,
                                                                  result_found=result,
                                                                  test_header=True)
-                                elif sibling_edges_key_in_th_menuprompt:
-                                    if th_step.properties['Outputs'] in sibling_edges_key_in_th_menuprompt:
-                                        if th_step.properties['Default']:
-                                            result = {th_key: th_step.properties['Default']}
-                                            update_tcs_next_step_content(tcs=tcs,
-                                                                         result_found=result,
-                                                                         test_header=True)
-                                        else:
-                                            tcs_cannot_route_flag = True
-                                            tcs_cannot_route_msg = 'TestHeader Node \'{0}: Default\' empty'.format(th_step.name)
+                                else:
+                                    if th_step.properties['Default']:
+                                        result = {th_key: th_step.properties['Default']}
+                                        update_tcs_next_step_content(tcs=tcs,
+                                                                     result_found=result,
+                                                                     test_header=True)
+                                    else:
+                                        tcs_cannot_route_flag = True
+                                        tcs_cannot_route_msg = 'TestHeader Node \'{0}: Default\' empty'.format(th_step.name)
 
                             traverse_node(th_step, tcs, th_path[::-1][th_index + 1])
                     else:
@@ -279,7 +279,7 @@ def get_menu_prompt_outputs_key(path, index_start, th_path):
     Search Menu Prompt / Menu Prompt with Confirmation, fetch node.properties['Outputs']
     as key in Data Node inputs key
     :param path:
-    :param index:
+    :param index_start:
     :return:
     """
     keys = []
@@ -442,3 +442,17 @@ def edge_property_key_in_th_menuprompt(step, th_path):
 
     return data
 
+
+def non_data_edge_has_higher_priority(step):
+    """
+    Check if edge has sibling edges which is Non data Edge and has higher priority
+    :param step: edge
+    :return:
+    """
+    find = False
+    for edge in step.from_node.leaving_edges.exclude(id=step.id):
+        if edge.type.name != 'Data' and edge.priority < step.priority:
+            find = True
+            break
+
+    return find
