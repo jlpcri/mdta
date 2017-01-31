@@ -277,12 +277,3 @@ class VUID(models.Model):
 
     def __unicode__(self):
         return '{0}: {1}'.format(self.filename, self.project.name)
-
-
-class Language(models.Model):
-    """Represents an available language in one project"""
-    project = models.ForeignKey(Project)
-    name = models.TextField()
-
-    def __unicode__(self):
-        return '{0}: {1}'.format(self.name, self.project.name)

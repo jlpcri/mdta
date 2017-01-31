@@ -6,13 +6,13 @@ from openpyxl import load_workbook
 from django.db import transaction
 import pandas as pd
 
-from mdta.apps.projects.models import Project, Module, VUID, Language
+from mdta.apps.projects.models import Project, Module, VUID
 
 
 PAGE_NAME = "page name"
 PROMPT_NAME = "prompt name"
 PROMPT_TEXT = "prompt text"
-LANGUAGE = "language"
+# LANGUAGE = "language"
 STATE_NAME = "state name"
 DATE_CHANGED = "date changed"
 
@@ -23,58 +23,48 @@ VUID_HEADER_NAME_SET = {
 }
 
 @transaction.atomic
-def parse_vuid(vuid):
-    wb = load_workbook(vuid.file.path)
+def parse_out_module_names(vuid):
+    # wb = load_workbook(vuid.file.path)
     df = pd.read_excel(vuid.file.path)
-    ws = wb.active
+    # ws = wb.active
 
-    df_dup = df.groupby(axis=1, level=0).apply(lambda x: x.duplicated())
-    headers = [str(i.value).lower() for i in ws.rows[0]]
-    df[~df_dup].iloc[:, 0].to_csv("media/file_unique_col1.csv")
-    df[~df_dup].to_csv("media/file_unique_valuesALL.csv")
+    # df_dup = df.groupby(axis=1, level=0).apply(lambda x: x.duplicated())
+    # # headers = [str(i.value).lower() for i in ws.rows[0]]
+    #
+    # df[~df_dup].iloc[:, 0].to_csv("media/file_unique_col1.csv")
 
-    try:
-        prompt_name_i = headers.index(PROMPT_NAME)
-        prompt_text_i = headers.index(PROMPT_TEXT)
-        date_changed_i = headers.index(DATE_CHANGED)
-        page_name_i = headers.index(PAGE_NAME)
-        state_name_i = headers.index(STATE_NAME)
-    except ValueError:
-        return {"valid": False, "message": "Parser error, invalid headers"}
+    things = df['Page Name'].unique()
+    for thing in things:
+        print(thing)
 
-    no_language = False
-    try:
-        language_i = headers.index(LANGUAGE)
-    except ValueError:
-        no_language = True
+    # df[~df_dup].to_csv("media/file_unique_valuesALL.csv")
+    #
+    # names = df['Page Name'].unique()
+    # for name in names:
+    #     print(df[df['Page Name'] == name])
 
-    for w in ws.rows[2:]:
-        try:
-            if no_language:
-                language = Language.objects.get(project=vuid.project, name=str('english'))
-            elif w[language_i].value is not None:
-                language = Language.objects.get(project=vuid.project, name=str(w[language_i].value).strip().lower())
-            else:
-                language = Language.objects.get(project=vuid.project, name=str('english'))
-        except Language.DoesNotExist:
-            if no_language:
-                language = Language(project=vuid.project, name=str('english'))
-            else:
-                language = Language(project=vuid.project, name=str(w[language_i].value).strip().lower())
-            language.save()
-        except Language.MultipleObjectsReturned:
-            return {"valid": False, "message": "Parser error, multiple languages returned"}
-        name = str(w[prompt_name_i].value.strip())
-        page = str(w[page_name_i].value.strip())
-        state = str(w[state_name_i].value.strip())
-        verbiage = str(w[prompt_text_i].value).strip()
-        vuid_time = w[date_changed_i].value.date() if w[date_changed_i].value is datetime else None
-    print(verbiage)
-    print(tuple(ws.columns))
-    print(page)
-    print(state)
-    print(headers)
-    print(df[~df_dup])
+    # try:
+    #     prompt_name_i = headers.index(PROMPT_NAME)
+    #     prompt_text_i = headers.index(PROMPT_TEXT)
+    #     date_changed_i = headers.index(DATE_CHANGED)
+    #     page_name_i = headers.index(PAGE_NAME)
+    #     state_name_i = headers.index(STATE_NAME)
+    # except ValueError:
+    #     return {"valid": False, "message": "Parser error, invalid headers"}
+    #
+    # for w in ws.rows[1:]:
+    #      name = str(w[prompt_name_i].value.strip())
+    #      page = str(w[page_name_i].value.strip())
+    #      state = str(w[state_name_i].value.strip())
+    #      verbiage = str(w[prompt_text_i].value).strip()
+    #      vuid_time = w[date_changed_i].value.date() if w[date_changed_i].value is datetime else None
+    # print(verbiage)
+    # print(tuple(ws.columns))
+    # print(page)
+    # print(state)
+    # print(headers)
+    # pandas below
+    # print(df[~df_dup])
     return {"valid": True, "message": "Parsed file successfully"}
 
 
@@ -82,16 +72,12 @@ def upload_vuid(uploaded_file, user, project_id):
     vuid = VUID(filename=uploaded_file.name, file=uploaded_file, project_id=project_id, upload_by=user)
     vuid.save()
 
-    result = parse_vuid(vuid)
+    # p = Project.objects.get(project=project.name)
+
+    result = parse_out_module_names(vuid)
     if not result['valid']:
         vuid.delete()
         return result
-
-    # result = dict(create_modules(vuid))
-    # if not result['valid']:
-    #     vuid.delete()
-    #     return result
-    #     print(result)
 
     return {"valid": True, "message": "File uploaded and parsed successfully"}
 
