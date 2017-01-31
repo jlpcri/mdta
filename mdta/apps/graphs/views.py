@@ -7,7 +7,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new, check_edge_in_set,\
-    get_properties_for_node_or_edge, EDGE_TYPES_INVISIBLE_KEY
+    get_properties_for_node_or_edge, EDGE_TYPES_INVISIBLE_KEY, node_related_edges_invisible
 from mdta.apps.projects.models import Project, Module
 from mdta.apps.projects.utils import context_project_dashboard
 from mdta.apps.users.views import user_is_staff, user_is_superuser
@@ -93,42 +93,6 @@ def node_type_edit(request):
         return render(request, 'projects/project_dashboard.html', context)
 
 
-# @user_passes_test(user_is_staff)
-# def project_node_new(request, project_id):
-#     """
-#     Add new Node from apps/graphs
-#     :param request:
-#     :param project_id:
-#     :return:
-#     """
-#     if request.method == 'GET':
-#         project = get_object_or_404(Project, pk=project_id)
-#         form = NodeNewForm(project_id=project_id)
-#         context = {
-#             'form': form,
-#             'project': project
-#         }
-#
-#         return render(request, 'graphs/project/node_new.html', context)
-#
-#     elif request.method == 'POST':
-#         form = NodeNewForm(request.POST, project_id=project_id)
-#         if form.is_valid():
-#             node = form.save(commit=False)
-#
-#             properties = get_properties_for_node_or_edge(request, node.type)
-#
-#             node.properties = properties
-#             node.save()
-#
-#             messages.success(request, 'Node is added.')
-#         else:
-#             print(form.errors)
-#             messages.error(request, 'Node new Error')
-#
-#         return redirect('graphs:graphs')
-
-
 @user_passes_test(user_is_staff)
 def edge_type_new(request):
     """
@@ -163,61 +127,6 @@ def edge_type_edit(request):
         context['last_tab'] = 'edge_types'
 
         return render(request, 'projects/project_dashboard.html', context)
-
-
-# @user_passes_test(user_is_staff)
-# def project_edge_new(request, project_id):
-#     """
-#     Add new Edge from apps/graphs
-#     :param request:
-#     :param project_id:
-#     :return:
-#     """
-#     project = get_object_or_404(Project, pk=project_id)
-#     if request.method == 'GET':
-#         edge_types = EdgeType.objects.order_by('name')
-#         edge_priorities = Edge.PRIORITY_CHOICES
-#         project_modules = project.module_set.order_by('name')
-#         first_module_nodes = project_modules[0].node_set.order_by('name')
-#
-#         context = {
-#             'project': project,
-#
-#             'edge_types': edge_types,
-#             'edge_priorities': edge_priorities,
-#             'project_modules': project_modules,
-#             'first_module_nodes': first_module_nodes,
-#         }
-#
-#         return render(request, 'graphs/project/edge_new.html', context)
-#
-#     elif request.method == 'POST':
-#         edge_type_id = request.POST.get('project-edge-new-type', '')
-#         edge_type = get_object_or_404(EdgeType, pk=edge_type_id)
-#
-#         properties = get_properties_for_node_or_edge(request, edge_type)
-#
-#         edge_priority = request.POST.get('project-edge-new-priority', '')
-#
-#         edge_from_node_id = request.POST.get('project-edge-new-from-node', '')
-#         edge_from_node = get_object_or_404(Node, pk=edge_from_node_id)
-#
-#         edge_to_node_id = request.POST.get('project-edge-new-to-node', '')
-#         edge_to_node = get_object_or_404(Node, pk=edge_to_node_id)
-#
-#         try:
-#             edge = Edge.objects.create(
-#                 type=edge_type,
-#                 priority=edge_priority,
-#                 from_node=edge_from_node,
-#                 to_node=edge_to_node,
-#                 properties=properties
-#             )
-#             messages.success(request, 'Edge is added.')
-#         except (ValueError, ValidationError) as e:
-#             messages.error(request, str(e))
-#
-#         return redirect('graphs:graphs')
 
 
 def get_keys_from_type(request):
@@ -357,6 +266,9 @@ def project_module_detail(request, module_id):
 
     if request.user.username != 'test':
         for node in module.nodes_all:
+            if node_related_edges_invisible(node) and not all_edges:
+                continue
+
             if node.type.name in START_NODE_NAME:
                 shape = 'star'
             elif node.type.name in ['DataQueries Database', 'DataQueries WebService']:
