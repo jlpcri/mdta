@@ -16,6 +16,4 @@ urlpatterns = [
     url(r'^testrail_configuration_delete/(?P<testrail_id>\d+)/$', views.testrail_configuration_delete, name='testrail_configuration_delete'),
     url(r'^testrail_configuration_update/(?P<testrail_id>\d+)/$', views.testrail_configuration_update, name='testrail_configuration_update'),
 
-    url(r'^create_hat_scripts/(?P<object_id>\d+)/$', views.create_hat_scripts, name='create_hat_scripts'),
-
 ]
