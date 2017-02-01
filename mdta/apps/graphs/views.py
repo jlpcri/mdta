@@ -158,6 +158,8 @@ def project_detail(request, project_id):
     :param project_id:
     :return:
     """
+    all_edges = request.GET.get('all_edges', '')
+
     network_nodes = []
     network_edges = []
     projects = Project.objects.all()
@@ -173,6 +175,12 @@ def project_detail(request, project_id):
             'label': m.name
         })
     for edge in project.edges_between_modules:
+        try:
+            if edge.properties[EDGE_TYPES_INVISIBLE_KEY] == 'on' and not all_edges:
+                continue
+        except KeyError:
+            pass
+
         if not check_edge_in_set(edge, network_edges):
             network_edges.append({
                 'id': edge.id,
@@ -193,6 +201,8 @@ def project_detail(request, project_id):
     context = {
         'projects': projects,
         'project': project,
+        'all_edges': all_edges,
+
         'module_new_form': ModuleForm(project_id=project.id),
         'edge_types': EdgeType.objects.all(),
         'edge_priority': Edge.PRIORITY_CHOICES,
