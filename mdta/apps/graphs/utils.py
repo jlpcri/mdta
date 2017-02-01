@@ -241,17 +241,25 @@ def get_properties_from_multi_rows(request, node_or_edge_type, key_name=None):
 
 
 def node_related_edges_invisible(node):
-    flag = True
-    edges = list(chain(node.arriving_edges, node.leaving_edges))
-    if len(edges) > 0:
-        for edge in edges:
-            try:
-                if edge.properties[EDGE_TYPES_INVISIBLE_KEY] != 'on':
-                    flag = False
-                    break
-            except KeyError:
-                pass
-    else:
-        flag = False
+    flag_arriving, flag_leaving = False, False
 
-    return flag
+    for edge in node.arriving_edges:
+        try:
+            if edge.properties[EDGE_TYPES_INVISIBLE_KEY] != 'on' and edge.from_node.module == node.module:
+                flag_arriving = True
+                break
+        except KeyError:
+            pass
+
+    for edge in node.leaving_edges:
+        try:
+            if edge.properties[EDGE_TYPES_INVISIBLE_KEY] != 'on' and edge.to_node.module == node.module:
+                flag_leaving = True
+                break
+        except KeyError:
+            pass
+
+    if not flag_arriving or not flag_leaving:
+        return True
+    else:
+        return False

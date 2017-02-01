@@ -266,9 +266,6 @@ def project_module_detail(request, module_id):
 
     if request.user.username != 'test':
         for node in module.nodes_all:
-            if node_related_edges_invisible(node) and not all_edges:
-                continue
-
             if node.type.name in START_NODE_NAME:
                 shape = 'star'
             elif node.type.name in ['DataQueries Database', 'DataQueries WebService']:
@@ -282,6 +279,8 @@ def project_module_detail(request, module_id):
                 'shape': shape
             }
             if node.module != module:
+                if node_related_edges_invisible(node) and not all_edges:
+                    continue
                 tmp['color'] = outside_module_node_color
 
             network_nodes.append(tmp)
