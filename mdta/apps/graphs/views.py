@@ -159,6 +159,7 @@ def project_detail(request, project_id):
     :return:
     """
     all_edges = request.GET.get('all_edges', '')
+    draw_invisible_button = ''
 
     network_nodes = []
     network_edges = []
@@ -176,8 +177,10 @@ def project_detail(request, project_id):
         })
     for edge in project.edges_between_modules:
         try:
-            if edge.properties[EDGE_TYPES_INVISIBLE_KEY] == 'on' and not all_edges:
-                continue
+            if edge.properties[EDGE_TYPES_INVISIBLE_KEY] == 'on':
+                draw_invisible_button = 'true'
+                if not all_edges:
+                    continue
         except KeyError:
             pass
 
@@ -202,6 +205,7 @@ def project_detail(request, project_id):
         'projects': projects,
         'project': project,
         'all_edges': all_edges,
+        'draw_invisible_button': draw_invisible_button,
 
         'module_new_form': ModuleForm(project_id=project.id),
         'edge_types': EdgeType.objects.all(),
@@ -252,6 +256,7 @@ def project_module_detail(request, module_id):
     :return:
     """
     all_edges = request.GET.get('all_edges', '')
+    draw_invisible_button = ''
 
     module = get_object_or_404(Module, pk=module_id)
 
@@ -263,8 +268,10 @@ def project_module_detail(request, module_id):
 
     for edge in module.edges_all:
         try:
-            if edge.properties[EDGE_TYPES_INVISIBLE_KEY] == 'on' and not all_edges:
-                continue
+            if edge.properties[EDGE_TYPES_INVISIBLE_KEY] == 'on':
+                draw_invisible_button = 'true'
+                if not all_edges:
+                    continue
         except KeyError:
             pass
 
@@ -327,6 +334,8 @@ def project_module_detail(request, module_id):
                     tmp['image'] = image_url + 'mdta_west_female.png'
 
             if node.module != module:
+                if node_related_edges_invisible(node, module) and not all_edges:
+                    continue
                 tmp['shadow'] = 'true'
 
             network_nodes.append(tmp)
@@ -362,6 +371,7 @@ def project_module_detail(request, module_id):
     context = {
         'module': module,
         'all_edges': all_edges,
+        'draw_invisible_button': draw_invisible_button,
         'node_new_form': node_new_form,
 
         'node_types': node_types,

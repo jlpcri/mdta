@@ -75,10 +75,12 @@
                                         <div class="row">
                                             <div class="col-xs-6"><h4>Node Detail</h4></div>
                                             <div class="col-xs-6" style="position: relative; bottom: 0;">
-                                                {% if all_edges %}
-                                                    <a href="{% url 'graphs:project_module_detail' module.id %}" class="btn btn-default">DrawVisible</a>
-                                                {% else %}
-                                                    <a href="{% url 'graphs:project_module_detail' module.id %}?all_edges=true" class="btn btn-default">DrawAll</a>
+                                                {% if draw_invisible_button %}
+                                                    {% if all_edges %}
+                                                        <a href="{% url 'graphs:project_module_detail' module.id %}" class="btn btn-default">DrawVisible</a>
+                                                    {% else %}
+                                                        <a href="{% url 'graphs:project_module_detail' module.id %}?all_edges=true" class="btn btn-default">DrawAll</a>
+                                                    {% endif %}
                                                 {% endif %}
                                             </div>
                                         </div>
@@ -283,10 +285,12 @@
                                         <div class="row" style="margin-bottom: 10px;">
                                             <div class="col-xs-6"><h4>Edge Detail</h4></div>
                                             <div class="col-xs-6" style="position: relative; bottom: 0;">
-                                                {% if all_edges %}
-                                                    <a href="{% url 'graphs:project_module_detail' module.id %}" class="btn btn-default">DrawVisible</a>
-                                                {% else %}
-                                                    <a href="{% url 'graphs:project_module_detail' module.id %}?all_edges=true" class="btn btn-default">DrawAll</a>
+                                                {% if draw_invisible_button %}
+                                                    {% if all_edges %}
+                                                        <a href="{% url 'graphs:project_module_detail' module.id %}" class="btn btn-default">DrawVisible</a>
+                                                    {% else %}
+                                                        <a href="{% url 'graphs:project_module_detail' module.id %}?all_edges=true" class="btn btn-default">DrawAll</a>
+                                                    {% endif %}
                                                 {% endif %}
                                             </div>
                                         </div>
