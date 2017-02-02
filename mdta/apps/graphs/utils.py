@@ -240,12 +240,18 @@ def get_properties_from_multi_rows(request, node_or_edge_type, key_name=None):
     return tmp_data
 
 
-def node_related_edges_invisible(node):
-    flag_arriving, flag_leaving = False, False
+def node_related_edges_invisible(node, module):
+    """
+    Check edges of node which is outside current module to current module are all invisible
+    :param node: Node outside of current module
+    :param module: Current module
+    :return: True or False
+    """
+    flag, flag_arriving, flag_leaving = True, False, False
 
     for edge in node.arriving_edges:
         try:
-            if edge.properties[EDGE_TYPES_INVISIBLE_KEY] != 'on' and edge.from_node.module == node.module:
+            if edge.properties[EDGE_TYPES_INVISIBLE_KEY] != 'on' and edge.from_node.module == module:
                 flag_arriving = True
                 break
         except KeyError:
@@ -253,13 +259,13 @@ def node_related_edges_invisible(node):
 
     for edge in node.leaving_edges:
         try:
-            if edge.properties[EDGE_TYPES_INVISIBLE_KEY] != 'on' and edge.to_node.module == node.module:
+            if edge.properties[EDGE_TYPES_INVISIBLE_KEY] != 'on' and edge.to_node.module == module:
                 flag_leaving = True
                 break
         except KeyError:
             pass
 
-    if not flag_arriving or not flag_leaving:
-        return True
-    else:
-        return False
+    if flag_arriving or flag_leaving:
+        flag = False
+
+    return flag

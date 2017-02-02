@@ -289,7 +289,7 @@ def project_module_detail(request, module_id):
                 'shape': shape
             }
             if node.module != module:
-                if node_related_edges_invisible(node) and not all_edges:
+                if node_related_edges_invisible(node, module) and not all_edges:
                     continue
                 tmp['color'] = outside_module_node_color
 
