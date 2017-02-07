@@ -1,0 +1,13 @@
+version: '2'
+services:
+  db:
+    image: postgres
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8080 --settings=mdta.settings.dev_sliu
+    volumes:
+      - .:/code
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
