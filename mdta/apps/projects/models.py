@@ -79,7 +79,6 @@ class Project(models.Model):
                                  blank=True,
                                  null=True,)
     catalog = models.ManyToManyField(CatalogItem, blank=True)
-    # vuid = models.ForeignKey('Module', null=True, on_delete=models.SET_NULL)
 
     lead = models.ForeignKey(HumanResource, related_name='project_lead', null=True, blank=True)
     members = models.ManyToManyField(HumanResource, related_name='project_members', blank=True)
@@ -269,7 +268,9 @@ def vuid_location(instance, filename):
 
 
 class VUID(models.Model):
-    """Represents the uploaded file used to generate VoiceSlot object"""
+    """
+    Represents the uploaded file used to generate VoiceSlot object
+    """
     project = models.ForeignKey(Project)
     filename = models.TextField()
     upload_date = models.DateTimeField(auto_now_add=True)
