@@ -29,12 +29,29 @@ def parse_out_module_names(vuid, project_id):
 def parse_out_node_names(vuid):
     df = pd.read_excel(vuid.file.path)
     df.columns = map(str.lower, df.columns)
+    # project = Project.objects.get(pk=project_id)
+    # module = Project.objects.get(pk=project.module_id)
+
     pnames = (df[PROMPT_NAME])
     pnames = pnames.str.replace('_', ' ')
     pnames = pnames.str.rstrip('123456789').unique()
 
     for p in pnames:
+
         print(p)
+
+    return {"valid": True, "message": 'Handled'}
+
+
+@transaction.atomic
+def parse_out_verbiage(vuid):
+    df = pd.read_excel(vuid.file.path)
+    df.columns = map(str.lower, df.columns)
+
+    ptext = (df[PROMPT_TEXT])
+
+    for pt in ptext:
+        print(pt)
 
     return {"valid": True, "message": 'Handled'}
 
@@ -49,6 +66,11 @@ def upload_vuid(uploaded_file, user, project_id):
         return result
 
     result = parse_out_node_names(vuid)
+    if not result['valid']:
+        vuid.delete()
+        return result
+
+    result = parse_out_verbiage(vuid)
     if not result['valid']:
         vuid.delete()
         return result
