@@ -1,13 +1,8 @@
-from datetime import datetime
-# from itertools import izip, takewhile
-# from django.conf import settings
-# from django.utils import timezone
-from django.contrib import messages
 from django.db import transaction
 import pandas as pd
 
 from mdta.apps.projects.models import Project, Module, VUID
-
+from mdta.apps.graphs.models import Node
 
 PAGE_NAME = "page name"
 PROMPT_NAME = "prompt name"
@@ -16,25 +11,32 @@ PROMPT_TEXT = "prompt text"
 STATE_NAME = "state name"
 DATE_CHANGED = "date changed"
 
-VUID_HEADER_NAME_SET = {
-    PROMPT_NAME,
-    PROMPT_TEXT,
-    DATE_CHANGED
-}
-
 
 @transaction.atomic
 def parse_out_module_names(vuid, project_id):
     df = pd.read_excel(vuid.file.path)
-    project = Project.objects.get(pk=project_id)
     df.columns = map(str.lower, df.columns)
+    project = Project.objects.get(pk=project_id)
 
-    pnames = list(set(df[PAGE_NAME].unique()))
-
-    for p in pnames:
+    pgnames = (df[PAGE_NAME].unique())
+    for p in pgnames:
         Module.objects.create(name=p, project=project)
 
     return {"valid": True, "message": 'Module \'{0}\' is added to \'{1}\''.format(p, project)}
+
+
+@transaction.atomic
+def parse_out_node_names(vuid):
+    df = pd.read_excel(vuid.file.path)
+    df.columns = map(str.lower, df.columns)
+    pnames = (df[PROMPT_NAME])
+    pnames = pnames.str.replace('_', ' ')
+    pnames = pnames.str.rstrip('123456789').unique()
+
+    for p in pnames:
+        print(p)
+
+    return {"valid": True, "message": 'Handled'}
 
 
 def upload_vuid(uploaded_file, user, project_id):
@@ -42,6 +44,11 @@ def upload_vuid(uploaded_file, user, project_id):
     vuid.save()
 
     result = parse_out_module_names(vuid, project_id)
+    if not result['valid']:
+        vuid.delete()
+        return result
+
+    result = parse_out_node_names(vuid)
     if not result['valid']:
         vuid.delete()
         return result

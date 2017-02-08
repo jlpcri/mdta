@@ -307,7 +307,15 @@ def project_module_import(request, project_id):
     :param project_id:
     :return:
     """
-    if request.method == 'POST':
+    if request.method == 'GET':
+        form = UploadForm()
+        context = {
+            'form': form,
+            'project_id': project_id
+        }
+        return render(request, 'graphs/project/module_import.html', context)
+
+    elif request.method == 'POST':
         form = UploadForm(request.POST, request.FILES)
         # p = get_object_or_404(Project, project_id)
         if form.is_valid():
