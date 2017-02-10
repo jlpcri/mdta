@@ -18,48 +18,32 @@ def parse_out_modulesandnodes(vuid, project_id):
     df.columns = map(str.lower, df.columns)
     project = Project.objects.get(pk=project_id)
 
-    mylist = []
+    # mylist = []
+    mydict = {}
 
-    pgnames = (df[PAGE_NAME])
+    pgnames = (df[PAGE_NAME]).unique()
     pnames = (df[PROMPT_NAME])
     ptext = (df[PROMPT_TEXT])
     stnames = (df[STATE_NAME]).unique()
 
-    # for p in pgnames.unique():
-    #     Module.objects.create(name=p, project=project)
+    for p in pgnames:
+        Module.objects.create(name=p, project=project)
 
-    if pnames.str.find('_').any() != -1:
-        pnames = pnames.str.replace('_', ' ')
-
-    for p in pnames:
-        if p.find(' ') != -1:
-            p = p.rstrip('123456789')
-        mylist.append(p.strip())
-        mylist = list(OrderedSet(mylist))
-
-    mydict = {}
     for x in range(len(df)):
-        currentid = df.iloc[x, 0]
-        currentvalue = df.iloc[x, 2]
-        mydict.setdefault(currentid, [])
-        mydict[currentid].append(currentvalue)
+        pname = df.iloc[x, 1]
+        ptext = df.iloc[x, 2]
+        if pname.find('_') != -1:
+            pname = pname.replace('_', ' ').rstrip('123456789')
+        print(pname)
+        mydict.setdefault(pname, [])
+        mydict[pname].append(ptext)
+    print(project, pgnames, mydict)
 
-    print(mydict)
+    m = vuid.project.modules
+    print(m)
 
-    for my in mylist:
-        print(my)
-
-    for st in stnames:
-        print(st)
-
-    for pt in ptext:
-        print(pt)
-
-    # m = vuid.project.modules
-    # print(m)
-    #
-    # n = vuid.project.nodes
-    # print(n)
+    n = vuid.project.nodes
+    print(n)
 
     return {"valid": True, "message": 'Handled'}
 
