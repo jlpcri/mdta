@@ -4,10 +4,10 @@ services:
     image: postgres
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8080 --settings=mdta.settings.dev_sliu
+    command: python manage.py runserver 0.0.0.0:9202 --settings=mdta.settings.dev_sliu
     volumes:
       - .:/code
     ports:
-      - "8080:8080"
+      - "9202:9202"
     depends_on:
       - db
