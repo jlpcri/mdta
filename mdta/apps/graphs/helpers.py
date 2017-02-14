@@ -44,29 +44,41 @@ def parse_out_node_names(vuid):
     mydict = {}
 
     for x in range(len(df)):
+        stname = df.iloc[x, 3]
         pname = df.iloc[x, 1]
         ptext = df.iloc[x, 2]
         if pname.find('_') != -1:
             pname = pname.replace('_', ' ').rstrip('123456789')
-        mydict.setdefault(pname, [])
-        mydict[pname].append(ptext)
+        try:
+            mn = NodeType.objects.get(name=stname)
+        except NodeType.DoesNotExist:
+            if stname.startswith('prompt_'):
+                stname = 'Menu Prompt'
+            elif stname.startswith('say_'):
+                stname = 'Play Prompt'
+            elif stname.startswith('play_'):
+                stname = 'Play Prompt'
+        mydict.setdefault(stname, [])
+        mydict[stname].append((pname, ptext))
 
     print(mydict)
 
-    # mylist = []
+    mylist = []
 
-    # pnames = (df[PROMPT_NAME])
-    # if pnames.str.find('_').any() != -1:
-    #     pnames = pnames.str.replace('_', ' ')
-    #
-    # for p in pnames:
-    #     if p.find(' ') != -1:
-    #         p = p.rstrip('123456789')
-    #     mylist.append(p.strip())
-    #     mylist = list(OrderedSet(mylist))
-    #
-    # for my in mylist:
-    #     print(my)
+    pnames = (df[PROMPT_NAME])
+    if pnames.str.find('_').any() != -1:
+        pnames = pnames.str.replace('_', ' ')
+
+    for p in pnames:
+        if p.find(' ') != -1:
+            p = p.rstrip('123456789')
+        mylist.append(p.strip())
+        mylist = list(OrderedSet(mylist))
+
+    print(mylist)
+
+    for my in mylist:
+        print(my)
 
     return {"valid": True, "message": 'Handled'}
 
