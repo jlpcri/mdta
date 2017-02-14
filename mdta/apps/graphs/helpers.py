@@ -83,10 +83,9 @@ def parse_out_node_names(vuid):
 
 
 @transaction.atomic
-def parse_out_node_types(vuid, project_id):
+def parse_out_node_types(vuid):
     df = pd.read_excel(vuid.file.path)
     df.columns = map(str.lower, df.columns)
-    project = Project.objects.get(pk=project_id)
 
     stnames = (df[STATE_NAME]).unique()
     node_types = []
@@ -96,12 +95,13 @@ def parse_out_node_types(vuid, project_id):
             mn = NodeType.objects.get(name=s)
         except NodeType.DoesNotExist:
             if s.startswith('prompt_'):
-                print("Is a prompt")
+                s = 'Menu Prompt'
             elif s.startswith('say_'):
-                print("Say is a play")
+               s = 'Play Prompt'
             elif s.startswith('play_'):
-                print("Play is a play")
-        print(s)
+               s = 'Play Prompt'
+            node_types.append(s)
+    print(node_types)
 
     return {"valid": True, "message": 'Handled'}
 
@@ -125,7 +125,7 @@ def upload_vuid(uploaded_file, user, project_id):
     #     vuid.delete()
     #     return result
 
-    result = parse_out_node_types(vuid, project_id)
+    result = parse_out_node_types(vuid)
     if not result['valid']:
         vuid.delete()
         return result
