@@ -96,10 +96,12 @@
                         <a href="{% url 'graphs:project_detail' p.id %}">{{ p.name }}</a>
                     </li>
                 {% endfor %}
-                <hr/>
-                <li class="list-group-item">
-                    <a class="btn btn-default" href="{% url 'projects:project_new' %}">New Project</a>
-                </li>
+                {% if user.is_staff or user.is_superuser %}
+                    <hr/>
+                    <li class="list-group-item">
+                        <a class="btn btn-default" href="{% url 'projects:project_new' %}">New Project</a>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     </div>
