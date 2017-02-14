@@ -3,7 +3,7 @@ from orderedset import OrderedSet
 import pandas as pd
 
 from mdta.apps.projects.models import Project, Module, VUID
-from mdta.apps.graphs.models import Node
+from mdta.apps.graphs.models import Node, NodeType
 
 PAGE_NAME = "page name"
 PROMPT_NAME = "prompt name"
@@ -22,9 +22,17 @@ def parse_out_modules_names(vuid, project_id):
     project = Project.objects.get(pk=project_id)
 
     pgnames = (df[PAGE_NAME]).unique()
+    module_names = []
 
-    for p in pgnames:
-        Module.objects.create(name=p, project=project)
+    for pg in pgnames:
+        try:
+            mn = Module.objects.get(name=pg, project=project)
+        except Module.DoesNotExist:
+            mn = Module(name=pg, project=project)
+            module_names.append(mn)
+            mn.save()
+
+    print(module_names)
 
     return {"valid": True, "message": 'Handled'}
 
@@ -75,18 +83,24 @@ def parse_out_node_names(vuid):
 
 
 @transaction.atomic
-def parse_out_node_types(vuid):
+def parse_out_node_types(vuid, project_id):
     df = pd.read_excel(vuid.file.path)
     df.columns = map(str.lower, df.columns)
+    project = Project.objects.get(pk=project_id)
+
     stnames = (df[STATE_NAME]).unique()
+    node_types = []
 
     for s in stnames:
-        if s.startswith('prompt_'):
-            print("Is a prompt")
-        elif s.startswith('say_'):
-            print("Say is a play")
-        elif s.startswith('play_'):
-            print("Play is a play")
+        try:
+            mn = NodeType.objects.get(name=s)
+        except NodeType.DoesNotExist:
+            if s.startswith('prompt_'):
+                print("Is a prompt")
+            elif s.startswith('say_'):
+                print("Say is a play")
+            elif s.startswith('play_'):
+                print("Play is a play")
         print(s)
 
     return {"valid": True, "message": 'Handled'}
@@ -111,7 +125,7 @@ def upload_vuid(uploaded_file, user, project_id):
     #     vuid.delete()
     #     return result
 
-    result = parse_out_node_types(vuid)
+    result = parse_out_node_types(vuid, project_id)
     if not result['valid']:
         vuid.delete()
         return result
