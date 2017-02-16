@@ -19,68 +19,85 @@ STATE_NAME = "state name"
 def parse_out_modules_names(vuid, project_id):
     df = pd.read_excel(vuid.file.path)
     df.columns = map(str.lower, df.columns)
+    df.drop_duplicates(subset=[PAGE_NAME, STATE_NAME], keep=False)
     project = Project.objects.get(pk=project_id)
 
-    pgnames = (df[PAGE_NAME]).unique()
+    # pgnames = (df[PAGE_NAME])
+
+    #
+    # for pg in pgnames:
+    #     try:
+    #         mn = Module.objects.get(name=pg, project=project)
+    #     except Module.DoesNotExist:
+    #         mn = Module(name=pg, project=project)
+    #         module_names.append(mn)
+    #         mn.save()
+    #
+    # print(module_names)
+
     module_names = []
-
-    for pg in pgnames:
-        try:
-            mn = Module.objects.get(name=pg, project=project)
-        except Module.DoesNotExist:
-            mn = Module(name=pg, project=project)
-            module_names.append(mn)
-            mn.save()
-
-    print(module_names)
-
-    return {"valid": True, "message": 'Handled'}
-
-
-@transaction.atomic
-def parse_out_node_names(vuid):
-    df = pd.read_excel(vuid.file.path)
-    df.columns = map(str.lower, df.columns)
-    mydict = {}
+    words = []
+    text = {}
 
     for x in range(len(df)):
+        pgname = df.iloc[x, 0]
         stname = df.iloc[x, 3]
         pname = df.iloc[x, 1]
-        ptext = df.iloc[x, 2]
+        verbiage = df.iloc[x, 2]
+        try:
+            pg = Module.objects.get(name=pgname, project=project)
+        except Module.DoesNotExist:
+            pg = Module(name=pgname, project=project)
+            module_names.append(pg)
+            pg.save()
+
         if pname.find('_') != -1:
             pname = pname.replace('_', ' ').rstrip('123456789')
+
+        if stname.startswith('prompt_'):
+            stname = NodeType.objects.get(name='Menu Prompt')
+            keys = dict(Verbiage=verbiage, TranslateVerbiage="", Outputs="", NoInput_1="", NoInput_2="", NoMatch_1="", NoMatch_2="", OnFailGoTo="", NonStandardFail="", Default="")
+        elif stname.startswith('say_'):
+            stname = NodeType.objects.get(name='Play Prompt')
+            keys = {'Verbiage': verbiage, 'TranslateVerbiage': ""}
+        elif stname.startswith('play_'):
+            stname = NodeType.objects.get(name='Play Prompt')
+            keys = {'Verbiage': verbiage, 'TranslateVerbiage': ""}
+        words.append(stname)
+        # stname.save()
         try:
-            mn = NodeType.objects.get(name=stname)
-        except NodeType.DoesNotExist:
-            if stname.startswith('prompt_'):
-                stname = 'Menu Prompt'
-            elif stname.startswith('say_'):
-                stname = 'Play Prompt'
-            elif stname.startswith('play_'):
-                stname = 'Play Prompt'
-        mydict.setdefault(stname, [])
-        mydict[stname].append((pname, ptext))
-
-    print(mydict)
-
-    mylist = []
-
-    pnames = (df[PROMPT_NAME])
-    if pnames.str.find('_').any() != -1:
-        pnames = pnames.str.replace('_', ' ')
-
-    for p in pnames:
-        if p.find(' ') != -1:
-            p = p.rstrip('123456789')
-        mylist.append(p.strip())
-        mylist = list(OrderedSet(mylist))
-
-    print(mylist)
-
-    for my in mylist:
-        print(my)
+            nn = Node.objects.get(module__project=project, name=pname)
+        except Node.DoesNotExist:
+            nn = Node(module=pg, name=pname, type=stname, properties=keys)
+        nn.save()
+        print(nn)
 
     return {"valid": True, "message": 'Handled'}
+
+
+# @transaction.atomic
+# def parse_out_node_names(vuid):
+#     df = pd.read_excel(vuid.file.path)
+#     df.columns = map(str.lower, df.columns)
+#
+#     mylist = []
+#
+#     pnames = (df[PROMPT_NAME])
+#     if pnames.str.find('_').any() != -1:
+#         pnames = pnames.str.replace('_', ' ')
+#
+#     for p in pnames:
+#         if p.find(' ') != -1:
+#             p = p.rstrip('123456789')
+#         mylist.append(p.strip())
+#         mylist = list(OrderedSet(mylist))
+#
+#     print(mylist)
+#
+#     for my in mylist:
+#         print(my)
+#
+#     return {"valid": True, "message": 'Handled'}
 
 # @transaction.atomic
 # def parse_out_verbiage(vuid):
@@ -94,28 +111,25 @@ def parse_out_node_names(vuid):
 #     return {"valid": True, "message": 'Handled'}
 
 
-@transaction.atomic
-def parse_out_node_types(vuid):
-    df = pd.read_excel(vuid.file.path)
-    df.columns = map(str.lower, df.columns)
-
-    stnames = (df[STATE_NAME]).unique()
-    node_types = []
-
-    for s in stnames:
-        try:
-            mn = NodeType.objects.get(name=s)
-        except NodeType.DoesNotExist:
-            if s.startswith('prompt_'):
-                s = 'Menu Prompt'
-            elif s.startswith('say_'):
-               s = 'Play Prompt'
-            elif s.startswith('play_'):
-               s = 'Play Prompt'
-            node_types.append(s)
-    print(node_types)
-
-    return {"valid": True, "message": 'Handled'}
+# @transaction.atomic
+# def parse_out_node_types(vuid):
+#     df = pd.read_excel(vuid.file.path)
+#     df.columns = map(str.lower, df.columns)
+#
+#     stnames = (df[STATE_NAME]).unique()
+#     node_types = []
+#
+#     for s in stnames:
+#         if s.startswith('prompt_'):
+#             s = 'Menu Prompt'
+#         elif s.startswith('say_'):
+#             s = 'Play Prompt'
+#         elif s.startswith('play_'):
+#             s = 'Play Prompt'
+#         node_types.append(s)
+#     print(node_types)
+#
+#     return {"valid": True, "message": 'Handled'}
 
 
 def upload_vuid(uploaded_file, user, project_id):
@@ -127,20 +141,20 @@ def upload_vuid(uploaded_file, user, project_id):
         vuid.delete()
         return result
 
-    result = parse_out_node_names(vuid)
-    if not result['valid']:
-        vuid.delete()
-        return result
+    # result = parse_out_node_names(vuid)
+    # if not result['valid']:
+    #     vuid.delete()
+    #     return result
 
     # result = parse_out_verbiage(vuid)
     # if not result['valid']:
     #     vuid.delete()
     #     return result
 
-    result = parse_out_node_types(vuid)
-    if not result['valid']:
-        vuid.delete()
-        return result
+    # result = parse_out_node_types(vuid)
+    # if not result['valid']:
+    #     vuid.delete()
+    #     return result
 
     return dict(valid=True,
                 message="File uploaded and parsed successfully.")
