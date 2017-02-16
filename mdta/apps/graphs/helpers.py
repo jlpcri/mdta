@@ -56,15 +56,29 @@ def parse_out_modules_names(vuid, project_id):
 
         if stname.startswith('prompt_'):
             stname = NodeType.objects.get(name='Menu Prompt')
-            keys = dict(Verbiage=verbiage, TranslateVerbiage="", Outputs="", NoInput_1="", NoInput_2="", NoMatch_1="", NoMatch_2="", OnFailGoTo="", NonStandardFail="", Default="")
+            keys = {'Verbiage': verbiage,
+                    'TranslateVerbiage': "",
+                    'Outputs': "",
+                    'NoInput_1': "",
+                    'NoInput_2': "",
+                    'NoMatch_1': "",
+                    'NoMatch_2': "",
+                    'OnFailGoTo': "",
+                    'NonStandardFail': "",
+                    'Default': ""
+                   }
         elif stname.startswith('say_'):
             stname = NodeType.objects.get(name='Play Prompt')
-            keys = {'Verbiage': verbiage, 'TranslateVerbiage': ""}
+            keys = {'Verbiage': verbiage,
+                    'TranslateVerbiage': ""
+                    }
         elif stname.startswith('play_'):
             stname = NodeType.objects.get(name='Play Prompt')
-            keys = {'Verbiage': verbiage, 'TranslateVerbiage': ""}
-        words.append(stname)
-        # stname.save()
+            keys = {'Verbiage': verbiage,
+                    'TranslateVerbiage': ""
+                    }
+        # words.append(stname)
+        stname.save()
         try:
             nn = Node.objects.get(module__project=project, name=pname)
         except Node.DoesNotExist:
