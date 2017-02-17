@@ -1,11 +1,5 @@
 from mdta.apps.graphs.models import Node, Edge
-
-START_NODE_NAME = ['Start', 'TestHeader Start']
-DATA_NODE_NAME = ['DataQueries Database', 'DataQueries WebService']
-CONSTRAINTS_TRUE_OR_FALSE = 'tof'
-TESTCASE_NOT_ROUTE_MESSAGE = 'This edge cannot be routed'
-MENU_PROMPT_OUTPUTS_KEY_NODE_NAME = ['Menu Prompt', 'Menu Prompt with Confirmation']
-MENU_PROMPT_OUTPUTS_KEY_NAME = 'Outputs'
+from mdta.apps.testcases.constant_names import *
 
 
 def path_traverse_backwards(path, th_path=None):
@@ -48,17 +42,23 @@ def path_traverse_backwards(path, th_path=None):
 
                     if edge_property_key_in_th_menuprompt(step, th_path):
                         result_found = step.properties[step.type.keys_data_name][step.type.subkeys_data_name]
+                        menu_prompt_outputs_keys = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())
+
+                    elif edge_property_key_in_from_menuprompt(step):
+                        result_found = step.properties[step.type.keys_data_name][step.type.subkeys_data_name]
+                        menu_prompt_outputs_keys = [step.from_node.properties['Outputs']]
                     else:
                         constraints += assert_current_edge_constraint(step)
                         constraints += assert_high_priority_edges_negative(step)
 
                         result_found = get_data_node_result(step, constraints, index=index, path=path)
+                        menu_prompt_outputs_keys = get_menu_prompt_outputs_key(path, index, th_path=None)
                     if result_found:
                         result_found_all.append(result_found)
                         constraints = []
 
-                        menu_prompt_outputs_keys = get_menu_prompt_outputs_key(path, index, th_path=None)
-                        # print('r: ', result_found, step.name)
+                        # menu_prompt_outputs_keys = get_menu_prompt_outputs_key(path, index, th_path=None)
+                        # print('r: ', result_found, step.to_node.name)
                         # print('s: ', menu_prompt_outputs_keys)
 
                         if menu_prompt_outputs_keys:
@@ -71,7 +71,7 @@ def path_traverse_backwards(path, th_path=None):
                                 tcs_cannot_route_msg = 'MenuPrompt/MenuPromptWC property \'Outputs\' incorrect'
                         else:
                             tcs_cannot_route_flag = True
-                            tcs_cannot_route_msg = 'MenuPrompt/MenuPromptWC property \'Outputs\' incorrect'
+                            tcs_cannot_route_msg = 'MenuPrompt/MenuPromptWC property \'Outputs\' not found'
                     else:
                         tcs_cannot_route_flag = True
                         tcs_cannot_route_msg = 'No match result found in DataQueries Node'
@@ -101,7 +101,7 @@ def path_traverse_backwards(path, th_path=None):
                 for th_index, th_step in enumerate(th_path[::-1]):
                     if th_index < len(th_path) - 1:
                         if isinstance(th_step, Node):
-                            if th_step.type.name in MENU_PROMPT_OUTPUTS_KEY_NODE_NAME:
+                            if th_step.type.name in MENU_PROMPT_NODE_NAME:
                                 th_key = th_step.properties['Outputs']
                                 if result_found and th_key:
                                     if th_key in result_found.keys():
@@ -129,7 +129,7 @@ def path_traverse_backwards(path, th_path=None):
                             traverse_node(th_step, tcs)
 
                 # traverse Start Node
-                if th_path[2].type.name in MENU_PROMPT_OUTPUTS_KEY_NODE_NAME:
+                if th_path[2].type.name in MENU_PROMPT_NODE_NAME:
                     tcs[-1]['content'] = get_item_properties(step)
                 else:
                     traverse_node(step, tcs)
@@ -285,11 +285,11 @@ def get_menu_prompt_outputs_key(path, index_start, th_path):
     keys = []
     if th_path:
         for step in th_path[::-1]:
-            if step.type.name in MENU_PROMPT_OUTPUTS_KEY_NODE_NAME:
+            if step.type.name in MENU_PROMPT_NODE_NAME:
                 keys.append(step.properties[MENU_PROMPT_OUTPUTS_KEY_NAME])
     else:
         for index, step in enumerate(path[index_start:]):
-            if step.type.name in MENU_PROMPT_OUTPUTS_KEY_NODE_NAME:
+            if step.type.name in MENU_PROMPT_NODE_NAME:
                 keys.append(step.properties[MENU_PROMPT_OUTPUTS_KEY_NAME])
                 break
 
@@ -357,10 +357,10 @@ def traverse_node(node, tcs, preceding_edge=None):
     if node.type.name in [START_NODE_NAME[0], 'Transfer']:  # Start with Dial Number
         add_step(node_start(node), tcs)
     # elif node.type.name in ['Menu Prompt', 'Menu Prompt with Confirmation', 'Play Prompt']:
-    elif node.type.name in MENU_PROMPT_OUTPUTS_KEY_NODE_NAME + ['Play Prompt']:
+    elif node.type.name in MENU_PROMPT_NODE_NAME + ['Play Prompt']:
         add_step(node_prompt(node, preceding_edge), tcs)
 
-    if node.type.name == MENU_PROMPT_OUTPUTS_KEY_NODE_NAME[1]:
+    if node.type.name == MENU_PROMPT_NODE_NAME[1]:
         confirm_idx = 0
         for idx, tc in enumerate(tcs):
             if node.name in tc['expected']:
@@ -436,9 +436,24 @@ def edge_property_key_in_th_menuprompt(step, th_path):
     data = ''
     step_key = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())[0]
     for th_step in th_path:
-        if th_step.type.name in MENU_PROMPT_OUTPUTS_KEY_NODE_NAME and step_key == th_step.properties['Outputs']:
+        if th_step.type.name in MENU_PROMPT_NODE_NAME and step_key == th_step.properties['Outputs']:
             data = step_key
             break
+
+    return data
+
+
+def edge_property_key_in_from_menuprompt(step):
+    """
+    check current step property key is in from node(menuprompt) Outputs
+    :param step:
+    :return:
+    """
+    data = False
+
+    step_key = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())[0]
+    if step.from_node.type.name in MENU_PROMPT_NODE_NAME and step.from_node.properties['Outputs'] == step_key:
+        data = True
 
     return data
 

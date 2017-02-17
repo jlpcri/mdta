@@ -1,10 +1,10 @@
-from django.shortcuts import get_object_or_404
-
 from mdta.apps.graphs.models import Node
-from mdta.apps.projects.models import Project, TestRailConfiguration, Module
+from mdta.apps.projects.models import Project, TestRailConfiguration
 from mdta.apps.testcases.testrail import APIClient, APIError
-from mdta.apps.testcases.utils_backwards_traverse import path_traverse_backwards, START_NODE_NAME, MENU_PROMPT_OUTPUTS_KEY_NODE_NAME
+from mdta.apps.testcases.utils_backwards_traverse import path_traverse_backwards
 from mdta.apps.testcases.utils_negative_testcases import negative_testcase_generation, rejected_testcase_generation
+
+from mdta.apps.testcases.constant_names import START_NODE_NAME, MENU_PROMPT_NODE_NAME
 
 
 def context_testcases():
@@ -97,10 +97,10 @@ def get_paths_through_all_edges(edges, th_module=None):
                                 'title': title
                             })
 
-                        if edge.to_node.type.name == MENU_PROMPT_OUTPUTS_KEY_NODE_NAME[0]:
+                        if edge.to_node.type.name in MENU_PROMPT_NODE_NAME:
                             negative_testcase_generation(data, path_data, title, edge.to_node)
-                        elif edge.to_node.type.name == MENU_PROMPT_OUTPUTS_KEY_NODE_NAME[1]:
-                            rejected_testcase_generation(data, path_data, title, edge.to_node)
+                            if edge.to_node.type.name == MENU_PROMPT_NODE_NAME[1]:
+                                rejected_testcase_generation(data, path_data, title, edge.to_node)
 
     else:
         for edge in edges:
@@ -125,7 +125,7 @@ def get_paths_through_all_edges(edges, th_module=None):
                             'title': title
                         })
 
-                    if edge.to_node.type.name == MENU_PROMPT_OUTPUTS_KEY_NODE_NAME[0]:
+                    if edge.to_node.type.name == MENU_PROMPT_NODE_NAME[0]:
                         negative_testcase_generation(data, path_data, title, edge.to_node)
 
     # return check_subpath_in_all(data)
