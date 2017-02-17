@@ -10,8 +10,8 @@ def tc_no_input_recover(node):
     """
     data = [
         {
-            'content': 'wait',
-            'expected': node.name + 'NI1: ' + node.properties['NoInput_1']
+            TR_CONTENT: 'wait',
+            TR_EXPECTED: node.name + 'NI1: ' + node.properties[MP_NI1]
         }
     ]
 
@@ -26,8 +26,8 @@ def tc_no_match_recover(node):
     no_match_conent = get_no_match_content(node)
     data = [
         {
-            'content': no_match_conent,
-            'expected': node.name + 'NM1: ' + node.properties['NoMatch_1']
+            TR_CONTENT: no_match_conent,
+            TR_EXPECTED: node.name + 'NM1: ' + node.properties[MP_NM1]
         }
     ]
 
@@ -42,26 +42,26 @@ def tc_no_input_3_fail(node):
     data = []
     if node.properties[ON_FAIL_GO_TO_KEY] == '':
         data.append({
-            'content': False,
-            'expected': TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo empty'
+            TR_CONTENT: False,
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo empty'
         })
     elif not search_node_name_inside_project(node.module.project, node.properties[ON_FAIL_GO_TO_KEY]):
         data.append({
-            'content': False,
-            'expected': TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo node name invalid'
+            TR_CONTENT: False,
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo node name invalid'
         })
     else:
         data.append({
-            'content': 'wait',
-            'expected': node.name + 'NI1: ' + node.properties['NoInput_1']
+            TR_CONTENT: 'wait',
+            TR_EXPECTED: node.name + 'NI1: ' + node.properties[MP_NI1]
         })
         data.append({
-            'content': 'wait',
-            'expected': node.name + 'NI2: ' + node.properties['NoInput_2']
+            TR_CONTENT: 'wait',
+            TR_EXPECTED: node.name + 'NI2: ' + node.properties[MP_NI2]
         })
         data.append({
-            'content': 'wait',
-            'expected': 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
+            TR_CONTENT: 'wait',
+            TR_EXPECTED: 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
         })
 
     return data
@@ -76,31 +76,31 @@ def tc_no_match_3_fail(node):
 
     if node.properties[ON_FAIL_GO_TO_KEY] == '':
         data.append({
-            'content': False,
-            'expected': TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo empty'
+            TR_CONTENT: False,
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo empty'
         })
     elif not search_node_name_inside_project(node.module.project, node.properties[ON_FAIL_GO_TO_KEY]):
         data.append({
-            'content': False,
-            'expected': TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo node name invalid'
+            TR_CONTENT: False,
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo node name invalid'
         })
     else:
         no_match_content = get_no_match_content(node)
         data.append({
-            'content': no_match_content,
-            'expected': node.name + 'NM1: ' + node.properties['NoMatch_1']
+            TR_CONTENT: no_match_content,
+            TR_EXPECTED: node.name + 'NM1: ' + node.properties[MP_NM1]
         })
 
         no_match_content = get_no_match_content(node)
         data.append({
-            'content': no_match_content,
-            'expected': node.name + 'NM2: ' + node.properties['NoMatch_2']
+            TR_CONTENT: no_match_content,
+            TR_EXPECTED: node.name + 'NM2: ' + node.properties[MP_NM2]
         })
 
         no_match_content = get_no_match_content(node)
         data.append({
-            'content': no_match_content,
-            'expected': 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
+            TR_CONTENT: no_match_content,
+            TR_EXPECTED: 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
         })
 
     return data
@@ -117,13 +117,13 @@ def tc_ni_nm_3_fail(node):
 
     if node.properties[ON_FAIL_GO_TO_KEY] == '':
         data.append({
-            'content': False,
-            'expected': TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo empty'
+            TR_CONTENT: False,
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo empty'
         })
     elif not search_node_name_inside_project(node.module.project, node.properties[ON_FAIL_GO_TO_KEY]):
         data.append({
-            'content': False,
-            'expected': TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo node name invalid'
+            TR_CONTENT: False,
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo node name invalid'
         })
     else:
         combinations = random_combination(random_size=3)
@@ -143,8 +143,8 @@ def tc_ni_nm_3_fail(node):
                 else:
                     expected = node.name + 'NM{0}: '.format(nm_index) + node.properties['NoMatch_{0}'.format(nm_index)]
             data.append({
-                'content': content,
-                'expected': expected
+                TR_CONTENT: content,
+                TR_EXPECTED: expected
             })
 
     return data
@@ -195,9 +195,9 @@ def negative_testcase_generation(data, path_data, title, node):
             _title = title + ', ' + get_negative_tc_title(key)
             negative_tc_steps = get_negative_tc_steps(key)(node)
 
-            if not negative_tc_steps[0]['content']:
+            if not negative_tc_steps[0][TR_CONTENT]:
                 data.append({
-                    'tcs_cannot_route': negative_tc_steps[0]['expected'],
+                    'tcs_cannot_route': negative_tc_steps[0][TR_EXPECTED],
                     'title': _title
                 })
             else:
@@ -255,14 +255,14 @@ def get_no_match_content(node):
     """
     valid_data = []
     for edge in node.leaving_edges:
-        if edge.type.name == 'DTMF':
-            valid_data.append(edge.properties['Press'])
-        elif edge.type.name == 'Speech':
-            valid_data.append(edge.properties['Say'])
+        if edge.type.name == EDGE_DTMF_NAME:
+            valid_data.append(edge.properties[EDGE_PRESS_NAME])
+        elif edge.type.name == EDGE_SPEECH_NAME:
+            valid_data.append(edge.properties[EDGE_SAY_NAME])
 
         # Search all following DataQueries node connected to current node
         valid_data += following_dataqueries_node_valid_data(node=edge.to_node,
-                                                            subkey=node.properties['Outputs'])
+                                                            subkey=node.properties[MP_OUTPUTS])
 
     data = generate_no_match_value(valid_data)
 
@@ -277,11 +277,11 @@ def following_dataqueries_node_valid_data(node, subkey):
     :return:
     """
     data = []
-    if node.type.name in ['DataQueries Database', 'DataQueries WebService']:
-        for item in node.properties['InputData']:
-            # print(item['Inputs'], node.properties['Outputs'])
+    if node.type.name in NODE_DATA_NAME:
+        for item in node.properties[EDGE_INPUTDATA_NAME]:
+            # print(item['Inputs'], node.properties[MP_OUTPUTS])
             try:
-                data.append(item['Inputs'][subkey])
+                data.append(item[NODE_DATA_INPUTS][subkey])
             except KeyError:
                 pass
 
@@ -357,9 +357,9 @@ def rejected_testcase_generation(data, path_data, title, node):
                 valid_inputs = []
                 for edge in node.leaving_edges:
                     next_node = edge.to_node
-                    if next_node.type.name in DATA_NODE_NAME:
+                    if next_node.type.name in NODE_DATA_NAME:
                         for item in next_node.properties[next_node.type.keys_data_name]:
-                            valid_inputs.append(item['Inputs'])
+                            valid_inputs.append(item[NODE_DATA_INPUTS])
                 # print(valid_inputs)
                 if valid_inputs:
                     try:
@@ -374,20 +374,20 @@ def rejected_testcase_generation(data, path_data, title, node):
 
                 rejected_steps = [
                     {
-                        'content': contents,
-                        'expected': "{0}: {1}".format(node.name, node.properties['Reject_1'])
+                        TR_CONTENT: contents,
+                        TR_EXPECTED: "{0}: {1}".format(node.name, node.properties[MP_RJ1])
                     },
                     # {
-                    #     'content': 'press 2',  # rejected confirm
-                    #     'expected': "{0}: {1}".format(node.name, node.properties['Verbiage'])
+                    #     TR_CONTENT: 'press 2',  # rejected confirm
+                    #     TR_EXPECTED: "{0}: {1}".format(node.name, node.properties['Verbiage'])
                     # },
                     # {
-                    #     'content': contents,
-                    #     'expected': "{0}: {1}".format(node.name, node.properties['ConfirmVerbiage'])
+                    #     TR_CONTENT: contents,
+                    #     TR_EXPECTED: "{0}: {1}".format(node.name, node.properties['ConfirmVerbiage'])
                     # },
                     {
-                        'content': 'press 2',  # rejected confirm
-                        'expected': 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
+                        TR_CONTENT: 'press 2',  # rejected confirm
+                        TR_EXPECTED: 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
                     }
                 ]
 
