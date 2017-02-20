@@ -166,4 +166,6 @@ class Edge(models.Model):
     def __str__(self):
         return '{0}: {1}: {2}'.format(self.from_node.module.name, self.from_node.name, self.to_node.name)
 
-
+    @property
+    def properties_sorted(self):
+        return sorted(self.properties.items())
