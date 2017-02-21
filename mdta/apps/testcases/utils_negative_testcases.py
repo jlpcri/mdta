@@ -31,7 +31,7 @@ def tc_confirm_no_input_recover(node):
         },
         {
             TR_CONTENT: 'wait',
-            TR_EXPECTED: node.name + ': ' + node.properties[MP_CNI1]
+            TR_EXPECTED: node.name + 'CNI1: ' + node.properties[MP_CNI1]
         }
     ]
 
@@ -48,6 +48,26 @@ def tc_no_match_recover(node):
         {
             TR_CONTENT: no_match_content,
             TR_EXPECTED: node.name + 'NM1: ' + node.properties[MP_NM1]
+        }
+    ]
+
+    return data
+
+
+def tc_confirm_no_match_recover(node):
+    """
+    Test step of Confirm No Match and recover to self for MenuPromptWithConfirmation node
+    :param node:
+    :return:
+    """
+    data = [
+        {
+            TR_CONTENT: get_mpc_valid_input(node),
+            TR_EXPECTED: node.name + ': ' + node.properties[MP_CVER]
+        },
+        {
+            TR_CONTENT: get_no_match_content(node),
+            TR_EXPECTED: node.name + 'CNM1: ' + MP_CNM1
         }
     ]
 
@@ -87,6 +107,40 @@ def tc_no_input_3_fail(node):
     return data
 
 
+def tc_confirm_no_input_3_fail(node):
+    if node.properties[ON_FAIL_GO_TO_KEY] == '':
+        data = [{
+            TR_CONTENT: False,
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo empty'
+        }]
+    elif not search_node_name_inside_project(node.module.project, node.properties[ON_FAIL_GO_TO_KEY]):
+        data = [{
+            TR_CONTENT: False,
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo node name invalid'
+        }]
+    else:
+        data = [
+            {
+                TR_CONTENT: get_mpc_valid_input(node),
+                TR_EXPECTED: node.name + ': ' + node.properties[MP_CVER]
+            },
+            {
+                TR_CONTENT: 'wait',
+                TR_EXPECTED: node.name + 'CNI1: ' + node.properties[MP_CNI1]
+            },
+            {
+                TR_CONTENT: 'wait',
+                TR_EXPECTED: node.name + 'CNI2: ' + node.properties[MP_CNI2]
+            },
+            {
+                TR_CONTENT: 'wait',
+                TR_EXPECTED: 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
+            },
+        ]
+
+    return data
+
+
 def tc_no_match_3_fail(node):
     """
     Test step of 3 times No Match then Fail
@@ -122,6 +176,40 @@ def tc_no_match_3_fail(node):
             TR_CONTENT: no_match_content,
             TR_EXPECTED: 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
         })
+
+    return data
+
+
+def tc_confirm_no_match_3_fail(node):
+    if node.properties[ON_FAIL_GO_TO_KEY] == '':
+        data = [{
+            TR_CONTENT: False,
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo empty'
+        }]
+    elif not search_node_name_inside_project(node.module.project, node.properties[ON_FAIL_GO_TO_KEY]):
+        data = [{
+            TR_CONTENT: False,
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo node name invalid'
+        }]
+    else:
+        data = [
+            {
+                TR_CONTENT: get_mpc_valid_input(node),
+                TR_EXPECTED: node.name + ': ' + node.properties[MP_CVER]
+            },
+            {
+                TR_CONTENT: get_no_match_content(node),
+                TR_EXPECTED: node.name + 'CNM1: ' + node.properties[MP_CNM1]
+            },
+            {
+                TR_CONTENT: get_no_match_content(node),
+                TR_EXPECTED: node.name + 'CNM2: ' + node.properties[MP_CNM2]
+            },
+            {
+                TR_CONTENT: get_no_match_content(node),
+                TR_EXPECTED: 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
+            },
+        ]
 
     return data
 
@@ -170,6 +258,50 @@ def tc_ni_nm_3_fail(node):
     return data
 
 
+def tc_confirm_ni_nm_3_fail(node):
+    data = []
+    ni_index = 0
+    nm_index = 0
+
+    if node.properties[ON_FAIL_GO_TO_KEY] == '':
+        data.append({
+            TR_CONTENT: False,
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo empty'
+        })
+    elif not search_node_name_inside_project(node.module.project, node.properties[ON_FAIL_GO_TO_KEY]):
+        data.append({
+            TR_CONTENT: False,
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo node name invalid'
+        })
+    else:
+        data.append({
+            TR_CONTENT: get_mpc_valid_input(node),
+            TR_EXPECTED: node.name + ': ' + node.properties[MP_CVER]
+        })
+        combinations = random_combination(random_size=3)
+        for index, item in enumerate(combinations):
+            if item == 'NI':
+                content = 'wait'
+                ni_index += 1
+                if index >= 2:
+                    expected = 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
+                else:
+                    expected = node.name + 'CNI{0}: '.format(ni_index) + node.properties['ConfirmNoInput_{0}'.format(ni_index)]
+            else:
+                content = get_no_match_content(node)
+                nm_index += 1
+                if index >= 2:
+                    expected = 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
+                else:
+                    expected = node.name + 'CNM{0}: '.format(nm_index) + node.properties['ConfirmNoMatch_{0}'.format(nm_index)]
+            data.append({
+                TR_CONTENT: content,
+                TR_EXPECTED: expected
+            })
+
+    return data
+
+
 def get_negative_tc_steps(key):
     """
     Simulate switch case, call related function followed by key
@@ -183,6 +315,10 @@ def get_negative_tc_steps(key):
         'NMF': tc_no_match_3_fail,
         'NINMF': tc_ni_nm_3_fail,
         'CNIR': tc_confirm_no_input_recover,
+        'CNMR': tc_confirm_no_match_recover,
+        'CNIF': tc_confirm_no_input_3_fail,
+        'CNMF': tc_confirm_no_match_3_fail,
+        'CNINMF': tc_confirm_ni_nm_3_fail,
     }.get(key, tc_no_input_recover)
 
 
@@ -193,7 +329,11 @@ def get_negative_tc_title(key):
         'NIF': 'No Input 3 Times Fail',
         'NMF': 'No Match 3 Times Fail',
         'NINMF': 'No Input or No Match 3 Times Fail',
-        'CNIR': 'Confirm No Input & Recover'
+        'CNIR': 'Confirm No Input & Recover',
+        'CNMR': 'Confirm No Match & Recover',
+        'CNIF': 'Confirm No Input 3 Times Fail',
+        'CNMF': 'Confirm No Match 3 Times Fail',
+        'CNINMF': 'Confirm No Input or No Match 3 Times Fail',
     }.get(key, 'No Input & Recover')
 
 

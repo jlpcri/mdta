@@ -392,7 +392,6 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None):
                 })
 
 
-
 def node_start(node):
     return {
         'content': get_item_properties(node),

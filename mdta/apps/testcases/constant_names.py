@@ -24,6 +24,7 @@ ON_FAIL_GO_TO_KEY = 'OnFailGoTo'
 NON_STANDARD_FAIL_KEY = 'NonStandardFail'
 MP_OUTPUTS = 'Outputs'
 MP_DEFAULT = 'Default'
+MP_NC = 'NoneConfirm'
 
 MP_VER = 'Verbiage'
 MP_NI1 = 'NoInput_1'
@@ -36,7 +37,6 @@ MP_CNI1 = 'ConfirmNoInput_1'
 MP_CNI2 = 'ConfirmNoInput_2'
 MP_CNM1 = 'ConfirmNoMatch_1'
 MP_CNM2 = 'ConfirmNoMatch_2'
-MP_NC = 'NoneConfirm'
 MP_RJ1 = 'Reject_1'
 
 
@@ -45,8 +45,7 @@ CONSTRAINTS_TRUE_OR_FALSE = 'tof'
 TESTCASE_NOT_ROUTE_MESSAGE = 'This edge cannot be routed'
 
 NEGATIVE_TESTS_LIST = ['NIR', 'NMR', 'NIF', 'NMF', 'NINMF',
-                       'CNIR'
-                       ]
+                       'CNIR', 'CNMR', 'CNIF', 'CNMF', 'CNINMF']
 
 # TestRail tcs key name
 TR_CONTENT = 'content'
