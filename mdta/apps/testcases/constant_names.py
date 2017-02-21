@@ -10,7 +10,7 @@ NODE_DATA_INPUTS = 'Inputs'
 # Edge type name
 EDGE_DATA_NAME = 'Data'
 EDGE_PRECONDITION_NAME = 'PreCondition'
-EDGE_DTMF_NAME = 'DTMP'
+EDGE_DTMF_NAME = 'DTMF'
 EDGE_SPEECH_NAME = 'Speech'
 
 # Edge Input/Output data key name
@@ -36,6 +36,7 @@ MP_CNI1 = 'ConfirmNoInput_1'
 MP_CNI2 = 'ConfirmNoInput_2'
 MP_CNM1 = 'ConfirmNoMatch_1'
 MP_CNM2 = 'ConfirmNoMatch_2'
+MP_NC = 'NoneConfirm'
 MP_RJ1 = 'Reject_1'
 
 
@@ -43,8 +44,9 @@ MP_RJ1 = 'Reject_1'
 CONSTRAINTS_TRUE_OR_FALSE = 'tof'
 TESTCASE_NOT_ROUTE_MESSAGE = 'This edge cannot be routed'
 
-NEGATIVE_TESTS_LIST = ['NIR', 'NMR', 'NIF', 'NMF', 'NINMF']
-
+NEGATIVE_TESTS_LIST = ['NIR', 'NMR', 'NIF', 'NMF', 'NINMF',
+                       'CNIR'
+                       ]
 
 # TestRail tcs key name
 TR_CONTENT = 'content'

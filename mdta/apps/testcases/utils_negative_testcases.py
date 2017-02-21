@@ -18,15 +18,35 @@ def tc_no_input_recover(node):
     return data
 
 
+def tc_confirm_no_input_recover(node):
+    """
+    Test step of Confirm No Input and recover to self for MenuPromptWithConfirmation node
+    :param node:
+    :return:
+    """
+    data = [
+        {
+            TR_CONTENT: get_mpc_valid_input(node),
+            TR_EXPECTED: node.name + ': ' + node.properties[MP_CVER]
+        },
+        {
+            TR_CONTENT: 'wait',
+            TR_EXPECTED: node.name + ': ' + node.properties[MP_CNI1]
+        }
+    ]
+
+    return data
+
+
 def tc_no_match_recover(node):
     """
     Test step of No Match and recover to self
     :return:
     """
-    no_match_conent = get_no_match_content(node)
+    no_match_content = get_no_match_content(node)
     data = [
         {
-            TR_CONTENT: no_match_conent,
+            TR_CONTENT: no_match_content,
             TR_EXPECTED: node.name + 'NM1: ' + node.properties[MP_NM1]
         }
     ]
@@ -161,7 +181,8 @@ def get_negative_tc_steps(key):
         'NMR': tc_no_match_recover,
         'NIF': tc_no_input_3_fail,
         'NMF': tc_no_match_3_fail,
-        'NINMF': tc_ni_nm_3_fail
+        'NINMF': tc_ni_nm_3_fail,
+        'CNIR': tc_confirm_no_input_recover,
     }.get(key, tc_no_input_recover)
 
 
@@ -171,7 +192,8 @@ def get_negative_tc_title(key):
         'NMR': 'No Match & Recover',
         'NIF': 'No Input 3 Times Fail',
         'NMF': 'No Match 3 Times Fail',
-        'NINMF': 'No Input or No Match 3 Times Fail'
+        'NINMF': 'No Input or No Match 3 Times Fail',
+        'CNIR': 'Confirm No Input & Recover'
     }.get(key, 'No Input & Recover')
 
 
@@ -255,9 +277,9 @@ def get_no_match_content(node):
     """
     valid_data = []
     for edge in node.leaving_edges:
-        if edge.type.name == EDGE_DTMF_NAME:
+        if edge.type.name == EDGE_DTMF_NAME and not edge.properties[MP_NC] == 'on':
             valid_data.append(edge.properties[EDGE_PRESS_NAME])
-        elif edge.type.name == EDGE_SPEECH_NAME:
+        elif edge.type.name == EDGE_SPEECH_NAME and not edge.properties[MP_NC] == 'on':
             valid_data.append(edge.properties[EDGE_SAY_NAME])
 
         # Search all following DataQueries node connected to current node
@@ -334,7 +356,7 @@ def rejected_testcase_generation(data, path_data, title, node):
     :param node: MenuPromptWithConfirmation Node as last node of current path
     :return: updated param data
     """
-    tc_title = title + ', ' + 'Confirmation rejected Fail'
+    tc_title = title + ', ' + 'Confirm Rejected'
 
     if node.properties[NON_STANDARD_FAIL_KEY] == 'on':
         data.append({
@@ -354,40 +376,16 @@ def rejected_testcase_generation(data, path_data, title, node):
                     'title': tc_title
                 })
             else:
-                valid_inputs = []
-                for edge in node.leaving_edges:
-                    next_node = edge.to_node
-                    if next_node.type.name in NODE_DATA_NAME:
-                        for item in next_node.properties[next_node.type.keys_data_name]:
-                            valid_inputs.append(item[NODE_DATA_INPUTS])
-                # print(valid_inputs)
-                if valid_inputs:
-                    try:
-                        contents = 'press '
-                        # print(valid_inputs[0])
-                        for k in valid_inputs[0]:
-                            contents += k + ':' + valid_inputs[0][k] + ', '
-                    except TypeError:
-                        contents = 'TypeError'
-                else:
-                    contents = 'No valid inputs'
+                contents = get_mpc_valid_input(node)
 
                 rejected_steps = [
                     {
                         TR_CONTENT: contents,
-                        TR_EXPECTED: "{0}: {1}".format(node.name, node.properties[MP_RJ1])
+                        TR_EXPECTED: "{0}: {1}".format(node.name, node.properties[MP_CVER])
                     },
-                    # {
-                    #     TR_CONTENT: 'press 2',  # rejected confirm
-                    #     TR_EXPECTED: "{0}: {1}".format(node.name, node.properties['Verbiage'])
-                    # },
-                    # {
-                    #     TR_CONTENT: contents,
-                    #     TR_EXPECTED: "{0}: {1}".format(node.name, node.properties['ConfirmVerbiage'])
-                    # },
                     {
                         TR_CONTENT: 'press 2',  # rejected confirm
-                        TR_EXPECTED: 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
+                        TR_EXPECTED: node.properties[MP_VER]
                     }
                 ]
 
@@ -396,3 +394,35 @@ def rejected_testcase_generation(data, path_data, title, node):
                     'tc_steps': path_data['tc_steps'] + rejected_steps,
                     'title': tc_title
                 })
+
+
+def get_mpc_valid_input(node):
+    """
+    Get valid input of MenuPromptWithConfirmation Node from followed date edge
+    :param node: current Node
+    :return:
+    """
+    valid_data = []
+    for edge in node.leaving_edges:
+        if edge.type.name == EDGE_DTMF_NAME and not edge.properties[MP_NC] == 'on':
+            valid_data.append({
+                EDGE_PRESS_NAME: edge.properties[EDGE_PRESS_NAME]
+            })
+        elif edge.type.name == EDGE_SPEECH_NAME and not edge.properties[MP_NC] == 'on':
+            valid_data.append({
+                EDGE_SAY_NAME: edge.properties[EDGE_SAY_NAME]
+            })
+        elif edge.type.name == EDGE_DATA_NAME:
+            valid_data.append(edge.properties[EDGE_OUTPUTDATA_NAME][MP_OUTPUTS])
+
+    if valid_data:
+        try:
+            contents = 'press '
+            for k in valid_data[0]:
+                contents += k + ':' + valid_data[0][k] + ', '
+        except TypeError:
+            contents = 'TypeError'
+    else:
+        contents = 'No valid inputs'
+
+    return contents

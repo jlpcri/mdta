@@ -31,7 +31,17 @@ def path_traverse_backwards(path, th_path=None):
         if index < len(path) - 1:
             if isinstance(step, Node):
                 if step.type.name not in NODE_DATA_NAME:
-                    traverse_node(step, tcs, preceding_edge=path[index + 1])
+                    if index - 1 > 0:
+                        traverse_node(step,
+                                      tcs,
+                                      preceding_edge=path[index + 1],
+                                      following_edge=path[index - 1]
+                                      )
+                    else:
+                        traverse_node(step,
+                                      tcs,
+                                      preceding_edge=path[index + 1],
+                                      )
             elif isinstance(step, Edge):
                 if step.type.name == EDGE_DATA_NAME:
                     if step.from_node.leaving_edges.count() > 1:
@@ -347,7 +357,7 @@ def add_step(step, tcs):
     })
 
 
-def traverse_node(node, tcs, preceding_edge=None):
+def traverse_node(node, tcs, preceding_edge=None, following_edge=None):
     """
     Traverse Node based on node type
     :param node:
@@ -359,19 +369,28 @@ def traverse_node(node, tcs, preceding_edge=None):
     elif node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME]:
         add_step(node_prompt(node, preceding_edge), tcs)
 
-    if node.type.name == NODE_MP_NAME[1]:
-        confirm_idx = 0
-        for idx, tc in enumerate(tcs):
-            if node.name in tc[TR_EXPECTED]:
-                confirm_idx = idx
-                break
-        if confirm_idx > 0:
-            content = tcs[confirm_idx - 1][TR_CONTENT]
-            tcs[confirm_idx - 1][TR_CONTENT] = 'press 1'  # confirm input
-            tcs.insert(confirm_idx, {
-                'content': content,
-                'expected': "{0}: {1}".format(node.name, node.properties[MP_CVER])
-            })
+    if node.type.name == NODE_MP_NAME[1] and following_edge:
+        flag = True
+        try:
+            if following_edge.properties[MP_NC] == 'on':
+                flag = False
+        except KeyError:
+            pass
+
+        if flag:
+            confirm_idx = 0
+            for idx, tc in enumerate(tcs):
+                if node.name in tc[TR_EXPECTED]:
+                    confirm_idx = idx
+                    break
+            if confirm_idx > 0:
+                content = tcs[confirm_idx - 1][TR_CONTENT]
+                tcs[confirm_idx - 1][TR_CONTENT] = 'press 1'  # confirm input
+                tcs.insert(confirm_idx, {
+                    'content': content,
+                    'expected': "{0}: {1}".format(node.name, node.properties[MP_CVER])
+                })
+
 
 
 def node_start(node):
