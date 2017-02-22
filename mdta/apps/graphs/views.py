@@ -13,9 +13,10 @@ from mdta.apps.projects.utils import context_project_dashboard
 from mdta.apps.users.views import user_is_staff, user_is_superuser
 from .models import NodeType, EdgeType, Node, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeAutoNewForm
-from mdta.apps.projects.forms import ModuleForm
+from mdta.apps.projects.forms import ModuleForm, UploadForm
 from mdta.apps.testcases.utils import START_NODE_NAME
 from mdta.apps.testcases.tasks import create_testcases_celery, push_testcases_to_testrail_celery
+
 
 
 @login_required
@@ -285,6 +286,7 @@ def project_detail(request, project_id):
         'projects': projects,
         'project': project,
         'module_new_form': ModuleForm(project_id=project.id),
+        'module_import_form': UploadForm(),
         'edge_types': EdgeType.objects.all(),
         'edge_priority': Edge.PRIORITY_CHOICES,
 
@@ -296,6 +298,31 @@ def project_detail(request, project_id):
 
     return render(request, 'graphs/project/project_detail.html', context)
 
+@user_passes_test(user_is_staff)
+def project_module_import(request, project_id):
+    """
+    Add new module from project view
+    :param request:
+    :param project_id:
+    :return:
+    """
+    if request.method == 'GET':
+        form = ModuleForm(project_id=project_id)
+        context = {
+            'form': form,
+            'project_id': project_id
+        }
+        return render(request, 'graphs/project/module_import.html', context)
+    elif request.method == 'POST':
+        form = ModuleForm(request.POST)
+        if form.is_valid():
+            module = form.save()
+            messages.success(request, 'Module \'{0}\' is added to \'{1}\''.format(module.name, module.project.name))
+        else:
+            print(form.errors)
+            messages.error(request, 'Errors found.')
+
+        return redirect('graphs:project_detail', project_id)
 
 @user_passes_test(user_is_staff)
 def project_module_new(request, project_id):

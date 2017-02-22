@@ -90,3 +90,7 @@ class ProjectConfigForm(ModelForm):
             'testrail': forms.Select(attrs={'class': 'form-control'}),
             'version': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
+
+class UploadForm(forms.Form):
+    file = forms.FileField(max_length=100, required=True)

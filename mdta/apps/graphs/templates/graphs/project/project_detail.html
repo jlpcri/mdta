@@ -13,6 +13,26 @@
             height: auto;
             border: 1px solid lightgray;
         }
+        .btn-file {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid lightgray;
+        }
+        .btn-file input[type=file] {
+            position: absolute;
+            top: 0;
+            right: 0;
+            min-width: 100%;
+            min-height: 100%;
+            font-size: 100px;
+            text-align: right;
+            filter: alpha(opacity=0);
+            opacity: 0;
+            outline: none;
+            background: white;
+            cursor: inherit;
+            display: block;
+        }
     </style>
 {% endblock%}
 
@@ -27,6 +47,7 @@
                         <h4>Project: {{ project.name }}</h4>
                     </div>
                     <div class="col-xs-6 text-right">
+                        <a href="#" data-toggle="modal" data-target="#module-import-modal" class="btn btn-default">Import</a>
                         <a href="#" data-toggle="modal" data-target="#module-new-modal" class="btn btn-default">New Module</a>
                         <a href="{% url 'testcases:tcs_project' %}" class="btn btn-default">Start Test</a>
                     </div>
