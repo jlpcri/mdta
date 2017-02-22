@@ -1,3 +1,5 @@
+var toggle_style_key_list = ['NonStandardFail', 'Invisible', 'NoneConfirm'];
+
 function load_keys_from_type_contents(item_id, location, type, call_from_node_edit){
     $.getJSON("{% url 'graphs:get_keys_from_type' %}?id={0}&type={1}".format(item_id, type)).done(function(data){
         var keys = data['keys'],
@@ -63,13 +65,13 @@ function load_keys_from_type_contents(item_id, location, type, call_from_node_ed
                 contents += '<div class=\'row\' style=\'margin-top: 0px;\'>';
                 contents += '<div class=\'col-xs-1\'></div>';
                 if (call_from_node_edit){
-                    if (['NonStandardFail', 'Invisible'].indexOf(keys[k]) >= 0){
+                    if (toggle_style_key_list.indexOf(keys[k]) >= 0){
                         contents += '<div class=\'col-xs-11\'><input name=\'{0}\' type=\'checkbox\' class=\'myToggle\' data-on=\'True\' data-width=\'100\' data-onstyle=\'success\' data-off=\'False\'/></div>'.format(keys[k]);
                     } else {
                         contents += '<div class=\'col-xs-11\'><input name=\'{0}\' style=\'width:110%\' placeholder=\'{1}\'/></div>'.format(keys[k], get_placeholder(keys[k]));
                     }
                 } else {
-                    if (['NonStandardFail', 'Invisible'].indexOf(keys[k]) >= 0){
+                    if (toggle_style_key_list.indexOf(keys[k]) >= 0){
                         contents += '<div class=\'col-xs-11\'><input name=\'{0}\' type=\'checkbox\' class=\'myToggle\' data-on=\'True\' data-width=\'100\' data-onstyle=\'success\' data-off=\'False\'/></div>'.format(keys[k]);
                     } else {
                         contents += '<div class=\'col-xs-11\'><input name=\'{0}\' style=\'width:80%\' placeholder=\'{1}\'/></div>'.format(keys[k], get_placeholder(keys[k]));
@@ -136,6 +138,18 @@ function get_placeholder(key){
             break;
         case 'NoMatch_2':
             data += 'NM2';
+            break;
+        case 'ConfirmNoInput_1':
+            data += 'CNI1';
+            break;
+        case 'ConfirmNoInput_2':
+            data += 'CNI2';
+            break;
+        case 'ConfirmNoMatch_1':
+            data += 'CNM1';
+            break;
+        case 'ConfirmNoMatch_2':
+            data += 'CNM2';
             break;
         default :
             data = ''
