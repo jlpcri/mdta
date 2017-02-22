@@ -1,4 +1,5 @@
 import ast
+from itertools import chain
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -237,3 +238,34 @@ def get_properties_from_multi_rows(request, node_or_edge_type, key_name=None):
         tmp_data.append(tmp_row)
 
     return tmp_data
+
+
+def node_related_edges_invisible(node, module):
+    """
+    Check edges of node which is outside current module to current module are all invisible
+    :param node: Node outside of current module
+    :param module: Current module
+    :return: True or False
+    """
+    flag, flag_arriving, flag_leaving = True, False, False
+
+    for edge in node.arriving_edges:
+        try:
+            if edge.properties[EDGE_TYPES_INVISIBLE_KEY] != 'on' and edge.from_node.module == module:
+                flag_arriving = True
+                break
+        except KeyError:
+            pass
+
+    for edge in node.leaving_edges:
+        try:
+            if edge.properties[EDGE_TYPES_INVISIBLE_KEY] != 'on' and edge.to_node.module == module:
+                flag_leaving = True
+                break
+        except KeyError:
+            pass
+
+    if flag_arriving or flag_leaving:
+        flag = False
+
+    return flag

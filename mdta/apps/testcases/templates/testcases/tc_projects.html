@@ -20,7 +20,6 @@
                                         <a href="{% url 'testcases:demonstrate_testcases' project.id %}?level=project">TCs</a>
                                         {% if user.is_superuser %}
                                             <a href="{% url 'testcases:create_testcases' project.id %}?level=project" title="Create TCs"><i class="fa fa-hourglass-2 fa-fw"></i></a>
-                                            <a href="{% url 'testcases:create_hat_scripts' project.id %}?level=project" title="Create HAT"><i class="fa fa-globe fa-fw"></i></a>
                                         {% endif %}
                                     </td>
                                     <td><a href="{% url 'testcases:push_testcases_to_testrail' project.id %}">Push to TestRail</a></td>
@@ -106,13 +105,11 @@
                             </div>
                             <div class="row">
                                 <div class="col-xs-12">
-                                    <a href="{% url 'runner:demo' project.id %}"><img src="{% static 'common/easy.png' %}" height="150px"></a>
                                     {% for module in project.modules %}
                                         <li>
                                             <a href="{% url 'testcases:demonstrate_testcases' module.id %}?level=module">{{ module.name }}</a>
                                             {% if user.is_superuser %}
                                                 <a href="{% url 'testcases:create_testcases' module.id %}?level=module" title="Create TCs"><i class="fa fa-hourglass-2 fa-fw"></i></a>
-                                                <a href="{% url 'testcases:create_hat_scripts' module.id %}?level=module" title="Create HAT"><i class="fa fa-globe fa-fw"></i></a>
                                             {% endif %}
                                         </li>
                                     {% endfor %}

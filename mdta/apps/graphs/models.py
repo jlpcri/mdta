@@ -21,6 +21,9 @@ class NodeType(models.Model):
     subkeys = ArrayField(models.CharField(max_length=50), null=True, blank=True,
                          verbose_name='SubKeys(Separated with comma)')
 
+    verbiage_keys = ArrayField(models.CharField(max_length=50), null=True, blank=True,
+                               verbose_name='VerbiageKeys(Separated with comma)')
+
     def __str__(self):
         return '{0}: {1}'.format(self.name, self.keys)
 
@@ -92,6 +95,9 @@ class Node(models.Model):
 
     # Property for the Node, Keys are from NodeType
     properties = JSONField(null=True, blank=True)
+
+    # Verbiage for the PromptNode, Verbiage_Keys are from NodeType
+    verbiage = JSONField(null=True, blank=True)
 
     class Meta:
         unique_together = ('module', 'name',)
@@ -166,4 +172,6 @@ class Edge(models.Model):
     def __str__(self):
         return '{0}: {1}: {2}'.format(self.from_node.module.name, self.from_node.name, self.to_node.name)
 
-
+    @property
+    def properties_sorted(self):
+        return sorted(self.properties.items())

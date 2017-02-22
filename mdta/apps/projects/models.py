@@ -65,13 +65,32 @@ class CatalogItem(models.Model):
         unique_together = ('parent', 'name')
 
 
+class Language(models.Model):
+    """
+    Language selection for testing
+    """
+    name = models.CharField(max_length=50, default='')
+    root_path = models.TextField(blank=True, null=True)
+    project = models.ForeignKey('Project', null=True, blank=True,
+                                related_name='language_projects',
+                                on_delete=models.SET_NULL)
+
+    class Meta:
+        ordering = ['project', 'name']
+        unique_together = ('project', 'name',)
+
+
 class Project(models.Model):
     """
     Entry of each project which will be represented to Model Driven Graph
     """
     name = models.CharField(max_length=50, unique=True, default='')
     test_header = models.ForeignKey('Module', null=True, blank=True,
-                                    related_name='test_header')
+                                    related_name='test_header', on_delete=models.SET_NULL)
+
+    language = models.ForeignKey(Language, blank=True, null=True,
+                                 related_name='project_language',
+                                 on_delete=models.SET_NULL)
 
     version = models.TextField()  # relate to TestRail-TestSuites
     testrail = models.ForeignKey(TestRailConfiguration,

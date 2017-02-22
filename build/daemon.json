@@ -1,0 +1,4 @@
+{
+    "dns": ["10.70.1.60", "10.64.10.152", "10.166.128.52"],
+    "dns-search": ["corp.westworlds.com", "wic.west.com", "icallinc.com", "wngqa.com", "anprod.com", "qa.lab"]
+}
