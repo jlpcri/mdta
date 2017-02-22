@@ -130,19 +130,20 @@ class EdgeNewTest(TestCase):
             )
 
     def test_new_edge(self):
-        response = self.client.post(reverse('edge_type_new'))
+        response = self.client.post(reverse('graphs:edge_type_new'))
+        print("========URL: {0}==========".format(response.url))
         self.assertEqual(response.status_code, 200)
 
     def test_form_edge(self):
-        response = self.client.post('/edge_type_new/', {'name': "" ,'keys':"",'subkeys':"" }, follow=True)
+        response = self.client.post(reverse('graphs:edge_type_new'), {'name': "" ,'keys':"",'subkeys':"" }, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(form.is_valid())
 
     def test_duplicate_keys(self):
         self.type_data = EdgeType.objects.create()
-        Edge.object.create(name='dtmf',keys=['Press', 'Invisible'],subkeys=[''])
+        EdgeType.objects.create(name='dtmf',keys=['Press', 'Invisible'],subkeys=[''])
         with self.assertRaises(ValidationError):
-            edge = Edge(name='dtmf',keys=['Press', 'Invisible'],subkeys=[''])
+            edge = EdgeType(name='dtmf',keys=['Press', 'Invisible'],subkeys=[''])
             edge.full_clean()
 
 
