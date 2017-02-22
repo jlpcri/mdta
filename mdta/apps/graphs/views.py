@@ -14,7 +14,7 @@ from mdta.apps.users.views import user_is_staff, user_is_superuser
 from .models import NodeType, EdgeType, Node, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeAutoNewForm
 from mdta.apps.projects.forms import ModuleForm
-from mdta.apps.testcases.utils import START_NODE_NAME
+from mdta.apps.testcases.constant_names import NODE_START_NAME
 from mdta.apps.testcases.tasks import create_testcases_celery, push_testcases_to_testrail_celery
 
 
@@ -283,7 +283,7 @@ def project_module_detail(request, module_id):
 
     if request.user.username != 'test':
         for node in module.nodes_all:
-            if node.type.name in START_NODE_NAME:
+            if node.type.name in NODE_START_NAME:
                 shape = 'star'
             elif node.type.name in ['DataQueries Database', 'DataQueries WebService']:
                 shape = 'ellipse'
@@ -305,7 +305,7 @@ def project_module_detail(request, module_id):
         # try use custom icon for nodes
         image_url = settings.STATIC_URL + 'common/brand_icons/turnpost-png-graphics/'
         for node in module.nodes_all:
-            if node.type.name in START_NODE_NAME:
+            if node.type.name in NODE_START_NAME:
                 tmp = {
                     'id': node.id,
                     'label': node.name,

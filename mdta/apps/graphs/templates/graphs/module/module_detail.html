@@ -348,7 +348,7 @@
                                             <div class="row">
                                                 <div class="col-xs-12" >
                                                     <div id="module-edge-edit-properties">
-                                                        {% for key, value in item.properties.items %}
+                                                        {% for key, value in item.properties_sorted %}
                                                             {% if key == 'OutputData' %}
                                                                 {% for subkey, subvalue in item.properties.OutputData.items %}
                                                                     <div class="row" style="margin-top: 5px;">
@@ -378,7 +378,7 @@
                                                                 </div>
                                                                 <div class="row" style="margin-top: 5px;">
                                                                     <div class="col-xs-12">
-                                                                        {% if key == 'Invisible' %}
+                                                                        {% if key in 'Invisible, NoneConfirm' %}
                                                                             <input name="{{ key }}" type="checkbox"
                                                                                    {% if value == 'on' %} checked {% endif %}
                                                                                    data-toggle="toggle" data-width="100"
