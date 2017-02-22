@@ -8,6 +8,7 @@ from mdta.apps.projects.models import Project, Module
 class NodeType(models.Model):
     """
     Type of Node: DataQueries Database, DataQueries WebService
+                  Language
                   Play Prompt
                   Menu Prompt, Menu Prompt with Confirmation
                   Start
@@ -92,6 +93,7 @@ class Node(models.Model):
 
     # Property for the Node, Keys are from NodeType
     properties = JSONField(null=True, blank=True)
+    # languages = JSONField(null=True, blank=True)
 
     class Meta:
         unique_together = ('module', 'name',)
@@ -135,6 +137,10 @@ class Node(models.Model):
     @property
     def properties_sorted(self):
         return sorted(self.properties.items())
+
+    # @property
+    # def languages_sorted(self):
+    #     return sorted(self.languages.items())
 
 
 class Edge(models.Model):
