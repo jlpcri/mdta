@@ -1,8 +1,9 @@
 from django.test import TestCase
+from django.core.urlresolvers import reverse
 
 from mdta.apps.graphs.models import EdgeType, Edge, NodeType, Node
 from mdta.apps.projects.models import Project, Module
-
+from mdta.apps.graphs.forms import *
 
 class NodeTypeTest(TestCase):
     def setUp(self):
@@ -108,3 +109,46 @@ class NodeTest(TestCase):
         )
         self.assertEqual(node.module.name, self.module.name)
         self.assertEqual(node.module.project.name, self.project.name)
+
+class EdgeNewTest(TestCase):
+
+    def setUp(self):
+            self.type_data = EdgeType.objects.create(
+                name='data edge',
+                keys=['OutputData', 'Invisible'],
+                subkeys=['Outputs']
+            )
+            self.type_precondition = EdgeType.objects.create(
+                name='pre condition',
+                keys=['OutputData', 'Invisible'],
+                subkeys=['Condition']
+            )
+            self.type_dtmf = EdgeType.objects.create(
+                name='dtmf',
+                keys=['Press', 'Invisible'],
+                subkeys=['']
+            )
+
+    def test_new_edge(self):
+        response = self.client.post(reverse('edge_type_new'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_form_edge(self):
+        response = self.client.post('/edge_type_new/', {'name': "" ,'keys':"",'subkeys':"" }, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(form.is_valid())
+
+    def test_duplicate_keys(self):
+        self.type_data = EdgeType.objects.create()
+        Edge.object.create(name='dtmf',keys=['Press', 'Invisible'],subkeys=[''])
+        with self.assertRaises(ValidationError):
+            edge = Edge(name='dtmf',keys=['Press', 'Invisible'],subkeys=[''])
+            edge.full_clean()
+
+
+
+
+
+
+
+
