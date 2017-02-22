@@ -93,7 +93,7 @@ class Node(models.Model):
 
     # Property for the Node, Keys are from NodeType
     properties = JSONField(null=True, blank=True)
-    languages = JSONField(null=True, blank=True)
+    # languages = JSONField(null=True, blank=True)
 
     class Meta:
         unique_together = ('module', 'name',)
@@ -138,9 +138,9 @@ class Node(models.Model):
     def properties_sorted(self):
         return sorted(self.properties.items())
 
-    @property
-    def languages_sorted(self):
-        return sorted(self.languages.items())
+    # @property
+    # def languages_sorted(self):
+    #     return sorted(self.languages.items())
 
 
 class Edge(models.Model):

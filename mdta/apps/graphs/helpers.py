@@ -33,11 +33,11 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
             module_names.append(pg)
             pg.save()
 
-        if pname.find('_') != -1:  # Dangerous!
-            pname = pname.replace('_', '').rstrip('123456789').strip()
+        if pname.find('_') != -1:
+            pname = pname.replace('_', ' ').rstrip('123456789').strip(' ')
         if stname.startswith('prompt_'):
             type = NodeType.objects.get(name='Menu Prompt')
-            stname = stname.replace('prompt_', '').strip()
+            stname = stname.replace('prompt_', ' ').strip(' ')
             keys = {'Verbiage': verbiage,
                     'TranslateVerbiage': "",
                     'Outputs': "",
@@ -51,19 +51,17 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
                    }
         elif stname.startswith(('say_', 'play_')):
             type = NodeType.objects.get(name='Play Prompt')
-            stname = stname.replace('say_', '').strip()
+            stname = stname.replace('say_', ' ').strip(' ')
             keys = {'Verbiage': verbiage,
                     'TranslateVerbiage': ""
                     }
         print(stname)
+        print(pname)
         try:
             nn = Node.objects.get(module__project=project, name=stname)
         except Node.DoesNotExist:
             nn = Node(module=pg, name=stname, type=type, properties=keys)
 
-        # The following code block will need to have the field names changed alongside model changes
-        # The export sheet will list concatenated prompts in order. Concatenating them blindly should result
-        # in the desired behavior. This should be tested, however.
         if pname.endswith('NI1'):
             nn.properties['NoInput_1'] += verbiage
         elif pname.endswith('NI2'):
@@ -72,11 +70,11 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
             nn.properties['NoMatch_1'] += verbiage
         elif pname.endswith('NM2'):
             nn.properties['NoMatch_2'] += verbiage
-        else:
-            nn.properties['Verbiage'] += verbiage
-
+        # else:
+        #     nn.properties['Verbiage'] = verbiage
         nn.save()
         print(nn)
+        print(nn.properties)
 
     return {"valid": True, "message": 'Handled'}
 
