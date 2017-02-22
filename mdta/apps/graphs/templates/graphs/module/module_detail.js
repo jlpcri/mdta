@@ -206,13 +206,25 @@ function draw_module_graph(){
                 if (!( data['module_id'] == current_module_id)){
                     window.location.href = base_url + data['module_id'];
                      $('body').css('cursor', 'progress');
+                } else {
+                    //if (data['node_data']['type_name'].indexOf('Prompt') >= 0) {
+                        open_prompts_modal(data['node_data']);
+                    //}
                 }
             })
         }
     })
-
 }
 
+function open_prompts_modal(node){
+    console.log(node['properties'])
+    console.log(node['verbiage'])
+
+    $('.moduleNodeEdit #moduleNodeEditName').val(node['name']);
+    $('.moduleNodeEdit #moduleNodeEditType').val(node['type_id']);
+    $('a[href="#verbiage"]').click();
+    $('#module-node-edit-modal').modal('show');
+}
 
 /* Start Node Name for OnFailGoTo of MenuPrompt Code */
 

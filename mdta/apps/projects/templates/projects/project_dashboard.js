@@ -37,12 +37,14 @@ $('.editNodeType').on('show.bs.modal', function(e){
     var node_type_id = $(e.relatedTarget).data('node-type-id'),
         node_type_name = $(e.relatedTarget).data('node-type-name'),
         node_type_keys = $(e.relatedTarget).data('node-type-keys'),
-        node_type_subkeys = $(e.relatedTarget).data('node-type-subkeys');
+        node_type_subkeys = $(e.relatedTarget).data('node-type-subkeys'),
+        node_type_verbiagekeys = $(e.relatedTarget).data('node-type-verbiagekeys');
 
     $(e.currentTarget).find('input[name="editNodeTypeId"]').val(node_type_id);
     $(e.currentTarget).find('input[name="editNodeTypeName"]').val(node_type_name);
     $(e.currentTarget).find('input[name="editNodeTypeKeys"]').val(node_type_keys);
     $(e.currentTarget).find('input[name="editNodeTypeSubKeys"]').val(node_type_subkeys);
+    $(e.currentTarget).find('input[name="editNodeTypeVerbiageKeys"]').val(node_type_verbiagekeys);
 
     $('.editNodeType .modal-title').html('Node Type Edit - ' + node_type_name);
     $('#editNodeTypeErrMessage').html('');
