@@ -25,6 +25,11 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
         stname = df.iloc[x, 3]
         pname = df.iloc[x, 1]
         verbiage = df.iloc[x, 2]
+        verbiageni1 = ""
+        verbiageni2 = ""
+        verbiagenm1 = ""
+        verbiagenm2 = ""
+
         try:
             pg = Module.objects.get(name=pgname, project=project)
         except Module.DoesNotExist:
@@ -33,25 +38,7 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
             pg.save()
 
         if pname.find('_') != -1:
-            pname = pname.replace('_', ' ').rstrip('123456789')
-
-        if pname.endswith('NI1'):
-            verbiageni1 = df.iloc[x, 2]
-        else:
-            verbiageni1 = ""
-        if pname.endswith('NI2'):
-            verbiageni2 = df.iloc[x, 2]
-        else:
-            verbiageni2 = ""
-        if pname.endswith('NM1'):
-            verbiagenm1 = df.iloc[x, 2]
-        else:
-            verbiagenm1 = ""
-        if pname.endswith('NM2'):
-            verbiagenm2 = df.iloc[x, 2]
-        else:
-            verbiagenm2 = ""
-
+            pname = pname.replace('_', ' ').rstrip('123456789').strip(' ')
         if stname.startswith('prompt_'):
             type = NodeType.objects.get(name='Menu Prompt')
             stname = stname.replace('prompt_', ' ').strip(' ')
@@ -76,6 +63,18 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
         type.save()
         try:
             nn = Node.objects.get(module__project=project, name=stname)
+            if pname.endswith('NI1'):
+                if nn.verbiageni1 != verbiage:
+                    nn.verbiageni1 = verbiage
+            if pname.endswith('NI2'):
+                if nn.verbiageni2 != verbiage:
+                   nn.verbiageni2 = verbiage
+            if pname.endswith('NM1'):
+                if nn.verbiagenm1 != verbiage:
+                    nn.verbiagenm1 = verbiage
+            if pname.endswith('NM2'):
+                if nn.verbiagenm2 != verbiage:
+                    nn.verbiagenm2 != verbiage
         except Node.DoesNotExist:
             nn = Node(module=pg, name=stname, type=type, properties=keys)
         nn.save()
