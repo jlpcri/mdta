@@ -7,15 +7,14 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new, check_edge_in_set,\
-    get_properties_for_node_or_edge, EDGE_TYPES_INVISIBLE_KEY
-from mdta.apps.graphs import helpers
+    get_properties_for_node_or_edge, EDGE_TYPES_INVISIBLE_KEY, node_related_edges_invisible
 from mdta.apps.projects.models import Project, Module
 from mdta.apps.projects.utils import context_project_dashboard
 from mdta.apps.users.views import user_is_staff, user_is_superuser
 from .models import NodeType, EdgeType, Node, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeAutoNewForm
 from mdta.apps.projects.forms import ModuleForm, UploadForm
-from mdta.apps.testcases.utils import START_NODE_NAME
+from mdta.apps.testcases.constant_names import NODE_START_NAME
 from mdta.apps.testcases.tasks import create_testcases_celery, push_testcases_to_testrail_celery
 
 
@@ -94,42 +93,6 @@ def node_type_edit(request):
         return render(request, 'projects/project_dashboard.html', context)
 
 
-# @user_passes_test(user_is_staff)
-# def project_node_new(request, project_id):
-#     """
-#     Add new Node from apps/graphs
-#     :param request:
-#     :param project_id:
-#     :return:
-#     """
-#     if request.method == 'GET':
-#         project = get_object_or_404(Project, pk=project_id)
-#         form = NodeNewForm(project_id=project_id)
-#         context = {
-#             'form': form,
-#             'project': project
-#         }
-#
-#         return render(request, 'graphs/project/node_new.html', context)
-#
-#     elif request.method == 'POST':
-#         form = NodeNewForm(request.POST, project_id=project_id)
-#         if form.is_valid():
-#             node = form.save(commit=False)
-#
-#             properties = get_properties_for_node_or_edge(request, node.type)
-#
-#             node.properties = properties
-#             node.save()
-#
-#             messages.success(request, 'Node is added.')
-#         else:
-#             print(form.errors)
-#             messages.error(request, 'Node new Error')
-#
-#         return redirect('graphs:graphs')
-
-
 @user_passes_test(user_is_staff)
 def edge_type_new(request):
     """
@@ -166,61 +129,6 @@ def edge_type_edit(request):
         return render(request, 'projects/project_dashboard.html', context)
 
 
-# @user_passes_test(user_is_staff)
-# def project_edge_new(request, project_id):
-#     """
-#     Add new Edge from apps/graphs
-#     :param request:
-#     :param project_id:
-#     :return:
-#     """
-#     project = get_object_or_404(Project, pk=project_id)
-#     if request.method == 'GET':
-#         edge_types = EdgeType.objects.order_by('name')
-#         edge_priorities = Edge.PRIORITY_CHOICES
-#         project_modules = project.module_set.order_by('name')
-#         first_module_nodes = project_modules[0].node_set.order_by('name')
-#
-#         context = {
-#             'project': project,
-#
-#             'edge_types': edge_types,
-#             'edge_priorities': edge_priorities,
-#             'project_modules': project_modules,
-#             'first_module_nodes': first_module_nodes,
-#         }
-#
-#         return render(request, 'graphs/project/edge_new.html', context)
-#
-#     elif request.method == 'POST':
-#         edge_type_id = request.POST.get('project-edge-new-type', '')
-#         edge_type = get_object_or_404(EdgeType, pk=edge_type_id)
-#
-#         properties = get_properties_for_node_or_edge(request, edge_type)
-#
-#         edge_priority = request.POST.get('project-edge-new-priority', '')
-#
-#         edge_from_node_id = request.POST.get('project-edge-new-from-node', '')
-#         edge_from_node = get_object_or_404(Node, pk=edge_from_node_id)
-#
-#         edge_to_node_id = request.POST.get('project-edge-new-to-node', '')
-#         edge_to_node = get_object_or_404(Node, pk=edge_to_node_id)
-#
-#         try:
-#             edge = Edge.objects.create(
-#                 type=edge_type,
-#                 priority=edge_priority,
-#                 from_node=edge_from_node,
-#                 to_node=edge_to_node,
-#                 properties=properties
-#             )
-#             messages.success(request, 'Edge is added.')
-#         except (ValueError, ValidationError) as e:
-#             messages.error(request, str(e))
-#
-#         return redirect('graphs:graphs')
-
-
 def get_keys_from_type(request):
     """
     Fetch keys from NodeType/EdgeType for Node/Edge properties
@@ -250,6 +158,9 @@ def project_detail(request, project_id):
     :param project_id:
     :return:
     """
+    all_edges = request.GET.get('all_edges', '')
+    draw_invisible_button = ''
+
     network_nodes = []
     network_edges = []
     projects = Project.objects.all()
@@ -265,6 +176,14 @@ def project_detail(request, project_id):
             'label': m.name
         })
     for edge in project.edges_between_modules:
+        try:
+            if edge.properties[EDGE_TYPES_INVISIBLE_KEY] == 'on':
+                draw_invisible_button = 'true'
+                if not all_edges:
+                    continue
+        except KeyError:
+            pass
+
         if not check_edge_in_set(edge, network_edges):
             network_edges.append({
                 'id': edge.id,
@@ -285,6 +204,9 @@ def project_detail(request, project_id):
     context = {
         'projects': projects,
         'project': project,
+        'all_edges': all_edges,
+        'draw_invisible_button': draw_invisible_button,
+
         'module_new_form': ModuleForm(project_id=project.id),
         'module_import_form': UploadForm(),
         'edge_types': EdgeType.objects.all(),
@@ -368,6 +290,7 @@ def project_module_detail(request, module_id):
     :return:
     """
     all_edges = request.GET.get('all_edges', '')
+    draw_invisible_button = ''
 
     module = get_object_or_404(Module, pk=module_id)
 
@@ -379,8 +302,10 @@ def project_module_detail(request, module_id):
 
     for edge in module.edges_all:
         try:
-            if edge.properties[EDGE_TYPES_INVISIBLE_KEY] == 'on' and not all_edges:
-                continue
+            if edge.properties[EDGE_TYPES_INVISIBLE_KEY] == 'on':
+                draw_invisible_button = 'true'
+                if not all_edges:
+                    continue
         except KeyError:
             pass
 
@@ -392,7 +317,7 @@ def project_module_detail(request, module_id):
 
     if request.user.username != 'test':
         for node in module.nodes_all:
-            if node.type.name in START_NODE_NAME:
+            if node.type.name in NODE_START_NAME:
                 shape = 'star'
             elif node.type.name in ['DataQueries Database', 'DataQueries WebService']:
                 shape = 'ellipse'
@@ -405,6 +330,8 @@ def project_module_detail(request, module_id):
                 'shape': shape
             }
             if node.module != module:
+                if node_related_edges_invisible(node, module) and not all_edges:
+                    continue
                 tmp['color'] = outside_module_node_color
 
             network_nodes.append(tmp)
@@ -412,7 +339,7 @@ def project_module_detail(request, module_id):
         # try use custom icon for nodes
         image_url = settings.STATIC_URL + 'common/brand_icons/turnpost-png-graphics/'
         for node in module.nodes_all:
-            if node.type.name in START_NODE_NAME:
+            if node.type.name in NODE_START_NAME:
                 tmp = {
                     'id': node.id,
                     'label': node.name,
@@ -441,6 +368,8 @@ def project_module_detail(request, module_id):
                     tmp['image'] = image_url + 'mdta_west_female.png'
 
             if node.module != module:
+                if node_related_edges_invisible(node, module) and not all_edges:
+                    continue
                 tmp['shadow'] = 'true'
 
             network_nodes.append(tmp)
@@ -476,6 +405,7 @@ def project_module_detail(request, module_id):
     context = {
         'module': module,
         'all_edges': all_edges,
+        'draw_invisible_button': draw_invisible_button,
         'node_new_form': node_new_form,
 
         'node_types': node_types,

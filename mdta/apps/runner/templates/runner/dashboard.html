@@ -5,7 +5,6 @@
 </script>
 {% endblock %}
 {% block body %}
-    <a href="{% url 'runner:suites' project.id %}">Suites</a>
     <div class='container'>
         <div class='row'>
             <div id='suites' class='col-md-6'>
@@ -20,6 +19,12 @@
                             </div>
                             <div id="c-{{ forloop.counter }}" class="panel-collapse collapse" role="tabpanel">
                                 <ul class="list-group" id="lg-{{ forloop.counter }}">
+                                    <li class="list-group-item">
+                                        <strong>Run all</strong>
+                                        <button style="margin-left: 3em;" data-suite="{{ suite.id }}" class="btn btn-success btn-xs pull-right run-all-btn">
+                                            Run <i class="fa fa-arrow-right"></i>
+                                        </button>
+                                    </li>
                                     {% for case in suite.cases %}
                                         <li class="list-group-item">
                                             {{ case.title }}
