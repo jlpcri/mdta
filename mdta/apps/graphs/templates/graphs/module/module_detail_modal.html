@@ -211,7 +211,12 @@
                             </div>
                         </div>
                         <div class="tab-pane" id="property">
-                            Property
+                            <div class="row">
+                                <div class="col-xs-12" >
+                                    <div id="module-node-edit-properties"></div>
+                                </div>
+                            </div>
+
                         </div>
                         <div class="tab-pane" id="verbiage">
                             Verbiage
@@ -220,13 +225,11 @@
 
                     <br>
                     <div class="row" style="margin-top: 10px;">
-                        <div id="module-node-edit-properties"></div>
-                    </div>
-                    <div class="row" style="margin-top: 10px;">
                         <div id="moduleNodeEditErrMessage"></div>
                     </div>
 
                     {% csrf_token %}
+                    <input type="hidden" name="moduleNodeEditId" value="">
                     <input type="hidden" name="property_data_index" value="">
                 </div>
                 <div class="modal-footer">

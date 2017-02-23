@@ -208,7 +208,7 @@ function draw_module_graph(){
                      $('body').css('cursor', 'progress');
                 } else {
                     //if (data['node_data']['type_name'].indexOf('Prompt') >= 0) {
-                        open_prompts_modal(data['node_data']);
+                        open_prompts_modal(data['node_data'], params.nodes);
                     //}
                 }
             })
@@ -216,12 +216,65 @@ function draw_module_graph(){
     })
 }
 
-function open_prompts_modal(node){
-    console.log(node['properties'])
-    console.log(node['verbiage'])
+function open_prompts_modal(node, node_id){
+    //console.log(node['properties'])
+    //console.log(node['verbiage'])
 
+    var properties = node['properties'],
+        verbiage = node['verbiage'],
+        properties_contents = '',
+        verbiage_contents = '';
+
+    $.each(properties, function(k, v){
+        if (k == 'InputData'){
+            //console.log(v[0], v[0]['Inputs']);
+            properties_contents += '<table class=\'table ModuleNodeEditPropertyTable\' id=\'node-property-table-{0}\'>'.format(node_id);
+            properties_contents += '<thead><tr>';
+            properties_contents += '<td>Inputs</td><td>Outputs</td>';
+            properties_contents += '</tr></thead>';
+            properties_contents += '<tbody>';
+            $.each(v, function(idx, value){
+                properties_contents += '<tr>';
+                properties_contents += '<td>';
+                $.each(value['Inputs'], function(sk, sv){
+                    properties_contents += '<input name=\'Inputs_{0}\' value=\"{\'{1}\': \'{2}\'},\">'.format(idx, sk, sv)
+                });
+                properties_contents += '</td><td>';
+                properties_contents += '<input name=\'Outputs_{0}\' value=\"'.format(idx);
+                $.each(value['Outputs'], function(sk, sv){
+                    properties_contents += '{\'{0}\': \'{1}\'},'.format(sk, sv)
+                });
+                properties_contents += '\">';
+                properties_contents += '</td>';
+                properties_contents += '</tr>';
+            });
+            properties_contents += '</tbody>';
+            properties_contents += '</table>';
+        } else {
+            properties_contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
+            properties_contents += '<div class=\'col-xs-4\'><label>{0}:</label></div>'.format(k);
+            if (k == 'NonStandardFail'){
+                properties_contents += '<div class=\'col-xs-8\'>';
+                if (v == 'on'){
+                    properties_contents += '<input name=\'{0}\' type=\'checkbox\' checked class=\'myToggle\' data-on=\'True\' data-width=\'100\' data-onstyle=\'success\' data-off=\'False\' >';
+                } else {
+                    properties_contents += '<input name=\'{0}\' type=\'checkbox\' class=\'myToggle\' data-on=\'True\' data-width=\'100\' data-onstyle=\'success\' data-off=\'False\' >';
+                }
+                properties_contents += '</div>';
+            } else {
+                properties_contents += '<div class=\'col-xs-8\'><input name=\'{0}\' value=\'{1}\'></div>'.format(k, v);
+            }
+            properties_contents += '</div>';
+        }
+    });
+
+    $('.moduleNodeEdit #moduleNodeEditId').val(node_id);
     $('.moduleNodeEdit #moduleNodeEditName').val(node['name']);
     $('.moduleNodeEdit #moduleNodeEditType').val(node['type_id']);
+
+    $('.moduleNodeEdit #module-node-edit-properties').html(properties_contents);
+
+    $('.myToggle').bootstrapToggle();
     $('a[href="#verbiage"]').click();
     $('#module-node-edit-modal').modal('show');
 }
