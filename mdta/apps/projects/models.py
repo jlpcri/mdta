@@ -67,11 +67,14 @@ class Language(models.Model):
     """
     Language selection for testing
     """
-    name = models.CharField(max_length=50, default='')
+    name = models.CharField(max_length=50, default='', verbose_name='language')
     root_path = models.TextField(blank=True, null=True)
     project = models.ForeignKey('Project', null=True, blank=True,
                                 related_name='language_projects',
                                 on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return '{0}: {1}'.format(self.project.name, self.name)
 
     class Meta:
         ordering = ['project', 'name']

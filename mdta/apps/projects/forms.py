@@ -76,18 +76,21 @@ class ProjectConfigForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProjectConfigForm, self).__init__(*args, **kwargs)
         self.fields['test_header'].queryset = Module.objects.filter(project=None)
+        self.fields['language'].queryset = Language.objects.filter(project=self.instance)
 
         self.fields['test_header'].label_from_instance = lambda obj: "%s" % obj.name
         self.fields['testrail'].label_from_instance = lambda obj: "%s" % obj.project_name
+        self.fields['language'].label_from_instance = lambda obj: "%s" % obj.name
 
     class Meta:
         model = Project
-        fields = ['name', 'test_header', 'testrail', 'version']
+        fields = ['name', 'test_header', 'testrail', 'language', 'version']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control',
                                            'readonly': True}),
             'test_header': forms.Select(attrs={'class': 'form-control'}),
             'testrail': forms.Select(attrs={'class': 'form-control'}),
+            'language': forms.Select(attrs={'class': 'form-control'}),
             'version': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
