@@ -7,9 +7,8 @@ from mdta.apps.graphs.models import Node, NodeType
 
 PAGE_NAME = "page name"
 PROMPT_NAME = "prompt name"
-ENGLISH = "prompt text - english"
-SPANISH = "prompt text - spanish"
-FRENCH_CANADIAN = "prompt text - fr canadian"
+PROMPT_TEXT = "prompt text"
+# LANGUAGE = "language"
 STATE_NAME = "state name"
 
 
@@ -20,63 +19,69 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
     df.drop_duplicates(subset=[PAGE_NAME, STATE_NAME], keep=False)
     project = Project.objects.get(pk=project_id)
 
-    module_names = []
+    pgname = df[PAGE_NAME]
+    pname = df[PROMPT_NAME]
+    verbiage = df[PROMPT_TEXT]
+    stname = df[STATE_NAME]
 
-    for x in range(len(df)):
-        pgname = df.iloc[x, 0]
-        stname = df.iloc[x, 3]
-        pname = df.iloc[x, 1]
-        verbiage = df.iloc[x, 2]
-
-        try:
-            pg = Module.objects.get(name=pgname, project=project)
-        except Module.DoesNotExist:
-            pg = Module(name=pgname, project=project)
-            module_names.append(pg)
-            pg.save()
-
-        if pname.find('_') != -1:
-            pname = pname.replace('_', ' ').rstrip('123456789').strip(' ')
-        if stname.startswith('prompt_'):
-            type = NodeType.objects.get(name='Menu Prompt')
-            stname = stname.replace('prompt_', ' ').strip(' ')
-            keys = {'Verbiage': verbiage,
-                    'TranslateVerbiage': "",
-                    'Outputs': "",
-                    'NoInput_1': "",
-                    'NoInput_2': "",
-                    'NoMatch_1': "",
-                    'NoMatch_2': "",
-                    'OnFailGoTo': "",
-                    'NonStandardFail': "",
-                    'Default': ""
-                   }
-        elif stname.startswith(('say_', 'play_')):
-            type = NodeType.objects.get(name='Play Prompt')
-            stname = stname.replace('say_', ' ').strip(' ')
-            keys = {'Verbiage': verbiage,
-                    'TranslateVerbiage': ""
-                    }
-        print(stname)
-        print(pname)
-        try:
-            nn = Node.objects.get(module__project=project, name=stname)
-        except Node.DoesNotExist:
-            nn = Node(module=pg, name=stname, type=type, properties=keys)
-
-        if pname.endswith('NI1'):
-            nn.properties['NoInput_1'] = verbiage
-        elif pname.endswith('NI2'):
-            nn.properties['NoInput_2'] = verbiage
-        elif pname.endswith('NM1'):
-            nn.properties['NoMatch_1'] = verbiage
-        elif pname.endswith('NM2'):
-            nn.properties['NoMatch_2'] = verbiage
-        # else:
-        #     nn.properties['Verbiage'] = verbiage
-        nn.save()
-        print(nn)
-        print(nn.properties)
+    for index, row in df.itertuples():
+        print(row[PAGE_NAME], row[PROMPT_NAME])
+    # module_names = []
+    # for x in range(len(df)):
+    #     pgname = df.iloc[x, 0]
+    #     stname = df.iloc[x, 3]
+    #     pname = df.iloc[x, 1]
+    #     verbiage = df.iloc[x, 2]
+    #
+    #     try:
+    #         pg = Module.objects.get(name=pgname, project=project)
+    #     except Module.DoesNotExist:
+    #         pg = Module(name=pgname, project=project)
+    #         module_names.append(pg)
+    #         pg.save()
+    #
+    #     if pname.find('_') != -1:
+    #         pname = pname.replace('_', ' ').rstrip('123456789').strip(' ')
+    #     if stname.startswith('prompt_'):
+    #         type = NodeType.objects.get(name='Menu Prompt')
+    #         stname = stname.replace('prompt_', ' ').strip(' ')
+    #         keys = {'Verbiage': verbiage,
+    #                 'TranslateVerbiage': "",
+    #                 'Outputs': "",
+    #                 'NoInput_1': "",
+    #                 'NoInput_2': "",
+    #                 'NoMatch_1': "",
+    #                 'NoMatch_2': "",
+    #                 'OnFailGoTo': "",
+    #                 'NonStandardFail': "",
+    #                 'Default': ""
+    #                }
+    #     elif stname.startswith(('say_', 'play_')):
+    #         type = NodeType.objects.get(name='Play Prompt')
+    #         stname = stname.replace('say_', ' ').strip(' ')
+    #         keys = {'Verbiage': verbiage,
+    #                 'TranslateVerbiage': ""
+    #                 }
+    #     print(stname)
+    #     print(pname)
+    #     try:
+    #         nn = Node.objects.get(module__project=project, name=stname)
+    #     except Node.DoesNotExist:
+    #         nn = Node(module=pg, name=stname, type=type, properties=keys)
+    #
+    #     if pname.endswith('NI1'):
+    #         nn.properties['NoInput_1'] += verbiage
+    #     elif pname.endswith('NI2'):
+    #         nn.properties['NoInput_2'] += verbiage
+    #     elif pname.endswith('NM1'):
+    #         nn.properties['NoMatch_1'] += verbiage
+    #     elif pname.endswith('NM2'):
+    #         nn.properties['NoMatch_2'] += verbiage
+    #     # else:
+    #     #     nn.properties['Verbiage'] = verbiage
+    #     nn.save()
+    #     print(nn)
+    #     print(nn.properties)
 
     return {"valid": True, "message": 'Handled'}
 
