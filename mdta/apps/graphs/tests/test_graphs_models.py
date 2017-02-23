@@ -1,9 +1,12 @@
-from django.test import TestCase
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ValidationError
+from django.test import TestCase, Client
+from django.contrib.auth.models import User
 
 from mdta.apps.graphs.models import EdgeType, Edge, NodeType, Node
 from mdta.apps.projects.models import Project, Module
-from mdta.apps.graphs.forms import *
+from mdta.apps.users.models import HumanResource
+
 
 class NodeTypeTest(TestCase):
     def setUp(self):
@@ -113,21 +116,35 @@ class NodeTest(TestCase):
 class EdgeNewTest(TestCase):
 
     def setUp(self):
-            self.type_data = EdgeType.objects.create(
+        self.client = Client()
+        self.user_account = {
+            'username': 'UserAccount',
+            'password': 'UserPassword'
+        }
+        self.user = User.objects.create_user(
+            username=self.user_account['username'],
+            password=self.user_account['password']
+        )
+        self.hr = HumanResource.objects.create(
+            user=self.user
+        )
+        self.type_data = EdgeType.objects.create(
                 name='data edge',
                 keys=['OutputData', 'Invisible'],
                 subkeys=['Outputs']
             )
-            self.type_precondition = EdgeType.objects.create(
+        self.type_precondition = EdgeType.objects.create(
                 name='pre condition',
                 keys=['OutputData', 'Invisible'],
                 subkeys=['Condition']
             )
-            self.type_dtmf = EdgeType.objects.create(
+        self.type_dtmf = EdgeType.objects.create(
                 name='dtmf',
                 keys=['Press', 'Invisible'],
                 subkeys=['']
             )
+
+
 
     def test_new_edge(self):
         response = self.client.post(reverse('graphs:edge_type_new'))
@@ -137,7 +154,7 @@ class EdgeNewTest(TestCase):
     def test_form_edge(self):
         response = self.client.post(reverse('graphs:edge_type_new'), {'name': "" ,'keys':"",'subkeys':"" }, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(form.is_valid())
+
 
     def test_duplicate_keys(self):
         self.type_data = EdgeType.objects.create()
