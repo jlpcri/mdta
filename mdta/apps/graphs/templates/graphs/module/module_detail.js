@@ -268,13 +268,43 @@ function open_prompts_modal(node, node_id){
         }
     });
 
+    //console.log(node['languages'], node['language'])
+    verbiage_contents += '<table class=\'table ModuleNodeEditVerbiageTable\' id=\'node-verbiage-table\'>';
+    verbiage_contents += '<thead><tr>';
+    verbiage_contents += '<td class=\'col-xs-3\'></td><td class=\'col-xs-9\'></td>';
+    verbiage_contents += '</tr></thead><tbody>';
+
+    verbiage_contents += '<tr>';
+    verbiage_contents += '<td><label for=\'moduleNodeEditVerbiageLanguage\'>Language:</label></td>';
+    verbiage_contents += '<td>';
+    verbiage_contents += '<select class=\'form-control\' name=\'moduleNodeEditVerbiageLanguage\' id=\'moduleNodeEditVerbiageLanguage\'>';
+    $.each(node['languages'], function(k, v){
+        verbiage_contents += '<option value=\'{0}\'>{1}</option>'.format(v['id'], v['name'])
+    });
+    verbiage_contents += '</select>';
+    verbiage_contents += '</td>';
+    verbiage_contents += '</tr>';
+
+    $.each(node['v_keys'], function(k, v){
+        //console.log(k, v)
+        verbiage_contents += '<tr>';
+        verbiage_contents += '<td><label>{0}:</label></td>'.format(v);
+        verbiage_contents += '<td><textarea rows=\'3\' style=\'width:100%\'>{0}</textarea></td>'.format(k);
+        verbiage_contents += '</tr>';
+    });
+    verbiage_contents += '</tbody></table>';
+
     $('.moduleNodeEdit #moduleNodeEditId').val(node_id);
     $('.moduleNodeEdit #moduleNodeEditName').val(node['name']);
     $('.moduleNodeEdit #moduleNodeEditType').val(node['type_id']);
 
     $('.moduleNodeEdit #module-node-edit-properties').html(properties_contents);
+    $('.moduleNodeEdit #module-node-edit-verbiages').html(verbiage_contents);
 
     $('.myToggle').bootstrapToggle();
+    if (node['language'] != '') {
+        $('.moduleNodeEdit #moduleNodeEditVerbiageLanguage').val(node['language']);
+    }
     $('a[href="#verbiage"]').click();
     $('#module-node-edit-modal').modal('show');
 }

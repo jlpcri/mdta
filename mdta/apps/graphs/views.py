@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new, check_edge_in_set,\
     get_properties_for_node_or_edge, EDGE_TYPES_INVISIBLE_KEY, node_related_edges_invisible
-from mdta.apps.projects.models import Project, Module
+from mdta.apps.projects.models import Project, Module, Language
 from mdta.apps.projects.utils import context_project_dashboard
 from mdta.apps.users.views import user_is_staff, user_is_superuser
 from .models import NodeType, EdgeType, Node, Edge
@@ -656,13 +656,29 @@ def get_nodes_from_module(request):
 def get_module_id_from_node_id(request):
     node_id = request.GET.get('node_id', '')
     node = get_object_or_404(Node, pk=node_id)
+    project_languages = Language.objects.filter(project=node.module.project)
+    languages = []
+    if project_languages.count() > 0:
+        for item in project_languages:
+            languages.append({
+                'name': item.name,
+                'id': item.id
+            })
+    else:
+        languages.append({
+            'name': 'English',
+            'id': -1
+        })
 
     node_data = {
         'name': node.name,
         'type_id': node.type.id,
         'type_name': node.type.name,
         'properties': node.properties,
-        'verbiage': node.verbiage
+        'verbiage': node.verbiage,
+        'v_keys': node.type.verbiage_keys,
+        'language': node.module.project.language.id if node.module.project.language else '',
+        'languages': languages
     }
 
     data = {
