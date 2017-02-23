@@ -692,8 +692,17 @@ def get_module_id_from_node_id(request):
     node_id = request.GET.get('node_id', '')
     node = get_object_or_404(Node, pk=node_id)
 
+    node_data = {
+        'name': node.name,
+        'type_id': node.type.id,
+        'type_name': node.type.name,
+        'properties': node.properties,
+        'verbiage': node.verbiage
+    }
+
     data = {
-        'module_id': node.module.id
+        'module_id': node.module.id,
+        'node_data': node_data
     }
 
     return HttpResponse(json.dumps(data), content_type='application/json')

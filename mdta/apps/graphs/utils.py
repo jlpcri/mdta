@@ -42,16 +42,24 @@ def node_or_edge_type_edit(request, node_or_edge):
         name = request.POST.get('editNodeTypeName', '')
         keys = request.POST.getlist('editNodeTypeKeys', '')
         subkeys = request.POST.getlist('editNodeTypeSubKeys', '')
+        verbiage_keys = request.POST.getlist('editNodeTypeVerbiageKeys', '')
     else:
         name = request.POST.get('editEdgeTypeName', '')
         keys = request.POST.getlist('editEdgeTypeKeys', '')
         subkeys = request.POST.getlist('editEdgeTypeSubKeys', '')
+        verbiage_keys = ''
 
     tmp_keys = keys[0].replace(' ', '')  # remove white space from string
     tmp_subkeys = subkeys[0].replace(' ', '')
 
     keys_list = tmp_keys.split(',')
     subkeys_list = tmp_subkeys.split(',')
+
+    if verbiage_keys:
+        tmp_verbiage_keys = verbiage_keys[0].replace(' ', '')
+        verbiage_keys_list = tmp_verbiage_keys.split(',')
+    else:
+        verbiage_keys_list = []
 
     if keys_list[-1] == '':
         del keys_list[-1]
@@ -69,6 +77,8 @@ def node_or_edge_type_edit(request, node_or_edge):
         node_or_edge.name = name
         node_or_edge.keys = keys_list
         node_or_edge.subkeys = subkeys_list
+        if verbiage_keys_list:
+            node_or_edge.verbiage_keys = verbiage_keys_list
         node_or_edge.save()
     except (ValidationError, IntegrityError) as e:
         messages.error(request, str(e))
