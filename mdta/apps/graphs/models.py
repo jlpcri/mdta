@@ -96,7 +96,6 @@ class Node(models.Model):
 
     # Property for the Node, Keys are from NodeType
     properties = JSONField(null=True, blank=True)
-    # languages = JSONField(null=True, blank=True)
 
     # Verbiage for the PromptNode, Verbiage_Keys are from NodeType
     verbiage = JSONField(null=True, blank=True)
@@ -143,10 +142,6 @@ class Node(models.Model):
     @property
     def properties_sorted(self):
         return sorted(self.properties.items())
-
-    # @property
-    # def languages_sorted(self):
-    #     return sorted(self.languages.items())
 
 
 class Edge(models.Model):

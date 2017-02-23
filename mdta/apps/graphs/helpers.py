@@ -7,8 +7,9 @@ from mdta.apps.graphs.models import Node, NodeType
 
 PAGE_NAME = "page name"
 PROMPT_NAME = "prompt name"
-PROMPT_TEXT = "prompt text"
-# LANGUAGE = "language"
+ENGLISH = "prompt text - english"
+SPANISH = "prompt text - spanish"
+FRENCH_CANADIAN = "prompt text - fr canadian"
 STATE_NAME = "state name"
 
 
@@ -20,6 +21,7 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
     project = Project.objects.get(pk=project_id)
 
     module_names = []
+
     for x in range(len(df)):
         pgname = df.iloc[x, 0]
         stname = df.iloc[x, 3]
@@ -63,13 +65,13 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
             nn = Node(module=pg, name=stname, type=type, properties=keys)
 
         if pname.endswith('NI1'):
-            nn.properties['NoInput_1'] += verbiage
+            nn.properties['NoInput_1'] = verbiage
         elif pname.endswith('NI2'):
-            nn.properties['NoInput_2'] += verbiage
+            nn.properties['NoInput_2'] = verbiage
         elif pname.endswith('NM1'):
-            nn.properties['NoMatch_1'] += verbiage
+            nn.properties['NoMatch_1'] = verbiage
         elif pname.endswith('NM2'):
-            nn.properties['NoMatch_2'] += verbiage
+            nn.properties['NoMatch_2'] = verbiage
         # else:
         #     nn.properties['Verbiage'] = verbiage
         nn.save()
