@@ -6,8 +6,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 from mdta.apps.projects.utils import context_project_dashboard, context_projects, check_testheader_duplicate
 from mdta.apps.users.views import user_is_staff, user_is_superuser
-from .models import Project, Module
-from .forms import ProjectForm, ModuleForm, TestHeaderForm, ProjectConfigForm
+from .models import Project, Module, Language
+from .forms import ProjectForm, ModuleForm, TestHeaderForm, ProjectConfigForm, LanguageNewForm
 
 
 @user_passes_test(user_is_staff)
@@ -290,3 +290,39 @@ def test_header_edit(request):
         context['last_tab'] = 'test_headers'
 
         return render(request, 'projects/project_dashboard.html', context)
+
+
+@user_passes_test(user_is_staff)
+def language_new(request):
+    if request.method == 'POST':
+        form = LanguageNewForm(request.POST)
+        if form.is_valid():
+            language = form.save()
+        else:
+            messages.error(request, form.errors)
+
+    context = context_project_dashboard(request)
+    context['last_tab'] = 'languages'
+
+    return render(request, 'projects/project_dashboard.html', context)
+
+
+@user_passes_test(user_is_staff)
+def language_edit(request):
+    if request.method == 'POST':
+        language_id = request.POST.get('editLanguageId', '')
+        project_id = request.POST.get('editLanguageProject', '')
+        name = request.POST.get('editLanguageName', '')
+        root_path = request.POST.get('editLanguageRootPath', '')
+
+        language = get_object_or_404(Language, pk=language_id)
+        language.project_id = project_id
+        language.name = name
+        language.root_path = root_path
+        language.save()
+
+    context = context_project_dashboard(request)
+    context['last_tab'] = 'languages'
+
+    return render(request, 'projects/project_dashboard.html', context)
+

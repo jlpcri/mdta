@@ -3,7 +3,7 @@ from django.forms import ModelForm
 from django.shortcuts import get_object_or_404
 from mdta.apps.users.models import HumanResource
 
-from .models import Project, Module, CatalogItem
+from .models import Project, Module, CatalogItem, Language
 
 
 class ProjectForm(ModelForm):
@@ -89,4 +89,19 @@ class ProjectConfigForm(ModelForm):
             'test_header': forms.Select(attrs={'class': 'form-control'}),
             'testrail': forms.Select(attrs={'class': 'form-control'}),
             'version': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+
+class LanguageNewForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(LanguageNewForm, self).__init__(*args, **kwargs)
+        self.fields['project'].empty_label = None
+
+    class Meta:
+        model = Language
+        fields = ['project', 'name', 'root_path']
+        widgets = {
+            'project': forms.Select(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'root_path': forms.TextInput(attrs={'class': 'form-control'}),
         }

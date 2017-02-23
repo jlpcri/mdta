@@ -91,3 +91,15 @@ $('.editEdgeType form').on('submit', function(){
         return false;
     }
 });
+
+$('.editLanguage').on('show.bs.modal', function(e){
+    var language_id = $(e.relatedTarget).data('language-id'),
+        project_id = $(e.relatedTarget).data('language-project-id'),
+        name = $(e.relatedTarget).data('language-name'),
+        root_path = $(e.relatedTarget).data('language-rootpath');
+
+    $(e.currentTarget).find('input[name="editLanguageId"]').val(language_id);
+    $(e.currentTarget).find('select').val(project_id);
+    $(e.currentTarget).find('input[name="editLanguageName"]').val(name);
+    $(e.currentTarget).find('input[name="editLanguageRootPath"]').val(root_path);
+});
