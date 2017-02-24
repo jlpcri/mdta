@@ -2,13 +2,12 @@ from django.db import transaction
 # from orderedset import OrderedSet
 import pandas as pd
 
-from mdta.apps.projects.models import Project, Module, VUID
+from mdta.apps.projects.models import Project, Module, VUID, Language
 from mdta.apps.graphs.models import Node, NodeType
 
 PAGE_NAME = "page name"
 PROMPT_NAME = "prompt name"
 PROMPT_TEXT = "prompt text"
-# LANGUAGE = "language"
 STATE_NAME = "state name"
 
 
@@ -19,21 +18,24 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
     df.drop_duplicates(subset=[PAGE_NAME, STATE_NAME], keep=False)
     project = Project.objects.get(pk=project_id)
 
-    # pgname = df[PAGE_NAME]
-    # pname = df[PROMPT_NAME]
-    # verbiage = df[PROMPT_TEXT]
-    # stname = df[STATE_NAME]
-
     module_names = []
     for i, row in df.iterrows():
-        # print(row)
 
         try:
             pgname = (row[PAGE_NAME])
             pname = (row[PROMPT_NAME])
-            verbiage = (row[PROMPT_TEXT])
+            ptext = (row[PROMPT_TEXT])
         except ValueError:
             return {"valid": False, "message": "Parser error, invalid headers"}
+
+        for d in df.columns:
+            lang = Language.objects.filter(project=project)
+            values = lang.values_list('name')
+            for v in values:
+                plang = v
+                if d.title().startswith(tuple(plang)):
+                    language = d
+                    lverbiage = (row[language])
 
         stname = (row[STATE_NAME])
 
@@ -48,43 +50,47 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
             pname = pname.replace('_', ' ').rstrip('123456789').strip(' ')
         if stname.startswith('prompt_'):
             type = NodeType.objects.get(name='Menu Prompt')
+            select = NodeType.objects.get(name='Language Select')
             stname = stname.replace('prompt_', ' ').strip(' ')
-            keys = {'Verbiage': verbiage,
-                    'TranslateVerbiage': "",
-                    'Outputs': "",
-                    'NoInput_1': "",
-                    'NoInput_2': "",
-                    'NoMatch_1': "",
-                    'NoMatch_2': "",
-                    'OnFailGoTo': "",
-                    'NonStandardFail': "",
-                    'Default': ""
-                   }
+            verbiage_keys = {'Language': plang,
+                             'items': [{
+                                       'Verbiage': lverbiage,
+                                       'TranslateVerbiage': ptext,
+                                       'NoInput_1': "",
+                                       'NoInput_2': "",
+                                       'NoMatch_1': "",
+                                       'NoMatch_2': "",
+                                       }]
+                             }
         elif stname.startswith(('say_', 'play_')):
             type = NodeType.objects.get(name='Play Prompt')
+            select = NodeType.objects.get(name='Language Select')
             stname = stname.replace('say_', ' ').strip(' ')
-            keys = {'Verbiage': verbiage,
-                    'TranslateVerbiage': ""
-                    }
+            verbiage_keys = {'Language': plang,
+                             'items': [{
+                                       'Verbiage': lverbiage,
+                                       'TranslateVerbiage': ptext,
+                                      }]
+                             }
         print(stname)
         print(pname)
         try:
             nn = Node.objects.get(module__project=project, name=stname)
         except Node.DoesNotExist:
-            nn = Node(module=pg, name=stname, type=type, properties=keys)
+            nn = Node(module=pg, name=stname, type=type, verbiage=verbiage_keys)
 
         if pname.endswith('NI1'):
-            nn.properties['NoInput_1'] += verbiage
+            nn.verbiage['NoInput_1'] = ptext
         elif pname.endswith('NI2'):
-            nn.properties['NoInput_2'] += verbiage
+            nn.verbiage['NoInput_2'] = ptext
         elif pname.endswith('NM1'):
-            nn.properties['NoMatch_1'] += verbiage
+            nn.verbiage['NoMatch_1'] = ptext
         elif pname.endswith('NM2'):
-            nn.properties['NoMatch_2'] += verbiage
+            nn.verbiage['NoMatch_2'] = ptext
 
         nn.save()
         print(nn)
-        print(nn.properties)
+        print(nn.verbiage)
 
     return {"valid": True, "message": 'Handled'}
 
