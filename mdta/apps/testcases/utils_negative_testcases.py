@@ -1,9 +1,10 @@
 import random
 
+from mdta.apps.testcases.utils_backwards_traverse import get_verbiage_from_prompt_node
 from mdta.apps.testcases.constant_names import *
 
 
-def tc_no_input_recover(node):
+def tc_no_input_recover(node, language):
     """
     Test step of No Input and recover to self
     :return:
@@ -11,14 +12,14 @@ def tc_no_input_recover(node):
     data = [
         {
             TR_CONTENT: 'wait',
-            TR_EXPECTED: node.name + 'NI1: ' + node.verbiage[node.language][MP_NI1]
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_NI1)
         }
     ]
 
     return data
 
 
-def tc_confirm_no_input_recover(node):
+def tc_confirm_no_input_recover(node, language):
     """
     Test step of Confirm No Input and recover to self for MenuPromptWithConfirmation node
     :param node:
@@ -27,18 +28,18 @@ def tc_confirm_no_input_recover(node):
     data = [
         {
             TR_CONTENT: get_mpc_valid_input(node),
-            TR_EXPECTED: node.name + ': ' + node.verbiage[node.language][MP_CVER]
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CVER)
         },
         {
             TR_CONTENT: 'wait',
-            TR_EXPECTED: node.name + 'CNI1: ' + node.verbiage[node.language][MP_CNI1]
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CNI1, hint='CNI1')
         }
     ]
 
     return data
 
 
-def tc_no_match_recover(node):
+def tc_no_match_recover(node, language):
     """
     Test step of No Match and recover to self
     :return:
@@ -47,14 +48,14 @@ def tc_no_match_recover(node):
     data = [
         {
             TR_CONTENT: no_match_content,
-            TR_EXPECTED: node.name + 'NM1: ' + node.verbiage[node.language][MP_NM1]
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_NM1, hint='NM1')
         }
     ]
 
     return data
 
 
-def tc_confirm_no_match_recover(node):
+def tc_confirm_no_match_recover(node, language):
     """
     Test step of Confirm No Match and recover to self for MenuPromptWithConfirmation node
     :param node:
@@ -63,18 +64,18 @@ def tc_confirm_no_match_recover(node):
     data = [
         {
             TR_CONTENT: get_mpc_valid_input(node),
-            TR_EXPECTED: node.name + ': ' + node.verbiage[node.language][MP_CVER]
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CVER)
         },
         {
             TR_CONTENT: get_no_match_content(node),
-            TR_EXPECTED: node.name + 'CNM1: ' + MP_CNM1
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CNM1, hint='CNM1')
         }
     ]
 
     return data
 
 
-def tc_no_input_3_fail(node):
+def tc_no_input_3_fail(node, language):
     """
     Test step of 3 times No Input then Fail
     :return:
@@ -93,11 +94,11 @@ def tc_no_input_3_fail(node):
     else:
         data.append({
             TR_CONTENT: 'wait',
-            TR_EXPECTED: node.name + 'NI1: ' + node.verbiage[node.language][MP_NI1]
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_NI1, hint='NI1')
         })
         data.append({
             TR_CONTENT: 'wait',
-            TR_EXPECTED: node.name + 'NI2: ' + node.verbiage[node.language][MP_NI2]
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_NI2, hint='NI2')
         })
         data.append({
             TR_CONTENT: 'wait',
@@ -107,7 +108,7 @@ def tc_no_input_3_fail(node):
     return data
 
 
-def tc_confirm_no_input_3_fail(node):
+def tc_confirm_no_input_3_fail(node, language):
     if node.properties[ON_FAIL_GO_TO_KEY] == '':
         data = [{
             TR_CONTENT: False,
@@ -122,15 +123,15 @@ def tc_confirm_no_input_3_fail(node):
         data = [
             {
                 TR_CONTENT: get_mpc_valid_input(node),
-                TR_EXPECTED: node.name + ': ' + node.verbiage[node.language][MP_CVER]
+                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CVER)
             },
             {
                 TR_CONTENT: 'wait',
-                TR_EXPECTED: node.name + 'CNI1: ' + node.verbiage[node.language][MP_CNI1]
+                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CNI1, hint='CNI1')
             },
             {
                 TR_CONTENT: 'wait',
-                TR_EXPECTED: node.name + 'CNI2: ' + node.verbiage[node.language][MP_CNI2]
+                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CNI2, hint='CNI2')
             },
             {
                 TR_CONTENT: 'wait',
@@ -141,7 +142,7 @@ def tc_confirm_no_input_3_fail(node):
     return data
 
 
-def tc_no_match_3_fail(node):
+def tc_no_match_3_fail(node, language):
     """
     Test step of 3 times No Match then Fail
     :return:
@@ -162,13 +163,13 @@ def tc_no_match_3_fail(node):
         no_match_content = get_no_match_content(node)
         data.append({
             TR_CONTENT: no_match_content,
-            TR_EXPECTED: node.name + 'NM1: ' + node.verbiage[node.language][MP_NM1]
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_NM1, hint='NM1')
         })
 
         no_match_content = get_no_match_content(node)
         data.append({
             TR_CONTENT: no_match_content,
-            TR_EXPECTED: node.name + 'NM2: ' + node.verbiage[node.language][MP_NM2]
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_NM2, hint='NM2')
         })
 
         no_match_content = get_no_match_content(node)
@@ -180,7 +181,7 @@ def tc_no_match_3_fail(node):
     return data
 
 
-def tc_confirm_no_match_3_fail(node):
+def tc_confirm_no_match_3_fail(node, language):
     if node.properties[ON_FAIL_GO_TO_KEY] == '':
         data = [{
             TR_CONTENT: False,
@@ -195,15 +196,15 @@ def tc_confirm_no_match_3_fail(node):
         data = [
             {
                 TR_CONTENT: get_mpc_valid_input(node),
-                TR_EXPECTED: node.name + ': ' + node.verbiage[node.language][MP_CVER]
+                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CVER)
             },
             {
                 TR_CONTENT: get_no_match_content(node),
-                TR_EXPECTED: node.name + 'CNM1: ' + node.verbiage[node.language][MP_CNM1]
+                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CNM1, hint='CNM1')
             },
             {
                 TR_CONTENT: get_no_match_content(node),
-                TR_EXPECTED: node.name + 'CNM2: ' + node.verbiage[node.language][MP_CNM2]
+                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CNM2, hint='CNM2')
             },
             {
                 TR_CONTENT: get_no_match_content(node),
@@ -214,7 +215,7 @@ def tc_confirm_no_match_3_fail(node):
     return data
 
 
-def tc_ni_nm_3_fail(node):
+def tc_ni_nm_3_fail(node, language):
     """
     Test step of 3 times 'No Input' or 'No Match' then Fail
     :return:
@@ -242,14 +243,14 @@ def tc_ni_nm_3_fail(node):
                 if index >= 2:
                     expected = 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
                 else:
-                    expected = node.name + 'NI{0}: '.format(ni_index) + node.verbiage[node.language]['NoInput{0}'.format(ni_index)]
+                    expected = get_random_verbiage_from_prompt_node(node, language, verbiage_key='NoInput', hint='NI', index=ni_index)
             else:
                 content = get_no_match_content(node)
                 nm_index += 1
                 if index >= 2:
                     expected = 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
                 else:
-                    expected = node.name + 'NM{0}: '.format(nm_index) + node.verbiage[node.language]['NoMatch{0}'.format(nm_index)]
+                    expected = get_random_verbiage_from_prompt_node(node, language, verbiage_key='NoMatch', hint='NM', index=nm_index)
             data.append({
                 TR_CONTENT: content,
                 TR_EXPECTED: expected
@@ -258,7 +259,7 @@ def tc_ni_nm_3_fail(node):
     return data
 
 
-def tc_confirm_ni_nm_3_fail(node):
+def tc_confirm_ni_nm_3_fail(node, language):
     data = []
     ni_index = 0
     nm_index = 0
@@ -276,7 +277,7 @@ def tc_confirm_ni_nm_3_fail(node):
     else:
         data.append({
             TR_CONTENT: get_mpc_valid_input(node),
-            TR_EXPECTED: node.name + ': ' + node.verbiage[node.language][MP_CVER]
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CVER)
         })
         combinations = random_combination(random_size=3)
         for index, item in enumerate(combinations):
@@ -286,14 +287,14 @@ def tc_confirm_ni_nm_3_fail(node):
                 if index >= 2:
                     expected = 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
                 else:
-                    expected = node.name + 'CNI{0}: '.format(ni_index) + node.verbiage[node.language]['ConfirmNoInput{0}'.format(ni_index)]
+                    expected = get_random_verbiage_from_prompt_node(node, language, verbiage_key='ConfirmNoInput', hint='CNI', index=ni_index)
             else:
                 content = get_no_match_content(node)
                 nm_index += 1
                 if index >= 2:
                     expected = 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
                 else:
-                    expected = node.name + 'CNM{0}: '.format(nm_index) + node.verbiage[node.language]['ConfirmNoMatch{0}'.format(nm_index)]
+                    expected = get_random_verbiage_from_prompt_node(node, language, verbiage_key='ConfirmNoMatch', hint='CNM', index=nm_index)
             data.append({
                 TR_CONTENT: content,
                 TR_EXPECTED: expected
@@ -337,7 +338,7 @@ def get_negative_tc_title(key):
     }.get(key, 'No Input & Recover')
 
 
-def negative_testcase_generation(data, path_data, title, node):
+def negative_testcase_generation(data, path_data, title, node, language=None):
     """
     Generate negative TestCases of 5 scenarios
     :param data: Test Steps of current TestCase
@@ -355,7 +356,7 @@ def negative_testcase_generation(data, path_data, title, node):
     else:
         for key in NEGATIVE_TESTS_LIST:
             _title = title + ', ' + get_negative_tc_title(key)
-            negative_tc_steps = get_negative_tc_steps(key)(node)
+            negative_tc_steps = get_negative_tc_steps(key)(node, language)
 
             if not negative_tc_steps[0][TR_CONTENT]:
                 data.append({
@@ -487,7 +488,7 @@ def search_node_name_inside_project(project, node_name):
     return flag
 
 
-def rejected_testcase_generation(data, path_data, title, node):
+def rejected_testcase_generation(data, path_data, title, node, language=None):
     """
     Generate rejected TestCase for MenuPromptWithConfirmation Node
     :param data: Output TestCases
@@ -521,11 +522,11 @@ def rejected_testcase_generation(data, path_data, title, node):
                 rejected_steps = [
                     {
                         TR_CONTENT: contents,
-                        TR_EXPECTED: "{0}: {1}".format(node.name, node.verbiage[node.language][MP_CVER])
+                        TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CVER)
                     },
                     {
                         TR_CONTENT: 'press 2',  # rejected confirm
-                        TR_EXPECTED: node.verbiage[node.language][MP_VER]
+                        TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_VER)
                     }
                 ]
 
@@ -566,3 +567,12 @@ def get_mpc_valid_input(node):
         contents = 'No valid inputs'
 
     return contents
+
+
+def get_random_verbiage_from_prompt_node(node, language, verbiage_key='', hint='', index=''):
+    try:
+        data = node.name + '{0}{1}: '.format(hint, index) + node.verbiage[language]['{0}{1}'.format(verbiage_key, index)]
+    except KeyError:
+        data = node.name + '{0}{1}: '.format(hint, index)
+
+    return data

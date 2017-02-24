@@ -40,6 +40,7 @@ MP_CNM1 = 'ConfirmNoMatch1'
 MP_CNM2 = 'ConfirmNoMatch2'
 MP_RJ1 = 'Reject1'
 
+LANGUAGE_DEFAULT_NAME = 'English'
 
 # Other constants
 CONSTRAINTS_TRUE_OR_FALSE = 'tof'
