@@ -171,7 +171,7 @@
 <!-- Node Edit Modal -->
 <div class="modal fade moduleNodeEdit" id="module-node-edit-modal">
     <div class="modal-dialog">
-        <form action="#" method="post">
+        <form action="{% url 'graphs:module_node_verbiage_edit' %}" method="post">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
@@ -233,7 +233,7 @@
                     </div>
 
                     {% csrf_token %}
-                    <input type="hidden" name="moduleNodeEditId" value="">
+                    <input type="hidden" name="moduleNodeEditId" id="moduleNodeEditId" value="">
                     <input type="hidden" name="property_data_index" value="">
                 </div>
                 <div class="modal-footer">

@@ -222,9 +222,21 @@ function open_prompts_modal(node, node_id){
 
     var properties = node['properties'],
         verbiage = node['verbiage'],
+        //node_id = node['node_id'],
+        type_name = node['type_name'],
+
+        language_id = node['language']['id'], // project current test language
+        language_name = node['language']['name'],
+
+        languages = node['languages'], // all possible languages project has
         properties_contents = '',
         verbiage_contents = '';
 
+    if (language_name != '') {
+        var language_key = language_name;
+    } else {
+        var language_key = languages[0]['name']
+    }
     $.each(properties, function(k, v){
         if (k == 'InputData'){
             //console.log(v[0], v[0]['Inputs']);
@@ -268,31 +280,38 @@ function open_prompts_modal(node, node_id){
         }
     });
 
-    //console.log(node['languages'], node['language'])
-    verbiage_contents += '<table class=\'table ModuleNodeEditVerbiageTable\' id=\'node-verbiage-table\'>';
-    verbiage_contents += '<thead><tr>';
-    verbiage_contents += '<td class=\'col-xs-3\'></td><td class=\'col-xs-9\'></td>';
-    verbiage_contents += '</tr></thead><tbody>';
+    //console.log(node['languages'], node['language_id'])
+    if (type_name.indexOf('Prompt') >= 0) {
+        verbiage_contents += '<table class=\'table ModuleNodeEditVerbiageTable\' id=\'node-verbiage-table\'>';
+        verbiage_contents += '<thead><tr>';
+        verbiage_contents += '<td class=\'col-xs-3\'></td><td class=\'col-xs-9\'></td>';
+        verbiage_contents += '</tr></thead><tbody>';
 
-    verbiage_contents += '<tr>';
-    verbiage_contents += '<td><label for=\'moduleNodeEditVerbiageLanguage\'>Language:</label></td>';
-    verbiage_contents += '<td>';
-    verbiage_contents += '<select class=\'form-control\' name=\'moduleNodeEditVerbiageLanguage\' id=\'moduleNodeEditVerbiageLanguage\'>';
-    $.each(node['languages'], function(k, v){
-        verbiage_contents += '<option value=\'{0}\'>{1}</option>'.format(v['id'], v['name'])
-    });
-    verbiage_contents += '</select>';
-    verbiage_contents += '</td>';
-    verbiage_contents += '</tr>';
-
-    $.each(node['v_keys'], function(k, v){
-        //console.log(k, v)
         verbiage_contents += '<tr>';
-        verbiage_contents += '<td><label>{0}:</label></td>'.format(v);
-        verbiage_contents += '<td><textarea rows=\'3\' style=\'width:100%\'>{0}</textarea></td>'.format(k);
+        verbiage_contents += '<td><label for=\'moduleNodeEditVerbiageLanguage\'>Language:</label></td>';
+        verbiage_contents += '<td>';
+        verbiage_contents += '<select class=\'form-control\' name=\'moduleNodeEditVerbiageLanguage\' id=\'moduleNodeEditVerbiageLanguage\'>';
+        $.each(node['languages'], function (k, v) {
+            verbiage_contents += '<option value=\'{0}\'>{1}</option>'.format(v['id'], v['name'])
+        });
+        verbiage_contents += '</select>';
+        verbiage_contents += '</td>';
         verbiage_contents += '</tr>';
-    });
-    verbiage_contents += '</tbody></table>';
+
+        //console.log(verbiage, language_key)
+        $.each(node['v_keys'], function (k, v) {
+            //console.log(k, v)
+            verbiage_contents += '<tr>';
+            verbiage_contents += '<td><label>{0}:</label></td>'.format(v);
+            if (verbiage === null || $.isEmptyObject(verbiage) || typeof verbiage[language_name] == 'undefined' || typeof verbiage[language_name][v] == 'undefined') {
+                verbiage_contents += '<td><textarea name=\'{0}\' rows=\'3\' style=\'width:100%\'></textarea></td>'.format(v);
+            } else {
+                verbiage_contents += '<td><textarea name=\'{0}\' rows=\'3\' style=\'width:100%\'>{1}</textarea></td>'.format(v, verbiage[language_key][v]);
+            }
+            verbiage_contents += '</tr>';
+        });
+        verbiage_contents += '</tbody></table>';
+    }
 
     $('.moduleNodeEdit #moduleNodeEditId').val(node_id);
     $('.moduleNodeEdit #moduleNodeEditName').val(node['name']);
@@ -302,12 +321,29 @@ function open_prompts_modal(node, node_id){
     $('.moduleNodeEdit #module-node-edit-verbiages').html(verbiage_contents);
 
     $('.myToggle').bootstrapToggle();
-    if (node['language'] != '') {
-        $('.moduleNodeEdit #moduleNodeEditVerbiageLanguage').val(node['language']);
+    if (language_id != '') {
+        $('.moduleNodeEdit #moduleNodeEditVerbiageLanguage').val(language_id);
     }
+
+    $('#moduleNodeEditVerbiageLanguage').on('change', function(){
+        var language_name = $(this).find('option:selected').text();
+
+        $.each(node['v_keys'], function(k, v){
+            //console.log(verbiage)
+            if ( verbiage === null || $.isEmptyObject(verbiage) || typeof verbiage[language_name] == 'undefined' || typeof verbiage[language_name][v] == 'undefined') {
+                $('.moduleNodeEdit textarea[name="{0}"]'.format(v)).val('');
+            } else {
+                $('.moduleNodeEdit textarea[name="{0}"]'.format(v)).val(verbiage[language_name][v]);
+            }
+        })
+
+    });
+
     $('a[href="#verbiage"]').click();
     $('#module-node-edit-modal').modal('show');
 }
+
+
 
 /* Start Node Name for OnFailGoTo of MenuPrompt Code */
 
