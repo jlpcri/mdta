@@ -142,6 +142,14 @@ class Node(models.Model):
     def properties_sorted(self):
         return sorted(self.properties.items())
 
+    @property
+    def language(self):
+        # print(self.name, self.module.project)
+        # if self.module.project.language:
+        #     return self.module.project.language.name
+        # else:
+        return 'English'
+
 
 class Edge(models.Model):
     """

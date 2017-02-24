@@ -388,7 +388,7 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None):
                 tcs[confirm_idx - 1][TR_CONTENT] = 'press 1'  # confirm input
                 tcs.insert(confirm_idx, {
                     'content': content,
-                    'expected': "{0}: {1}".format(node.name, node.properties[MP_CVER])
+                    'expected': "{0}: {1}".format(node.name, node.verbiage[node.language][MP_CVER])
                 })
 
 
@@ -416,7 +416,7 @@ def node_prompt(node, preceding_edge=None, match_constraint=None):
 
     return {
         'content': content,
-        'expected': "{0}: {1}".format(node.name, node.properties[MP_VER])
+        'expected': "{0}: {1}".format(node.name, node.verbiage[node.language][MP_VER])
     }
 
 

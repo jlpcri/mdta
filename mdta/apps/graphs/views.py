@@ -19,6 +19,7 @@ from mdta.apps.testcases.tasks import create_testcases_celery, push_testcases_to
 
 LANGUAGE_DEFAULT_NAME = 'English'
 
+
 @login_required
 def home(request):
     user = request.user
@@ -657,7 +658,7 @@ def get_nodes_from_module(request):
 def get_module_id_from_node_id(request):
     node_id = request.GET.get('node_id', '')
     node = get_object_or_404(Node, pk=node_id)
-    if node.module.project.language:
+    if node.module.project and node.module.project.language:
         language = {
             'name': node.module.project.language.name,
             'id': node.module.project.language.id

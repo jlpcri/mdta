@@ -26,18 +26,19 @@ MP_OUTPUTS = 'Outputs'
 MP_DEFAULT = 'Default'
 MP_NC = 'NoneConfirm'
 
-MP_VER = 'Verbiage'
-MP_NI1 = 'NoInput_1'
-MP_NI2 = 'NoInput_2'
-MP_NM1 = 'NoMatch_1'
-MP_NM2 = 'NoMatch_2'
+# Prompt verbiage key name
+MP_VER = 'InitialPrompt'
+MP_NI1 = 'NoInput1'
+MP_NI2 = 'NoInput2'
+MP_NM1 = 'NoMatch1'
+MP_NM2 = 'NoMatch2'
 
-MP_CVER = 'ConfirmVerbiage'
-MP_CNI1 = 'ConfirmNoInput_1'
-MP_CNI2 = 'ConfirmNoInput_2'
-MP_CNM1 = 'ConfirmNoMatch_1'
-MP_CNM2 = 'ConfirmNoMatch_2'
-MP_RJ1 = 'Reject_1'
+MP_CVER = 'Confirmation'
+MP_CNI1 = 'ConfirmNoInput1'
+MP_CNI2 = 'ConfirmNoInput2'
+MP_CNM1 = 'ConfirmNoMatch1'
+MP_CNM2 = 'ConfirmNoMatch2'
+MP_RJ1 = 'Reject1'
 
 
 # Other constants

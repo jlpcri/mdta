@@ -11,7 +11,7 @@ def tc_no_input_recover(node):
     data = [
         {
             TR_CONTENT: 'wait',
-            TR_EXPECTED: node.name + 'NI1: ' + node.properties[MP_NI1]
+            TR_EXPECTED: node.name + 'NI1: ' + node.verbiage[node.language][MP_NI1]
         }
     ]
 
@@ -27,11 +27,11 @@ def tc_confirm_no_input_recover(node):
     data = [
         {
             TR_CONTENT: get_mpc_valid_input(node),
-            TR_EXPECTED: node.name + ': ' + node.properties[MP_CVER]
+            TR_EXPECTED: node.name + ': ' + node.verbiage[node.language][MP_CVER]
         },
         {
             TR_CONTENT: 'wait',
-            TR_EXPECTED: node.name + 'CNI1: ' + node.properties[MP_CNI1]
+            TR_EXPECTED: node.name + 'CNI1: ' + node.verbiage[node.language][MP_CNI1]
         }
     ]
 
@@ -47,7 +47,7 @@ def tc_no_match_recover(node):
     data = [
         {
             TR_CONTENT: no_match_content,
-            TR_EXPECTED: node.name + 'NM1: ' + node.properties[MP_NM1]
+            TR_EXPECTED: node.name + 'NM1: ' + node.verbiage[node.language][MP_NM1]
         }
     ]
 
@@ -63,7 +63,7 @@ def tc_confirm_no_match_recover(node):
     data = [
         {
             TR_CONTENT: get_mpc_valid_input(node),
-            TR_EXPECTED: node.name + ': ' + node.properties[MP_CVER]
+            TR_EXPECTED: node.name + ': ' + node.verbiage[node.language][MP_CVER]
         },
         {
             TR_CONTENT: get_no_match_content(node),
@@ -93,11 +93,11 @@ def tc_no_input_3_fail(node):
     else:
         data.append({
             TR_CONTENT: 'wait',
-            TR_EXPECTED: node.name + 'NI1: ' + node.properties[MP_NI1]
+            TR_EXPECTED: node.name + 'NI1: ' + node.verbiage[node.language][MP_NI1]
         })
         data.append({
             TR_CONTENT: 'wait',
-            TR_EXPECTED: node.name + 'NI2: ' + node.properties[MP_NI2]
+            TR_EXPECTED: node.name + 'NI2: ' + node.verbiage[node.language][MP_NI2]
         })
         data.append({
             TR_CONTENT: 'wait',
@@ -122,15 +122,15 @@ def tc_confirm_no_input_3_fail(node):
         data = [
             {
                 TR_CONTENT: get_mpc_valid_input(node),
-                TR_EXPECTED: node.name + ': ' + node.properties[MP_CVER]
+                TR_EXPECTED: node.name + ': ' + node.verbiage[node.language][MP_CVER]
             },
             {
                 TR_CONTENT: 'wait',
-                TR_EXPECTED: node.name + 'CNI1: ' + node.properties[MP_CNI1]
+                TR_EXPECTED: node.name + 'CNI1: ' + node.verbiage[node.language][MP_CNI1]
             },
             {
                 TR_CONTENT: 'wait',
-                TR_EXPECTED: node.name + 'CNI2: ' + node.properties[MP_CNI2]
+                TR_EXPECTED: node.name + 'CNI2: ' + node.verbiage[node.language][MP_CNI2]
             },
             {
                 TR_CONTENT: 'wait',
@@ -162,13 +162,13 @@ def tc_no_match_3_fail(node):
         no_match_content = get_no_match_content(node)
         data.append({
             TR_CONTENT: no_match_content,
-            TR_EXPECTED: node.name + 'NM1: ' + node.properties[MP_NM1]
+            TR_EXPECTED: node.name + 'NM1: ' + node.verbiage[node.language][MP_NM1]
         })
 
         no_match_content = get_no_match_content(node)
         data.append({
             TR_CONTENT: no_match_content,
-            TR_EXPECTED: node.name + 'NM2: ' + node.properties[MP_NM2]
+            TR_EXPECTED: node.name + 'NM2: ' + node.verbiage[node.language][MP_NM2]
         })
 
         no_match_content = get_no_match_content(node)
@@ -195,15 +195,15 @@ def tc_confirm_no_match_3_fail(node):
         data = [
             {
                 TR_CONTENT: get_mpc_valid_input(node),
-                TR_EXPECTED: node.name + ': ' + node.properties[MP_CVER]
+                TR_EXPECTED: node.name + ': ' + node.verbiage[node.language][MP_CVER]
             },
             {
                 TR_CONTENT: get_no_match_content(node),
-                TR_EXPECTED: node.name + 'CNM1: ' + node.properties[MP_CNM1]
+                TR_EXPECTED: node.name + 'CNM1: ' + node.verbiage[node.language][MP_CNM1]
             },
             {
                 TR_CONTENT: get_no_match_content(node),
-                TR_EXPECTED: node.name + 'CNM2: ' + node.properties[MP_CNM2]
+                TR_EXPECTED: node.name + 'CNM2: ' + node.verbiage[node.language][MP_CNM2]
             },
             {
                 TR_CONTENT: get_no_match_content(node),
@@ -242,14 +242,14 @@ def tc_ni_nm_3_fail(node):
                 if index >= 2:
                     expected = 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
                 else:
-                    expected = node.name + 'NI{0}: '.format(ni_index) + node.properties['NoInput_{0}'.format(ni_index)]
+                    expected = node.name + 'NI{0}: '.format(ni_index) + node.verbiage[node.language]['NoInput{0}'.format(ni_index)]
             else:
                 content = get_no_match_content(node)
                 nm_index += 1
                 if index >= 2:
                     expected = 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
                 else:
-                    expected = node.name + 'NM{0}: '.format(nm_index) + node.properties['NoMatch_{0}'.format(nm_index)]
+                    expected = node.name + 'NM{0}: '.format(nm_index) + node.verbiage[node.language]['NoMatch{0}'.format(nm_index)]
             data.append({
                 TR_CONTENT: content,
                 TR_EXPECTED: expected
@@ -276,7 +276,7 @@ def tc_confirm_ni_nm_3_fail(node):
     else:
         data.append({
             TR_CONTENT: get_mpc_valid_input(node),
-            TR_EXPECTED: node.name + ': ' + node.properties[MP_CVER]
+            TR_EXPECTED: node.name + ': ' + node.verbiage[node.language][MP_CVER]
         })
         combinations = random_combination(random_size=3)
         for index, item in enumerate(combinations):
@@ -286,14 +286,14 @@ def tc_confirm_ni_nm_3_fail(node):
                 if index >= 2:
                     expected = 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
                 else:
-                    expected = node.name + 'CNI{0}: '.format(ni_index) + node.properties['ConfirmNoInput_{0}'.format(ni_index)]
+                    expected = node.name + 'CNI{0}: '.format(ni_index) + node.verbiage[node.language]['ConfirmNoInput{0}'.format(ni_index)]
             else:
                 content = get_no_match_content(node)
                 nm_index += 1
                 if index >= 2:
                     expected = 'Test fail, route to: ' + node.properties[ON_FAIL_GO_TO_KEY]
                 else:
-                    expected = node.name + 'CNM{0}: '.format(nm_index) + node.properties['ConfirmNoMatch_{0}'.format(nm_index)]
+                    expected = node.name + 'CNM{0}: '.format(nm_index) + node.verbiage[node.language]['ConfirmNoMatch{0}'.format(nm_index)]
             data.append({
                 TR_CONTENT: content,
                 TR_EXPECTED: expected
@@ -521,11 +521,11 @@ def rejected_testcase_generation(data, path_data, title, node):
                 rejected_steps = [
                     {
                         TR_CONTENT: contents,
-                        TR_EXPECTED: "{0}: {1}".format(node.name, node.properties[MP_CVER])
+                        TR_EXPECTED: "{0}: {1}".format(node.name, node.verbiage[node.language][MP_CVER])
                     },
                     {
                         TR_CONTENT: 'press 2',  # rejected confirm
-                        TR_EXPECTED: node.properties[MP_VER]
+                        TR_EXPECTED: node.verbiage[node.language][MP_VER]
                     }
                 ]
 
