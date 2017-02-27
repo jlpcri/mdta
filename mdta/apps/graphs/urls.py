@@ -18,9 +18,13 @@ urlpatterns = [
 
     url(r'^project_module_detail/(?P<module_id>\d+)/$', views.project_module_detail, name='project_module_detail'),
     url(r'^(?P<project_id>\d+)/project_module_new/$', views.project_module_new, name='project_module_new'),
+    url(r'^(?P<project_id>\d+)/project_module_import/$', views.project_module_import, name='project_module_import'),
     url(r'^(?P<project_id>\d+)/project_module_edit/$', views.project_module_edit, name='project_module_edit'),
+
     url(r'(?P<module_id>\d+)/module_node_new/$', views.module_node_new, name='module_node_new'),
     url(r'(?P<node_id>\d+)/module_node_edit/$', views.module_node_edit, name='module_node_edit'),
+    url(r'^module_node_verbiage_edit/$', views.module_node_verbiage_edit, name='module_node_verbiage_edit'),
+
     url(r'(?P<module_id>\d+)/module_edge_new/$', views.module_edge_new, name='module_edge_new'),
     url(r'(?P<edge_id>\d+)/module_edge_edit/$', views.module_edge_edit, name='module_edge_edit'),
 

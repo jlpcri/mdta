@@ -3,13 +3,18 @@ from django.forms import ModelForm
 from django.shortcuts import get_object_or_404
 from mdta.apps.users.models import HumanResource
 
-from .models import Project, Module, CatalogItem
+from .models import Project, Module, CatalogItem, Language
 
 
 class ProjectForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProjectForm, self).__init__(*args, **kwargs)
         self.fields['test_header'].queryset = Module.objects.filter(project=None)
+        if self.instance.name:
+            self.fields['language'].queryset = Language.objects.filter(project=self.instance)
+            self.fields['language'].label_from_instance = lambda obj: "%s" % obj.name
+        else:
+            self.fields['language'].queryset = Language.objects.all()
 
         self.fields['test_header'].label_from_instance = lambda obj: "%s" % obj.name
         self.fields['testrail'].label_from_instance = lambda obj: "%s" % obj.project_name
@@ -24,6 +29,7 @@ class ProjectForm(ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'test_header': forms.Select(attrs={'class': 'form-control'}),
+            'language': forms.Select(attrs={'class': 'form-control'}),
             'version': forms.TextInput(attrs={'class': 'form-control'}),
             'catalog': forms.SelectMultiple(attrs={
                 'class': 'form-control',
@@ -76,17 +82,39 @@ class ProjectConfigForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProjectConfigForm, self).__init__(*args, **kwargs)
         self.fields['test_header'].queryset = Module.objects.filter(project=None)
+        self.fields['language'].queryset = Language.objects.filter(project=self.instance)
 
         self.fields['test_header'].label_from_instance = lambda obj: "%s" % obj.name
         self.fields['testrail'].label_from_instance = lambda obj: "%s" % obj.project_name
+        self.fields['language'].label_from_instance = lambda obj: "%s" % obj.name
 
     class Meta:
         model = Project
-        fields = ['name', 'test_header', 'testrail', 'version']
+        fields = ['name', 'test_header', 'testrail', 'language', 'version']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control',
                                            'readonly': True}),
             'test_header': forms.Select(attrs={'class': 'form-control'}),
             'testrail': forms.Select(attrs={'class': 'form-control'}),
+            'language': forms.Select(attrs={'class': 'form-control'}),
             'version': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
+
+class LanguageNewForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(LanguageNewForm, self).__init__(*args, **kwargs)
+        self.fields['project'].empty_label = None
+
+    class Meta:
+        model = Language
+        fields = ['project', 'name', 'root_path']
+        widgets = {
+            'project': forms.Select(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'root_path': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+
+
+class UploadForm(forms.Form):
+    file = forms.FileField(max_length=100, required=True)

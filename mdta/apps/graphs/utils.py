@@ -1,4 +1,5 @@
 import ast
+from itertools import chain
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -41,16 +42,24 @@ def node_or_edge_type_edit(request, node_or_edge):
         name = request.POST.get('editNodeTypeName', '')
         keys = request.POST.getlist('editNodeTypeKeys', '')
         subkeys = request.POST.getlist('editNodeTypeSubKeys', '')
+        verbiage_keys = request.POST.getlist('editNodeTypeVerbiageKeys', '')
     else:
         name = request.POST.get('editEdgeTypeName', '')
         keys = request.POST.getlist('editEdgeTypeKeys', '')
         subkeys = request.POST.getlist('editEdgeTypeSubKeys', '')
+        verbiage_keys = ''
 
     tmp_keys = keys[0].replace(' ', '')  # remove white space from string
     tmp_subkeys = subkeys[0].replace(' ', '')
 
     keys_list = tmp_keys.split(',')
     subkeys_list = tmp_subkeys.split(',')
+
+    if verbiage_keys:
+        tmp_verbiage_keys = verbiage_keys[0].replace(' ', '')
+        verbiage_keys_list = tmp_verbiage_keys.split(',')
+    else:
+        verbiage_keys_list = []
 
     if keys_list[-1] == '':
         del keys_list[-1]
@@ -68,6 +77,8 @@ def node_or_edge_type_edit(request, node_or_edge):
         node_or_edge.name = name
         node_or_edge.keys = keys_list
         node_or_edge.subkeys = subkeys_list
+        if verbiage_keys_list:
+            node_or_edge.verbiage_keys = verbiage_keys_list
         node_or_edge.save()
     except (ValidationError, IntegrityError) as e:
         messages.error(request, str(e))
@@ -237,3 +248,34 @@ def get_properties_from_multi_rows(request, node_or_edge_type, key_name=None):
         tmp_data.append(tmp_row)
 
     return tmp_data
+
+
+def node_related_edges_invisible(node, module):
+    """
+    Check edges of node which is outside current module to current module are all invisible
+    :param node: Node outside of current module
+    :param module: Current module
+    :return: True or False
+    """
+    flag, flag_arriving, flag_leaving = True, False, False
+
+    for edge in node.arriving_edges:
+        try:
+            if edge.properties[EDGE_TYPES_INVISIBLE_KEY] != 'on' and edge.from_node.module == module:
+                flag_arriving = True
+                break
+        except KeyError:
+            pass
+
+    for edge in node.leaving_edges:
+        try:
+            if edge.properties[EDGE_TYPES_INVISIBLE_KEY] != 'on' and edge.to_node.module == module:
+                flag_leaving = True
+                break
+        except KeyError:
+            pass
+
+    if flag_arriving or flag_leaving:
+        flag = False
+
+    return flag

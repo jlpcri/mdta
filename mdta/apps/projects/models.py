@@ -1,6 +1,8 @@
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
+import time
 
 from mdta.apps.users.models import HumanResource
 import mdta.apps.graphs.models
@@ -63,13 +65,35 @@ class CatalogItem(models.Model):
         unique_together = ('parent', 'name')
 
 
+class Language(models.Model):
+    """
+    Language selection for testing
+    """
+    name = models.CharField(max_length=50, default='', verbose_name='language')
+    root_path = models.TextField(blank=True, null=True)
+    project = models.ForeignKey('Project', null=True, blank=True,
+                                related_name='language_projects',
+                                on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return '{0}: {1}'.format(self.project.name, self.name)
+
+    class Meta:
+        ordering = ['project', 'name']
+        unique_together = ('project', 'name',)
+
+
 class Project(models.Model):
     """
     Entry of each project which will be represented to Model Driven Graph
     """
     name = models.CharField(max_length=50, unique=True, default='')
     test_header = models.ForeignKey('Module', null=True, blank=True,
-                                    related_name='test_header')
+                                    related_name='test_header', on_delete=models.SET_NULL)
+
+    language = models.ForeignKey(Language, blank=True, null=True,
+                                 related_name='project_language',
+                                 on_delete=models.SET_NULL)
 
     version = models.TextField()  # relate to TestRail-TestSuites
     testrail = models.ForeignKey(TestRailConfiguration,
@@ -259,3 +283,19 @@ class ProjectVariable(models.Model):
 
     def __str__(self):
         return '{0}: {1}'.format(self.project.name, self.name)
+
+
+def vuid_location(instance, filename):
+    return "{0}_{1}".format(str(time.time()).replace('.', ''), filename)
+
+
+class VUID(models.Model):
+    """Represents the uploaded file used to generate VoiceSlot object"""
+    project = models.ForeignKey(Project)
+    filename = models.TextField()
+    upload_date = models.DateTimeField(auto_now_add=True)
+    file = models.FileField(upload_to=vuid_location)
+    upload_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+
+    def __unicode__(self):
+        return '{0}: {1}'.format(self.filename, self.project.name)

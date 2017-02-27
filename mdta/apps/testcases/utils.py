@@ -1,10 +1,10 @@
-from django.shortcuts import get_object_or_404
-
 from mdta.apps.graphs.models import Node
-from mdta.apps.projects.models import Project, TestRailConfiguration, Module
+from mdta.apps.projects.models import Project, TestRailConfiguration
 from mdta.apps.testcases.testrail import APIClient, APIError
-from mdta.apps.testcases.utils_backwards_traverse import path_traverse_backwards, START_NODE_NAME, MENU_PROMPT_OUTPUTS_KEY_NODE_NAME
+from mdta.apps.testcases.utils_backwards_traverse import path_traverse_backwards
 from mdta.apps.testcases.utils_negative_testcases import negative_testcase_generation, rejected_testcase_generation
+
+from mdta.apps.testcases.constant_names import NODE_START_NAME, NODE_MP_NAME, LANGUAGE_DEFAULT_NAME
 
 
 def context_testcases():
@@ -31,14 +31,22 @@ def create_routing_test_suite(project=None, modules=None):
     data = []
 
     if project:
-        data = create_routing_test_suite_module(project.modules)
+        if project.language:
+            language = project.language.name
+        else:
+            language = LANGUAGE_DEFAULT_NAME
+        data = create_routing_test_suite_module(project.modules, language)
     elif modules:
-        data = create_routing_test_suite_module(modules)
+        if modules[0].project.language:
+            language = modules[0].project.language.name
+        else:
+            language = LANGUAGE_DEFAULT_NAME
+        data = create_routing_test_suite_module(modules, language)
 
     return data
 
 
-def create_routing_test_suite_module(modules):
+def create_routing_test_suite_module(modules, language):
     """
     Create routing paths for list of modules
     :param modules:
@@ -52,7 +60,7 @@ def create_routing_test_suite_module(modules):
         th_module = None
 
     for module in modules:
-        data = get_paths_through_all_edges(module.edges_all, th_module)
+        data = get_paths_through_all_edges(module.edges_all, th_module, language)
 
         test_suites.append({
             'module': module.name,
@@ -62,7 +70,7 @@ def create_routing_test_suite_module(modules):
     return test_suites
 
 
-def get_paths_through_all_edges(edges, th_module=None):
+def get_paths_through_all_edges(edges, th_module=None, language=None):
     """
     Get all paths through all edges
     :param edges:
@@ -79,7 +87,7 @@ def get_paths_through_all_edges(edges, th_module=None):
                 path = routing_path_to_edge(edge)
 
                 if path:
-                    path_data = path_traverse_backwards(path, th_path)
+                    path_data = path_traverse_backwards(path, th_path=th_path, language=language)
                     if 'tcs_cannot_route' in path_data.keys():
                         data.append({
                             'tcs_cannot_route': path_data['tcs_cannot_route'],
@@ -97,17 +105,17 @@ def get_paths_through_all_edges(edges, th_module=None):
                                 'title': title
                             })
 
-                        if edge.to_node.type.name == MENU_PROMPT_OUTPUTS_KEY_NODE_NAME[0]:
-                            negative_testcase_generation(data, path_data, title, edge.to_node)
-                        elif edge.to_node.type.name == MENU_PROMPT_OUTPUTS_KEY_NODE_NAME[1]:
-                            rejected_testcase_generation(data, path_data, title, edge.to_node)
+                        if edge.to_node.type.name in NODE_MP_NAME:
+                            negative_testcase_generation(data, path_data, title, edge.to_node, language=language)
+                            if edge.to_node.type.name == NODE_MP_NAME[1]:
+                                rejected_testcase_generation(data, path_data, title, edge.to_node, language=language)
 
     else:
         for edge in edges:
             path = routing_path_to_edge(edge)
 
             if path:
-                path_data = path_traverse_backwards(path)
+                path_data = path_traverse_backwards(path, language=language)
                 if 'tcs_cannot_route' in path_data.keys():
                     data.append({
                         'tcs_cannot_route': path_data['tcs_cannot_route'],
@@ -125,8 +133,8 @@ def get_paths_through_all_edges(edges, th_module=None):
                             'title': title
                         })
 
-                    if edge.to_node.type.name == MENU_PROMPT_OUTPUTS_KEY_NODE_NAME[0]:
-                        negative_testcase_generation(data, path_data, title, edge.to_node)
+                    if edge.to_node.type.name == NODE_MP_NAME[0]:
+                        negative_testcase_generation(data, path_data, title, edge.to_node, language=language)
 
     # return check_subpath_in_all(data)
     return data
@@ -177,7 +185,7 @@ def breadth_first_search(node, visited_nodes):
     path = []
     start_node_found_outside = False  # flag to find Start Node outside
 
-    if node.type.name in START_NODE_NAME:
+    if node.type.name in NODE_START_NAME:
         path.append(node)
     else:
         edges = node.arriving_edges
@@ -196,9 +204,9 @@ def breadth_first_search(node, visited_nodes):
         if edge:
             start_node_found = False  # flag to find Start Node in current search
             if edge.from_node not in visited_nodes \
-                    or edge.from_node.type.name in START_NODE_NAME:  # if Node is not visited or Node is Start
+                    or edge.from_node.type.name in NODE_START_NAME:  # if Node is not visited or Node is Start
                 if edge.from_node != edge.to_node:
-                    if edge.from_node.type.name not in START_NODE_NAME:
+                    if edge.from_node.type.name not in NODE_START_NAME:
                         if edge.from_node.arriving_edges.count() > 0:
                             start_node_found_outside = True
                             path += breadth_first_search(edge.from_node, visited_nodes)
@@ -374,40 +382,3 @@ def add_testcase_to_section(client, section_id, data):
 
 # --------------- TestRail End ---------------
 
-
-# --------------- Hat Scripts Start ---------------
-def create_hat_scripts_for_project_or_module(project_id=None, module_id=None):
-    """
-    Create Hat Scripts per Project
-    :param project_id:
-    :return:
-    """
-
-    if project_id:
-        project = get_object_or_404(Project, pk=project_id)
-        tcs = project.testcaseresults_set.latest('updated').results
-        for tc in tcs:
-            print(tc['module'])
-            if tc['data']:
-                for index, item in enumerate(tc['data']):
-                    if 'pre_conditions' in item.keys():
-                        create_hat_scripts_per_tc(index, item['pre_conditions'], item['tc_steps'])
-    elif module_id:
-        module = get_object_or_404(Module, pk=module_id)
-        tmp_tcs = module.project.testcaseresults_set.latest('updated').results
-        tcs = [(item for item in tmp_tcs if item['module'] == module.name).__next__()]
-        for tc in tcs:
-            print(tc['module'])
-            if tc['data']:
-                for index, item in enumerate(tc['data']):
-                    if 'pre_conditions' in item.keys():
-                        create_hat_scripts_per_tc(index, item['pre_conditions'], item['tc_steps'])
-
-
-def create_hat_scripts_per_tc(index, pre_condition, steps):
-    print(index, '\nPreConditions: ', pre_condition, len(steps))
-    # for step in steps:
-    #     print(step)
-
-
-# --------------- Hat Scripts End ---------------
