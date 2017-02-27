@@ -39,7 +39,13 @@
                                         None
                                     {% endif %}
                                 </td>
-                                <td>{{ project.language.name }}</td>
+                                <td>
+                                    {% if project.language %}
+                                        {{ project.language.name }}
+                                    {% else %}
+                                        None
+                                    {% endif %}
+                                </td>
                                 <td>
                                     <a href="{% url 'projects:project_edit' project.id %}"><i class="fa fa-edit fa-fw"></i></a>
                                 </td>

@@ -14,11 +14,8 @@ from mdta.apps.users.views import user_is_staff, user_is_superuser
 from .models import NodeType, EdgeType, Node, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeAutoNewForm
 from mdta.apps.projects.forms import ModuleForm, UploadForm
-from mdta.apps.testcases.constant_names import NODE_START_NAME
+from mdta.apps.testcases.constant_names import NODE_START_NAME, LANGUAGE_DEFAULT_NAME
 from mdta.apps.testcases.tasks import create_testcases_celery, push_testcases_to_testrail_celery
-
-LANGUAGE_DEFAULT_NAME = 'English'
-
 
 
 @login_required
@@ -685,30 +682,54 @@ def get_nodes_from_module(request):
 def get_module_id_from_node_id(request):
     node_id = request.GET.get('node_id', '')
     node = get_object_or_404(Node, pk=node_id)
-    if node.module.project and node.module.project.language:
-        language = {
-            'name': node.module.project.language.name,
-            'id': node.module.project.language.id
-        }
-    else:
-        language = {
-            'name': '',
-            'id': ''
-        }
+    if node.module.project:  # node in Project.modules
+        if node.module.project.language:
+            language = {
+                'name': node.module.project.language.name,
+                'id': node.module.project.language.id
+            }
+        else:
+            language = {
+                'name': '',
+                'id': ''
+            }
 
-    project_languages = Language.objects.filter(project=node.module.project)
-    languages = []
-    if project_languages.count() > 0:
-        for item in project_languages:
+        project_languages = Language.objects.filter(project=node.module.project)
+        languages = []
+        if project_languages.count() > 0:
+            for item in project_languages:
+                languages.append({
+                    'name': item.name,
+                    'id': item.id
+                })
+        else:
             languages.append({
-                'name': item.name,
-                'id': item.id
+                'name': LANGUAGE_DEFAULT_NAME,
+                'id': -1
             })
-    else:
-        languages.append({
-            'name': LANGUAGE_DEFAULT_NAME,
-            'id': -1
-        })
+    else:  # node in test header
+        projects = Project.objects.filter(test_header=node.module)
+        projects_languages = []
+        languages = []
+        for project in projects:
+            projects_languages += Language.objects.filter(project=project)
+        if len(projects_languages) > 0:
+            for item in projects_languages:
+                tmp = any(lan['name'] == item.name for lan in languages)
+                if not tmp:
+                    languages.append({
+                        'name': item.name,
+                        'id': item.id
+                    })
+        else:
+            languages.append({
+                'name': LANGUAGE_DEFAULT_NAME,
+                'id': -1
+            })
+        language = {
+                'name': '',
+                'id': ''
+            }
 
     node_data = {
         'name': node.name,
@@ -717,8 +738,8 @@ def get_module_id_from_node_id(request):
         'properties': node.properties,
         'verbiage': node.verbiage,
         'v_keys': node.type.verbiage_keys,
-        'language': language,
-        'languages': languages
+        'language': language,  # language default value of node
+        'languages': languages  # all possible languages of current node of module of project
     }
 
     data = {

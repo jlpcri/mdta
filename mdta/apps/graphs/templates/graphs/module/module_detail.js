@@ -298,12 +298,12 @@ function open_prompts_modal(node, node_id){
         verbiage_contents += '</td>';
         verbiage_contents += '</tr>';
 
-        //console.log(verbiage, language_key)
+        //console.log(verbiage, language_key, verbiage[language_key])
         $.each(node['v_keys'], function (k, v) {
             //console.log(k, v)
             verbiage_contents += '<tr>';
             verbiage_contents += '<td><label>{0}:</label></td>'.format(v);
-            if (verbiage === null || $.isEmptyObject(verbiage) || typeof verbiage[language_name] == 'undefined' || typeof verbiage[language_name][v] == 'undefined') {
+            if (verbiage === null || $.isEmptyObject(verbiage) || typeof verbiage[language_key] == 'undefined' || typeof verbiage[language_key][v] == 'undefined') {
                 verbiage_contents += '<td><textarea name=\'{0}\' rows=\'3\' style=\'width:100%\'></textarea></td>'.format(v);
             } else {
                 verbiage_contents += '<td><textarea name=\'{0}\' rows=\'3\' style=\'width:100%\'>{1}</textarea></td>'.format(v, verbiage[language_key][v]);
