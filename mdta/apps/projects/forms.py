@@ -114,3 +114,7 @@ class LanguageNewForm(ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'root_path': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
+
+class UploadForm(forms.Form):
+    file = forms.FileField(max_length=100, required=True)

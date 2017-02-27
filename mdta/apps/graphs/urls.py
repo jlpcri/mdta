@@ -18,6 +18,7 @@ urlpatterns = [
 
     url(r'^project_module_detail/(?P<module_id>\d+)/$', views.project_module_detail, name='project_module_detail'),
     url(r'^(?P<project_id>\d+)/project_module_new/$', views.project_module_new, name='project_module_new'),
+    url(r'^(?P<project_id>\d+)/project_module_import/$', views.project_module_import, name='project_module_import'),
     url(r'^(?P<project_id>\d+)/project_module_edit/$', views.project_module_edit, name='project_module_edit'),
 
     url(r'(?P<module_id>\d+)/module_node_new/$', views.module_node_new, name='module_node_new'),
