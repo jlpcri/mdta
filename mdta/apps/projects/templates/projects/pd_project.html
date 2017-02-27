@@ -39,7 +39,18 @@
                                         None
                                     {% endif %}
                                 </td>
-                                <td>{{ project.language.name }}</td>
+                                <td>
+                                    {% if project.language %}
+                                        <a href="#language-edit-modal" data-toggle="modal"
+                                       data-language-id="{{ project.language.id }}"
+                                       data-language-project-id="{{ project.id }}"
+                                       data-language-name="{{ project.language.name }}"
+                                       data-language-rootpath="{{ project.language.root_path}}">
+                                    {{ project.language.name }}</a>
+                                    {% else %}
+                                        None
+                                    {% endif %}
+                                </td>
                                 <td>
                                     <a href="{% url 'projects:project_edit' project.id %}"><i class="fa fa-edit fa-fw"></i></a>
                                 </td>
