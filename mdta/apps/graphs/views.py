@@ -139,13 +139,17 @@ def get_keys_from_type(request):
     object_type = request.GET.get('type', '')
     if object_type == 'node':
         item = get_object_or_404(NodeType, pk=object_id)
+        data = {
+            'keys': sorted(item.keys),
+            'subkeys': item.subkeys,
+            'v_keys': item.verbiage_keys
+        }
     else:
         item = get_object_or_404(EdgeType, pk=object_id)
-
-    data = {
-        'keys': sorted(item.keys),
-        'subkeys': item.subkeys
-    }
+        data = {
+            'keys': sorted(item.keys),
+            'subkeys': item.subkeys,
+        }
 
     return HttpResponse(json.dumps(data), content_type='application/json')
 
@@ -766,28 +770,55 @@ def project_publish(request, project_id):
 
 
 def module_node_verbiage_edit(request):
+    """
+    Edit Node data modal
+    :param request:
+    :return:
+    """
     if request.method == 'POST':
         node_id = request.POST.get('moduleNodeEditId', '')
-        language_id = request.POST.getlist('moduleNodeEditVerbiageLanguage', '')[0]
-
         node = get_object_or_404(Node, pk=node_id)
-        if int(language_id) > 0:
-            language = get_object_or_404(Language, pk=language_id)
-            language_name = language.name
-        else:
-            language_name = LANGUAGE_DEFAULT_NAME
 
-        # print(node.name, node.type.verbiage_keys, language_name)
-        tmp = {}
-        for key in node.type.verbiage_keys:
-            tmp[key] = request.POST.get(key, '')
+        if 'node_save' in request.POST:
+            node_name = request.POST.get('moduleNodeEditName', '')
+            node_type_id = request.POST.get('moduleNodeEditType', '')
+            node_type = get_object_or_404(NodeType, pk=node_type_id)
 
-        if node.verbiage:
-            node.verbiage[language_name] = tmp
-        else:
-            node.verbiage = {
-                language_name: tmp
-            }
-        node.save()
+            properties = get_properties_for_node_or_edge(request, node_type)
+
+            language_name = ''
+            language_list = request.POST.getlist('moduleNodeEditVerbiageLanguage', '')
+            if language_list:
+                language_id = language_list[0]
+                if int(language_id) > 0:
+                    language = get_object_or_404(Language, pk=language_id)
+                    language_name = language.name
+                else:
+                    language_name = LANGUAGE_DEFAULT_NAME
+
+            verbiage = {}
+            for key in node_type.verbiage_keys:
+                verbiage[key] = request.POST.get(key, '')
+
+            try:
+                node.name = node_name
+                node.type = node_type
+                node.properties = properties
+                if language_name:
+                    if node.verbiage:
+                        node.verbiage[language_name] = verbiage
+                    else:
+                        node.verbiage = {
+                            language_name: verbiage
+                        }
+                else:
+                    node.verbiage = {}
+                node.save()
+            except (ValueError, ValidationError) as e:
+                messages.error(request, str(e))
+
+        elif 'node_delete' in request.POST:
+            node.delete()
+            messages.success(request, 'Node is deleted.')
 
         return redirect('graphs:project_module_detail', node.module.id)
