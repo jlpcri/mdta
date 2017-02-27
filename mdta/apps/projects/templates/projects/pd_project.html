@@ -41,7 +41,12 @@
                                 </td>
                                 <td>
                                     {% if project.language %}
-                                        {{ project.language.name }}
+                                        <a href="#language-edit-modal" data-toggle="modal"
+                                       data-language-id="{{ project.language.id }}"
+                                       data-language-project-id="{{ project.id }}"
+                                       data-language-name="{{ project.language.name }}"
+                                       data-language-rootpath="{{ project.language.root_path}}">
+                                    {{ project.language.name }}</a>
                                     {% else %}
                                         None
                                     {% endif %}
