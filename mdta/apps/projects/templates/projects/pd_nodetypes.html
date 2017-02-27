@@ -13,7 +13,8 @@
                     <thead>
                         <tr>
                             <th class="col-xs-4">Name</th>
-                            <th class="col-xs-8">keys</th>
+                            <th class="col-xs-4">keys</th>
+                            <th class="col-xs-4">VerbiageKeys</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -23,10 +24,12 @@
                                        data-node-type-id="{{ node_type.id }}"
                                        data-node-type-name="{{ node_type.name }}"
                                        data-node-type-keys="{{ node_type.keys|join:", " }}"
-                                       data-node-type-subkeys="{{ node_type.subkeys|join:", " }}">
+                                       data-node-type-subkeys="{{ node_type.subkeys|join:", " }}"
+                                       data-node-type-verbiagekeys="{{ node_type.verbiage_keys|join:", " }}">
                                     {{ node_type.name }}</a>
                                 </td>
                                 <td>{{ node_type.keys }}</td>
+                                <td>{{ node_type.verbiage_keys }}</td>
                             </tr>
                         {% endfor %}
                     </tbody>

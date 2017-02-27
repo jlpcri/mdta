@@ -18,6 +18,7 @@
                                 <th class="col-xs-2">Config</th>
                                 <th class="col-xs-1">TestHeader</th>
                                 <th class="col-xs-2">Version(TestSuites)</th>
+                                <th class="col-xs-1">Language</th>
                                 <th class="col-xs-1">Full Edit</th>
                             </tr>
                         </thead>
@@ -38,6 +39,7 @@
                                         None
                                     {% endif %}
                                 </td>
+                                <td>{{ project.language.name }}</td>
                                 <td>
                                     <a href="{% url 'projects:project_edit' project.id %}"><i class="fa fa-edit fa-fw"></i></a>
                                 </td>

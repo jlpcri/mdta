@@ -14,6 +14,7 @@ class NodeTypeNewForm(ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'keys': forms.TextInput(attrs={'class': 'form-control'}),
             'subkeys': forms.TextInput(attrs={'class': 'form-control'}),
+            'verbiage_keys': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
 

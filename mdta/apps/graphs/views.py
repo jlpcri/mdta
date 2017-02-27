@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new, check_edge_in_set,\
     get_properties_for_node_or_edge, EDGE_TYPES_INVISIBLE_KEY, node_related_edges_invisible
-from mdta.apps.projects.models import Project, Module
+from mdta.apps.projects.models import Project, Module, Language
 from mdta.apps.projects.utils import context_project_dashboard
 from mdta.apps.users.views import user_is_staff, user_is_superuser
 from .models import NodeType, EdgeType, Node, Edge
@@ -16,6 +16,8 @@ from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeAutoNewFor
 from mdta.apps.projects.forms import ModuleForm, UploadForm
 from mdta.apps.testcases.constant_names import NODE_START_NAME
 from mdta.apps.testcases.tasks import create_testcases_celery, push_testcases_to_testrail_celery
+
+LANGUAGE_DEFAULT_NAME = 'English'
 
 
 
@@ -421,7 +423,7 @@ def project_module_detail(request, module_id):
     return render(request, 'graphs/module/module_detail.html', context)
 
 
-@user_passes_test(user_is_staff)
+@login_required
 def project_module_edit(request, project_id):
     """
     Edit module from project view, include Edition/Deletion
@@ -450,7 +452,7 @@ def project_module_edit(request, project_id):
         return redirect('graphs:project_detail', project_id)
 
 
-@user_passes_test(user_is_staff)
+@login_required
 def module_node_new(request, module_id):
     """
     Add new node from module view
@@ -476,7 +478,7 @@ def module_node_new(request, module_id):
         return redirect('graphs:project_module_detail', module_id)
 
 
-@user_passes_test(user_is_staff)
+@login_required
 def module_node_new_node_edge(request):
     if request.method == 'POST':
         # print(request.POST)
@@ -515,7 +517,7 @@ def module_node_new_node_edge(request):
         return redirect('graphs:project_module_detail', from_node.module.id)
 
 
-@user_passes_test(user_is_staff)
+@login_required
 def module_node_edit(request, node_id):
     """
     Edit node from module view
@@ -550,7 +552,7 @@ def module_node_edit(request, node_id):
         return redirect('graphs:project_module_detail', node.module.id)
 
 
-@user_passes_test(user_is_staff)
+@login_required
 def module_edge_new(request, module_id):
     """
     Add new edge from module view
@@ -587,7 +589,7 @@ def module_edge_new(request, module_id):
         return redirect('graphs:project_module_detail', module_id)
 
 
-@user_passes_test(user_is_staff)
+@login_required
 def module_edge_edit(request, edge_id):
     """
     Edit edge from module view
@@ -683,9 +685,45 @@ def get_nodes_from_module(request):
 def get_module_id_from_node_id(request):
     node_id = request.GET.get('node_id', '')
     node = get_object_or_404(Node, pk=node_id)
+    if node.module.project and node.module.project.language:
+        language = {
+            'name': node.module.project.language.name,
+            'id': node.module.project.language.id
+        }
+    else:
+        language = {
+            'name': '',
+            'id': ''
+        }
+
+    project_languages = Language.objects.filter(project=node.module.project)
+    languages = []
+    if project_languages.count() > 0:
+        for item in project_languages:
+            languages.append({
+                'name': item.name,
+                'id': item.id
+            })
+    else:
+        languages.append({
+            'name': LANGUAGE_DEFAULT_NAME,
+            'id': -1
+        })
+
+    node_data = {
+        'name': node.name,
+        'type_id': node.type.id,
+        'type_name': node.type.name,
+        'properties': node.properties,
+        'verbiage': node.verbiage,
+        'v_keys': node.type.verbiage_keys,
+        'language': language,
+        'languages': languages
+    }
 
     data = {
-        'module_id': node.module.id
+        'module_id': node.module.id,
+        'node_data': node_data
     }
 
     return HttpResponse(json.dumps(data), content_type='application/json')
@@ -704,3 +742,31 @@ def project_publish(request, project_id):
     push_testcases_to_testrail_celery.delay(project.id)
 
     return redirect('testcases:tcs_project')
+
+
+def module_node_verbiage_edit(request):
+    if request.method == 'POST':
+        node_id = request.POST.get('moduleNodeEditId', '')
+        language_id = request.POST.getlist('moduleNodeEditVerbiageLanguage', '')[0]
+
+        node = get_object_or_404(Node, pk=node_id)
+        if int(language_id) > 0:
+            language = get_object_or_404(Language, pk=language_id)
+            language_name = language.name
+        else:
+            language_name = LANGUAGE_DEFAULT_NAME
+
+        # print(node.name, node.type.verbiage_keys, language_name)
+        tmp = {}
+        for key in node.type.verbiage_keys:
+            tmp[key] = request.POST.get(key, '')
+
+        if node.verbiage:
+            node.verbiage[language_name] = tmp
+        else:
+            node.verbiage = {
+                language_name: tmp
+            }
+        node.save()
+
+        return redirect('graphs:project_module_detail', node.module.id)
