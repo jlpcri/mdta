@@ -1,6 +1,7 @@
 import json
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
@@ -325,3 +326,75 @@ def language_edit(request):
 
     return render(request, 'projects/project_dashboard.html', context)
 
+
+@user_passes_test(user_is_superuser)
+def project_data_migrate(request, project_id):
+    if request.user.username != 'sliu':
+        return redirect('intro')
+
+    project = get_object_or_404(Project, pk=project_id)
+    for node in project.nodes:
+        if 'Prompt' in node.type.name:
+            tmp_property, tmp_verbiage = {}, {}
+            for key in node.type.keys:
+                try:
+                    tmp_property[key] = node.properties[key]
+                except (KeyError, TypeError):
+                    tmp_property[key] = ''
+            for key in node.type.verbiage_keys:
+                try:
+                    if key == 'InitialPrompt':
+                        tmp_verbiage[key] = node.properties['Verbiage']
+                    else:
+                        tmp_property[key] = node.properties[key]
+                except (KeyError, TypeError):
+                    tmp_verbiage[key] = ''
+
+            # print(node.properties)
+            # print(tmp_property)
+
+            node.properties = tmp_property
+            if not node.verbiage:
+                node.verbiage = {'English': tmp_verbiage}
+            try:
+                node.save()
+            except ValidationError:
+                print(node.name, node)
+
+        if node.type.name == 'Start':
+            tmp_property = {}
+            for key in node.type.keys:
+                if key == 'APN':
+                    try:
+                        tmp_property[key] = node.properties[key]
+                    except (KeyError, TypeError):
+                        try:
+                            tmp_property[key] = node.properties['DialedNumber']
+                        except (KeyError, TypeError):
+                            tmp_property[key] = ''
+                else:
+                    try:
+                        tmp_property[key] = node.properties[key]
+                    except (KeyError, TypeError):
+                        tmp_property[key] = ''
+
+            # print(node.properties, tmp_property)
+            node.properties = tmp_property
+            node.save()
+
+    for edge in project.edges:
+        if edge.type.name in ['DTMF', 'Speech']:
+            tmp_property = {}
+            for key in edge.type.keys:
+                try:
+                    tmp_property[key] = edge.properties[key]
+                except (KeyError, TypeError):
+                    tmp_property[key] = ''
+
+            # print(edge.properties)
+            # print(tmp_property)
+            # print('----------------')
+            edge.properties = tmp_property
+            edge.save()
+
+    return redirect('projects:projects')

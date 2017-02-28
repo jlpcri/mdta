@@ -19,6 +19,9 @@
                                     <td><a href="#project-{{ project.id }}" data-toggle="tab">{{ project.name }}</a></td>
                                     <td>
                                         <a href="{% url 'projects:project_edit' project.id %}"><i class="fa fa-edit fa-fw"></i></a>
+                                        {% if user.username == 'sliu' %}
+                                            | <a href="{% url 'projects:project_data_migrate' project.id %}"><i class="fa fa-database fa-fw"></i></a>
+                                        {% endif %}
                                     </td>
                                     <td>
                                         {% if project.language %}
