@@ -329,11 +329,54 @@ def language_edit(request):
 
 @user_passes_test(user_is_superuser)
 def project_data_migrate(request, project_id):
+    """
+    Migrate Project, All Projects, All TestHeaders data
+    :param request:
+    :param project_id:
+    :return:
+    """
     if request.user.username != 'sliu':
         return redirect('intro')
 
-    project = get_object_or_404(Project, pk=project_id)
-    for node in project.nodes:
+    type_migrate = request.GET.get('type', '')
+    if type_migrate == 'all':
+        projs = Project.objects.all()
+        for p in projs:
+            # print(p.name)
+            project_data_migrate_single(p)
+    elif type_migrate == 'th':
+        ths = Module.objects.filter(project=None)
+        for th in ths:
+            if th.name:
+                project_data_migrate_nodes(th.nodes)
+                project_data_migrate_edges(th.edges_all)
+            else:
+                th.delete()
+    else:
+        project = get_object_or_404(Project, pk=project_id)
+        # print(project.name)
+        project_data_migrate_single(project)
+
+    return redirect('projects:projects')
+
+
+def project_data_migrate_single(project):
+    """
+    Migrate Project Nodes and Edges
+    :param project:
+    :return:
+    """
+    project_data_migrate_nodes(project.nodes)
+    project_data_migrate_edges(project.edges)
+
+
+def project_data_migrate_nodes(nodes):
+    """
+    Migrate Nodes data
+    :param nodes:
+    :return:
+    """
+    for node in nodes:
         if 'Prompt' in node.type.name:
             tmp_property, tmp_verbiage = {}, {}
             for key in node.type.keys:
@@ -382,7 +425,14 @@ def project_data_migrate(request, project_id):
             node.properties = tmp_property
             node.save()
 
-    for edge in project.edges:
+
+def project_data_migrate_edges(edges):
+    """
+    Migrate Edges data
+    :param edges:
+    :return:
+    """
+    for edge in edges:
         if edge.type.name in ['DTMF', 'Speech']:
             tmp_property = {}
             for key in edge.type.keys:
@@ -396,5 +446,3 @@ def project_data_migrate(request, project_id):
             # print('----------------')
             edge.properties = tmp_property
             edge.save()
-
-    return redirect('projects:projects')
