@@ -224,6 +224,7 @@ def project_detail(request, project_id):
 
     return render(request, 'graphs/project/project_detail.html', context)
 
+
 @user_passes_test(user_is_staff)
 def project_module_import(request, project_id):
     """
@@ -249,6 +250,7 @@ def project_module_import(request, project_id):
             messages.error(request, 'Errors found.')
 
         return redirect('graphs:project_detail', project_id)
+
 
 @user_passes_test(user_is_staff)
 def project_module_new(request, project_id):
@@ -711,6 +713,8 @@ def get_module_id_from_node_id(request):
                 'name': LANGUAGE_DEFAULT_NAME,
                 'id': -1
             })
+
+        node_in = 'module'
     else:  # node in test header
         projects = Project.objects.filter(test_header=node.module)
         projects_languages = []
@@ -735,6 +739,8 @@ def get_module_id_from_node_id(request):
                 'id': ''
             }
 
+        node_in = 'testheader'
+
     node_data = {
         'name': node.name,
         'type_id': node.type.id,
@@ -743,7 +749,8 @@ def get_module_id_from_node_id(request):
         'verbiage': node.verbiage,
         'v_keys': node.type.verbiage_keys,
         'language': language,  # language default value of node
-        'languages': languages  # all possible languages of current node of module of project
+        'languages': languages,  # all possible languages of current node of module of project
+        'node_in': node_in,  # determine node whether in test header or not
     }
 
     data = {
