@@ -1,5 +1,4 @@
 from django.db import transaction
-# from orderedset import OrderedSet
 import pandas as pd
 
 from mdta.apps.projects.models import Project, Module, VUID, Language
@@ -19,28 +18,16 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
     project = Project.objects.get(pk=project_id)
 
     module_names = []
-    for i, row in df.iterrows():
+    languages = []
 
+    for i in df.index:
         try:
-            pgname = (row[PAGE_NAME])
-            pname = (row[PROMPT_NAME])
-            ptext = (row[PROMPT_TEXT])
+            pgname = (df[PAGE_NAME][i])
+            pname = (df[PROMPT_NAME][i])
+            ptext = (df[PROMPT_TEXT][i])
+            stname = (df[STATE_NAME][i])
         except ValueError:
             return {"valid": False, "message": "Parser error, invalid headers"}
-
-        for d in df.columns:
-            lang = Language.objects.filter(project=project)
-            values = lang.values_list('name')
-            for v in values:
-                plang = v
-                if d.title().startswith(tuple(plang)):
-                    language = d
-                    lverbiage = (row[language])
-                else:
-                    no_language = ('English',)
-                    print(no_language)
-
-        stname = (row[STATE_NAME])
 
         try:
             pg = Module.objects.get(name=pgname, project=project)
@@ -49,51 +36,56 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
             module_names.append(pg)
             pg.save()
 
+        for d in df.columns:
+            lang = Language.objects.filter(project=project)
+            values = lang.values_list('name', flat=True)
+            for v in values:
+                languages.append(v)
+                if d.title().startswith(v):
+                    language = d
+
+        for l in languages:
+            plang = l
+            if plang == 'English':
+                verbiage = ptext
+            else:
+                verbiage = (df[language][i])
+            print(plang, verbiage)
+
         if pname.find('_') != -1:
             pname = pname.replace('_', ' ').rstrip('123456789').strip(' ')
         if stname.startswith('prompt_'):
             type = NodeType.objects.get(name='Menu Prompt')
-            select = NodeType.objects.get(name='Language Select')
             stname = stname.replace('prompt_', ' ').strip(' ')
-            verbiage_keys = [{'Language': plang,
-                             'items': {
-                                           'Verbiage': lverbiage,
-                                           'TranslateVerbiage': ptext,
-                                           'NoInput_1': "",
-                                           'NoInput_2': "",
-                                           'NoMatch_1': "",
-                                           'NoMatch_2': "",
-                             }
-                             }]
+            verbiage_keys = {plang: {
+                    'Initialprompt': verbiage,
+                    'NoInput_1': "",
+                    'NoInput_2': "",
+                    'NoMatch_1': "",
+                    'NoMatch_2': "",
+                }
+                }
+
         elif stname.startswith(('say_', 'play_')):
             type = NodeType.objects.get(name='Play Prompt')
-            select = NodeType.objects.get(name='Language Select')
             stname = stname.replace('say_', ' ').strip(' ')
-            verbiage_keys = [{'Language': plang,
-                             'items': {
-                                       'Verbiage': lverbiage,
-                                       'TranslateVerbiage': ptext,
-                             }
-                             }]
-        # print(stname)
-        # print(pname)
+            verbiage_keys = {plang: {
+                    'Initialprompt': verbiage,
+                }
+                }
         try:
             nn = Node.objects.get(module__project=project, name=stname)
         except Node.DoesNotExist:
             nn = Node(module=pg, name=stname, type=type, verbiage=verbiage_keys)
 
-        print("{0} {1} == {2} {3}".format(type(nn.verbiage['Language']), nn.verbiage['Language'], type(
-            no_language), no_language))
-
         if pname.endswith('NI1'):
-            nn.verbiage['items']['NoInput_1'] = ptext
+            nn.verbiage[plang]['NoInput_1'] = verbiage
         elif pname.endswith('NI2'):
-            nn.verbiage['NoInput_2'] = ptext
+            nn.verbiage[plang]['NoInput_2'] = verbiage
         elif pname.endswith('NM1'):
-            nn.verbiage['NoMatch_1'] = ptext
+            nn.verbiage[plang]['NoMatch_1'] = verbiage
         elif pname.endswith('NM2'):
-            nn.verbiage['NoMatch_2'] = ptext
-
+            nn.verbiage[plang]['NoMatch_2'] = verbiage
         nn.save()
         print(nn)
         print(nn.verbiage)
