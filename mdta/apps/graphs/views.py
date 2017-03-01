@@ -747,6 +747,7 @@ def get_module_id_from_node_id(request):
         'type_name': node.type.name,
         'properties': node.properties,
         'verbiage': node.verbiage,
+        'node_keys': node.type.keys,
         'v_keys': node.type.verbiage_keys,
         'language': language,  # language default value of node
         'languages': languages,  # all possible languages of current node of module of project
@@ -792,6 +793,7 @@ def module_node_verbiage_edit(request):
             node_type = get_object_or_404(NodeType, pk=node_type_id)
 
             properties = get_properties_for_node_or_edge(request, node_type)
+            # print(request.POST)
 
             language_name = ''
             language_list = request.POST.getlist('moduleNodeEditVerbiageLanguage', '')
