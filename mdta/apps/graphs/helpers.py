@@ -18,15 +18,16 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
     project = Project.objects.get(pk=project_id)
 
     module_names = []
-    languages = []
     no_language = False
+    languages = []
 
-    for i, row in df.iterrows():
+    print(languages)
+    for i in df.index:
         try:
-            pgname = (row[PAGE_NAME])
-            pname = (row[PROMPT_NAME])
-            ptext = (row[PROMPT_TEXT])
-            stname = (row[STATE_NAME])
+            pgname = (df[PAGE_NAME][i])
+            pname = (df[PROMPT_NAME][i])
+            ptext = (df[PROMPT_TEXT][i])
+            stname = (df[STATE_NAME][i])
         except ValueError:
             return {"valid": False, "message": "Parser error, invalid headers"}
 
@@ -42,22 +43,21 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
             values = lang.values_list('name', flat=True)
             if not values.exists():
                 no_language = True
+                values = ['English']
             for v in values:
-                languages.append(v)
                 if d.title().startswith(v):
                     language = d
-
         if no_language:
-            plang = 'English'
+            # plang = 'English'
             verbiage = ptext
 
-        for l in languages:
-            plang = l
+        for v in values:
+            plang = v
+            languages.append(v)
             if plang == 'English':
                 verbiage = ptext
             else:
-                verbiage = (row[language])
-            print(plang, verbiage)
+                verbiage = (df[language][i])
 
         if stname.startswith('prompt_'):
             type = NodeType.objects.get(name='Menu Prompt')
@@ -92,7 +92,6 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
             nn.verbiage[plang]['NoMatch_1'] = verbiage
         elif pname.endswith('NM2'):
             nn.verbiage[plang]['NoMatch_2'] = verbiage
-
         nn.save()
         print(nn)
         print(nn.verbiage)
