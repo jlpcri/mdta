@@ -19,13 +19,14 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
 
     module_names = []
     languages = []
+    no_language = False
 
-    for i in df.index:
+    for i, row in df.iterrows():
         try:
-            pgname = (df[PAGE_NAME][i])
-            pname = (df[PROMPT_NAME][i])
-            ptext = (df[PROMPT_TEXT][i])
-            stname = (df[STATE_NAME][i])
+            pgname = (row[PAGE_NAME])
+            pname = (row[PROMPT_NAME])
+            ptext = (row[PROMPT_TEXT])
+            stname = (row[STATE_NAME])
         except ValueError:
             return {"valid": False, "message": "Parser error, invalid headers"}
 
@@ -39,45 +40,50 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
         for d in df.columns:
             lang = Language.objects.filter(project=project)
             values = lang.values_list('name', flat=True)
+            if not values.exists():
+                no_language = True
             for v in values:
                 languages.append(v)
                 if d.title().startswith(v):
                     language = d
+
+        if no_language:
+            plang = 'English'
+            verbiage = ptext
 
         for l in languages:
             plang = l
             if plang == 'English':
                 verbiage = ptext
             else:
-                verbiage = (df[language][i])
+                verbiage = (row[language])
             print(plang, verbiage)
 
-        if pname.find('_') != -1:
-            pname = pname.replace('_', ' ').rstrip('123456789').strip(' ')
         if stname.startswith('prompt_'):
             type = NodeType.objects.get(name='Menu Prompt')
             stname = stname.replace('prompt_', ' ').strip(' ')
             verbiage_keys = {plang: {
-                    'Initialprompt': verbiage,
-                    'NoInput_1': "",
-                    'NoInput_2': "",
-                    'NoMatch_1': "",
-                    'NoMatch_2': "",
-                }
-                }
-
+                'Initialprompt': verbiage,
+                'NoInput_1': "",
+                'NoInput_2': "",
+                'NoMatch_1': "",
+                'NoMatch_2': "",
+            }
+            }
         elif stname.startswith(('say_', 'play_')):
             type = NodeType.objects.get(name='Play Prompt')
             stname = stname.replace('say_', ' ').strip(' ')
             verbiage_keys = {plang: {
-                    'Initialprompt': verbiage,
-                }
-                }
+                'Initialprompt': verbiage,
+            }
+            }
         try:
             nn = Node.objects.get(module__project=project, name=stname)
         except Node.DoesNotExist:
             nn = Node(module=pg, name=stname, type=type, verbiage=verbiage_keys)
 
+        if pname.find('_') != -1:
+            pname = pname.replace('_', ' ').rstrip('123456789').strip(' ')
         if pname.endswith('NI1'):
             nn.verbiage[plang]['NoInput_1'] = verbiage
         elif pname.endswith('NI2'):
@@ -86,6 +92,7 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
             nn.verbiage[plang]['NoMatch_1'] = verbiage
         elif pname.endswith('NM2'):
             nn.verbiage[plang]['NoMatch_2'] = verbiage
+
         nn.save()
         print(nn)
         print(nn.verbiage)
