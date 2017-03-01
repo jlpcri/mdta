@@ -222,7 +222,7 @@ function open_prompts_modal(node, node_id){
 
     var properties = node['properties'],
         verbiage = node['verbiage'],
-        //node_id = node['node_id'],
+        node_in = node['node_in'],
         type_name = node['type_name'],
 
         language_id = node['language']['id'], // project current test language
@@ -239,7 +239,7 @@ function open_prompts_modal(node, node_id){
         language_key = languages[0]['name']
     }
 
-    properties_contents = get_properties_contents(properties, node_id);
+    properties_contents = get_properties_contents(properties, node_id, node_in);
     verbiage_contents = get_verbiage_contents(type_name, node['languages'], node['v_keys'], verbiage, language_key);
 
     //console.log(node['languages'], node['language_id'])
@@ -283,7 +283,7 @@ function open_prompts_modal(node, node_id){
         // update verbiage contents
         $.getJSON("{% url 'graphs:get_keys_from_type' %}?id={0}&type={1}".format(type_id, 'node')).done(function(data){
             //console.log(data)
-            verbiage_contents = get_verbiage_contents(type_name, node['languages'],data['v_keys'], verbiage, language_key);
+            verbiage_contents = get_verbiage_contents(type_name, node['languages'], data['v_keys'], verbiage, language_key);
             verbiage_location.html(verbiage_contents);
         });
 
@@ -293,7 +293,7 @@ function open_prompts_modal(node, node_id){
     $('#module-node-edit-modal').modal('show');
 }
 
-function get_properties_contents(properties, node_id){
+function get_properties_contents(properties, node_id, node_in){
     var properties_contents = '';
 
     $.each(properties, function(k, v){
@@ -322,20 +322,22 @@ function get_properties_contents(properties, node_id){
             properties_contents += '</tbody>';
             properties_contents += '</table>';
         } else {
-            properties_contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
-            properties_contents += '<div class=\'col-xs-4\'><label>{0}:</label></div>'.format(k);
-            if (k == 'NonStandardFail'){
-                properties_contents += '<div class=\'col-xs-8\'>';
-                if (v == 'on'){
-                    properties_contents += '<input name=\'{0}\' type=\'checkbox\' checked class=\'myToggle\' data-on=\'True\' data-width=\'100\' data-onstyle=\'success\' data-off=\'False\' >';
+            if (!((k == 'Default') && (node_in == 'module'))) {
+                properties_contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
+                properties_contents += '<div class=\'col-xs-4\'><label>{0}:</label></div>'.format(k);
+                if (k == 'NonStandardFail') {
+                    properties_contents += '<div class=\'col-xs-8\'>';
+                    if (v == 'on') {
+                        properties_contents += '<input name=\'{0}\' type=\'checkbox\' checked class=\'myToggle\' data-on=\'True\' data-width=\'100\' data-onstyle=\'success\' data-off=\'False\' >';
+                    } else {
+                        properties_contents += '<input name=\'{0}\' type=\'checkbox\' class=\'myToggle\' data-on=\'True\' data-width=\'100\' data-onstyle=\'success\' data-off=\'False\' >';
+                    }
+                    properties_contents += '</div>';
                 } else {
-                    properties_contents += '<input name=\'{0}\' type=\'checkbox\' class=\'myToggle\' data-on=\'True\' data-width=\'100\' data-onstyle=\'success\' data-off=\'False\' >';
+                    properties_contents += '<div class=\'col-xs-8\'><input name=\'{0}\' value=\'{1}\'></div>'.format(k, v);
                 }
                 properties_contents += '</div>';
-            } else {
-                properties_contents += '<div class=\'col-xs-8\'><input name=\'{0}\' value=\'{1}\'></div>'.format(k, v);
             }
-            properties_contents += '</div>';
         }
     });
 
