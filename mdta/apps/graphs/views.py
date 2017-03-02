@@ -9,6 +9,8 @@ from django.shortcuts import render, redirect, get_object_or_404
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new, check_edge_in_set,\
     get_properties_for_node_or_edge, EDGE_TYPES_INVISIBLE_KEY, node_related_edges_invisible
 from mdta.apps.projects.models import Project, Module, Language
+from mdta.apps.graphs import helpers
+from mdta.apps.projects.models import Project, Module
 from mdta.apps.projects.utils import context_project_dashboard
 from mdta.apps.users.views import user_is_staff, user_is_superuser
 from .models import NodeType, EdgeType, Node, Edge
@@ -234,21 +236,27 @@ def project_module_import(request, project_id):
     :return:
     """
     if request.method == 'GET':
-        form = ModuleForm(project_id=project_id)
+        form = UploadForm()
         context = {
             'form': form,
             'project_id': project_id
         }
         return render(request, 'graphs/project/module_import.html', context)
-    elif request.method == 'POST':
-        form = ModuleForm(request.POST)
-        if form.is_valid():
-            module = form.save()
-            messages.success(request, 'Module \'{0}\' is added to \'{1}\''.format(module.name, module.project.name))
-        else:
-            print(form.errors)
-            messages.error(request, 'Errors found.')
 
+    elif request.method == 'POST':
+        form = UploadForm(request.POST, request.FILES)
+        # p = get_object_or_404(Project, project_id)
+        if form.is_valid():
+            if 'file' in request.FILES and request.FILES['file'].name.endswith('.xlsx'):
+                result = helpers.upload_vuid(form.cleaned_data['file'], request.user, project_id)
+                if result['valid']:
+                    messages.success(request, result["message"])
+                else:
+                    messages.error(request, result['message'])
+            elif 'file' in request.FILES:
+                messages.error(request, "Invalid file type, unable to upload (must be .xlsx)")
+            return redirect('graphs:project_detail', project_id)
+        messages.error(request, "Unable to upload file")
         return redirect('graphs:project_detail', project_id)
 
 
