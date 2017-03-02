@@ -224,6 +224,7 @@ function open_prompts_modal(node, node_id){
         verbiage = node['verbiage'],
         node_in = node['node_in'],
         type_name = node['type_name'],
+        node_keys = node['node_keys'],
 
         language_id = node['language']['id'], // project current test language
         language_name = node['language']['name'],
@@ -231,7 +232,8 @@ function open_prompts_modal(node, node_id){
 
         languages = node['languages'], // all possible languages project has
         properties_contents = '',
-        verbiage_contents = '';
+        verbiage_contents = '',
+        rowCounter = 0;
 
     if (language_name != '') {
         language_key = language_name;
@@ -239,7 +241,7 @@ function open_prompts_modal(node, node_id){
         language_key = languages[0]['name']
     }
 
-    properties_contents = get_properties_contents(properties, node_id, node_in);
+    properties_contents = get_properties_contents(node_keys, properties, node_id, node_in);
     verbiage_contents = get_verbiage_contents(type_name, node['languages'], node['v_keys'], verbiage, language_key);
 
     //console.log(node['languages'], node['language_id'])
@@ -252,6 +254,12 @@ function open_prompts_modal(node, node_id){
     $('.moduleNodeEdit #module-node-edit-verbiages').html(verbiage_contents);
 
     $('.myToggle').bootstrapToggle();
+    autocomplete_nodename_and_edgekeys();
+    $('#buttonAddData').click(function(){
+        rowCounter = parseInt($('tr').last().attr('id')) + 1;
+        node_property_add_data(['Inputs', 'Outputs'], rowCounter, '.moduleNodeEdit table', 'call');
+    });
+
     if (language_id != '') {
         $('.moduleNodeEdit #moduleNodeEditVerbiageLanguage').val(language_id);
     }
@@ -277,14 +285,16 @@ function open_prompts_modal(node, node_id){
             verbiage_location = $('.moduleNodeEdit #module-node-edit-verbiages'),
             verbiage_contents = '';
 
-        // update properties contents
-        load_keys_from_type_contents(type_id, properties_location, 'node');
-
-        // update verbiage contents
+        // update Property/Verbiage contents
         $.getJSON("{% url 'graphs:get_keys_from_type' %}?id={0}&type={1}".format(type_id, 'node')).done(function(data){
             //console.log(data)
+            properties_contents = get_properties_contents(data['keys'], properties, node_id, node_in);
             verbiage_contents = get_verbiage_contents(type_name, node['languages'], data['v_keys'], verbiage, language_key);
+
+            properties_location.html(properties_contents);
             verbiage_location.html(verbiage_contents);
+            $('.myToggle').bootstrapToggle();
+            autocomplete_nodename_and_edgekeys();
         });
 
     });
@@ -293,30 +303,52 @@ function open_prompts_modal(node, node_id){
     $('#module-node-edit-modal').modal('show');
 }
 
-function get_properties_contents(properties, node_id, node_in){
-    var properties_contents = '';
+function get_properties_contents(node_keys, properties, node_id, node_in){
+    var tmp_index = 0,
+        object_length = 0,
+        properties_contents = '';
 
-    $.each(properties, function(k, v){
+    $.each(node_keys, function(index, k){
         if (k == 'InputData'){
-            //console.log(v[0], v[0]['Inputs']);
             properties_contents += '<table class=\'table ModuleNodeEditPropertyTable\' id=\'node-property-table-{0}\'>'.format(node_id);
             properties_contents += '<thead><tr>';
-            properties_contents += '<td>Inputs</td><td>Outputs</td>';
+            properties_contents += '<th class=\'col-xs-5\'>Inputs</th><th class=\'col-xs-5\'>Outputs</th>';
+            properties_contents += '<th class=\'col-xs-1\'><button id=\'buttonAddData\' class=\'btn btn-xs\' type=\'button\'>Add data</button></th>';
             properties_contents += '</tr></thead>';
             properties_contents += '<tbody>';
-            $.each(v, function(idx, value){
-                properties_contents += '<tr>';
+            $.each(properties[k], function(idx, value){
+                properties_contents += '<tr id=\'{0}\'>'.format(idx);
+
                 properties_contents += '<td>';
+                properties_contents += '<input name=\'Inputs_{0}\' value=\"{'.format(idx);
+                tmp_index = 0;
+                object_length = Object.keys(value['Inputs']).length;
                 $.each(value['Inputs'], function(sk, sv){
-                    properties_contents += '<input name=\'Inputs_{0}\' value=\"{\'{1}\': \'{2}\'},\">'.format(idx, sk, sv)
+                    properties_contents += '\'{0}\': \'{1}\''.format(sk, sv);
+                    tmp_index += 1;
+                    if (tmp_index < object_length){
+                        properties_contents += ', ';
+                    }
                 });
-                properties_contents += '</td><td>';
-                properties_contents += '<input name=\'Outputs_{0}\' value=\"'.format(idx);
-                $.each(value['Outputs'], function(sk, sv){
-                    properties_contents += '{\'{0}\': \'{1}\'},'.format(sk, sv)
-                });
-                properties_contents += '\">';
+                properties_contents += '}\">';
                 properties_contents += '</td>';
+
+                properties_contents += '<td>';
+                properties_contents += '<input name=\'Outputs_{0}\' value=\"{'.format(idx);
+                tmp_index = 0;
+                object_length = Object.keys(value['Outputs']).length;
+                $.each(value['Outputs'], function(sk, sv){
+                    properties_contents += '\'{0}\': \'{1}\''.format(sk, sv);
+                    tmp_index += 1;
+                    if (tmp_index < object_length){
+                        properties_contents += ', ';
+                    }
+                });
+                properties_contents += '}\">';
+                properties_contents += '</td>';
+
+                properties_contents += '<td class=\'text-center\'><a href=\'#\' onclick=\'deleteRow(this);\'><i class=\'fa fa-trash-o fa-lg\'></i></a></td>';
+
                 properties_contents += '</tr>';
             });
             properties_contents += '</tbody>';
@@ -327,14 +359,14 @@ function get_properties_contents(properties, node_id, node_in){
                 properties_contents += '<div class=\'col-xs-4\'><label>{0}:</label></div>'.format(k);
                 if (k == 'NonStandardFail') {
                     properties_contents += '<div class=\'col-xs-8\'>';
-                    if (v == 'on') {
-                        properties_contents += '<input name=\'{0}\' type=\'checkbox\' checked class=\'myToggle\' data-on=\'True\' data-width=\'100\' data-onstyle=\'success\' data-off=\'False\' >';
+                    if (properties[k] == 'on') {
+                        properties_contents += '<input name=\'{0}\' type=\'checkbox\' checked class=\'myToggle\' data-on=\'True\' data-width=\'100\' data-onstyle=\'success\' data-off=\'False\' >'.format(k);
                     } else {
-                        properties_contents += '<input name=\'{0}\' type=\'checkbox\' class=\'myToggle\' data-on=\'True\' data-width=\'100\' data-onstyle=\'success\' data-off=\'False\' >';
+                        properties_contents += '<input name=\'{0}\' type=\'checkbox\' class=\'myToggle\' data-on=\'True\' data-width=\'100\' data-onstyle=\'success\' data-off=\'False\' >'.format(k);
                     }
                     properties_contents += '</div>';
                 } else {
-                    properties_contents += '<div class=\'col-xs-8\'><input name=\'{0}\' value=\'{1}\'></div>'.format(k, v);
+                    properties_contents += '<div class=\'col-xs-8\'><input name=\'{0}\' value=\'{1}\'></div>'.format(k, properties[k]);
                 }
                 properties_contents += '</div>';
             }
@@ -382,6 +414,34 @@ function get_verbiage_contents(type_name, languages, verbiage_keys, verbiage, la
     return verbiage_contents
 }
 
+$('.moduleNodeEdit').on('submit', function(e){
+    var name = $(e.currentTarget).find('input[name="moduleNodeEditName"]').val(),
+        location = $(e.currentTarget).find('#moduleNodeEditErrMessage'),
+        properties = $(e.currentTarget).find('#module-node-edit-properties input'),
+        is_json_format = true,
+        json_msg = '',
+        data = '';
+
+    if (name == ''){
+        showErrMsg(location, 'Name is Empty');
+        return false;
+    }
+
+    var check_json = check_node_properties_json(properties);
+
+
+    if (!check_json['is_json_format']) {
+        showErrMsg(location, check_json['json_msg']);
+        return false;
+    }
+
+    $(e.currentTarget).find('#module-node-edit-properties table tbody tr').each(function(){
+        data += this.id + ' ';
+    });
+    $(e.currentTarget).find('input[name="property_data_index"]').val(data);
+
+});
+
 /* Start Node Name for OnFailGoTo of MenuPrompt Code */
 
 function autocomplete_nodename_and_edgekeys(call_from) {
@@ -389,6 +449,9 @@ function autocomplete_nodename_and_edgekeys(call_from) {
         project_node_new_fail = $('.projectNodeNew input[name="OnFailGoTo"]'),
         module_node_edit_fail = $('.moduleNodeEditForm input[name="OnFailGoTo"]'),
         node_edge_new_fail = $('.moduleNodeEdgeNew input[name="node_OnFailGoTo"]'),
+
+        node_data_modal_edit_fail = $('.moduleNodeEdit input[name="OnFailGoTo"]'),
+
         project_node_new_outputs = $('.projectNodeNew input[name="Outputs"]'),
         module_node_edit_outputs = $('.moduleNodeEditForm input[name="Outputs"]'),
         node_edge_new_outputs = $('.moduleNodeEdgeNew input[name="node_Outputs"]'),
@@ -441,6 +504,9 @@ function autocomplete_nodename_and_edgekeys(call_from) {
                 source: node_names_autocomplete
             });
             module_node_edit_fail.autocomplete({
+                source: node_names_autocomplete
+            });
+            node_data_modal_edit_fail.autocomplete({
                 source: node_names_autocomplete
             });
 
