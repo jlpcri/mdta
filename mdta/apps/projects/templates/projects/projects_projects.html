@@ -8,6 +8,7 @@
                             <tr>
                                 <th class="col-xs-2">Name</th>
                                 <th class="col-xs-1">Edit</th>
+                                <th class="col-xs-1">Language</th>
                                 <th class="col-xs-2">Version(TestSuites)</th>
                                 <th class="col-xs-1">TestHeader</th>
                             </tr>
@@ -18,6 +19,16 @@
                                     <td><a href="#project-{{ project.id }}" data-toggle="tab">{{ project.name }}</a></td>
                                     <td>
                                         <a href="{% url 'projects:project_edit' project.id %}"><i class="fa fa-edit fa-fw"></i></a>
+                                        {% if user.username == 'sliu' %}
+                                            | <a href="{% url 'projects:project_data_migrate' project.id %}"><i class="fa fa-database fa-fw"></i></a>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if project.language %}
+                                            {{ project.language.name }}
+                                        {% else %}
+                                            None
+                                        {% endif %}
                                     </td>
                                     <td>
                                         {% if project.testrail %}

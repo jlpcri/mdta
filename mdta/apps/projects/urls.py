@@ -20,4 +20,5 @@ urlpatterns = [
 
     url(r'^fetch_project_catalogs_members', views.fetch_project_catalogs_members, name='fetch_project_catalogs_members'),
 
+    url(r'^project_data_migrate/(?P<project_id>\d+)/$', views.project_data_migrate, name='project_data_migrate'),
 ]

@@ -52,7 +52,7 @@ def path_traverse_backwards(path, th_path=None, language=None):
                             tcs_cannot_route_msg = 'Non Data Edge has higher priority.'
                             break
 
-                    if edge_property_key_in_th_menuprompt(step, th_path):
+                    if th_path and edge_property_key_in_th_menuprompt(step, th_path):
                         result_found = step.properties[step.type.keys_data_name][step.type.subkeys_data_name]
                         menu_prompt_outputs_keys = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())
 
@@ -145,6 +145,8 @@ def path_traverse_backwards(path, th_path=None, language=None):
                     tcs[-1][TR_CONTENT] = get_item_properties(step)
                 else:
                     traverse_node(step, tcs, language=language)
+            else:
+                traverse_node(step, tcs, language=language)
 
     if tcs_cannot_route_flag:
         data = {
@@ -483,7 +485,7 @@ def non_data_edge_has_higher_priority(step):
 def get_verbiage_from_prompt_node(node, language, verbiage_key, hint=''):
     try:
         data = "{0}{1}: {2}".format(node.name, hint, node.verbiage[language][verbiage_key])
-    except KeyError:
+    except (TypeError, KeyError):
         data = "{0}{1}: ".format(node.name, hint)
 
     return data

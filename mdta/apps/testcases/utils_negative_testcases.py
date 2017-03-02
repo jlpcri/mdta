@@ -432,7 +432,7 @@ def get_no_match_content(node):
     return data
 
 
-def following_dataqueries_node_valid_data(node, subkey):
+def following_dataqueries_node_valid_data(node, subkey, visited_nodes=[]):
     """
     Search all following DataQueries node connected to current node
     :param node:
@@ -440,6 +440,7 @@ def following_dataqueries_node_valid_data(node, subkey):
     :return:
     """
     data = []
+    visited_nodes.append(node)
     if node.type.name in NODE_DATA_NAME:
         for item in node.properties[EDGE_INPUTDATA_NAME]:
             # print(item['Inputs'], node.properties[MP_OUTPUTS])
@@ -449,7 +450,8 @@ def following_dataqueries_node_valid_data(node, subkey):
                 pass
 
     for edge in node.leaving_edges:
-        data += following_dataqueries_node_valid_data(edge.to_node, subkey)
+        if edge.to_node not in visited_nodes:
+            data += following_dataqueries_node_valid_data(edge.to_node, subkey, visited_nodes=visited_nodes)
 
     return data
 

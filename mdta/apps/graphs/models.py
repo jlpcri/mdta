@@ -8,6 +8,7 @@ from mdta.apps.projects.models import Project, Module
 class NodeType(models.Model):
     """
     Type of Node: DataQueries Database, DataQueries WebService
+                  Language
                   Play Prompt
                   Menu Prompt, Menu Prompt with Confirmation
                   Start

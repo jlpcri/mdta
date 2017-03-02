@@ -118,3 +118,6 @@ class LanguageNewForm(ModelForm):
 
 class UploadForm(forms.Form):
     file = forms.FileField(max_length=100, required=True)
+
+    class Meta:
+        model = Module

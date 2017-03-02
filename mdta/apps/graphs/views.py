@@ -9,16 +9,15 @@ from django.shortcuts import render, redirect, get_object_or_404
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new, check_edge_in_set,\
     get_properties_for_node_or_edge, EDGE_TYPES_INVISIBLE_KEY, node_related_edges_invisible
 from mdta.apps.projects.models import Project, Module, Language
+from mdta.apps.graphs import helpers
+from mdta.apps.projects.models import Project, Module
 from mdta.apps.projects.utils import context_project_dashboard
 from mdta.apps.users.views import user_is_staff, user_is_superuser
 from .models import NodeType, EdgeType, Node, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeAutoNewForm
 from mdta.apps.projects.forms import ModuleForm, UploadForm
-from mdta.apps.testcases.constant_names import NODE_START_NAME
+from mdta.apps.testcases.constant_names import NODE_START_NAME, LANGUAGE_DEFAULT_NAME
 from mdta.apps.testcases.tasks import create_testcases_celery, push_testcases_to_testrail_celery
-
-LANGUAGE_DEFAULT_NAME = 'English'
-
 
 
 @login_required
@@ -142,13 +141,17 @@ def get_keys_from_type(request):
     object_type = request.GET.get('type', '')
     if object_type == 'node':
         item = get_object_or_404(NodeType, pk=object_id)
+        data = {
+            'keys': sorted(item.keys),
+            'subkeys': item.subkeys,
+            'v_keys': item.verbiage_keys
+        }
     else:
         item = get_object_or_404(EdgeType, pk=object_id)
-
-    data = {
-        'keys': sorted(item.keys),
-        'subkeys': item.subkeys
-    }
+        data = {
+            'keys': sorted(item.keys),
+            'subkeys': item.subkeys,
+        }
 
     return HttpResponse(json.dumps(data), content_type='application/json')
 
@@ -223,6 +226,7 @@ def project_detail(request, project_id):
 
     return render(request, 'graphs/project/project_detail.html', context)
 
+
 @user_passes_test(user_is_staff)
 def project_module_import(request, project_id):
     """
@@ -232,22 +236,29 @@ def project_module_import(request, project_id):
     :return:
     """
     if request.method == 'GET':
-        form = ModuleForm(project_id=project_id)
+        form = UploadForm()
         context = {
             'form': form,
             'project_id': project_id
         }
         return render(request, 'graphs/project/module_import.html', context)
-    elif request.method == 'POST':
-        form = ModuleForm(request.POST)
-        if form.is_valid():
-            module = form.save()
-            messages.success(request, 'Module \'{0}\' is added to \'{1}\''.format(module.name, module.project.name))
-        else:
-            print(form.errors)
-            messages.error(request, 'Errors found.')
 
+    elif request.method == 'POST':
+        form = UploadForm(request.POST, request.FILES)
+        # p = get_object_or_404(Project, project_id)
+        if form.is_valid():
+            if 'file' in request.FILES and request.FILES['file'].name.endswith('.xlsx'):
+                result = helpers.upload_vuid(form.cleaned_data['file'], request.user, project_id)
+                if result['valid']:
+                    messages.success(request, result["message"])
+                else:
+                    messages.error(request, result['message'])
+            elif 'file' in request.FILES:
+                messages.error(request, "Invalid file type, unable to upload (must be .xlsx)")
+            return redirect('graphs:project_detail', project_id)
+        messages.error(request, "Unable to upload file")
         return redirect('graphs:project_detail', project_id)
+
 
 @user_passes_test(user_is_staff)
 def project_module_new(request, project_id):
@@ -685,30 +696,58 @@ def get_nodes_from_module(request):
 def get_module_id_from_node_id(request):
     node_id = request.GET.get('node_id', '')
     node = get_object_or_404(Node, pk=node_id)
-    if node.module.project and node.module.project.language:
-        language = {
-            'name': node.module.project.language.name,
-            'id': node.module.project.language.id
-        }
-    else:
-        language = {
-            'name': '',
-            'id': ''
-        }
+    if node.module.project:  # node in Project.modules
+        if node.module.project.language:
+            language = {
+                'name': node.module.project.language.name,
+                'id': node.module.project.language.id
+            }
+        else:
+            language = {
+                'name': '',
+                'id': ''
+            }
 
-    project_languages = Language.objects.filter(project=node.module.project)
-    languages = []
-    if project_languages.count() > 0:
-        for item in project_languages:
+        project_languages = Language.objects.filter(project=node.module.project)
+        languages = []
+        if project_languages.count() > 0:
+            for item in project_languages:
+                languages.append({
+                    'name': item.name,
+                    'id': item.id
+                })
+        else:
             languages.append({
-                'name': item.name,
-                'id': item.id
+                'name': LANGUAGE_DEFAULT_NAME,
+                'id': -1
             })
-    else:
-        languages.append({
-            'name': LANGUAGE_DEFAULT_NAME,
-            'id': -1
-        })
+
+        node_in = 'module'
+    else:  # node in test header
+        projects = Project.objects.filter(test_header=node.module)
+        projects_languages = []
+        languages = []
+        for project in projects:
+            projects_languages += Language.objects.filter(project=project)
+        if len(projects_languages) > 0:
+            for item in projects_languages:
+                tmp = any(lan['name'] == item.name for lan in languages)
+                if not tmp:
+                    languages.append({
+                        'name': item.name,
+                        'id': item.id
+                    })
+        else:
+            languages.append({
+                'name': LANGUAGE_DEFAULT_NAME,
+                'id': -1
+            })
+        language = {
+                'name': '',
+                'id': ''
+            }
+
+        node_in = 'testheader'
 
     node_data = {
         'name': node.name,
@@ -717,8 +756,9 @@ def get_module_id_from_node_id(request):
         'properties': node.properties,
         'verbiage': node.verbiage,
         'v_keys': node.type.verbiage_keys,
-        'language': language,
-        'languages': languages
+        'language': language,  # language default value of node
+        'languages': languages,  # all possible languages of current node of module of project
+        'node_in': node_in,  # determine node whether in test header or not
     }
 
     data = {
@@ -745,28 +785,55 @@ def project_publish(request, project_id):
 
 
 def module_node_verbiage_edit(request):
+    """
+    Edit Node data modal
+    :param request:
+    :return:
+    """
     if request.method == 'POST':
         node_id = request.POST.get('moduleNodeEditId', '')
-        language_id = request.POST.getlist('moduleNodeEditVerbiageLanguage', '')[0]
-
         node = get_object_or_404(Node, pk=node_id)
-        if int(language_id) > 0:
-            language = get_object_or_404(Language, pk=language_id)
-            language_name = language.name
-        else:
-            language_name = LANGUAGE_DEFAULT_NAME
 
-        # print(node.name, node.type.verbiage_keys, language_name)
-        tmp = {}
-        for key in node.type.verbiage_keys:
-            tmp[key] = request.POST.get(key, '')
+        if 'node_save' in request.POST:
+            node_name = request.POST.get('moduleNodeEditName', '')
+            node_type_id = request.POST.get('moduleNodeEditType', '')
+            node_type = get_object_or_404(NodeType, pk=node_type_id)
 
-        if node.verbiage:
-            node.verbiage[language_name] = tmp
-        else:
-            node.verbiage = {
-                language_name: tmp
-            }
-        node.save()
+            properties = get_properties_for_node_or_edge(request, node_type)
+
+            language_name = ''
+            language_list = request.POST.getlist('moduleNodeEditVerbiageLanguage', '')
+            if language_list:
+                language_id = language_list[0]
+                if int(language_id) > 0:
+                    language = get_object_or_404(Language, pk=language_id)
+                    language_name = language.name
+                else:
+                    language_name = LANGUAGE_DEFAULT_NAME
+
+            verbiage = {}
+            for key in node_type.verbiage_keys:
+                verbiage[key] = request.POST.get(key, '')
+
+            try:
+                node.name = node_name
+                node.type = node_type
+                node.properties = properties
+                if language_name:
+                    if node.verbiage:
+                        node.verbiage[language_name] = verbiage
+                    else:
+                        node.verbiage = {
+                            language_name: verbiage
+                        }
+                else:
+                    node.verbiage = {}
+                node.save()
+            except (ValueError, ValidationError) as e:
+                messages.error(request, str(e))
+
+        elif 'node_delete' in request.POST:
+            node.delete()
+            messages.success(request, 'Node is deleted.')
 
         return redirect('graphs:project_module_detail', node.module.id)
