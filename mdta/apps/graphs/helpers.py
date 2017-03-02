@@ -19,8 +19,6 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
 
     module_names = []
     no_language = False
-    languages = []
-    verbiage = []
 
     for i in df.index:
         try:
@@ -40,28 +38,16 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
 
         for d in df.columns:
             lang = Language.objects.filter(project=project)
-            values = lang.values_list('name', flat=True)
-            if not values.exists():
+            available_languages = lang.values_list('name', flat=True)
+            if not available_languages.exists():
                 no_language = True
-                values = ['English']
-            for v in values:
-                if d.title().startswith(v):
+                available_languages = ['English']
+            for current_language in available_languages:
+                if d.title().startswith(current_language):
                     language = d
         if no_language:
             verbiage = ptext
 
-        for v in values:
-            plang = v
-            languages.append(v)
-            if plang == 'English':
-                verbiage = ptext
-            else:
-                verbiage = (df[language][i])
-            keys = {plang: {
-                'Initialprompt': verbiage,
-            }
-            }
-            print(keys)
         if stname.startswith('prompt_'):
             type = NodeType.objects.get(name='Menu Prompt')
             stname = stname.replace('prompt_', ' ').strip(' ')
@@ -71,22 +57,34 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
         try:
             nn = Node.objects.get(module__project=project, name=stname)
         except Node.DoesNotExist:
+            keys = {current_language: {}}
             nn = Node(module=pg, name=stname, type=type, verbiage=keys)
 
-        if pname.find('_') != -1:
-            pname = pname.replace('_', ' ').rstrip('123456789').strip(' ')
-        if pname.endswith('NI1'):
-            nn.verbiage[plang]['NoInput_1'] = verbiage
-        elif pname.endswith('NI2'):
-            nn.verbiage[plang]['NoInput_2'] = verbiage
-        elif pname.endswith('NM1'):
-            nn.verbiage[plang]['NoMatch_1'] = verbiage
-        elif pname.endswith('NM2'):
-            nn.verbiage[plang]['NoMatch_2'] = verbiage
+        for current_language in available_languages:
+            if current_language not in nn.verbiage.keys():
+                nn.verbiage[current_language] = {}
+            if current_language == 'English':
+                verbiage = ptext
+            else:
+                verbiage = (df[language][i])
+            if pname.find('_') != -1:
+                pname = pname.replace('_', ' ').rstrip('123456789').strip(' ')
+
+            # Assign verbiage from this row into correct field
+            if pname.endswith('NI1'):
+                nn.verbiage[current_language]['NoInput_1'] = verbiage
+            elif pname.endswith('NI2'):
+                nn.verbiage[current_language]['NoInput_2'] = verbiage
+            elif pname.endswith('NM1'):
+                nn.verbiage[current_language]['NoMatch_1'] = verbiage
+            elif pname.endswith('NM2'):
+                nn.verbiage[current_language]['NoMatch_2'] = verbiage
+            else:
+                nn.verbiage[current_language]['Initialprompt'] = verbiage
 
         nn.save()
         print(nn)
-        # print(nn.verbiage)
+        print(nn.verbiage)
 
     return {"valid": True, "message": 'Handled'}
 
