@@ -18,6 +18,7 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
     project = Project.objects.get(pk=project_id)
 
     no_language = False
+    language = ""
 
     for i in df.index:
         try:
@@ -43,6 +44,7 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
             for current_language in available_languages:
                 if d.title().startswith(current_language):
                     language = d
+
         if no_language:
             verbiage = ptext
 
@@ -63,13 +65,13 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
                 nn.verbiage[current_language] = {}
             if current_language == 'English':
                 verbiage = ptext
-            if current_language not in d.title():
-                if current_language == 'English':
-                    verbiage = ptext
-                else:
-                    verbiage = ""
-            else:
-                verbiage = (df[language][i])
+            elif current_language != 'English':
+                for d in df.columns:
+                    if d.title().startswith(current_language):
+                        verbiage = (df[language][i])
+                    elif language not in df.columns:
+                        verbiage = ""
+
             if pname.find('_') != -1:
                 pname = pname.replace('_', ' ').rstrip('123456789').strip(' ')
 
