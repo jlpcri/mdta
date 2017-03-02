@@ -170,7 +170,10 @@ def get_data_node_result(node, constraints, index=None, path=None):
     :param path: route path
     :return:
     """
-    dicts = node.properties[node.type.keys_data_name]
+    try:
+        dicts = node.properties[node.type.keys_data_name]
+    except KeyError:
+        dicts = {}
     data = {}
     compare_key = ''
 
@@ -281,8 +284,8 @@ def get_edge_constraints(item, rule):
                         CONSTRAINTS_TRUE_OR_FALSE: rule  # True or False
                     }
                     data.append(tmp)
-            except (KeyError, TypeError) as e:
-                print(e)
+            except (AttributeError, KeyError, TypeError) as e:
+                # print(e)
                 pass
     # print(data)
     return data
@@ -443,7 +446,11 @@ def edge_property_key_in_th_menuprompt(step, th_path):
     :return:
     """
     data = ''
-    step_key = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())[0]
+    try:
+        step_key = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())[0]
+    except (AttributeError, KeyError):
+        step_key = ''
+
     for th_step in th_path:
         if th_step.type.name in NODE_MP_NAME and step_key == th_step.properties[MP_OUTPUTS]:
             data = step_key
@@ -460,7 +467,11 @@ def edge_property_key_in_from_menuprompt(step):
     """
     data = False
 
-    step_key = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())[0]
+    try:
+        step_key = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())[0]
+    except (AttributeError, KeyError):
+        step_key = ''
+
     if step.from_node.type.name in NODE_MP_NAME and step.from_node.properties[MP_OUTPUTS] == step_key:
         data = True
 

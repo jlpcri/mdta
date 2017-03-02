@@ -163,6 +163,7 @@ def fetch_project_catalogs_members(request):
 
     return HttpResponse(json.dumps(data), content_type='application/json')
 
+
 @user_passes_test(user_is_staff)
 def module_new(request):
     """
