@@ -4,7 +4,7 @@ from mdta.apps.testcases.testrail import APIClient, APIError
 from mdta.apps.testcases.utils_backwards_traverse import path_traverse_backwards
 from mdta.apps.testcases.utils_negative_testcases import negative_testcase_generation, rejected_testcase_generation
 
-from mdta.apps.testcases.constant_names import NODE_START_NAME, NODE_MP_NAME
+from mdta.apps.testcases.constant_names import NODE_START_NAME, NODE_MP_NAME, LANGUAGE_DEFAULT_NAME
 
 
 def context_testcases():
@@ -31,14 +31,22 @@ def create_routing_test_suite(project=None, modules=None):
     data = []
 
     if project:
-        data = create_routing_test_suite_module(project.modules)
+        if project.language:
+            language = project.language.name
+        else:
+            language = LANGUAGE_DEFAULT_NAME
+        data = create_routing_test_suite_module(project.modules, language)
     elif modules:
-        data = create_routing_test_suite_module(modules)
+        if modules[0].project.language:
+            language = modules[0].project.language.name
+        else:
+            language = LANGUAGE_DEFAULT_NAME
+        data = create_routing_test_suite_module(modules, language)
 
     return data
 
 
-def create_routing_test_suite_module(modules):
+def create_routing_test_suite_module(modules, language):
     """
     Create routing paths for list of modules
     :param modules:
@@ -52,7 +60,7 @@ def create_routing_test_suite_module(modules):
         th_module = None
 
     for module in modules:
-        data = get_paths_through_all_edges(module.edges_all, th_module)
+        data = get_paths_through_all_edges(module.edges_all, th_module, language)
 
         test_suites.append({
             'module': module.name,
@@ -62,7 +70,7 @@ def create_routing_test_suite_module(modules):
     return test_suites
 
 
-def get_paths_through_all_edges(edges, th_module=None):
+def get_paths_through_all_edges(edges, th_module=None, language=None):
     """
     Get all paths through all edges
     :param edges:
@@ -79,7 +87,7 @@ def get_paths_through_all_edges(edges, th_module=None):
                 path = routing_path_to_edge(edge)
 
                 if path:
-                    path_data = path_traverse_backwards(path, th_path)
+                    path_data = path_traverse_backwards(path, th_path=th_path, language=language)
                     if 'tcs_cannot_route' in path_data.keys():
                         data.append({
                             'tcs_cannot_route': path_data['tcs_cannot_route'],
@@ -98,16 +106,16 @@ def get_paths_through_all_edges(edges, th_module=None):
                             })
 
                         if edge.to_node.type.name in NODE_MP_NAME:
-                            negative_testcase_generation(data, path_data, title, edge.to_node)
+                            negative_testcase_generation(data, path_data, title, edge.to_node, language=language)
                             if edge.to_node.type.name == NODE_MP_NAME[1]:
-                                rejected_testcase_generation(data, path_data, title, edge.to_node)
+                                rejected_testcase_generation(data, path_data, title, edge.to_node, language=language)
 
     else:
         for edge in edges:
             path = routing_path_to_edge(edge)
 
             if path:
-                path_data = path_traverse_backwards(path)
+                path_data = path_traverse_backwards(path, language=language)
                 if 'tcs_cannot_route' in path_data.keys():
                     data.append({
                         'tcs_cannot_route': path_data['tcs_cannot_route'],
@@ -126,7 +134,7 @@ def get_paths_through_all_edges(edges, th_module=None):
                         })
 
                     if edge.to_node.type.name == NODE_MP_NAME[0]:
-                        negative_testcase_generation(data, path_data, title, edge.to_node)
+                        negative_testcase_generation(data, path_data, title, edge.to_node, language=language)
 
     # return check_subpath_in_all(data)
     return data

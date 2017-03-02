@@ -171,7 +171,7 @@
 <!-- Node Edit Modal -->
 <div class="modal fade moduleNodeEdit" id="module-node-edit-modal">
     <div class="modal-dialog">
-        <form action="#" method="post">
+        <form action="{% url 'graphs:module_node_verbiage_edit' %}" method="post">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
@@ -219,7 +219,11 @@
 
                         </div>
                         <div class="tab-pane" id="verbiage">
-                            Verbiage
+                            <div class="row">
+                                <div class="col-xs-12" >
+                                    <div id="module-node-edit-verbiages"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -229,11 +233,12 @@
                     </div>
 
                     {% csrf_token %}
-                    <input type="hidden" name="moduleNodeEditId" value="">
+                    <input type="hidden" name="moduleNodeEditId" id="moduleNodeEditId" value="">
                     <input type="hidden" name="property_data_index" value="">
                 </div>
                 <div class="modal-footer">
-                    <input id="module_node_edit" class="btn btn-primary" type="submit" value="Save">
+                    <input id="node_save" name="node_save" class="btn btn-primary" type="submit" value="Save">
+                    <button id="node_delete" name="node_delete" class="btn btn-danger" type="submit">Delete</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                 </div>
             </div>

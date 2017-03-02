@@ -2,7 +2,7 @@ from mdta.apps.graphs.models import Node, Edge
 from mdta.apps.testcases.constant_names import *
 
 
-def path_traverse_backwards(path, th_path=None):
+def path_traverse_backwards(path, th_path=None, language=None):
     """
     Traverse path backwards to generate test steps
     :param path: route path
@@ -35,12 +35,14 @@ def path_traverse_backwards(path, th_path=None):
                         traverse_node(step,
                                       tcs,
                                       preceding_edge=path[index + 1],
-                                      following_edge=path[index - 1]
+                                      following_edge=path[index - 1],
+                                      language=language
                                       )
                     else:
                         traverse_node(step,
                                       tcs,
                                       preceding_edge=path[index + 1],
+                                      language=language
                                       )
             elif isinstance(step, Edge):
                 if step.type.name == EDGE_DATA_NAME:
@@ -50,7 +52,7 @@ def path_traverse_backwards(path, th_path=None):
                             tcs_cannot_route_msg = 'Non Data Edge has higher priority.'
                             break
 
-                    if edge_property_key_in_th_menuprompt(step, th_path):
+                    if th_path and edge_property_key_in_th_menuprompt(step, th_path):
                         result_found = step.properties[step.type.keys_data_name][step.type.subkeys_data_name]
                         menu_prompt_outputs_keys = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())
 
@@ -133,16 +135,18 @@ def path_traverse_backwards(path, th_path=None):
                                         tcs_cannot_route_flag = True
                                         tcs_cannot_route_msg = 'TestHeader Node \'{0}: Default\' empty'.format(th_step.name)
 
-                            traverse_node(th_step, tcs, th_path[::-1][th_index + 1])
+                            traverse_node(th_step, tcs, th_path[::-1][th_index + 1], language=language)
                     else:
                         if isinstance(th_step, Node):
-                            traverse_node(th_step, tcs)
+                            traverse_node(th_step, tcs, language=language)
 
                 # traverse Start Node
                 if th_path[2].type.name in NODE_MP_NAME:
                     tcs[-1][TR_CONTENT] = get_item_properties(step)
                 else:
-                    traverse_node(step, tcs)
+                    traverse_node(step, tcs, language=language)
+            else:
+                traverse_node(step, tcs, language=language)
 
     if tcs_cannot_route_flag:
         data = {
@@ -166,7 +170,10 @@ def get_data_node_result(node, constraints, index=None, path=None):
     :param path: route path
     :return:
     """
-    dicts = node.properties[node.type.keys_data_name]
+    try:
+        dicts = node.properties[node.type.keys_data_name]
+    except KeyError:
+        dicts = {}
     data = {}
     compare_key = ''
 
@@ -277,8 +284,8 @@ def get_edge_constraints(item, rule):
                         CONSTRAINTS_TRUE_OR_FALSE: rule  # True or False
                     }
                     data.append(tmp)
-            except (KeyError, TypeError) as e:
-                print(e)
+            except (AttributeError, KeyError, TypeError) as e:
+                # print(e)
                 pass
     # print(data)
     return data
@@ -357,7 +364,7 @@ def add_step(step, tcs):
     })
 
 
-def traverse_node(node, tcs, preceding_edge=None, following_edge=None):
+def traverse_node(node, tcs, preceding_edge=None, following_edge=None, language=None):
     """
     Traverse Node based on node type
     :param node:
@@ -367,7 +374,7 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None):
     if node.type.name in [NODE_START_NAME[0], 'Transfer']:  # Start with Dial Number
         add_step(node_start(node), tcs)
     elif node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME]:
-        add_step(node_prompt(node, preceding_edge), tcs)
+        add_step(node_prompt(node, preceding_edge, language=language), tcs)
 
     if node.type.name == NODE_MP_NAME[1] and following_edge:
         flag = True
@@ -388,7 +395,7 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None):
                 tcs[confirm_idx - 1][TR_CONTENT] = 'press 1'  # confirm input
                 tcs.insert(confirm_idx, {
                     'content': content,
-                    'expected': "{0}: {1}".format(node.name, node.properties[MP_CVER])
+                    'expected': get_verbiage_from_prompt_node(node, language, MP_CVER)
                 })
 
 
@@ -398,7 +405,7 @@ def node_start(node):
     }
 
 
-def node_prompt(node, preceding_edge=None, match_constraint=None):
+def node_prompt(node, preceding_edge=None, match_constraint=None, language=None):
     content = ''
     if match_constraint:
         content = 'press ' + match_constraint
@@ -416,7 +423,7 @@ def node_prompt(node, preceding_edge=None, match_constraint=None):
 
     return {
         'content': content,
-        'expected': "{0}: {1}".format(node.name, node.properties[MP_VER])
+        'expected': get_verbiage_from_prompt_node(node, language, MP_VER)
     }
 
 
@@ -439,7 +446,11 @@ def edge_property_key_in_th_menuprompt(step, th_path):
     :return:
     """
     data = ''
-    step_key = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())[0]
+    try:
+        step_key = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())[0]
+    except (AttributeError, KeyError):
+        step_key = ''
+
     for th_step in th_path:
         if th_step.type.name in NODE_MP_NAME and step_key == th_step.properties[MP_OUTPUTS]:
             data = step_key
@@ -456,7 +467,11 @@ def edge_property_key_in_from_menuprompt(step):
     """
     data = False
 
-    step_key = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())[0]
+    try:
+        step_key = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())[0]
+    except (AttributeError, KeyError):
+        step_key = ''
+
     if step.from_node.type.name in NODE_MP_NAME and step.from_node.properties[MP_OUTPUTS] == step_key:
         data = True
 
@@ -476,3 +491,12 @@ def non_data_edge_has_higher_priority(step):
             break
 
     return find
+
+
+def get_verbiage_from_prompt_node(node, language, verbiage_key, hint=''):
+    try:
+        data = "{0}{1}: {2}".format(node.name, hint, node.verbiage[language][verbiage_key])
+    except (TypeError, KeyError):
+        data = "{0}{1}: ".format(node.name, hint)
+
+    return data
