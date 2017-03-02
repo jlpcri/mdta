@@ -245,7 +245,6 @@ def project_module_import(request, project_id):
 
     elif request.method == 'POST':
         form = UploadForm(request.POST, request.FILES)
-        # p = get_object_or_404(Project, project_id)
         if form.is_valid():
             if 'file' in request.FILES and request.FILES['file'].name.endswith('.xlsx'):
                 result = helpers.upload_vuid(form.cleaned_data['file'], request.user, project_id)

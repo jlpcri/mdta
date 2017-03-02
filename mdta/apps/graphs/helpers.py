@@ -20,7 +20,6 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
     no_language = False
     language = ""
 
-
     for i in df.index:
         try:
             pgname = (df[PAGE_NAME][i])
@@ -84,17 +83,18 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
             if pname.find('_') != -1:
                 pname = pname.replace('_', ' ').rstrip('123456789').strip(' ')
 
-            # Assign verbiage from this row into correct field
+        # Assign verbiage from this row into correct field
+
             if pname.endswith('NI1'):
-                nn.verbiage[current_language]['NoInput_1'] = verbiage
+                nn.verbiage[current_language]['NoInput1'] = verbiage
             elif pname.endswith('NI2'):
-                nn.verbiage[current_language]['NoInput_2'] = verbiage
+                nn.verbiage[current_language]['NoInput2'] = verbiage
             elif pname.endswith('NM1'):
-                nn.verbiage[current_language]['NoMatch_1'] = verbiage
+                nn.verbiage[current_language]['NoMatch1'] = verbiage
             elif pname.endswith('NM2'):
-                nn.verbiage[current_language]['NoMatch_2'] = verbiage
+                nn.verbiage[current_language]['NoMatch2'] = verbiage
             else:
-                nn.verbiage[current_language]['Initialprompt'] = verbiage
+                nn.verbiage[current_language]['InitialPrompt'] = verbiage
 
         nn.save()
 
