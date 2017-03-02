@@ -290,7 +290,9 @@ def vuid_location(instance, filename):
 
 
 class VUID(models.Model):
-    """Represents the uploaded file used to generate VoiceSlot object"""
+    """
+    Represents the uploaded file used to generate VoiceSlot object
+    """
     project = models.ForeignKey(Project)
     filename = models.TextField()
     upload_date = models.DateTimeField(auto_now_add=True)
