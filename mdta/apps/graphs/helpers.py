@@ -65,6 +65,11 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
                 nn.verbiage[current_language] = {}
             if current_language == 'English':
                 verbiage = ptext
+            if current_language not in d.title():
+                if current_language == 'English':
+                    verbiage = ptext
+                else:
+                    verbiage = ""
             else:
                 verbiage = (df[language][i])
             if pname.find('_') != -1:
