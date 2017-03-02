@@ -17,7 +17,6 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
     df.drop_duplicates(subset=[PAGE_NAME, STATE_NAME], keep=False)
     project = Project.objects.get(pk=project_id)
 
-    module_names = []
     no_language = False
 
     for i in df.index:
@@ -33,7 +32,6 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
             pg = Module.objects.get(name=pgname, project=project)
         except Module.DoesNotExist:
             pg = Module(name=pgname, project=project)
-            module_names.append(pg)
             pg.save()
 
         for d in df.columns:
@@ -65,6 +63,11 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
                 nn.verbiage[current_language] = {}
             if current_language == 'English':
                 verbiage = ptext
+            if current_language not in d.title():
+                if current_language == 'English':
+                    verbiage = ptext
+                else:
+                    verbiage = ""
             else:
                 verbiage = (df[language][i])
             if pname.find('_') != -1:
