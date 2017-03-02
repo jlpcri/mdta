@@ -20,6 +20,7 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
     no_language = False
     language = ""
 
+
     for i in df.index:
         try:
             pgname = (df[PAGE_NAME][i])
@@ -51,14 +52,22 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
         if stname.startswith('prompt_'):
             type = NodeType.objects.get(name='Menu Prompt')
             stname = stname.replace('prompt_', ' ').strip(' ')
+            keys = {
+                'Outputs': "",
+                'OnFailGoTo': "",
+                'NonStandardFail': "",
+                'Default': ""
+            }
         elif stname.startswith(('say_', 'play_')):
             type = NodeType.objects.get(name='Play Prompt')
             stname = stname.replace('say_', ' ').strip(' ')
+            keys = {
+            }
         try:
             nn = Node.objects.get(module__project=project, name=stname)
         except Node.DoesNotExist:
-            keys = {current_language: {}}
-            nn = Node(module=pg, name=stname, type=type, verbiage=keys)
+            verbiage_keys = {current_language: {}}
+            nn = Node(module=pg, name=stname, type=type, verbiage=verbiage_keys, properties=keys)
 
         for current_language in available_languages:
             if current_language not in nn.verbiage.keys():
@@ -88,8 +97,6 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
                 nn.verbiage[current_language]['Initialprompt'] = verbiage
 
         nn.save()
-        print(nn)
-        print(nn.verbiage)
 
     return {"valid": True, "message": 'Handled'}
 
