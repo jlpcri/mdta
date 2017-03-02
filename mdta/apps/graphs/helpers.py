@@ -48,7 +48,6 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
                 if d.title().startswith(v):
                     language = d
         if no_language:
-            # plang = 'English'
             verbiage = ptext
 
         for v in values:
