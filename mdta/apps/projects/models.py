@@ -299,5 +299,5 @@ class VUID(models.Model):
     file = models.FileField(upload_to=vuid_location)
     upload_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
 
-    def __unicode__(self):
+    def __str__(self):
         return '{0}: {1}'.format(self.filename, self.project.name)
