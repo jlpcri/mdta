@@ -57,20 +57,35 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
                 'NonStandardFail': "",
                 'Default': ""
             }
+            verbiage_keys = {current_language: {
+                'InitialPrompt': "",
+                'NoInput1': "",
+                'NoInput2': "",
+                'NoMatch1': "",
+                'NoMatch2': ""
+            }}
         elif stname.startswith(('say_', 'play_')):
             type = NodeType.objects.get(name='Play Prompt')
             stname = stname.replace('say_', ' ').strip(' ')
             keys = {
             }
+            verbiage_keys = {current_language: {
+                'InitialPrompt': "",
+            }}
         try:
             nn = Node.objects.get(module__project=project, name=stname)
         except Node.DoesNotExist:
-            verbiage_keys = {current_language: {}}
             nn = Node(module=pg, name=stname, type=type, verbiage=verbiage_keys, properties=keys)
 
         for current_language in available_languages:
             if current_language not in nn.verbiage.keys():
-                nn.verbiage[current_language] = {}
+                nn.verbiage[current_language] = {
+                    'InitialPrompt': "",
+                    'NoInput1': "",
+                    'NoInput2': "",
+                    'NoMatch1': "",
+                    'NoMatch2': ""
+                }
             if current_language == 'English':
                 verbiage = ptext
             elif current_language != 'English':
@@ -84,17 +99,16 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
                 pname = pname.replace('_', ' ').rstrip('123456789').strip(' ')
 
         # Assign verbiage from this row into correct field
-
             if pname.endswith('NI1'):
-                nn.verbiage[current_language]['NoInput1'] = verbiage
+                nn.verbiage[current_language]['NoInput1'] += verbiage
             elif pname.endswith('NI2'):
-                nn.verbiage[current_language]['NoInput2'] = verbiage
+                nn.verbiage[current_language]['NoInput2'] += verbiage
             elif pname.endswith('NM1'):
-                nn.verbiage[current_language]['NoMatch1'] = verbiage
+                nn.verbiage[current_language]['NoMatch1'] += verbiage
             elif pname.endswith('NM2'):
-                nn.verbiage[current_language]['NoMatch2'] = verbiage
+                nn.verbiage[current_language]['NoMatch2'] += verbiage
             else:
-                nn.verbiage[current_language]['InitialPrompt'] = verbiage
+                nn.verbiage[current_language]['InitialPrompt'] += verbiage
 
         nn.save()
 
