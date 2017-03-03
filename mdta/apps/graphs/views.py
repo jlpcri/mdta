@@ -236,12 +236,14 @@ def project_module_import(request, project_id):
     :return:
     """
     if request.method == 'GET':
-        form = UploadForm()
-        context = {
-            'form': form,
-            'project_id': project_id
-        }
-        return render(request, 'graphs/project/module_import.html', context)
+        # form = UploadForm()
+        # context = {
+        #     'form': form,
+        #     'project_id': project_id
+        # }
+        # return render(request, 'graphs/project/module_import.html', context)
+        # messages.error(request, "Unable to upload file")
+        return redirect('graphs:project_detail', project_id)
 
     elif request.method == 'POST':
         form = UploadForm(request.POST, request.FILES)
