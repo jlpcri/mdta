@@ -12,8 +12,9 @@ STATE_NAME = "state name"
 
 @transaction.atomic
 def parse_out_promptmodulesandnodes(vuid, project_id):
-    df = pd.read_excel(vuid.file.path)
+    df = pd.read_excel(vuid.file.path, keep_default_na=False, na_values=' ')
     df.columns = map(str.lower, df.columns)
+    df.columns = df.columns.fillna("")
     df.drop_duplicates(subset=[PAGE_NAME, STATE_NAME], keep=False)
     project = Project.objects.get(pk=project_id)
 
@@ -108,6 +109,7 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
                 nn.verbiage[current_language]['InitialPrompt'] += verbiage
 
         nn.save()
+        print(nn.verbiage)
 
     return {"valid": True, "message": 'Handled'}
 
