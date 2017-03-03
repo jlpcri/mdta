@@ -26,8 +26,8 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
             pname = (df[PROMPT_NAME][i])
             ptext = (df[PROMPT_TEXT][i])
             stname = (df[STATE_NAME][i])
-        except ValueError:
-            return {"valid": False, "message": "Parser error, invalid headers"}
+        except KeyError:
+            return {"valid": False, "message": "Parser error, invalid headers. Please check them again."}
 
         try:
             pg = Module.objects.get(name=pgname, project=project)
@@ -57,6 +57,14 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
                 'NonStandardFail': "",
                 'Default': ""
             }
+        elif stname.startswith(('say_', 'play_')):
+            type = NodeType.objects.get(name='Play Prompt')
+            stname = stname.replace('say_', ' ').strip(' ')
+            keys = {
+            }
+        try:
+            nn = Node.objects.get(module__project=project, name=stname)
+        except Node.DoesNotExist:
             verbiage_keys = {current_language: {
                 'InitialPrompt': "",
                 'NoInput1': "",
@@ -64,17 +72,6 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
                 'NoMatch1': "",
                 'NoMatch2': ""
             }}
-        elif stname.startswith(('say_', 'play_')):
-            type = NodeType.objects.get(name='Play Prompt')
-            stname = stname.replace('say_', ' ').strip(' ')
-            keys = {
-            }
-            verbiage_keys = {current_language: {
-                'InitialPrompt': "",
-            }}
-        try:
-            nn = Node.objects.get(module__project=project, name=stname)
-        except Node.DoesNotExist:
             nn = Node(module=pg, name=stname, type=type, verbiage=verbiage_keys, properties=keys)
 
         for current_language in available_languages:
