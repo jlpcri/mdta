@@ -12,7 +12,7 @@ STATE_NAME = "state name"
 
 @transaction.atomic
 def parse_out_promptmodulesandnodes(vuid, project_id):
-    df = pd.read_excel(vuid.file.path, keep_default_na=False, na_values=' ')
+    df = pd.read_excel(vuid.file.path, keep_default_na=False, na_values=' ', convert_float=True)
     df.columns = map(str.lower, df.columns)
     df.columns = df.columns.fillna("")
     df.drop_duplicates(subset=[PAGE_NAME, STATE_NAME], keep=False)
