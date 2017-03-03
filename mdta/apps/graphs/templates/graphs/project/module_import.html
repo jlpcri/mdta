@@ -4,22 +4,22 @@
 
 {% block body %}
     <div class="container importModule">
-        <h3>Import New Module</h3>
-        <form action="{% url 'graphs:project_module_import' project_id %}" method="post">
-            <div class="row">
-                {{ form.file }}
-            </div>
-            {% csrf_token %}
+        <div class="col-xs-12">
+        <h2 class="imp_title">Please Import New Modules</h2>
+        <form action="{% url 'graphs:project_module_import' project_id %}" method="post" enctype="multipart/form-data">
             <div class="row" style="margin-top: 20px;">
             </div>
-
-            <div class="row" style="margin-top: 50px;">
-                <div class="col-xs-12">
-                    <input id="module_import" class="btn btn-primary" type="submit" value="Import Module">
-                    <input type="button" value="Cancel" class="btn btn-default" onclick="history.back(); return false;">
-                </div>
+            <div class="row">
+                <label class="control-label">Import Prompt List File (must be a .xlsx format)</label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <label id="throbber" hidden><i class="fa fa-spinner fa-2x fa-spin"></i></label>
+                {{ form.file}}
             </div>
-
-            </form>
+            {% csrf_token %}
+            <div class="row" style="margin-top: 50px;">
+                <input id="module_import" class="btn btn-primary" type="submit" value="Import Module">
+                <input type="button" value="Cancel" class="btn btn-default" onclick="history.back(); return false;">
+            </div>
+        </form>
+        </div>
     </div>
 {% endblock %}
