@@ -232,8 +232,7 @@ function open_prompts_modal(node, node_id){
 
         languages = node['languages'], // all possible languages project has
         properties_contents = '',
-        verbiage_contents = '',
-        rowCounter = 0;
+        verbiage_contents = '';
 
     if (language_name != '') {
         language_key = language_name;
@@ -253,12 +252,7 @@ function open_prompts_modal(node, node_id){
     $('.moduleNodeEdit #module-node-edit-properties').html(properties_contents);
     $('.moduleNodeEdit #module-node-edit-verbiages').html(verbiage_contents);
 
-    $('.myToggle').bootstrapToggle();
-    autocomplete_nodename_and_edgekeys();
-    $('#buttonAddData').click(function(){
-        rowCounter = parseInt($('tr').last().attr('id')) + 1;
-        node_property_add_data(['Inputs', 'Outputs'], rowCounter, '.moduleNodeEdit table', 'call');
-    });
+    node_property_js_load();
 
     if (language_id != '') {
         $('.moduleNodeEdit #moduleNodeEditVerbiageLanguage').val(language_id);
@@ -293,14 +287,30 @@ function open_prompts_modal(node, node_id){
 
             properties_location.html(properties_contents);
             verbiage_location.html(verbiage_contents);
-            $('.myToggle').bootstrapToggle();
-            autocomplete_nodename_and_edgekeys();
+
+            node_property_js_load();
         });
 
     });
 
     $('a[href="#verbiage"]').click();
     $('#module-node-edit-modal').modal('show');
+}
+
+function node_property_js_load(){
+    var rowCounter = 0;
+
+    $('.myToggle').bootstrapToggle();
+    autocomplete_nodename_and_edgekeys();
+    $('#buttonAddData').click(function(){
+        rowCounter = parseInt($('tr').last().attr('id'));
+        if (! isNaN(rowCounter)){
+            rowCounter += 1;
+        } else{
+            rowCounter = 0;
+        }
+        node_property_add_data(['Inputs', 'Outputs'], rowCounter, '.moduleNodeEdit table', 'call');
+    });
 }
 
 function get_properties_contents(node_keys, properties, node_id, node_in){
@@ -366,7 +376,11 @@ function get_properties_contents(node_keys, properties, node_id, node_in){
                     }
                     properties_contents += '</div>';
                 } else {
-                    properties_contents += '<div class=\'col-xs-8\'><input name=\'{0}\' value=\'{1}\'></div>'.format(k, properties[k]);
+                    if (typeof properties[k] == 'undefined'){
+                        properties_contents += '<div class=\'col-xs-8\'><input name=\'{0}\' value=\'\'></div>'.format(k);
+                    } else {
+                        properties_contents += '<div class=\'col-xs-8\'><input name=\'{0}\' value=\'{1}\'></div>'.format(k, properties[k]);
+                    }
                 }
                 properties_contents += '</div>';
             }
