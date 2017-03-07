@@ -45,6 +45,9 @@ def run_test_suite(request):
     return JsonResponse({'success': True, 'scripts': files_to_monitor})
 
 
+
+
+
 def check_test_result(request):
     try:
         filename = request.GET.get('filename', False)
