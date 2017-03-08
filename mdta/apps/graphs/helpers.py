@@ -12,59 +12,56 @@ STATE_NAME = "state name"
 
 @transaction.atomic
 def parse_out_promptmodulesandnodes(vuid, project_id):
+    # Setup and create dataframe for parsing
     df = pd.read_excel(vuid.file.path, keep_default_na=False, na_values=' ', convert_float=True)
     df.columns = map(str.lower, df.columns)
     df.columns = df.columns.fillna("")
     df.drop_duplicates(subset=[PAGE_NAME, STATE_NAME], keep=False)
-    project = Project.objects.get(pk=project_id)
 
-    no_language = False
-    language = ""
+    project = Project.objects.get(pk=project_id)
 
     for i in df.index:
         try:
-            pgname = (df[PAGE_NAME][i])
-            pname = (df[PROMPT_NAME][i])
-            ptext = (df[PROMPT_TEXT][i])
-            stname = (df[STATE_NAME][i])
+            module_name = (df[PAGE_NAME][i])
+            prompt_name = (df[PROMPT_NAME][i])
+            english_text = (df[PROMPT_TEXT][i])
+            node_name = (df[STATE_NAME][i])
         except KeyError:
             return {"valid": False, "message": "Parser error, invalid headers. Please check them again."}
 
+        # check if module exists if not create it
         try:
-            pg = Module.objects.get(name=pgname, project=project)
+            module = Module.objects.get(name=module_name, project=project)
         except Module.DoesNotExist:
-            pg = Module(name=pgname, project=project)
-            pg.save()
+            module = Module(name=module_name, project=project)
+            module.save()
 
-        for d in df.columns:
-            lang = Language.objects.filter(project=project)
-            available_languages = lang.values_list('name', flat=True)
+        # check and grab all languages set in project
+        lang = Language.objects.filter(project=project)
+        available_languages = lang.values_list('name', flat=True)
+
+        # if no language set in project, set default to english
+        for current_language in available_languages:
             if not available_languages.exists():
-                no_language = True
                 available_languages = ['English']
-            for current_language in available_languages:
-                if d.title().startswith(current_language):
-                    language = d
 
-        if no_language:
-            verbiage = ptext
-
-        if stname.startswith('prompt_'):
+        # parse, clean, and create nodes
+        if node_name.startswith('prompt_'):
             type = NodeType.objects.get(name='Menu Prompt')
-            stname = stname.replace('prompt_', ' ').strip(' ')
+            node_name = node_name.replace('prompt_', ' ').strip(' ')
             keys = {
                 'Outputs': "",
                 'OnFailGoTo': "",
                 'NonStandardFail': "",
                 'Default': ""
             }
-        elif stname.startswith(('say_', 'play_')):
+        elif node_name.startswith(('say_', 'play_')):
             type = NodeType.objects.get(name='Play Prompt')
-            stname = stname.replace('say_', ' ').strip(' ')
+            node_name = node_name.replace('say_', ' ').strip(' ')
             keys = {
             }
         try:
-            nn = Node.objects.get(module__project=project, name=stname)
+            node = Node.objects.get(module__project=project, name=node_name)
         except Node.DoesNotExist:
             verbiage_keys = {current_language: {
                 'InitialPrompt': "",
@@ -73,11 +70,12 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
                 'NoMatch1': "",
                 'NoMatch2': ""
             }}
-            nn = Node(module=pg, name=stname, type=type, verbiage=verbiage_keys, properties=keys)
+            node = Node(module=module, name=node_name, type=type, verbiage=verbiage_keys, properties=keys)
 
+        # work with the current_language key to setup the node verbiage
         for current_language in available_languages:
-            if current_language not in nn.verbiage.keys():
-                nn.verbiage[current_language] = {
+            if current_language not in node.verbiage.keys():
+                node.verbiage[current_language] = {
                     'InitialPrompt': "",
                     'NoInput1': "",
                     'NoInput2': "",
@@ -85,31 +83,28 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
                     'NoMatch2': ""
                 }
             if current_language == 'English':
-                verbiage = ptext
+                verbiage = str(english_text)
             elif current_language != 'English':
+                verbiage = str("")
                 for d in df.columns:
                     if d.title().startswith(current_language):
-                        verbiage = (df[language][i])
-                    elif language not in df.columns:
-                        verbiage = ""
+                        language = d
+                        verbiage = str((df[language][i]))
 
-            if pname.find('_') != -1:
-                pname = pname.replace('_', ' ').rstrip('123456789').strip(' ')
-
-        # Assign verbiage from this row into correct field
-            if pname.endswith('NI1'):
-                nn.verbiage[current_language]['NoInput1'] += verbiage
-            elif pname.endswith('NI2'):
-                nn.verbiage[current_language]['NoInput2'] += verbiage
-            elif pname.endswith('NM1'):
-                nn.verbiage[current_language]['NoMatch1'] += verbiage
-            elif pname.endswith('NM2'):
-                nn.verbiage[current_language]['NoMatch2'] += verbiage
+            if prompt_name.find('_') != -1:
+                prompt_name = prompt_name.replace('_', ' ').rstrip('123456789').strip(' ')
+            # Assign verbiage from this row into correct field
+            if prompt_name.endswith('NI1'):
+                node.verbiage[current_language]['NoInput1'] += verbiage
+            elif prompt_name.endswith('NI2'):
+                node.verbiage[current_language]['NoInput2'] += verbiage
+            elif prompt_name.endswith('NM1'):
+                node.verbiage[current_language]['NoMatch1'] += verbiage
+            elif prompt_name.endswith('NM2'):
+                node.verbiage[current_language]['NoMatch2'] += verbiage
             else:
-                nn.verbiage[current_language]['InitialPrompt'] += verbiage
-
-        nn.save()
-        print(nn.verbiage)
+                node.verbiage[current_language]['InitialPrompt'] += verbiage
+        node.save()
 
     return {"valid": True, "message": 'Handled'}
 
@@ -120,8 +115,8 @@ def upload_vuid(uploaded_file, user, project_id):
 
     result = parse_out_promptmodulesandnodes(vuid, project_id)
     if not result['valid']:
-        vuid.delete()
-        return result
+          vuid.delete()
+          return result
 
     return dict(valid=True,
                 message="File uploaded and modules and nodes were parsed successfully.")
