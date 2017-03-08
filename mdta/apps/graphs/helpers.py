@@ -44,8 +44,7 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
         for current_language in available_languages:
             if not available_languages.exists():
                 available_languages = ['English']
-        print(available_languages)
-        
+
         # parse, clean, and create nodes
         if node_name.startswith('prompt_'):
             type = NodeType.objects.get(name='Menu Prompt')
