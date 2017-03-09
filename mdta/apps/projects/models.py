@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
 import time
+from django.utils.timezone import localtime
 
 from mdta.apps.users.models import HumanResource
 import mdta.apps.graphs.models
@@ -299,5 +300,5 @@ class VUID(models.Model):
     file = models.FileField(upload_to=vuid_location)
     upload_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
 
-    def __unicode__(self):
-        return '{0}: {1}'.format(self.filename, self.project.name)
+    def __str__(self):
+        return '{0}: {1}: {2}'.format(self.filename, self.project.name, localtime(self.upload_date))

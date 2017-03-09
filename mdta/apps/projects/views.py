@@ -426,6 +426,17 @@ def project_data_migrate_nodes(nodes):
             node.properties = tmp_property
             node.save()
 
+        if 'DataQueries' in node.type.name:
+            tmp_property = {}
+            for key in node.type.keys:
+                try:
+                    tmp_property[key] = node.properties[key]
+                except KeyError:
+                    tmp_property[key] = ''
+
+            node.properties = tmp_property
+            node.save()
+
 
 def project_data_migrate_edges(edges):
     """

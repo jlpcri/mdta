@@ -153,71 +153,29 @@ def get_properties_for_node_or_edge(request, node_or_edge_type, auto_edge=None):
         if 'DataQueries' in node_or_edge_type.name:  # Node 'DataQueries Database' and 'DataQueries WebService'
             tmp_data = get_properties_from_multi_rows(request, node_or_edge_type, key_name)
             properties[node_or_edge_type.keys_data_name] = tmp_data
-            return properties
-        elif node_or_edge_type.name in ['Data', 'PreCondition'] and isinstance(node_or_edge_type, EdgeType):
-            key_data = {}
-            subkey_data = {}
-            try:
-                key_data_json = ast.literal_eval(request.POST.get(key_name + node_or_edge_type.subkeys_data_name + '_0', ''))
-                for d_key in key_data_json:
-                    subkey_data[d_key] = key_data_json[d_key]
-                key_data[node_or_edge_type.subkeys_data_name] = subkey_data
-                for key in node_or_edge_type.keys:
-                    if key == EDGE_TYPES_INVISIBLE_KEY:
-                        properties[key] = request.POST.get(key, '')
-                    else:
-                        properties[key] = key_data
-            except Exception:
-                for key in node_or_edge_type.keys:
-                    if key == EDGE_TYPES_INVISIBLE_KEY:
-                        properties[key] = request.POST.get(key, '')
-                    else:
-                        properties[key] = {
-                            node_or_edge_type.subkeys_data_name: ''
-                        }
-
-            return properties
+        elif node_or_edge_type.name in ['Data', 'PreCondition'] and isinstance(node_or_edge_type, EdgeType) or node_or_edge_type.name == 'Set Variable':
+            properties = get_properties_from_other_json(request, key_name + node_or_edge_type.subkeys_data_name, node_or_edge_type)
         else:
             for key in node_or_edge_type.subkeys:
                 tmp[key] = request.POST.get(key_name + key + '_0', '')
             for key in node_or_edge_type.keys:
                 properties[key] = request.POST.get(key_name + key, '')
+            if node_or_edge_type.name in name_list and node_or_edge_type.keys_data_name:
+                properties[node_or_edge_type.keys_data_name] = tmp
     else:
         if 'DataQueries' in node_or_edge_type.name:  # Node 'DataQueries Database' and 'DataQueries WebService'
             tmp_data = get_properties_from_multi_rows(request, node_or_edge_type)
             properties[node_or_edge_type.keys_data_name] = tmp_data
-            return properties
-        elif node_or_edge_type.name in ['Data', 'PreCondition'] and isinstance(node_or_edge_type, EdgeType):
-            key_data = {}
-            subkey_data = {}
-            try:
-                key_data_json = ast.literal_eval(request.POST.get(node_or_edge_type.subkeys_data_name + '_0', ''))
-                for d_key in key_data_json:
-                    subkey_data[d_key] = key_data_json[d_key]
-                key_data[node_or_edge_type.subkeys_data_name] = subkey_data
-                for key in node_or_edge_type.keys:
-                    if key == EDGE_TYPES_INVISIBLE_KEY:
-                        properties[key] = request.POST.get(key, '')
-                    else:
-                        properties[key] = key_data
-            except Exception:
-                for key in node_or_edge_type.keys:
-                    if key == EDGE_TYPES_INVISIBLE_KEY:
-                        properties[key] = request.POST.get(key, '')
-                    else:
-                        properties[key] = {
-                            node_or_edge_type.subkeys_data_name: ''
-                        }
-
-            return properties
+        elif node_or_edge_type.name in ['Data', 'PreCondition'] and isinstance(node_or_edge_type, EdgeType) or node_or_edge_type.name == 'Set Variable':
+            properties = get_properties_from_other_json(request, node_or_edge_type.subkeys_data_name, node_or_edge_type)
         else:
             for key in node_or_edge_type.subkeys:
                 tmp[key] = request.POST.get(key + '_0', '')
             for key in node_or_edge_type.keys:
                 properties[key] = request.POST.get(key, '')
 
-    if node_or_edge_type.name in name_list and node_or_edge_type.keys_data_name:
-        properties[node_or_edge_type.keys_data_name] = tmp
+            if node_or_edge_type.name in name_list and node_or_edge_type.keys_data_name:
+                properties[node_or_edge_type.keys_data_name] = tmp
 
     return properties
 
@@ -248,6 +206,33 @@ def get_properties_from_multi_rows(request, node_or_edge_type, key_name=None):
         tmp_data.append(tmp_row)
 
     return tmp_data
+
+
+def get_properties_from_other_json(request, request_input, item_type):
+    properties = {}
+    key_data = {}
+    subkey_data = {}
+
+    try:
+        key_data_json = ast.literal_eval(request.POST.get(request_input + '_0', ''))
+        for d_key in key_data_json:
+            subkey_data[d_key] = key_data_json[d_key]
+        key_data[item_type.subkeys_data_name] = subkey_data
+        for key in item_type.keys:
+            if key == EDGE_TYPES_INVISIBLE_KEY:
+                properties[key] = request.POST.get(key, '')
+            else:
+                properties[key] = key_data
+    except Exception:
+        for key in item_type.keys:
+            if key == EDGE_TYPES_INVISIBLE_KEY:
+                properties[key] = request.POST.get(key, '')
+            else:
+                properties[key] = {
+                    item_type.subkeys_data_name: ''
+                }
+
+    return properties
 
 
 def node_related_edges_invisible(node, module):
