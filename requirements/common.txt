@@ -4,7 +4,6 @@ django-auth-ldap==1.2.8
 django-debug-toolbar==1.6
 ldap3==1.2.2
 jira==1.0.3
-openpyxl==2.3.1
 pandas==0.19.2
 paramiko==2.0.2
 psycopg2==2.6.1
