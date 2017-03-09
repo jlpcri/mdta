@@ -395,7 +395,7 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None, language=
                 tcs[confirm_idx - 1][TR_CONTENT] = 'press 1'  # confirm input
                 tcs.insert(confirm_idx, {
                     'content': content,
-                    'expected': get_verbiage_from_prompt_node(node, language, MP_CVER)
+                    'expected': get_verbiage_from_prompt_node(node, language, MPC_VER)
                 })
 
 
