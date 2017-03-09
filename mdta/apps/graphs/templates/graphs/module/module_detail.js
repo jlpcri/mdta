@@ -49,7 +49,7 @@ function check_node_properties_json(properties){
 
     $.each(properties, function(index){
         item = properties[index];
-        if (item.name.indexOf('Inputs_') >= 0 || item.name.indexOf('Outputs_') >= 0) {
+        if (item.name.indexOf('Inputs_') >= 0 || item.name.indexOf('Outputs_') >= 0 || item.name.indexOf('Variable_') >= 0) {
             item_str = item.value.replace(/'/g, '"');
             if (!isJsonFormat(item_str)){
                 if (item_str.length > 0){
@@ -363,7 +363,20 @@ function get_properties_contents(node_keys, properties, node_id, node_in){
             });
             properties_contents += '</tbody>';
             properties_contents += '</table>';
-        } else {
+        } else if (k == 'OutputData'){
+            properties_contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
+            properties_contents += '<div class=\'col-xs-4\'><label>{0}:</label></div>'.format('Value');
+            properties_contents += '<div class=\'col-xs-8\'><input name=\'{0}\''.format('Variable_0');
+            if (typeof properties[k] == 'undefined'){
+                properties_contents += 'value=\'\'';
+            } else {
+                $.each(properties[k]['Variable'], function (key, value) {
+                    properties_contents += 'value=\"{\'{0}\': \'{1}\'}\"'.format(key, value);
+                });
+            }
+            properties_contents += '></div>';
+            properties_contents += '</div>';
+        }else {
             if (!((k == 'Default') && (node_in == 'module'))) {
                 properties_contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
                 properties_contents += '<div class=\'col-xs-4\'><label>{0}:</label></div>'.format(k);

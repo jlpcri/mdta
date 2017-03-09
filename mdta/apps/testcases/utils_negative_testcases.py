@@ -28,11 +28,11 @@ def tc_confirm_no_input_recover(node, language):
     data = [
         {
             TR_CONTENT: get_mpc_valid_input(node),
-            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CVER)
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_VER)
         },
         {
             TR_CONTENT: 'wait',
-            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CNI1, hint='CNI1')
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_NI1, hint='CNI1')
         }
     ]
 
@@ -64,11 +64,11 @@ def tc_confirm_no_match_recover(node, language):
     data = [
         {
             TR_CONTENT: get_mpc_valid_input(node),
-            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CVER)
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_VER)
         },
         {
             TR_CONTENT: get_no_match_content(node),
-            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CNM1, hint='CNM1')
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_NM1, hint='CNM1')
         }
     ]
 
@@ -123,15 +123,15 @@ def tc_confirm_no_input_3_fail(node, language):
         data = [
             {
                 TR_CONTENT: get_mpc_valid_input(node),
-                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CVER)
+                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_VER)
             },
             {
                 TR_CONTENT: 'wait',
-                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CNI1, hint='CNI1')
+                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_NI1, hint='CNI1')
             },
             {
                 TR_CONTENT: 'wait',
-                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CNI2, hint='CNI2')
+                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_NI2, hint='CNI2')
             },
             {
                 TR_CONTENT: 'wait',
@@ -196,15 +196,15 @@ def tc_confirm_no_match_3_fail(node, language):
         data = [
             {
                 TR_CONTENT: get_mpc_valid_input(node),
-                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CVER)
+                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_VER)
             },
             {
                 TR_CONTENT: get_no_match_content(node),
-                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CNM1, hint='CNM1')
+                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_NM1, hint='CNM1')
             },
             {
                 TR_CONTENT: get_no_match_content(node),
-                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CNM2, hint='CNM2')
+                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_NM2, hint='CNM2')
             },
             {
                 TR_CONTENT: get_no_match_content(node),
@@ -277,7 +277,7 @@ def tc_confirm_ni_nm_3_fail(node, language):
     else:
         data.append({
             TR_CONTENT: get_mpc_valid_input(node),
-            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CVER)
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_VER)
         })
         combinations = random_combination(random_size=3)
         for index, item in enumerate(combinations):
@@ -442,7 +442,7 @@ def following_dataqueries_node_valid_data(node, subkey, visited_nodes=[]):
     data = []
     visited_nodes.append(node)
     if node.type.name in NODE_DATA_NAME:
-        for item in node.properties[EDGE_INPUTDATA_NAME]:
+        for item in node.properties[NODE_INPUTDATA_NAME]:
             # print(item['Inputs'], node.properties[MP_OUTPUTS])
             try:
                 data.append(item[NODE_DATA_INPUTS][subkey])
@@ -524,7 +524,7 @@ def rejected_testcase_generation(data, path_data, title, node, language=None):
                 rejected_steps = [
                     {
                         TR_CONTENT: contents,
-                        TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CVER)
+                        TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_VER)
                     },
                     {
                         TR_CONTENT: 'press 2',  # rejected confirm
