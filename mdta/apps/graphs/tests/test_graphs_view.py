@@ -1,7 +1,7 @@
 from django.test import TestCase, Client
 from django.core.urlresolvers import reverse
 from mdta.apps.users.models import HumanResource
-import mdta.apps.graphs.views import landing
+from mdta.apps.core.views import landing
 
 class GraphsViewsTest(TestCase):
 
