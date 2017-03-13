@@ -3,6 +3,7 @@ NODE_START_NAME = ['Start', 'TestHeader Start']
 NODE_DATA_NAME = ['DataQueries Database', 'DataQueries WebService']
 NODE_MP_NAME = ['Menu Prompt', 'Menu Prompt with Confirmation']
 NODE_PLAY_PROMPT_NAME = 'Play Prompt'
+NODE_SET_VARIABLE = 'Set Variable'
 
 # Node DataQueries inputs
 NODE_DATA_INPUTS = 'Inputs'
