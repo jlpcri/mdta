@@ -167,3 +167,83 @@
         </form>
     </div>
 </div>
+
+<!-- Node Edit Modal -->
+<div class="modal fade moduleNodeEdit" id="module-node-edit-modal">
+    <div class="modal-dialog">
+        <form action="{% url 'graphs:module_node_verbiage_edit' %}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4 class="modal-title">Node Data</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <ul id="subnav-tabs" class="nav nav-tabs">
+                            <li><a href="#general" data-toggle="tab">General</a></li>
+                            <li><a href="#property" data-toggle="tab">Property</a></li>
+                            <li><a href="#verbiage" data-toggle="tab">PrimaryVerbiage</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="tab-content">
+                        <div class="tab-pane" id="general">
+                            <div class="row" style="margin-top: 5px;">
+                                <div class="col-xs-12">
+                                    <label for="moduleNodeEditName">Name:</label>
+                                    <input type="text" class="form-control" name="moduleNodeEditName" id="moduleNodeEditName" value="{{ item.name }}">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-xs-12">
+                                    <label for="moduleNodeEditType">Type:</label>
+                                    <select class="form-control " id="moduleNodeEditType" name="moduleNodeEditType">
+                                        {% for type in node_types %}
+                                            <option value="{{ type.id }}">{{ type.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="property">
+                            <div class="row">
+                                <div class="col-xs-12" >
+                                    <div id="module-node-edit-properties"></div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="tab-pane" id="verbiage">
+                            <div class="row">
+                                <div class="col-xs-12" >
+                                    <div id="module-node-edit-verbiages"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br>
+                    <div class="row" style="margin-top: 10px;">
+                        <div id="moduleNodeEditErrMessage"></div>
+                    </div>
+
+                    {% csrf_token %}
+                    <input type="hidden" name="moduleNodeEditId" id="moduleNodeEditId" value="">
+                    <input type="hidden" name="property_data_index" value="">
+                </div>
+                <div class="modal-footer">
+                    <input id="node_save" name="node_save" class="btn btn-primary" type="submit" value="Save">
+                    {% if request.user.username == 'sliu' %}
+                        <button id="node_delete" name="node_delete" class="btn btn-danger" type="submit">Delete</button>
+                    {% endif %}
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

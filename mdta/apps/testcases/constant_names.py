@@ -6,6 +6,7 @@ NODE_PLAY_PROMPT_NAME = 'Play Prompt'
 
 # Node DataQueries inputs
 NODE_DATA_INPUTS = 'Inputs'
+NODE_INPUTDATA_NAME = 'InputData'
 
 # Edge type name
 EDGE_DATA_NAME = 'Data'
@@ -14,7 +15,6 @@ EDGE_DTMF_NAME = 'DTMF'
 EDGE_SPEECH_NAME = 'Speech'
 
 # Edge Input/Output data key name
-EDGE_INPUTDATA_NAME = 'InputData'
 EDGE_OUTPUTDATA_NAME = 'OutputData'
 EDGE_PRESS_NAME = 'Press'
 EDGE_SAY_NAME = 'Say'
@@ -26,19 +26,22 @@ MP_OUTPUTS = 'Outputs'
 MP_DEFAULT = 'Default'
 MP_NC = 'NoneConfirm'
 
-MP_VER = 'Verbiage'
-MP_NI1 = 'NoInput_1'
-MP_NI2 = 'NoInput_2'
-MP_NM1 = 'NoMatch_1'
-MP_NM2 = 'NoMatch_2'
+# MenuPrompt verbiage key name
+MP_VER = 'InitialPrompt'
+MP_NI1 = 'NoInput1'
+MP_NI2 = 'NoInput2'
+MP_NM1 = 'NoMatch1'
+MP_NM2 = 'NoMatch2'
 
-MP_CVER = 'ConfirmVerbiage'
-MP_CNI1 = 'ConfirmNoInput_1'
-MP_CNI2 = 'ConfirmNoInput_2'
-MP_CNM1 = 'ConfirmNoMatch_1'
-MP_CNM2 = 'ConfirmNoMatch_2'
-MP_RJ1 = 'Reject_1'
+# MenuPromptWithConfirmation verbiage key name
+MPC_VER = 'Confirmation'
+MPC_NI1 = 'ConfirmNoInput1'
+MPC_NI2 = 'ConfirmNoInput2'
+MPC_NM1 = 'ConfirmNoMatch1'
+MPC_NM2 = 'ConfirmNoMatch2'
+MPC_RJ1 = 'Reject1'
 
+LANGUAGE_DEFAULT_NAME = 'English'
 
 # Other constants
 CONSTRAINTS_TRUE_OR_FALSE = 'tof'

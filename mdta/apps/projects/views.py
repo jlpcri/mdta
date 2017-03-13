@@ -1,13 +1,14 @@
 import json
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from mdta.apps.projects.utils import context_project_dashboard, context_projects, check_testheader_duplicate
 from mdta.apps.users.views import user_is_staff, user_is_superuser
-from .models import Project, Module
-from .forms import ProjectForm, ModuleForm, TestHeaderForm, ProjectConfigForm
+from .models import Project, Module, Language
+from .forms import ProjectForm, ModuleForm, TestHeaderForm, ProjectConfigForm, LanguageNewForm
 
 
 @user_passes_test(user_is_staff)
@@ -162,6 +163,7 @@ def fetch_project_catalogs_members(request):
 
     return HttpResponse(json.dumps(data), content_type='application/json')
 
+
 @user_passes_test(user_is_staff)
 def module_new(request):
     """
@@ -289,3 +291,170 @@ def test_header_edit(request):
         context['last_tab'] = 'test_headers'
 
         return render(request, 'projects/project_dashboard.html', context)
+
+
+@user_passes_test(user_is_staff)
+def language_new(request):
+    if request.method == 'POST':
+        form = LanguageNewForm(request.POST)
+        if form.is_valid():
+            language = form.save()
+        else:
+            messages.error(request, form.errors)
+
+    context = context_project_dashboard(request)
+    context['last_tab'] = 'languages'
+
+    return render(request, 'projects/project_dashboard.html', context)
+
+
+@user_passes_test(user_is_staff)
+def language_edit(request):
+    if request.method == 'POST':
+        language_id = request.POST.get('editLanguageId', '')
+        project_id = request.POST.get('editLanguageProject', '')
+        name = request.POST.get('editLanguageName', '')
+        root_path = request.POST.get('editLanguageRootPath', '')
+
+        language = get_object_or_404(Language, pk=language_id)
+        language.project_id = project_id
+        language.name = name
+        language.root_path = root_path
+        language.save()
+
+    context = context_project_dashboard(request)
+    context['last_tab'] = 'languages'
+
+    return render(request, 'projects/project_dashboard.html', context)
+
+
+@user_passes_test(user_is_superuser)
+def project_data_migrate(request, project_id):
+    """
+    Migrate Project, All Projects, All TestHeaders data
+    :param request:
+    :param project_id:
+    :return:
+    """
+    if request.user.username != 'sliu':
+        return redirect('intro')
+
+    type_migrate = request.GET.get('type', '')
+    if type_migrate == 'all':
+        projs = Project.objects.all()
+        for p in projs:
+            # print(p.name)
+            project_data_migrate_single(p)
+    elif type_migrate == 'th':
+        ths = Module.objects.filter(project=None)
+        for th in ths:
+            if th.name:
+                project_data_migrate_nodes(th.nodes)
+                project_data_migrate_edges(th.edges_all)
+            else:
+                th.delete()
+    else:
+        project = get_object_or_404(Project, pk=project_id)
+        # print(project.name)
+        project_data_migrate_single(project)
+
+    return redirect('projects:projects')
+
+
+def project_data_migrate_single(project):
+    """
+    Migrate Project Nodes and Edges
+    :param project:
+    :return:
+    """
+    project_data_migrate_nodes(project.nodes)
+    project_data_migrate_edges(project.edges)
+
+
+def project_data_migrate_nodes(nodes):
+    """
+    Migrate Nodes data
+    :param nodes:
+    :return:
+    """
+    for node in nodes:
+        if 'Prompt' in node.type.name:
+            tmp_property, tmp_verbiage = {}, {}
+            for key in node.type.keys:
+                try:
+                    tmp_property[key] = node.properties[key]
+                except (KeyError, TypeError):
+                    tmp_property[key] = ''
+            for key in node.type.verbiage_keys:
+                try:
+                    if key == 'InitialPrompt':
+                        tmp_verbiage[key] = node.properties['Verbiage']
+                    else:
+                        tmp_property[key] = node.properties[key]
+                except (KeyError, TypeError):
+                    tmp_verbiage[key] = ''
+
+            # print(node.properties)
+            # print(tmp_property)
+
+            node.properties = tmp_property
+            if not node.verbiage:
+                node.verbiage = {'English': tmp_verbiage}
+            try:
+                node.save()
+            except ValidationError:
+                print(node.name, node)
+
+        if node.type.name == 'Start':
+            tmp_property = {}
+            for key in node.type.keys:
+                if key == 'APN':
+                    try:
+                        tmp_property[key] = node.properties[key]
+                    except (KeyError, TypeError):
+                        try:
+                            tmp_property[key] = node.properties['DialedNumber']
+                        except (KeyError, TypeError):
+                            tmp_property[key] = ''
+                else:
+                    try:
+                        tmp_property[key] = node.properties[key]
+                    except (KeyError, TypeError):
+                        tmp_property[key] = ''
+
+            # print(node.properties, tmp_property)
+            node.properties = tmp_property
+            node.save()
+
+        if 'DataQueries' in node.type.name:
+            tmp_property = {}
+            for key in node.type.keys:
+                try:
+                    tmp_property[key] = node.properties[key]
+                except KeyError:
+                    tmp_property[key] = ''
+
+            node.properties = tmp_property
+            node.save()
+
+
+def project_data_migrate_edges(edges):
+    """
+    Migrate Edges data
+    :param edges:
+    :return:
+    """
+    for edge in edges:
+        if edge.type.name in ['DTMF', 'Speech']:
+            tmp_property = {}
+            for key in edge.type.keys:
+                try:
+                    tmp_property[key] = edge.properties[key]
+                except (KeyError, TypeError):
+                    tmp_property[key] = ''
+
+            # print(edge.properties)
+            # print(tmp_property)
+            # print('----------------')
+            edge.properties = tmp_property
+            edge.save()

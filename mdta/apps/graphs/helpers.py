@@ -1,87 +1,149 @@
 from django.db import transaction
-# from orderedset import OrderedSet
 import pandas as pd
 
-from mdta.apps.projects.models import Project, Module, VUID
+from mdta.apps.projects.models import Project, Module, VUID, Language
 from mdta.apps.graphs.models import Node, NodeType
 
 PAGE_NAME = "page name"
 PROMPT_NAME = "prompt name"
 PROMPT_TEXT = "prompt text"
-# LANGUAGE = "language"
 STATE_NAME = "state name"
 
 
 @transaction.atomic
 def parse_out_promptmodulesandnodes(vuid, project_id):
-    df = pd.read_excel(vuid.file.path)
+    # Setup and create dataframe for parsing
+    df = pd.read_excel(vuid.file.path, keep_default_na=False, na_values=' ', convert_float=True)
     df.columns = map(str.lower, df.columns)
+    df.columns = df.columns.fillna("")
     df.drop_duplicates(subset=[PAGE_NAME, STATE_NAME], keep=False)
+
     project = Project.objects.get(pk=project_id)
 
-    module_names = []
-    for x in range(len(df)):
-        pgname = df.iloc[x, 0]
-        stname = df.iloc[x, 3]
-        pname = df.iloc[x, 1]
-        verbiage = df.iloc[x, 2]
-
+    for i in df.index:
         try:
-            pg = Module.objects.get(name=pgname, project=project)
+            module_name = (df[PAGE_NAME][i])
+            prompt_name = (df[PROMPT_NAME][i])
+            english_text = (df[PROMPT_TEXT][i])
+            node_name = (df[STATE_NAME][i])
+        except KeyError:
+            return {"valid": False, "message": "Parser error, invalid headers. Please check them again."}
+
+        # check if module exists if not create it
+        try:
+            module = Module.objects.get(name=module_name, project=project)
         except Module.DoesNotExist:
-            pg = Module(name=pgname, project=project)
-            module_names.append(pg)
-            pg.save()
+            module = Module(name=module_name, project=project)
+            module.save()
 
-        if pname.find('_') != -1:
-            pname = pname.replace('_', ' ').rstrip('123456789').strip(' ')
-        if stname.startswith('prompt_'):
+        # check and grab all languages set in project
+        lang = Language.objects.filter(project=project)
+        available_languages = lang.values_list('name', flat=True)
+
+        # if no language set in project, set default to english
+        for current_language in available_languages:
+            if not available_languages.exists():
+                available_languages = ['English']
+
+        # parse, clean, and create nodes
+        if node_name.startswith('prompt_'):
             type = NodeType.objects.get(name='Menu Prompt')
-            stname = stname.replace('prompt_', ' ').strip(' ')
-            keys = {'Verbiage': verbiage,
-                    'TranslateVerbiage': "",
-                    'Outputs': "",
-                    'NoInput_1': "",
-                    'NoInput_2': "",
-                    'NoMatch_1': "",
-                    'NoMatch_2': "",
-                    'OnFailGoTo': "",
-                    'NonStandardFail': "",
-                    'Default': ""
-                   }
-        elif stname.startswith(('say_', 'play_')):
+            node_name = node_name.replace('prompt_', ' ').strip(' ')
+            keys = {
+                'Outputs': "",
+                'OnFailGoTo': "",
+                'NonStandardFail': "",
+                'Default': ""
+            }
+        elif node_name.startswith(('say_', 'play_')):
             type = NodeType.objects.get(name='Play Prompt')
-            stname = stname.replace('say_', ' ').strip(' ')
-            keys = {'Verbiage': verbiage,
-                    'TranslateVerbiage': ""
-                    }
-        print(stname)
-        print(pname)
+            node_name = node_name.replace('say_', ' ').strip(' ')
+            keys = {
+            }
         try:
-            nn = Node.objects.get(module__project=project, name=stname)
+            node = Node.objects.get(module__project=project, name=node_name)
         except Node.DoesNotExist:
-            nn = Node(module=pg, name=stname, type=type, properties=keys)
+            verbiage_keys = {current_language: {
+                'InitialPrompt': "",
+                'NoInput1': "",
+                'NoInput2': "",
+                'NoMatch1': "",
+                'NoMatch2': ""
+            }}
+            node = Node(module=module, name=node_name, type=type, verbiage=verbiage_keys, properties=keys)
 
-        if pname.endswith('NI1'):
-            nn.properties['NoInput_1'] += verbiage
-        elif pname.endswith('NI2'):
-            nn.properties['NoInput_2'] += verbiage
-        elif pname.endswith('NM1'):
-            nn.properties['NoMatch_1'] += verbiage
-        elif pname.endswith('NM2'):
-            nn.properties['NoMatch_2'] += verbiage
-        # else:
-        #     nn.properties['Verbiage'] = verbiage
-        nn.save()
-        print(nn)
-        print(nn.properties)
+        # work with the current_language key to setup the node verbiage
+        for current_language in available_languages:
+            if current_language not in node.verbiage.keys():
+                node.verbiage[current_language] = {
+                    'InitialPrompt': "",
+                    'NoInput1': "",
+                    'NoInput2': "",
+                    'NoMatch1': "",
+                    'NoMatch2': ""
+                }
+            if current_language == 'English':
+                verbiage = str(english_text)
+            elif current_language != 'English':
+                verbiage = str("")
+                for d in df.columns:
+                    if d.title().startswith(current_language):
+                        language = d
+                        verbiage = str((df[language][i]))
+
+            if prompt_name.find('_') != -1:
+                prompt_name = prompt_name.replace('_', ' ').rstrip('123456789').strip(' ')
+            # Assign verbiage from this row into correct field
+            if prompt_name.endswith('NI1'):
+                node.verbiage[current_language]['NoInput1'] += verbiage
+            elif prompt_name.endswith('NI2'):
+                node.verbiage[current_language]['NoInput2'] += verbiage
+            elif prompt_name.endswith('NM1'):
+                node.verbiage[current_language]['NoMatch1'] += verbiage
+            elif prompt_name.endswith('NM2'):
+                node.verbiage[current_language]['NoMatch2'] += verbiage
+            else:
+                node.verbiage[current_language]['InitialPrompt'] += verbiage
+        node.save()
 
     return {"valid": True, "message": 'Handled'}
+
+
+def verify_vuid(vuid):
+    df = pd.read_excel(vuid.file.path)
+    df.columns = map(str.lower, df.columns)
+    valid = False
+    message = "Invalid file structure, unable to upload"
+    if not df.empty:
+        print(df)
+        if not verify_vuid_headers(vuid):
+            message = "Parser error, invalid headers. Please check them again."
+        else:
+            valid = True
+            message = "Uploaded file successfully"
+    elif df.empty:
+        message = "No records in file, unable to upload"
+    return {"valid": valid, "message": message}
+
+
+def verify_vuid_headers(vuid):
+    df = pd.read_excel(vuid.file.path)
+    df.columns = map(str.lower, df.columns)
+    try:
+        df.drop_duplicates(subset=[PAGE_NAME, STATE_NAME], keep=False)
+    except KeyError:
+        return False
+    return True
 
 
 def upload_vuid(uploaded_file, user, project_id):
     vuid = VUID(filename=uploaded_file.name, file=uploaded_file, project_id=project_id, upload_by=user)
     vuid.save()
+
+    result = verify_vuid(vuid)
+    if not result['valid']:
+        vuid.delete()
+        return result
 
     result = parse_out_promptmodulesandnodes(vuid, project_id)
     if not result['valid']:

@@ -16,6 +16,7 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from django.conf import settings
+from django.views.static import serve
 
 from mdta.apps.core.views import landing
 from mdta.apps.graphs.views import home
@@ -32,6 +33,8 @@ urlpatterns = [
     url(r'^mdta/testcases/', include('mdta.apps.testcases.urls', namespace='testcases')),
     url(r'^mdta/runner/', include('mdta.apps.runner.urls', namespace='runner')),
     url(r'^mdta/admin/', include(admin.site.urls)),
+
+    url(r'^mdta/media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
 if settings.DEBUG:
