@@ -109,14 +109,46 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
     return {"valid": True, "message": 'Handled'}
 
 
+def verify_vuid(vuid):
+    df = pd.read_excel(vuid.file.path)
+    df.columns = map(str.lower, df.columns)
+    valid = False
+    message = "Invalid file structure, unable to upload"
+    if not df.empty:
+        print(df)
+        if not verify_vuid_headers(vuid):
+            message = "Parser error, invalid headers. Please check them again."
+        else:
+            valid = True
+            message = "Uploaded file successfully"
+    elif df.empty:
+        message = "No records in file, unable to upload"
+    return {"valid": valid, "message": message}
+
+
+def verify_vuid_headers(vuid):
+    df = pd.read_excel(vuid.file.path)
+    df.columns = map(str.lower, df.columns)
+    try:
+        df.drop_duplicates(subset=[PAGE_NAME, STATE_NAME], keep=False)
+    except KeyError:
+        return False
+    return True
+
+
 def upload_vuid(uploaded_file, user, project_id):
     vuid = VUID(filename=uploaded_file.name, file=uploaded_file, project_id=project_id, upload_by=user)
     vuid.save()
 
+    result = verify_vuid(vuid)
+    if not result['valid']:
+        vuid.delete()
+        return result
+
     result = parse_out_promptmodulesandnodes(vuid, project_id)
     if not result['valid']:
-          vuid.delete()
-          return result
+        vuid.delete()
+        return result
 
     return dict(valid=True,
                 message="File uploaded and modules and nodes were parsed successfully.")
