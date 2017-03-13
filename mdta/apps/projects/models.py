@@ -7,6 +7,7 @@ from django.utils.timezone import localtime
 
 from mdta.apps.users.models import HumanResource
 import mdta.apps.graphs.models
+from mdta.apps.testcases.constant_names import NODE_START_NAME
 
 
 class TestRailInstance(models.Model):
@@ -77,7 +78,10 @@ class Language(models.Model):
                                 on_delete=models.SET_NULL)
 
     def __str__(self):
-        return '{0}: {1}'.format(self.project.name, self.name)
+        if self.project:
+            return '{0}: {1}'.format(self.project.name, self.name)
+        else:
+            return self.name
 
     class Meta:
         ordering = ['project', 'name']
@@ -149,6 +153,15 @@ class Project(models.Model):
         for module in self.modules:
             cross_module_edges = Edge.objects.filter(from_node__module=module).exclude(to_node__module=module)
             data.extend(cross_module_edges)
+
+        return data
+
+    @property
+    def start_nodes(self):
+        data = []
+        for node in self.nodes:
+            if node.type.name == NODE_START_NAME[0]:
+                data.append(node)
 
         return data
 
@@ -255,6 +268,16 @@ class Module(models.Model):
         }
 
         # print(node_names)
+        return data
+
+    @property
+    def start_nodes(self):
+        data = []
+        if not self.project:
+            for node in self.nodes:
+                if node.type.name == NODE_START_NAME[1]:
+                    data.append(node)
+
         return data
 
 

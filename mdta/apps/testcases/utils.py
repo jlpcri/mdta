@@ -168,13 +168,13 @@ def routing_path_to_node(node, visited_nodes):
 
     visited_nodes.append(node)
 
-    path = breadth_first_search(node, visited_nodes)
+    path = backwards_search(node, visited_nodes)
 
     # print(path)
     return path
 
 
-def breadth_first_search(node, visited_nodes):
+def backwards_search(node, visited_nodes):
     """
     Search a path from Start node(type='Start') to current Node
     Breadth
@@ -192,6 +192,7 @@ def breadth_first_search(node, visited_nodes):
         if edges.count() == 1:
             edge = edges[0]
         elif edges.count() > 1:
+            # get_shortest_edge_from_arriving_edges(node)
             for tmp_edge in edges:
                 if tmp_edge.type.name == 'Connector':
                     edge = tmp_edge
@@ -209,7 +210,7 @@ def breadth_first_search(node, visited_nodes):
                     if edge.from_node.type.name not in NODE_START_NAME:
                         if edge.from_node.arriving_edges.count() > 0:
                             start_node_found_outside = True
-                            path += breadth_first_search(edge.from_node, visited_nodes)
+                            path += backwards_search(edge.from_node, visited_nodes)
                     else:
                         start_node_found = True
                         path.append(edge.from_node)
@@ -264,6 +265,26 @@ def check_path_contains_in_result(path, result):
             continue
 
     return flag
+
+
+def get_shortest_edge_from_arriving_edges(node):
+    if node.module.project:
+        start_nodes = node.module.project.start_nodes
+    else:
+        start_nodes = node.module.start_nodes
+
+    breadth_first_search(start_nodes, node)
+
+
+def breadth_first_search(start, end):
+    queue = []
+    queue.append([start])
+    while queue:
+        path = queue.pop(0)
+        node = path[-1]
+        if node == end:
+            return path
+
 
 
 # --------------- Routing Project/Module Graph End ---------------
