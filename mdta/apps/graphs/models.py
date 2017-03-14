@@ -143,6 +143,15 @@ class Node(models.Model):
     def properties_sorted(self):
         return sorted(self.properties.items())
 
+    @property
+    def children(self):
+        data = []
+        for edge in self.leaving_edges:
+            data.append(edge.to_node)
+
+        # print(self.name, data)
+        return data
+
 
 class Edge(models.Model):
     """
