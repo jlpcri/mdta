@@ -488,7 +488,13 @@ def edge_property_match_set_variable(index, step, path):
             if item.properties[EDGE_OUTPUTDATA_NAME][item.type.subkeys_data_name] == step.properties[EDGE_OUTPUTDATA_NAME][step.type.subkeys_data_name]:
                 flag = True
                 break
-
+    if not flag:
+        for item in path[index:]:
+            if isinstance(item, Node) and item.leaving_edges.count() > 1:
+                for edge in item.leaving_edges:
+                    if edge.to_node.type.name == NODE_SET_VARIABLE and edge.to_node.properties[EDGE_OUTPUTDATA_NAME][edge.to_node.type.subkeys_data_name] == step.properties[EDGE_OUTPUTDATA_NAME][step.type.subkeys_data_name]:
+                        flag = True
+                        break
     return flag
 
 

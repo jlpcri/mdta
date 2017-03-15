@@ -281,7 +281,7 @@ def get_shortest_edge_from_arriving_edges(node):
         for each in path:
             try:
                 edge = Edge.objects.get(from_node=each, to_node=node)
-                break
+                return edge
             except Edge.DoesNotExist:
                 pass
 
