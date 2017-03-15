@@ -1,12 +1,13 @@
-__author__ = 'sliu'
+
 from mdta.settings.base import *
 
 DEBUG = True
+LOGGING_CONFIG = None
 INSTALLED_APPS += ['debug_toolbar', ]
 MIDDLEWARE_CLASSES += ['debug_toolbar.middleware.DebugToolbarMiddleware', ]
-INTERNAL_IPS = ['127.0.0.1', '10.6.20.127', '10.27.170.225']
+INTERNAL_IPS = ['127.0.0.1', '10.6.20.97', '10.6.20.60']
 
-DB_QACI01 = {
+DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'mdta',
@@ -26,17 +27,6 @@ DB_6437 = {
         'PASSWORD': 'FkhfDhPx%A=-?h_snCMuQ$&%5crcx%tpxw24pVVp+U-UrXs4q6=uK=8^-evN-RxA',
         'HOST': 'linux6437.wic.west.com',
         'PORT': '5433'   # posgtres 9.4 instance
-    }
-}
-
-DB_AWS_PG = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'mdta',
-        'USER': 'ceeq',
-        'PASSWORD': 'ceeq_development',
-        'HOST': 'wicqacip.ce8tamiymyr9.us-west-2.rds.amazonaws.com',
-        'PORT': '5432'
     }
 }
 

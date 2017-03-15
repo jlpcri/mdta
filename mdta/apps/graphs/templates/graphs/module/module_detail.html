@@ -148,6 +148,20 @@
                                                                         {% endfor %}
                                                                     </tbody>
                                                                 </table>
+                                                            {% elif key == 'OutputData' %}
+                                                                {% for subkey, subvalue in item.properties.OutputData.items %}
+                                                                    <div class="row" style="margin-top: 5px;">
+                                                                        <div class="col-xs-1"></div>
+                                                                        <div class="col-xs-11"><label>Value: </label></div>
+                                                                    </div>
+                                                                    <div class="row" style="margin-top: 5px;">
+                                                                        <div class="col-xs-1"></div>
+                                                                        <div class="col-xs-11">
+                                                                            <input name="{{ subkey }}_0" style="width: 100%"
+                                                                                    value="{{ subvalue }}" placeholder="JSON {'key': 'value'}">
+                                                                        </div>
+                                                                    </div>
+                                                                {% endfor %}
                                                             {% elif key == 'Default' and module.project %}
                                                             {% else %}
                                                                 <div class="row" style="margin-top: 5px;">
@@ -348,7 +362,7 @@
                                             <div class="row">
                                                 <div class="col-xs-12" >
                                                     <div id="module-edge-edit-properties">
-                                                        {% for key, value in item.properties.items %}
+                                                        {% for key, value in item.properties_sorted %}
                                                             {% if key == 'OutputData' %}
                                                                 {% for subkey, subvalue in item.properties.OutputData.items %}
                                                                     <div class="row" style="margin-top: 5px;">
@@ -378,7 +392,7 @@
                                                                 </div>
                                                                 <div class="row" style="margin-top: 5px;">
                                                                     <div class="col-xs-12">
-                                                                        {% if key == 'Invisible' %}
+                                                                        {% if key in 'Invisible, NoneConfirm' %}
                                                                             <input name="{{ key }}" type="checkbox"
                                                                                    {% if value == 'on' %} checked {% endif %}
                                                                                    data-toggle="toggle" data-width="100"

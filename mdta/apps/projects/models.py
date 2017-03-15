@@ -1,9 +1,13 @@
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
+import time
+from django.utils.timezone import localtime
 
 from mdta.apps.users.models import HumanResource
 import mdta.apps.graphs.models
+from mdta.apps.testcases.constant_names import NODE_START_NAME
 
 
 class TestRailInstance(models.Model):
@@ -63,13 +67,38 @@ class CatalogItem(models.Model):
         unique_together = ('parent', 'name')
 
 
+class Language(models.Model):
+    """
+    Language selection for testing
+    """
+    name = models.CharField(max_length=50, default='', verbose_name='language')
+    root_path = models.TextField(blank=True, null=True)
+    project = models.ForeignKey('Project', null=True, blank=True,
+                                related_name='language_projects',
+                                on_delete=models.SET_NULL)
+
+    def __str__(self):
+        if self.project:
+            return '{0}: {1}'.format(self.project.name, self.name)
+        else:
+            return self.name
+
+    class Meta:
+        ordering = ['project', 'name']
+        unique_together = ('project', 'name',)
+
+
 class Project(models.Model):
     """
     Entry of each project which will be represented to Model Driven Graph
     """
     name = models.CharField(max_length=50, unique=True, default='')
     test_header = models.ForeignKey('Module', null=True, blank=True,
-                                    related_name='test_header')
+                                    related_name='test_header', on_delete=models.SET_NULL)
+
+    language = models.ForeignKey(Language, blank=True, null=True,
+                                 related_name='project_language',
+                                 on_delete=models.SET_NULL)
 
     version = models.TextField()  # relate to TestRail-TestSuites
     testrail = models.ForeignKey(TestRailConfiguration,
@@ -124,6 +153,15 @@ class Project(models.Model):
         for module in self.modules:
             cross_module_edges = Edge.objects.filter(from_node__module=module).exclude(to_node__module=module)
             data.extend(cross_module_edges)
+
+        return data
+
+    @property
+    def start_nodes(self):
+        data = []
+        for node in self.nodes:
+            if node.type.name == NODE_START_NAME[0]:
+                data.append(node)
 
         return data
 
@@ -232,6 +270,16 @@ class Module(models.Model):
         # print(node_names)
         return data
 
+    @property
+    def start_nodes(self):
+        data = []
+        if not self.project:
+            for node in self.nodes:
+                if node.type.name == NODE_START_NAME[1]:
+                    data.append(node)
+
+        return data
+
 
 class ProjectVariable(models.Model):
     """
@@ -259,3 +307,21 @@ class ProjectVariable(models.Model):
 
     def __str__(self):
         return '{0}: {1}'.format(self.project.name, self.name)
+
+
+def vuid_location(instance, filename):
+    return "{0}_{1}".format(str(time.time()).replace('.', ''), filename)
+
+
+class VUID(models.Model):
+    """
+    Represents the uploaded file used to generate VoiceSlot object
+    """
+    project = models.ForeignKey(Project)
+    filename = models.TextField()
+    upload_date = models.DateTimeField(auto_now_add=True)
+    file = models.FileField(upload_to=vuid_location)
+    upload_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return '{0}: {1}: {2}'.format(self.filename, self.project.name, localtime(self.upload_date))

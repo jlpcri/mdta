@@ -63,16 +63,20 @@ $('.projectEdgeNew #project-edge-new-to-module').on('change', function(){
 
 $('.projectEdgeNew').on('submit', function(){
     var data = '',
-        //edge_type_project = $('#project-edge-new-type option:selected').text(),
+        from_node = $('#project-edge-new-from-node option:selected').text(),
+        to_node = $('#project-edge-new-to-node option:selected').text(),
         location = '#projectEdgeNewErrMessage',
         properties = $('#project-edge-new-properties input');
 
     var check_json = check_edge_properties_json(properties);
 
-    //if ((check_json['properties_no_input'] && edge_type_project != 'Connector') && edge_type_project) {
-    //    showErrMsg(location, 'Please Input property');
-    //    return false;
-    //}
+    if (from_node == ''){
+        showErrMsg(location, 'From Node empty');
+        return false;
+    } else if (to_node == ''){
+        showErrMsg(location, 'To Node empty');
+        return false;
+    }
 
     if (!check_json['is_json_format']){
         showErrMsg(location, check_json['json_msg']);

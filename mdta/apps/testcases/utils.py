@@ -1,10 +1,10 @@
-from django.shortcuts import get_object_or_404
-
 from mdta.apps.graphs.models import Node
-from mdta.apps.projects.models import Project, TestRailConfiguration, Module
+from mdta.apps.projects.models import Project, TestRailConfiguration
 from mdta.apps.testcases.testrail import APIClient, APIError
-from mdta.apps.testcases.utils_backwards_traverse import path_traverse_backwards, START_NODE_NAME, MENU_PROMPT_OUTPUTS_KEY_NODE_NAME
+from mdta.apps.testcases.utils_backwards_traverse import path_traverse_backwards
 from mdta.apps.testcases.utils_negative_testcases import negative_testcase_generation, rejected_testcase_generation
+
+from mdta.apps.testcases.constant_names import NODE_START_NAME, NODE_MP_NAME, LANGUAGE_DEFAULT_NAME
 
 
 def context_testcases():
@@ -31,14 +31,22 @@ def create_routing_test_suite(project=None, modules=None):
     data = []
 
     if project:
-        data = create_routing_test_suite_module(project.modules)
+        if project.language:
+            language = project.language.name
+        else:
+            language = LANGUAGE_DEFAULT_NAME
+        data = create_routing_test_suite_module(project.modules, language)
     elif modules:
-        data = create_routing_test_suite_module(modules)
+        if modules[0].project.language:
+            language = modules[0].project.language.name
+        else:
+            language = LANGUAGE_DEFAULT_NAME
+        data = create_routing_test_suite_module(modules, language)
 
     return data
 
 
-def create_routing_test_suite_module(modules):
+def create_routing_test_suite_module(modules, language):
     """
     Create routing paths for list of modules
     :param modules:
@@ -52,7 +60,7 @@ def create_routing_test_suite_module(modules):
         th_module = None
 
     for module in modules:
-        data = get_paths_through_all_edges(module.edges_all, th_module)
+        data = get_paths_through_all_edges(module.edges_all, th_module, language)
 
         test_suites.append({
             'module': module.name,
@@ -62,7 +70,7 @@ def create_routing_test_suite_module(modules):
     return test_suites
 
 
-def get_paths_through_all_edges(edges, th_module=None):
+def get_paths_through_all_edges(edges, th_module=None, language=None):
     """
     Get all paths through all edges
     :param edges:
@@ -79,7 +87,7 @@ def get_paths_through_all_edges(edges, th_module=None):
                 path = routing_path_to_edge(edge)
 
                 if path:
-                    path_data = path_traverse_backwards(path, th_path)
+                    path_data = path_traverse_backwards(path, th_path=th_path, language=language)
                     if 'tcs_cannot_route' in path_data.keys():
                         data.append({
                             'tcs_cannot_route': path_data['tcs_cannot_route'],
@@ -97,17 +105,17 @@ def get_paths_through_all_edges(edges, th_module=None):
                                 'title': title
                             })
 
-                        if edge.to_node.type.name == MENU_PROMPT_OUTPUTS_KEY_NODE_NAME[0]:
-                            negative_testcase_generation(data, path_data, title, edge.to_node)
-                        elif edge.to_node.type.name == MENU_PROMPT_OUTPUTS_KEY_NODE_NAME[1]:
-                            rejected_testcase_generation(data, path_data, title, edge.to_node)
+                        if edge.to_node.type.name in NODE_MP_NAME:
+                            negative_testcase_generation(data, path_data, title, edge.to_node, language=language)
+                            if edge.to_node.type.name == NODE_MP_NAME[1]:
+                                rejected_testcase_generation(data, path_data, title, edge.to_node, language=language)
 
     else:
         for edge in edges:
             path = routing_path_to_edge(edge)
 
             if path:
-                path_data = path_traverse_backwards(path)
+                path_data = path_traverse_backwards(path, language=language)
                 if 'tcs_cannot_route' in path_data.keys():
                     data.append({
                         'tcs_cannot_route': path_data['tcs_cannot_route'],
@@ -125,8 +133,8 @@ def get_paths_through_all_edges(edges, th_module=None):
                             'title': title
                         })
 
-                    if edge.to_node.type.name == MENU_PROMPT_OUTPUTS_KEY_NODE_NAME[0]:
-                        negative_testcase_generation(data, path_data, title, edge.to_node)
+                    if edge.to_node.type.name == NODE_MP_NAME[0]:
+                        negative_testcase_generation(data, path_data, title, edge.to_node, language=language)
 
     # return check_subpath_in_all(data)
     return data
@@ -160,13 +168,13 @@ def routing_path_to_node(node, visited_nodes):
 
     visited_nodes.append(node)
 
-    path = breadth_first_search(node, visited_nodes)
+    path = backwards_search(node, visited_nodes)
 
     # print(path)
     return path
 
 
-def breadth_first_search(node, visited_nodes):
+def backwards_search(node, visited_nodes):
     """
     Search a path from Start node(type='Start') to current Node
     Breadth
@@ -177,13 +185,14 @@ def breadth_first_search(node, visited_nodes):
     path = []
     start_node_found_outside = False  # flag to find Start Node outside
 
-    if node.type.name in START_NODE_NAME:
+    if node.type.name in NODE_START_NAME:
         path.append(node)
     else:
         edges = node.arriving_edges
         if edges.count() == 1:
             edge = edges[0]
         elif edges.count() > 1:
+            # get_shortest_edge_from_arriving_edges(node)
             for tmp_edge in edges:
                 if tmp_edge.type.name == 'Connector':
                     edge = tmp_edge
@@ -196,12 +205,12 @@ def breadth_first_search(node, visited_nodes):
         if edge:
             start_node_found = False  # flag to find Start Node in current search
             if edge.from_node not in visited_nodes \
-                    or edge.from_node.type.name in START_NODE_NAME:  # if Node is not visited or Node is Start
+                    or edge.from_node.type.name in NODE_START_NAME:  # if Node is not visited or Node is Start
                 if edge.from_node != edge.to_node:
-                    if edge.from_node.type.name not in START_NODE_NAME:
+                    if edge.from_node.type.name not in NODE_START_NAME:
                         if edge.from_node.arriving_edges.count() > 0:
                             start_node_found_outside = True
-                            path += breadth_first_search(edge.from_node, visited_nodes)
+                            path += backwards_search(edge.from_node, visited_nodes)
                     else:
                         start_node_found = True
                         path.append(edge.from_node)
@@ -256,6 +265,26 @@ def check_path_contains_in_result(path, result):
             continue
 
     return flag
+
+
+def get_shortest_edge_from_arriving_edges(node):
+    if node.module.project:
+        start_nodes = node.module.project.start_nodes
+    else:
+        start_nodes = node.module.start_nodes
+
+    breadth_first_search(start_nodes, node)
+
+
+def breadth_first_search(start, end):
+    queue = []
+    queue.append([start])
+    while queue:
+        path = queue.pop(0)
+        node = path[-1]
+        if node == end:
+            return path
+
 
 
 # --------------- Routing Project/Module Graph End ---------------

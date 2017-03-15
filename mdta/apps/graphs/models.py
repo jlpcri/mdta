@@ -8,6 +8,7 @@ from mdta.apps.projects.models import Project, Module
 class NodeType(models.Model):
     """
     Type of Node: DataQueries Database, DataQueries WebService
+                  Language
                   Play Prompt
                   Menu Prompt, Menu Prompt with Confirmation
                   Start
@@ -20,6 +21,9 @@ class NodeType(models.Model):
                       verbose_name='Keys(Separated with comma)')
     subkeys = ArrayField(models.CharField(max_length=50), null=True, blank=True,
                          verbose_name='SubKeys(Separated with comma)')
+
+    verbiage_keys = ArrayField(models.CharField(max_length=50), null=True, blank=True,
+                               verbose_name='VerbiageKeys(Separated with comma)')
 
     def __str__(self):
         return '{0}: {1}'.format(self.name, self.keys)
@@ -93,6 +97,9 @@ class Node(models.Model):
     # Property for the Node, Keys are from NodeType
     properties = JSONField(null=True, blank=True)
 
+    # Verbiage for the PromptNode, Verbiage_Keys are from NodeType
+    verbiage = JSONField(null=True, blank=True)
+
     class Meta:
         unique_together = ('module', 'name',)
 
@@ -141,14 +148,7 @@ class Edge(models.Model):
     """
     Edge between two Nodes (Same Project) to represent the relation of them
     """
-    PRIORITY_CHOICES = (
-        (0, 0),
-        (1, 1),
-        (2, 2),
-        (3, 3),
-        (4, 4),
-        (5, 5)
-    )
+    PRIORITY_CHOICES = tuple(((x, x) for x in range(10)))
     type = models.ForeignKey(EdgeType)
 
     # name = models.TextField(default='')
@@ -166,4 +166,6 @@ class Edge(models.Model):
     def __str__(self):
         return '{0}: {1}: {2}'.format(self.from_node.module.name, self.from_node.name, self.to_node.name)
 
-
+    @property
+    def properties_sorted(self):
+        return sorted(self.properties.items())
