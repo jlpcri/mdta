@@ -1,4 +1,6 @@
-from mdta.apps.graphs.models import Node
+import collections
+
+from mdta.apps.graphs.models import Node, Edge
 from mdta.apps.projects.models import Project, TestRailConfiguration
 from mdta.apps.testcases.testrail import APIClient, APIError
 from mdta.apps.testcases.utils_backwards_traverse import path_traverse_backwards
@@ -192,13 +194,13 @@ def backwards_search(node, visited_nodes):
         if edges.count() == 1:
             edge = edges[0]
         elif edges.count() > 1:
-            # get_shortest_edge_from_arriving_edges(node)
-            for tmp_edge in edges:
-                if tmp_edge.type.name == 'Connector':
-                    edge = tmp_edge
-                    break
-            else:
-                edge = edges[0]
+            edge = get_shortest_edge_from_arriving_edges(node)
+            # for tmp_edge in edges:
+            #     if tmp_edge.type.name == 'Connector':
+            #         edge = tmp_edge
+            #         break
+            # else:
+            #     edge = edges[0]
         else:
             edge = None
 
@@ -273,18 +275,33 @@ def get_shortest_edge_from_arriving_edges(node):
     else:
         start_nodes = node.module.start_nodes
 
-    breadth_first_search(start_nodes, node)
+    edge = ''
+    for start_node in start_nodes:
+        path = breadth_first_search(start_node, node)
+        for each in path:
+            try:
+                edge = Edge.objects.get(from_node=each, to_node=node)
+                return edge
+            except Edge.DoesNotExist:
+                pass
+
+    return edge
 
 
 def breadth_first_search(start, end):
-    queue = []
-    queue.append([start])
+    visited = [start]
+    queue = collections.deque([start])
     while queue:
-        path = queue.pop(0)
-        node = path[-1]
-        if node == end:
-            return path
+        vertex = queue.popleft()
+        for child in vertex.children:
+            if child not in visited:
+                if child == end:
+                    visited.append(child)
+                    break
+                visited.append(child)
+                queue.append(child)
 
+    return visited
 
 
 # --------------- Routing Project/Module Graph End ---------------
