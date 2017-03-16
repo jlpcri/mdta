@@ -29,15 +29,14 @@ DB_6437 = {
     }
 }
 
-DB_AWS_PG = {
+DB_DOCKER = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'mdta',
-        'USER': 'ceeq',
-        'PASSWORD': 'ceeq_development',
-        'HOST': 'wicqacip.ce8tamiymyr9.us-west-2.rds.amazonaws.com',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'HOST': 'db',
         'PORT': '5432'
     }
 }
 
-DATABASES = DB_6437
+DATABASES = DB_QACI01
