@@ -3,7 +3,6 @@ from mdta.settings.base import *
 
 DEBUG = True
 
-STATIC_URL = '/static/'
 DB_QACI01 = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -24,17 +23,6 @@ DB_6437 = {
         'PASSWORD': 'FkhfDhPx%A=-?h_snCMuQ$&%5crcx%tpxw24pVVp+U-UrXs4q6=uK=8^-evN-RxA',
         'HOST': 'linux6437.wic.west.com',
         'PORT': '5433'   # posgtres 9.4 instance
-    }
-}
-
-DB_AWS_PG = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'mdta',
-        'USER': 'ceeq',
-        'PASSWORD': 'ceeq_development',
-        'HOST': 'wicqacip.ce8tamiymyr9.us-west-2.rds.amazonaws.com',
-        'PORT': '5432'
     }
 }
 
