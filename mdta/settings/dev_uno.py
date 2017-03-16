@@ -3,6 +3,7 @@ from mdta.settings.base import *
 
 DEBUG = True
 
+STATIC_URL = '/static/'
 DB_QACI01 = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
