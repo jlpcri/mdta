@@ -308,6 +308,7 @@
     <script>
         var nodes = {{ network_nodes|safe }};
         var edges = {{ network_edges|safe }};
+        var image_url = "{% static 'common/brand_icons/turnpost-png-graphics/' %}";
         {% include 'graphs/project/project_detail.js' %}
         {% include 'graphs/node_edge_properties.js' %}
     </script>
