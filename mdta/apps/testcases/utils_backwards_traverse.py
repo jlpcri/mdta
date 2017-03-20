@@ -55,10 +55,13 @@ def path_traverse_backwards(path, th_path=None, language=None):
                     if th_path and edge_property_key_in_th_menuprompt(step, th_path):
                         result_found = step.properties[step.type.keys_data_name][step.type.subkeys_data_name]
                         menu_prompt_outputs_keys = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())
-
                     elif edge_property_key_in_from_menuprompt(step):
                         result_found = step.properties[step.type.keys_data_name][step.type.subkeys_data_name]
                         menu_prompt_outputs_keys = [step.from_node.properties[MP_OUTPUTS]]
+                    elif edge_property_match_set_variable(index, step, path):
+                        result_found = step.properties[step.type.keys_data_name][step.type.subkeys_data_name]
+                        menu_prompt_outputs_keys = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())
+                        pass
                     else:
                         constraints += assert_current_edge_constraint(step)
                         constraints += assert_high_priority_edges_negative(step)
@@ -86,7 +89,7 @@ def path_traverse_backwards(path, th_path=None, language=None):
                             tcs_cannot_route_msg = 'MenuPrompt/MenuPromptWC property \'Outputs\' not found'
                     else:
                         tcs_cannot_route_flag = True
-                        tcs_cannot_route_msg = 'No match result found in DataQueries Node'
+                        tcs_cannot_route_msg = 'No match result found in DataQueries or SetVarialbe'
                         if not th_menu_prompt_outputs_keys:
                             break
 
@@ -373,7 +376,7 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None, language=
     """
     if node.type.name in [NODE_START_NAME[0], 'Transfer']:  # Start with Dial Number
         add_step(node_start(node), tcs)
-    elif node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME]:
+    elif node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME, NODE_SET_VARIABLE]:
         add_step(node_prompt(node, preceding_edge, language=language), tcs)
 
     if node.type.name == NODE_MP_NAME[1] and following_edge:
@@ -448,7 +451,7 @@ def edge_property_key_in_th_menuprompt(step, th_path):
     data = ''
     try:
         step_key = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())[0]
-    except (AttributeError, KeyError):
+    except (AttributeError, KeyError, IndexError):
         step_key = ''
 
     for th_step in th_path:
@@ -465,17 +468,34 @@ def edge_property_key_in_from_menuprompt(step):
     :param step:
     :return:
     """
-    data = False
+    flag = False
 
     try:
         step_key = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())[0]
-    except (AttributeError, KeyError):
+    except (AttributeError, KeyError, IndexError):
         step_key = ''
 
     if step.from_node.type.name in NODE_MP_NAME and step.from_node.properties[MP_OUTPUTS] == step_key:
-        data = True
+        flag = True
 
-    return data
+    return flag
+
+
+def edge_property_match_set_variable(index, step, path):
+    flag = False
+    for item in path[index:]:
+        if item.type.name == NODE_SET_VARIABLE:
+            if item.properties[EDGE_OUTPUTDATA_NAME][item.type.subkeys_data_name] == step.properties[EDGE_OUTPUTDATA_NAME][step.type.subkeys_data_name]:
+                flag = True
+                break
+    if not flag:
+        for item in path[index:]:
+            if isinstance(item, Node) and item.leaving_edges.count() > 1:
+                for edge in item.leaving_edges:
+                    if edge.to_node.type.name == NODE_SET_VARIABLE and edge.to_node.properties[EDGE_OUTPUTDATA_NAME][edge.to_node.type.subkeys_data_name] == step.properties[EDGE_OUTPUTDATA_NAME][step.type.subkeys_data_name]:
+                        flag = True
+                        break
+    return flag
 
 
 def non_data_edge_has_higher_priority(step):
