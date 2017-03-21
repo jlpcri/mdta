@@ -53,7 +53,6 @@ function draw_project_graph() {
         nodes: nodes,
         edges: edges
     };
-    var image_url = 'http://apps.qaci01.wic.west.com/static/common/brand_icons/turnpost-png-graphics/';
     var options = {
         nodes: {
             shape: 'image',
