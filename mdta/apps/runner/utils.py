@@ -1,4 +1,5 @@
 from __future__ import print_function
+import csv
 import textwrap
 from contextlib import contextmanager
 from tempfile import NamedTemporaryFile
@@ -6,6 +7,7 @@ import os
 import sys
 import time
 
+import datetime
 import requests
 from paramiko.client import AutoAddPolicy
 from paramiko import SSHClient, SFTPClient, Transport
@@ -104,7 +106,8 @@ class TestRailCase(TestRailORM):
                       'DIAL': self.script.start_of_call,
                       'DIALEDNUMBER': self.script.start_of_call,
                       'APN': self.script.start_of_call,
-                      'PRESS': self.script.dtmf_step}
+                      'PRESS': self.script.dtmf_step,
+                      'WAIT': self.script.no_input}
         action_map[action](step)
 
     def _expected_routing(self, step):
@@ -339,6 +342,9 @@ class HATScript(AutomationScript):
     def dtmf_step(self, step):
         self.body += 'EXPECT recognition_start\nPAUSE 1\nDTMF ' + step[6:] + '\n'
 
+    def no_input(self, step):
+        self.body += 'EXPECT recognition_end\n'
+
     def end_of_call(self):
         self.body += 'ENDCALL\n'
 
@@ -381,6 +387,17 @@ def bulk_remote_hat_execute(case_list):
     time.sleep(50)  # Why? Don't know. Kinda don't care anymore. It runs better when it's here.
     client.close()
     return filename_list
+
+def bulk_hatit_file_generator(case_list):
+    csv_filename = 'hatit_{0}.csv'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
+    with open(csv_filename, 'w', newline='') as csvfile:
+        csv_writer = csv.writer(csvfile)
+        csv_writer.writerow(['everything', ])
+        for case in case_list:
+            case.generate_hat_script()
+            csv_writer.writerow([case.script.body, ])
+    return csv_filename
+
 
 
 def check_result(filename):
