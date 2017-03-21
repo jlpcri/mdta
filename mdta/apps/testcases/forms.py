@@ -15,7 +15,11 @@ class TestrailConfigurationForm(ModelForm):
             self.fields['instance'].empty_label = None
             self.fields['instance'].label_from_instance = lambda obj: "%s" % obj.host
 
-            testrail_projects = get_projects_from_testrail(testrail_instance[0])
+            try:
+                testrail_projects = get_projects_from_testrail(testrail_instance[0])
+            except Exception as e:
+                testrail_projects = []
+                print(e)
             for item in testrail_projects:
                 names += ((item['name'], item['name']), )
 
