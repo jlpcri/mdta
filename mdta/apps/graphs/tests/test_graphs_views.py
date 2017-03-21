@@ -31,11 +31,12 @@ class GraphsViewsTest(TestCase):
         response = self.client.get(reverse('home'), follow=True)
         self.assertNotContains(response, 'Please use your Active Directory credentials.')
 
-    def test_with_authenticated_return_200(self):
+    def test_graph_page_with_new_user(self):
         self.client.login(
             username=self.user_account['username'],
             password=self.user_account['password']
         )
         response = self.client.get(reverse('home'))
-        self.assertEquals(response.status_code, 200)
+        self.assertRedirects(response, '/mdta/graphs/projects_for_selection/', 302, 200)
 
+    
