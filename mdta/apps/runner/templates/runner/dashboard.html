@@ -21,9 +21,9 @@
                                 <ul class="list-group" id="lg-{{ forloop.counter }}">
                                     <li class="list-group-item">
                                         <strong>Run all</strong>
-                                        <button style="margin-left: 3em;" data-suite="{{ suite.id }}" class="btn btn-success btn-xs pull-right run-all-btn">
+                                        <a href="{% url 'runner:hatit_download' %}?suite={{ suite.id }}" style="margin-left: 3em;" data-suite="{{ suite.id }}" class="btn btn-success btn-xs pull-right run-all-btn">
                                             Run <i class="fa fa-arrow-right"></i>
-                                        </button>
+                                        </a>
                                     </li>
                                     {% for case in suite.cases %}
                                         <li class="list-group-item">
