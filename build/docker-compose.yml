@@ -18,6 +18,7 @@ services:
     build:
       context: .
       dockerfile: build/Dockerfile
+    image: jlpcri/mdta
     command: python manage.py runserver 0.0.0.0:9202 --settings=mdta.settings.dev_uno
     volumes:
       - .:/code
@@ -33,6 +34,7 @@ services:
     build:
       context: .
       dockerfile: build/Dockerfile
+    image: jlpcri/mdta
     command: celery worker -A mdta.celery_module -Q mdta_queue -l error
     volumes:
       - .:/code
