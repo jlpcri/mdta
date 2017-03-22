@@ -18,6 +18,8 @@ from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeAutoNewFor
 from mdta.apps.projects.forms import ModuleForm, UploadForm
 from mdta.apps.testcases.constant_names import NODE_START_NAME, LANGUAGE_DEFAULT_NAME
 from mdta.apps.testcases.tasks import create_testcases_celery, push_testcases_to_testrail_celery
+from mdta.apps.testcases.models import TestCaseResults
+
 
 
 @login_required
@@ -37,7 +39,6 @@ def projects_for_selection(request):
     }
 
     return render(request, 'graphs/projects_for_selection.html', context)
-
 
 @user_passes_test(user_is_superuser)
 def graphs(request):
@@ -169,8 +170,14 @@ def project_detail(request, project_id):
 
     network_nodes = []
     network_edges = []
+    network_tc = []
     projects = Project.objects.all()
     project = get_object_or_404(Project, pk=project_id)
+
+    testcases = project.testcaseresults_set.latest('updated').results
+    for tc in testcases:
+        network_tc.append(tc)
+        print(tc)
 
     user = request.user
     user.humanresource.project = project
@@ -220,6 +227,7 @@ def project_detail(request, project_id):
 
         'network_nodes': json.dumps(network_nodes),
         'network_edges': json.dumps(network_edges),
+        'network_tc': json.dumps(network_tc),
 
         'edges_between_modules': network_edges
     }

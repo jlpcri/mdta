@@ -308,6 +308,7 @@
     <script>
         var nodes = {{ network_nodes|safe }};
         var edges = {{ network_edges|safe }};
+        var tc = {{ network_tc|safe}};
         {% include 'graphs/project/project_detail.js' %}
         {% include 'graphs/node_edge_properties.js' %}
     </script>

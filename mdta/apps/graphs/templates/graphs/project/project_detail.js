@@ -27,7 +27,7 @@ $('.projectEdgeEditForm #projectEdgeEditType').on('change', function(){
     load_keys_from_type_contents(edge_type_id, location, 'edge')
 });
 
-function draw_project_graph() {
+function draw_project_graph(testcases) {
     //// create an array with nodes
     //var nodes = new vis.DataSet([
     //    {id: 1, label: 'Node 1'},
@@ -44,6 +44,9 @@ function draw_project_graph() {
     //    {from: 2, to: 4},
     //    {from: 2, to: 5}
     //]);
+
+    // var tc = JSON.parse(testcases);
+    // console.log(tc);
 
     // create a network
     var container = document.getElementById('module_in_project');
