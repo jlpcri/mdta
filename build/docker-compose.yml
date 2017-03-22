@@ -2,13 +2,42 @@ version: '2'
 services:
   db:
     image: postgres
+
+  # RAbbitMQ
+  rabbit:
+    hostname: rabbit
+    image: rabbitmq:3.6.0
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=mypass
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
   web:
-    build: .
-    image: jlpcri/mdta
-    command: python manage.py runserver 0.0.0.0:9202 --settings=mdta.settings.dev_sliu
+    build:
+      context: .
+      dockerfile: build/Dockerfile
+    command: python manage.py runserver 0.0.0.0:9202 --settings=mdta.settings.dev_uno
     volumes:
       - .:/code
     ports:
       - "9202:9202"
+    links:
+      - db
+      - rabbit
     depends_on:
       - db
+
+  worker:
+    build:
+      context: .
+      dockerfile: build/Dockerfile
+    command: celery worker -A mdta.celery_module -Q mdta_queue -l error
+    volumes:
+      - .:/code
+    links:
+      - db
+      - rabbit
+    depends_on:
+      - rabbit
