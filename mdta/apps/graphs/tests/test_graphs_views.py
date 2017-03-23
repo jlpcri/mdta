@@ -28,8 +28,12 @@ class GraphsViewsTest(TestCase):
         self.hr1 = HumanResource.objects.create(
             user=self.user1
         )
+        self.project = Project.objects.create(
+            name='mdta_project'
+        )
         self.hr2 = HumanResource.objects.create(
-            user=self.user2
+            project=self.project,
+            user = self.user2
         )
     def test_landing_return_200(self):
         response = self.client.get(reverse('home'))
@@ -52,17 +56,12 @@ class GraphsViewsTest(TestCase):
         self.assertRedirects(response, '/mdta/graphs/projects_for_selection/', 302, 200)
 
     def test_graph_page_with_established_user(self):
-        self.project = Project.objects.create(
-            name = 'mdta_project'
-        )
-        self.hr_project = HumanResource.objects.create(
-            project=self.project
-        )
         self.client.login(
             username=self.user_account_2['username'],
             password=self.user_account_2['password']
         )
+        project_id = self.project.id
         response = self.client.get(reverse('home'))
-        self.assertRedirects(response, '/mdta/graphs/project_detail/', 302, 200)
+        self.assertRedirects(response, '/mdta/graphs/project_detail/{0}/'.format(project_id), 302, 200)
 
 
