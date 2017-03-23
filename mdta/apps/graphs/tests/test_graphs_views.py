@@ -3,6 +3,7 @@ from django.test import TestCase, Client
 from django.core.urlresolvers import resolve, reverse
 from mdta.apps.graphs.views import graphs
 from mdta.apps.users.models import HumanResource
+from mdta.apps.projects.models import Project
 
 class GraphsViewsTest(TestCase):
 
@@ -38,5 +39,19 @@ class GraphsViewsTest(TestCase):
         )
         response = self.client.get(reverse('home'))
         self.assertRedirects(response, '/mdta/graphs/projects_for_selection/', 302, 200)
+
+    def test_graph_page_with_established_user(self):
+        self.project = Project.objects.create(
+            name = 'mdta_project'
+        )
+        self.hr_project = HumanResource.objects.create(
+            project=self.project
+        )
+        self.client.login(
+            username=self.user_account['username'],
+            password=self.user_account['password']
+        )
+        response = self.client.get(reverse('home'))
+        self.assertRedirects(response, '/mdta/graphs/project_detail/', 302, 200)
 
 
