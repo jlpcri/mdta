@@ -39,4 +39,4 @@ class GraphsViewsTest(TestCase):
         response = self.client.get(reverse('home'))
         self.assertRedirects(response, '/mdta/graphs/projects_for_selection/', 302, 200)
 
-    
+
