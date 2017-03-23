@@ -9,16 +9,27 @@ class GraphsViewsTest(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.user_account = {
-            'username': 'UserAccount',
-            'password': 'UserPassword'
+        self.user_account_1 = {
+            'username': 'UserAccount1',
+            'password': 'UserPassword1',
         }
-        self.user = User.objects.create_user(
-            username=self.user_account['username'],
-            password=self.user_account['password']
+        self.user_account_2 = {
+            'username': 'UserAccount2',
+            'password': 'UserPassword2',
+        }
+        self.user1 = User.objects.create_user(
+            username=self.user_account_1['username'],
+            password=self.user_account_1['password']
         )
-        self.hr = HumanResource.objects.create(
-            user=self.user
+        self.user2 = User.objects.create_user(
+            username=self.user_account_2['username'],
+            password=self.user_account_2['password']
+        )
+        self.hr1 = HumanResource.objects.create(
+            user=self.user1
+        )
+        self.hr2 = HumanResource.objects.create(
+            user=self.user2
         )
     def test_landing_return_200(self):
         response = self.client.get(reverse('home'))
@@ -26,16 +37,16 @@ class GraphsViewsTest(TestCase):
 
     def test_login(self):
         self.client.login(
-            username=self.user_account['username'],
-            password=self.user_account['password']
+            username=self.user_account_1['username'],
+            password=self.user_account_1['password']
         )
         response = self.client.get(reverse('home'), follow=True)
         self.assertNotContains(response, 'Please use your Active Directory credentials.')
 
     def test_graph_page_with_new_user(self):
         self.client.login(
-            username=self.user_account['username'],
-            password=self.user_account['password']
+            username=self.user_account_1['username'],
+            password=self.user_account_1['password']
         )
         response = self.client.get(reverse('home'))
         self.assertRedirects(response, '/mdta/graphs/projects_for_selection/', 302, 200)
@@ -48,8 +59,8 @@ class GraphsViewsTest(TestCase):
             project=self.project
         )
         self.client.login(
-            username=self.user_account['username'],
-            password=self.user_account['password']
+            username=self.user_account_2['username'],
+            password=self.user_account_2['password']
         )
         response = self.client.get(reverse('home'))
         self.assertRedirects(response, '/mdta/graphs/project_detail/', 302, 200)
