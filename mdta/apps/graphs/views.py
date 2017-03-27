@@ -309,11 +309,26 @@ def project_module_detail(request, module_id):
 
     module = get_object_or_404(Module, pk=module_id)
 
+    tmp_tcs = module.project.testcaseresults_set.latest('updated').results
+    testcases = [(item for item in tmp_tcs if item['module'] == module.name).__next__()]
+
     # for module level graph
     network_edges = []
     network_nodes = []
+    tc_keys = []
+    data_keys = []
 
     outside_module_node_color = 'rgb(211, 211, 211)'
+
+    for tc in testcases:
+        data = tc['data']
+        tc_keys.append(data)
+
+    for tc in tc_keys:
+        data = tc
+
+    for d in data:
+        data_keys.append(d)
 
     for edge in module.edges_all:
         try:
@@ -389,6 +404,9 @@ def project_module_detail(request, module_id):
 
             network_nodes.append(tmp)
 
+    for d, n in zip(network_edges, data_keys):
+        d['data'] = n
+    print(network_edges)
     # print(module.nodes)
 
     node_form_type_default = get_object_or_404(NodeType, name='Play Prompt')

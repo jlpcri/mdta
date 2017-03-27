@@ -439,8 +439,8 @@
 
 {% block footer %}
     <script>
-        var nodes = {{ network_nodes|safe }};
-        var edges = {{ network_edges|safe }};
+        var nodes = new vis.DataSet({{ network_nodes|safe }});
+        var edges = new vis.DataSet({{ network_edges|safe }});
         var node_names_autocomplete = {{node_names_autocomplete|safe}};
         var data_edge_keys_autocomplete = {{ data_edge_keys_autocomplete|safe }};
         var menu_prompt_outputs_keys_autocomplete = {{ menu_prompt_outputs_keys_autocomplete|safe }};
