@@ -170,24 +170,27 @@ def project_detail(request, project_id):
 
     network_nodes = []
     network_edges = []
-    network_tc = []
+    tc_keys = []
     projects = Project.objects.all()
     project = get_object_or_404(Project, pk=project_id)
 
     testcases = project.testcaseresults_set.latest('updated').results
-    for tc in testcases:
-        network_tc.append(tc)
-        print(tc)
 
     user = request.user
     user.humanresource.project = project
     user.humanresource.save()
+    for tc in testcases:
+        data = tc['data']
+        tc_keys.append(data)
 
     for m in project.modules:
         network_nodes.append({
             'id': m.id,
-            'label': m.name
+            'label': m.name,
         })
+    for d, n in zip(network_nodes, tc_keys):
+        d['data'] = n
+
     for edge in project.edges_between_modules:
         try:
             if edge.properties[EDGE_TYPES_INVISIBLE_KEY] == 'on':
@@ -212,8 +215,6 @@ def project_detail(request, project_id):
                 'properties': edge.properties
             })
 
-    # print('**: ', network_edges)
-
     context = {
         'projects': projects,
         'project': project,
@@ -227,7 +228,6 @@ def project_detail(request, project_id):
 
         'network_nodes': json.dumps(network_nodes),
         'network_edges': json.dumps(network_edges),
-        'network_tc': json.dumps(network_tc),
 
         'edges_between_modules': network_edges
     }
