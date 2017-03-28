@@ -62,14 +62,12 @@ function draw_project_graph() {
 
     var n = JSON.stringify("{{ network_nodes|escapejs }}");
     var node = JSON.parse(n);
-    console.log(node);
     $.each(JSON.parse(node), function(idx, obj){
         var details = obj.data;
         var id = obj.id;
         for (var i = 0; i < details.length; ++i){
             for(var ind in details[i]){
                 if(ind === 'tcs_cannot_route'){
-                    console.log(id);
                     nodes.update([{id:id, image: image_url + 'yellow-infrastructure-graphics_o.png'}])
                 }
             }

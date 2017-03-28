@@ -179,6 +179,21 @@ function draw_module_graph(){
     // initialize your network!
     var network = new vis.Network(container, data, options);
 
+    var n = JSON.stringify("{{ network_edges|escapejs }}");
+    var edge = JSON.parse(n);
+    $.each(JSON.parse(edge), function(idx, obj) {
+        var id = obj.id;
+        var route = obj.data;
+        for (var i = 0; i < route.length; ++i) {
+            for (var ind in route[i]) {
+                if (ind === 'tcs_cannot_route') {
+                    edges.update([{id: id, color: '#FF3333'}])
+                }
+            }
+        }
+    });
+
+
     network.on('click', function(params){
         //console.log(params.nodes)
         if (!$.isEmptyObject(params.nodes)) {

@@ -175,14 +175,14 @@ def project_detail(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
 
     testcases = project.testcaseresults_set.latest('updated').results
-
+    print(testcases)
     user = request.user
     user.humanresource.project = project
     user.humanresource.save()
     for tc in testcases:
         data = tc['data']
         tc_keys.append(data)
-
+    print(tc_keys)
     for m in project.modules:
         network_nodes.append({
             'id': m.id,
@@ -190,7 +190,7 @@ def project_detail(request, project_id):
         })
     for d, n in zip(network_nodes, tc_keys):
         d['data'] = n
-
+    print(network_nodes)
     for edge in project.edges_between_modules:
         try:
             if edge.properties[EDGE_TYPES_INVISIBLE_KEY] == 'on':
@@ -296,6 +296,7 @@ def project_module_new(request, project_id):
         return redirect('graphs:project_detail', project_id)
 
 
+# noinspection PyCompatibility
 @login_required
 def project_module_detail(request, module_id):
     """
@@ -328,7 +329,7 @@ def project_module_detail(request, module_id):
         data = tc
 
     for d in data:
-        data_keys.append(d)
+        data_keys.append([d])
 
     for edge in module.edges_all:
         try:
@@ -406,7 +407,7 @@ def project_module_detail(request, module_id):
 
     for d, n in zip(network_edges, data_keys):
         d['data'] = n
-    print(network_edges)
+   
     # print(module.nodes)
 
     node_form_type_default = get_object_or_404(NodeType, name='Play Prompt')
