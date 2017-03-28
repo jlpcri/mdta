@@ -18,6 +18,8 @@ from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeAutoNewFor
 from mdta.apps.projects.forms import ModuleForm, UploadForm
 from mdta.apps.testcases.constant_names import NODE_START_NAME, LANGUAGE_DEFAULT_NAME
 from mdta.apps.testcases.tasks import create_testcases_celery, push_testcases_to_testrail_celery
+from mdta.apps.testcases.models import TestCaseResults
+
 
 
 @login_required
@@ -37,7 +39,6 @@ def projects_for_selection(request):
     }
 
     return render(request, 'graphs/projects_for_selection.html', context)
-
 
 @user_passes_test(user_is_superuser)
 def graphs(request):
@@ -169,18 +170,27 @@ def project_detail(request, project_id):
 
     network_nodes = []
     network_edges = []
+    tc_keys = []
     projects = Project.objects.all()
     project = get_object_or_404(Project, pk=project_id)
 
+    testcases = project.testcaseresults_set.latest('updated').results
+    print(testcases)
     user = request.user
     user.humanresource.project = project
     user.humanresource.save()
-
+    for tc in testcases:
+        data = tc['data']
+        tc_keys.append(data)
+    print(tc_keys)
     for m in project.modules:
         network_nodes.append({
             'id': m.id,
-            'label': m.name
+            'label': m.name,
         })
+    for d, n in zip(network_nodes, tc_keys):
+        d['data'] = n
+    print(network_nodes)
     for edge in project.edges_between_modules:
         try:
             if edge.properties[EDGE_TYPES_INVISIBLE_KEY] == 'on':
@@ -204,8 +214,6 @@ def project_detail(request, project_id):
                 'priority': edge.priority,
                 'properties': edge.properties
             })
-
-    # print('**: ', network_edges)
 
     context = {
         'projects': projects,
@@ -288,6 +296,7 @@ def project_module_new(request, project_id):
         return redirect('graphs:project_detail', project_id)
 
 
+# noinspection PyCompatibility
 @login_required
 def project_module_detail(request, module_id):
     """
@@ -301,11 +310,26 @@ def project_module_detail(request, module_id):
 
     module = get_object_or_404(Module, pk=module_id)
 
+    tmp_tcs = module.project.testcaseresults_set.latest('updated').results
+    testcases = [(item for item in tmp_tcs if item['module'] == module.name).__next__()]
+
     # for module level graph
     network_edges = []
     network_nodes = []
+    tc_keys = []
+    data_keys = []
 
     outside_module_node_color = 'rgb(211, 211, 211)'
+
+    for tc in testcases:
+        data = tc['data']
+        tc_keys.append(data)
+
+    for tc in tc_keys:
+        data = tc
+
+    for d in data:
+        data_keys.append([d])
 
     for edge in module.edges_all:
         try:
@@ -381,6 +405,9 @@ def project_module_detail(request, module_id):
 
             network_nodes.append(tmp)
 
+    for d, n in zip(network_edges, data_keys):
+        d['data'] = n
+   
     # print(module.nodes)
 
     node_form_type_default = get_object_or_404(NodeType, name='Play Prompt')
