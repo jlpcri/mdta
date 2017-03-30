@@ -95,7 +95,7 @@ def path_traverse_backwards(path, th_path=None, language=None):
 
                 elif step.from_node.leaving_edges.count() > 1:
                     for edge in step.from_node.leaving_edges.exclude(id=step.id):
-                        if edge.type.name == EDGE_DATA_NAME:
+                        if th_path and edge.type.name == EDGE_DATA_NAME:
                             current_edges_key_in_th_menuprompt = edge_property_key_in_th_menuprompt(edge, th_path)
                             if current_edges_key_in_th_menuprompt and edge.priority < step.priority:
                                 # sibling_edges_key_in_th_menuprompt.append(current_edges_key_in_th_menuprompt)
