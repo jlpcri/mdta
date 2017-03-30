@@ -62,15 +62,20 @@ function draw_project_graph() {
 
     var n = JSON.stringify("{{ network_nodes|escapejs }}");
     var node = JSON.parse(n);
-    $.each(JSON.parse(node), function(idx, obj){
-        var details = obj.data;
-        var id = obj.id;
-        for (var i = 0; i < details.length; ++i){
-            for(var ind in details[i]){
-                if(ind === 'tcs_cannot_route'){
-                    nodes.update([{id:id, image: image_url + 'yellow-infrastructure-graphics_o.png'}])
+    $.each(JSON.parse(node), function (idx, obj) {
+        if(!$.isEmptyObject(obj.data)) {
+            var details = obj.data;
+            var id = obj.id;
+            for (var i = 0; i < details.length; ++i) {
+                for (var ind in details[i]) {
+                    if (ind === 'tcs_cannot_route') {
+                        nodes.update([{id: id, image: image_url + 'yellow-infrastructure-graphics_o.png'}])
+                    }
                 }
             }
+        }
+        else {
+        $('a[href="#projectModules"]').click();
         }
     });
 

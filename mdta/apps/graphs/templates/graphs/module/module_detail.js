@@ -182,17 +182,23 @@ function draw_module_graph(){
     var n = JSON.stringify("{{ network_edges|escapejs }}");
     var edge = JSON.parse(n);
     $.each(JSON.parse(edge), function(idx, obj) {
-        var id = obj.id;
-        var route = obj.data;
-        for (var i = 0; i < route.length; ++i) {
-            for (var ind in route[i]) {
-                if (ind === 'tcs_cannot_route') {
-                    edges.update([{id: id, color: '#FF3333'}])
+        if(!$.isEmptyObject(obj.data)) {
+            var route = obj.data;
+            var id = obj.id;
+            for (var i = 0; i < route.length; ++i) {
+                for (var ind in route[i]) {
+                    if (ind !== 'tcs_cannot_route') {
+                        console.log(ind);
+                    } else {
+                        edges.update([{id: id, color: '#FF3333'}]);
+                    }
                 }
             }
         }
+        else {
+            $('a[href="#moduleNodeEdgeEmpty"]').click();
+        }
     });
-
 
     network.on('click', function(params){
         //console.log(params.nodes)
