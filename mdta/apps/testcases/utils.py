@@ -85,7 +85,7 @@ def get_paths_through_all_edges(edges, th_module=None, language=None):
     if th_paths:
         for th_path in th_paths:
             for edge in edges:
-                # print(edge.id)
+                print(edge.id)
                 path = routing_path_to_edge(edge)
 
                 if path:
@@ -93,6 +93,7 @@ def get_paths_through_all_edges(edges, th_module=None, language=None):
                     if 'tcs_cannot_route' in path_data.keys():
                         data.append({
                             'tcs_cannot_route': path_data['tcs_cannot_route'],
+                            'id': edge.id,
                             'title': 'Route from \'' +
                                      edge.from_node.name +
                                      '\' to \'' +
@@ -101,10 +102,12 @@ def get_paths_through_all_edges(edges, th_module=None, language=None):
                     else:
                         title = 'Route from \'' + edge.from_node.name +\
                                     '\' to \'' + edge.to_node.name + '\''
+                        id = edge.id
                         data.append({
                                 'pre_conditions': path_data['pre_conditions'],
                                 'tc_steps': path_data['tc_steps'],
-                                'title': title
+                                'title': title,
+                                'id': id
                             })
 
                         if edge.to_node.type.name in NODE_MP_NAME:
@@ -121,18 +124,22 @@ def get_paths_through_all_edges(edges, th_module=None, language=None):
                 if 'tcs_cannot_route' in path_data.keys():
                     data.append({
                         'tcs_cannot_route': path_data['tcs_cannot_route'],
+                        'id': edge.id,
                         'title': 'Route from \'' +
                                  edge.from_node.name +
                                  '\' to \'' +
                                  edge.to_node.name + '\''
                     })
+                    print(edge.id)
                 else:
                     title = 'Route from \'' + edge.from_node.name +\
                                     '\' to \'' + edge.to_node.name + '\''
+                    id = edge.id
                     data.append({
                             'pre_conditions': path_data['pre_conditions'],
                             'tc_steps': path_data['tc_steps'],
-                            'title': title
+                            'title': title,
+                            'id': id
                         })
 
                     if edge.to_node.type.name == NODE_MP_NAME[0]:
@@ -277,7 +284,8 @@ def get_shortest_edge_from_arriving_edges(node):
 
     edge = ''
     for start_node in start_nodes:
-        path = breadth_first_search(start_node, node)
+        path = \
+            (start_node, node)
         for each in path:
             edges = Edge.objects.filter(from_node=each, to_node=node)
             if edges.count() > 0:

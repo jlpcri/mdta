@@ -173,16 +173,18 @@ def project_detail(request, project_id):
     tc_keys = []
     projects = Project.objects.all()
     project = get_object_or_404(Project, pk=project_id)
+    try:
+        tests = project.testcaseresults_set.latest('updated').results
+    except TestCaseResults.DoesNotExist:
+        tests = []
 
-    testcases = project.testcaseresults_set.latest('updated').results
-    print(testcases)
     user = request.user
     user.humanresource.project = project
     user.humanresource.save()
-    for tc in testcases:
+    for tc in tests:
         data = tc['data']
         tc_keys.append(data)
-    print(tc_keys)
+
     for m in project.modules:
         network_nodes.append({
             'id': m.id,
@@ -190,7 +192,7 @@ def project_detail(request, project_id):
         })
     for d, n in zip(network_nodes, tc_keys):
         d['data'] = n
-    print(network_nodes)
+
     for edge in project.edges_between_modules:
         try:
             if edge.properties[EDGE_TYPES_INVISIBLE_KEY] == 'on':
@@ -310,9 +312,6 @@ def project_module_detail(request, module_id):
 
     module = get_object_or_404(Module, pk=module_id)
 
-    tmp_tcs = module.project.testcaseresults_set.latest('updated').results
-    testcases = [(item for item in tmp_tcs if item['module'] == module.name).__next__()]
-
     # for module level graph
     network_edges = []
     network_nodes = []
@@ -320,16 +319,6 @@ def project_module_detail(request, module_id):
     data_keys = []
 
     outside_module_node_color = 'rgb(211, 211, 211)'
-
-    for tc in testcases:
-        data = tc['data']
-        tc_keys.append(data)
-
-    for tc in tc_keys:
-        data = tc
-
-    for d in data:
-        data_keys.append([d])
 
     for edge in module.edges_all:
         try:
@@ -345,7 +334,23 @@ def project_module_detail(request, module_id):
             'to': edge.to_node.id,
             'from': edge.from_node.id
         })
+    try:
+        tmp_data = module.project.testcaseresults_set.latest('updated').results
+        tests = [(item for item in tmp_data if item['module'] == module.name).__next__()]
+        for tc in tests:
+            data = tc['data']
+            tc_keys.append(data)
+        for tc in tc_keys:
+            data = tc
+        for d in data:
+            data_keys.append([d])
+        for d, n in zip(network_edges, data_keys):
+            d['data'] = n
+    except TestCaseResults.DoesNotExist:
+        tmp_data = []
+        tests = []
 
+    print(network_edges)
     if request.user.username != 'test':
         for node in module.nodes_all:
             if node.type.name in NODE_START_NAME:
@@ -366,6 +371,9 @@ def project_module_detail(request, module_id):
                 tmp['color'] = outside_module_node_color
 
             network_nodes.append(tmp)
+            print(node.id)
+            print(node.name)
+
     else:
         # try use custom icon for nodes
         image_url = settings.STATIC_URL + 'common/brand_icons/turnpost-png-graphics/'
@@ -404,11 +412,6 @@ def project_module_detail(request, module_id):
                 tmp['shadow'] = 'true'
 
             network_nodes.append(tmp)
-
-    for d, n in zip(network_edges, data_keys):
-        d['data'] = n
-   
-    # print(module.nodes)
 
     node_form_type_default = get_object_or_404(NodeType, name='Play Prompt')
     node_new_form = NodeNewForm(module_id=module.id, initial={'type': node_form_type_default.id})
