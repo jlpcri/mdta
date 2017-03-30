@@ -279,11 +279,14 @@ def get_shortest_edge_from_arriving_edges(node):
     for start_node in start_nodes:
         path = breadth_first_search(start_node, node)
         for each in path:
-            try:
-                edge = Edge.objects.get(from_node=each, to_node=node)
-                return edge
-            except Edge.DoesNotExist:
-                pass
+            edges = Edge.objects.filter(from_node=each, to_node=node)
+            if edges.count() > 0:
+                edge = edges[0]
+            # try:
+            #     edge = Edge.objects.get(from_node=each, to_node=node)
+            #     return edge
+            # except Edge.DoesNotExist:
+            #     pass
 
     return edge
 
