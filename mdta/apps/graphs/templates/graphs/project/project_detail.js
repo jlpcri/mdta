@@ -32,9 +32,6 @@ function draw_project_graph() {
     // create a network
     var container = document.getElementById('module_in_project');
 
-    //var nodes = new vis.DataSet(JSON.stringify("{{ network_nodes|escapejs }}"));
-    //var edges = new vis.DataSet(JSON.stringify("{{ network_edges|escapejs }}"));
-
     // provide the data in the vis format
     var data = {
         nodes: nodes,
@@ -76,6 +73,8 @@ function draw_project_graph() {
         }
         else {
         $('a[href="#projectModules"]').click();
+        var id = obj.id;
+        nodes.update([{id: id, image: image_url + 'red-infrastructure-graphics_o.png'}]);
         }
     });
 
