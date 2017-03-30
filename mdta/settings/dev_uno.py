@@ -33,7 +33,7 @@ DB_AWS_PG = {
         'NAME': 'mdta',
         'USER': 'ceeq',
         'PASSWORD': 'ceeq_development',
-        'HOST': 'wicqacip.ce8tamiymyr9.us-west-2.rds.amazonaws.com',
+        'HOST': 'westdbataws.ce8tamiymyr9.us-west-2.rds.amazonaws.com',
         'PORT': '5432'
     }
 }

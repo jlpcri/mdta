@@ -29,6 +29,17 @@ DB_6437 = {
     }
 }
 
+DB_AWS_PG = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'mdta',
+        'USER': 'ceeq',
+        'PASSWORD': 'ceeq_development',
+        'HOST': 'westdbataws.ce8tamiymyr9.us-west-2.rds.amazonaws.com',
+        'PORT': '5432'
+    }
+}
+
 DB_DOCKER = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -39,4 +50,4 @@ DB_DOCKER = {
     }
 }
 
-DATABASES = DB_6437
+DATABASES = DB_AWS_PG
