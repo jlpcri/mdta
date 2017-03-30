@@ -239,7 +239,7 @@ def assert_high_priority_edges_negative(edge):
     data = []
     edges = edge.from_node.leaving_edges.exclude(id=edge.id)
     for each_edge in edges:
-        if each_edge.priority < edge.priority:
+        if each_edge.type.name == EDGE_DATA_NAME and each_edge.priority < edge.priority:
             data += get_edge_constraints(each_edge, rule='False')
 
     return data
@@ -254,6 +254,8 @@ def assert_precondition(edge):
     data = []
     edges = edge.from_node.leaving_edges
     for each_edge in edges:
+        if each_edge.priority > edge.priority:
+            continue
         if each_edge.type.name == EDGE_PRECONDITION_NAME:
             tmp = ''
             dicts = each_edge.properties[each_edge.type.keys_data_name][each_edge.type.subkeys_data_name]
@@ -506,7 +508,7 @@ def non_data_edge_has_higher_priority(step):
     """
     find = False
     for edge in step.from_node.leaving_edges.exclude(id=step.id):
-        if edge.type.name != EDGE_DATA_NAME and edge.priority < step.priority:
+        if edge.type.name not in [EDGE_DATA_NAME, EDGE_PRECONDITION_NAME] and edge.priority < step.priority:
             find = True
             break
 
