@@ -85,7 +85,7 @@ def get_paths_through_all_edges(edges, th_module=None, language=None):
     if th_paths:
         for th_path in th_paths:
             for edge in edges:
-                print(edge.id)
+                # print(edge.id)
                 path = routing_path_to_edge(edge)
 
                 if path:
@@ -102,18 +102,18 @@ def get_paths_through_all_edges(edges, th_module=None, language=None):
                     else:
                         title = 'Route from \'' + edge.from_node.name +\
                                     '\' to \'' + edge.to_node.name + '\''
-                        id = edge.id
+                        edge_id = edge.id,
                         data.append({
                                 'pre_conditions': path_data['pre_conditions'],
                                 'tc_steps': path_data['tc_steps'],
+                                'id': edge_id,
                                 'title': title,
-                                'id': id
                             })
 
                         if edge.to_node.type.name in NODE_MP_NAME:
-                            negative_testcase_generation(data, path_data, title, edge.to_node, language=language)
+                            negative_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
                             if edge.to_node.type.name == NODE_MP_NAME[1]:
-                                rejected_testcase_generation(data, path_data, title, edge.to_node, language=language)
+                                rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
 
     else:
         for edge in edges:
@@ -134,12 +134,12 @@ def get_paths_through_all_edges(edges, th_module=None, language=None):
                 else:
                     title = 'Route from \'' + edge.from_node.name +\
                                     '\' to \'' + edge.to_node.name + '\''
-                    id = edge.id
+                    edge_id = edge.id,
                     data.append({
                             'pre_conditions': path_data['pre_conditions'],
                             'tc_steps': path_data['tc_steps'],
-                            'title': title,
-                            'id': id
+                            'id': edge_id,
+                            'title': title
                         })
 
                     if edge.to_node.type.name == NODE_MP_NAME[0]:

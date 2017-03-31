@@ -175,6 +175,8 @@ def project_detail(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     try:
         tests = project.testcaseresults_set.latest('updated').results
+        testcase = TestCaseResults.objects.filter(project=project)
+        print(testcase)
     except TestCaseResults.DoesNotExist:
         tests = []
 
@@ -334,6 +336,7 @@ def project_module_detail(request, module_id):
             'to': edge.to_node.id,
             'from': edge.from_node.id
         })
+    # print(network_edges)
     try:
         tmp_data = module.project.testcaseresults_set.latest('updated').results
         tests = [(item for item in tmp_data if item['module'] == module.name).__next__()]
@@ -344,13 +347,13 @@ def project_module_detail(request, module_id):
             data = tc
         for d in data:
             data_keys.append([d])
+
         for d, n in zip(network_edges, data_keys):
             d['data'] = n
     except TestCaseResults.DoesNotExist:
         tmp_data = []
         tests = []
 
-    print(network_edges)
     if request.user.username != 'test':
         for node in module.nodes_all:
             if node.type.name in NODE_START_NAME:
@@ -371,8 +374,8 @@ def project_module_detail(request, module_id):
                 tmp['color'] = outside_module_node_color
 
             network_nodes.append(tmp)
-            print(node.id)
-            print(node.name)
+            # print(node.id)
+            # print(node.name)
 
     else:
         # try use custom icon for nodes
