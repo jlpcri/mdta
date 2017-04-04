@@ -53,7 +53,9 @@ class GraphsViewsTest(TestCase):
             password=self.user_account_1['password']
         )
         response = self.client.get(reverse('home'))
-        self.assertRedirects(response, '/mdta/graphs/projects_for_selection/', 302, 200)
+        expected_url = self.client.get(reverse('graphs:projects_for_selection'))
+        self.assertRedirects(response, expected_url, 302, 200)
+#        self.assertRedirects(response, '/mdta/graphs/projects_for_selection/', 302, 200)
 
     def test_graph_page_with_established_user(self):
         self.client.login(
