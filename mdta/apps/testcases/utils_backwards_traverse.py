@@ -49,7 +49,7 @@ def path_traverse_backwards(path, th_path=None, language=None):
                     if step.from_node.leaving_edges.count() > 1:
                         if non_data_edge_has_higher_priority(step):
                             tcs_cannot_route_flag = True
-                            tcs_cannot_route_msg = 'Non Data Edge has higher priority.'
+                            tcs_cannot_route_msg = 'Non Data/PreCondition Edge has higher priority.'
                             break
 
                     if th_path and edge_property_key_in_th_menuprompt(step, th_path):
@@ -61,7 +61,6 @@ def path_traverse_backwards(path, th_path=None, language=None):
                     elif edge_property_match_set_variable(index, step, path):
                         result_found = step.properties[step.type.keys_data_name][step.type.subkeys_data_name]
                         menu_prompt_outputs_keys = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())
-                        pass
                     else:
                         constraints += assert_current_edge_constraint(step)
                         constraints += assert_high_priority_edges_negative(step)
