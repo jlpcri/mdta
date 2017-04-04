@@ -93,6 +93,7 @@ def get_paths_through_all_edges(edges, th_module=None, language=None):
                     if 'tcs_cannot_route' in path_data.keys():
                         data.append({
                             'tcs_cannot_route': path_data['tcs_cannot_route'],
+                            'id': edge.id,
                             'title': 'Route from \'' +
                                      edge.from_node.name +
                                      '\' to \'' +
@@ -101,16 +102,18 @@ def get_paths_through_all_edges(edges, th_module=None, language=None):
                     else:
                         title = 'Route from \'' + edge.from_node.name +\
                                     '\' to \'' + edge.to_node.name + '\''
+                        # edge_id = edge.id,
                         data.append({
                                 'pre_conditions': path_data['pre_conditions'],
                                 'tc_steps': path_data['tc_steps'],
-                                'title': title
+                                'id': edge.id,
+                                'title': title,
                             })
 
                         if edge.to_node.type.name in NODE_MP_NAME:
-                            negative_testcase_generation(data, path_data, title, edge.to_node, language=language)
+                            negative_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
                             if edge.to_node.type.name == NODE_MP_NAME[1]:
-                                rejected_testcase_generation(data, path_data, title, edge.to_node, language=language)
+                                rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
 
     else:
         for edge in edges:
@@ -121,17 +124,21 @@ def get_paths_through_all_edges(edges, th_module=None, language=None):
                 if 'tcs_cannot_route' in path_data.keys():
                     data.append({
                         'tcs_cannot_route': path_data['tcs_cannot_route'],
+                        'id': edge.id,
                         'title': 'Route from \'' +
                                  edge.from_node.name +
                                  '\' to \'' +
                                  edge.to_node.name + '\''
                     })
+                    print(edge.id)
                 else:
                     title = 'Route from \'' + edge.from_node.name +\
                                     '\' to \'' + edge.to_node.name + '\''
+                    # edge_id = edge.id,
                     data.append({
                             'pre_conditions': path_data['pre_conditions'],
                             'tc_steps': path_data['tc_steps'],
+                            'id': edge.id,
                             'title': title
                         })
 

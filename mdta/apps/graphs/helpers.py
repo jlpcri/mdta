@@ -115,7 +115,6 @@ def verify_vuid(vuid):
     valid = False
     message = "Invalid file structure, unable to upload"
     if not df.empty:
-        print(df)
         if not verify_vuid_headers(vuid):
             message = "Parser error, invalid headers. Please check them again."
         else:
