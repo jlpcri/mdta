@@ -284,8 +284,7 @@ def get_shortest_edge_from_arriving_edges(node):
 
     edge = ''
     for start_node in start_nodes:
-        path = \
-            (start_node, node)
+        path = breadth_first_search(start_node, node)
         for each in path:
             edges = Edge.objects.filter(from_node=each, to_node=node)
             if edges.count() > 0:

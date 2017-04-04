@@ -49,7 +49,7 @@ def path_traverse_backwards(path, th_path=None, language=None):
                     if step.from_node.leaving_edges.count() > 1:
                         if non_data_edge_has_higher_priority(step):
                             tcs_cannot_route_flag = True
-                            tcs_cannot_route_msg = 'Non Data Edge has higher priority.'
+                            tcs_cannot_route_msg = 'Non Data/PreCondition Edge has higher priority.'
                             break
 
                     if th_path and edge_property_key_in_th_menuprompt(step, th_path):
@@ -61,7 +61,6 @@ def path_traverse_backwards(path, th_path=None, language=None):
                     elif edge_property_match_set_variable(index, step, path):
                         result_found = step.properties[step.type.keys_data_name][step.type.subkeys_data_name]
                         menu_prompt_outputs_keys = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())
-                        pass
                     else:
                         constraints += assert_current_edge_constraint(step)
                         constraints += assert_high_priority_edges_negative(step)
@@ -95,7 +94,7 @@ def path_traverse_backwards(path, th_path=None, language=None):
 
                 elif step.from_node.leaving_edges.count() > 1:
                     for edge in step.from_node.leaving_edges.exclude(id=step.id):
-                        if edge.type.name == EDGE_DATA_NAME:
+                        if th_path and edge.type.name == EDGE_DATA_NAME:
                             current_edges_key_in_th_menuprompt = edge_property_key_in_th_menuprompt(edge, th_path)
                             if current_edges_key_in_th_menuprompt and edge.priority < step.priority:
                                 # sibling_edges_key_in_th_menuprompt.append(current_edges_key_in_th_menuprompt)
@@ -239,7 +238,7 @@ def assert_high_priority_edges_negative(edge):
     data = []
     edges = edge.from_node.leaving_edges.exclude(id=edge.id)
     for each_edge in edges:
-        if each_edge.priority < edge.priority:
+        if each_edge.type.name == EDGE_DATA_NAME and each_edge.priority < edge.priority:
             data += get_edge_constraints(each_edge, rule='False')
 
     return data
@@ -254,6 +253,8 @@ def assert_precondition(edge):
     data = []
     edges = edge.from_node.leaving_edges
     for each_edge in edges:
+        if each_edge.priority > edge.priority:
+            continue
         if each_edge.type.name == EDGE_PRECONDITION_NAME:
             tmp = ''
             dicts = each_edge.properties[each_edge.type.keys_data_name][each_edge.type.subkeys_data_name]
@@ -506,7 +507,7 @@ def non_data_edge_has_higher_priority(step):
     """
     find = False
     for edge in step.from_node.leaving_edges.exclude(id=step.id):
-        if edge.type.name != EDGE_DATA_NAME and edge.priority < step.priority:
+        if edge.type.name not in [EDGE_DATA_NAME, EDGE_PRECONDITION_NAME] and edge.priority < step.priority:
             find = True
             break
 

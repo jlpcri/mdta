@@ -193,7 +193,7 @@ def project_detail(request, project_id):
         })
     for d, n in zip(network_nodes, tc_keys):
         d['data'] = n
-    print(tests)
+    # print(tests)
     for edge in project.edges_between_modules:
         try:
             if edge.properties[EDGE_TYPES_INVISIBLE_KEY] == 'on':
@@ -362,7 +362,7 @@ def project_module_detail(request, module_id):
         except StopIteration:
             pass
 
-    except TestCaseResults.DoesNotExist:
+    except (AttributeError, TestCaseResults.DoesNotExist):
         tmp_data = []
         tests = []
 
