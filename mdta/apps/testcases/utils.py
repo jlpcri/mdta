@@ -102,11 +102,11 @@ def get_paths_through_all_edges(edges, th_module=None, language=None):
                     else:
                         title = 'Route from \'' + edge.from_node.name +\
                                     '\' to \'' + edge.to_node.name + '\''
-                        edge_id = edge.id,
+                        # edge_id = edge.id,
                         data.append({
                                 'pre_conditions': path_data['pre_conditions'],
                                 'tc_steps': path_data['tc_steps'],
-                                'id': edge_id,
+                                'id': edge.id,
                                 'title': title,
                             })
 
@@ -134,11 +134,11 @@ def get_paths_through_all_edges(edges, th_module=None, language=None):
                 else:
                     title = 'Route from \'' + edge.from_node.name +\
                                     '\' to \'' + edge.to_node.name + '\''
-                    edge_id = edge.id,
+                    # edge_id = edge.id,
                     data.append({
                             'pre_conditions': path_data['pre_conditions'],
                             'tc_steps': path_data['tc_steps'],
-                            'id': edge_id,
+                            'id': edge.id,
                             'title': title
                         })
 
