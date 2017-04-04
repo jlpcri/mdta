@@ -175,6 +175,7 @@ def project_detail(request, project_id):
     project = get_object_or_404(Project, pk=project_id)
     try:
         tests = project.testcaseresults_set.latest('updated').results
+        testcase = TestCaseResults.objects.filter(project=project)
     except TestCaseResults.DoesNotExist:
         tests = []
 
@@ -298,7 +299,6 @@ def project_module_new(request, project_id):
         return redirect('graphs:project_detail', project_id)
 
 
-# noinspection PyCompatibility
 @login_required
 def project_module_detail(request, module_id):
     """
@@ -314,9 +314,11 @@ def project_module_detail(request, module_id):
 
     # for module level graph
     network_edges = []
+    merged = {}
     network_nodes = []
     tc_keys = []
     data_keys = []
+    edge_id = []
 
     outside_module_node_color = 'rgb(211, 211, 211)'
 
@@ -334,23 +336,39 @@ def project_module_detail(request, module_id):
             'to': edge.to_node.id,
             'from': edge.from_node.id
         })
+    print(network_edges)
     try:
         tmp_data = module.project.testcaseresults_set.latest('updated').results
         tests = [(item for item in tmp_data if item['module'] == module.name).__next__()]
         for tc in tests:
             data = tc['data']
             tc_keys.append(data)
+
         for tc in tc_keys:
             data = tc
         for d in data:
-            data_keys.append([d])
-        for d, n in zip(network_edges, data_keys):
-            d['data'] = n
+            data_keys.append(d)
+
+        for item in data_keys:
+            try:
+                e_id = item['id']
+                if 'tcs_cannot_route' in item:
+                    tcr = item['tcs_cannot_route']
+                    edge_id.append({'id': e_id,
+                                    'tcs_cannot_route': tcr})
+            except KeyError:
+                messages.error(request, 'Some data appears to be missing please publish your testcases again.')
+
+        for item in network_edges+edge_id:
+            if item['id'] in merged:
+                merged[item['id']].update(item)
+            else:
+                merged[item['id']] = item
+
     except TestCaseResults.DoesNotExist:
         tmp_data = []
         tests = []
 
-    print(network_edges)
     if request.user.username != 'test':
         for node in module.nodes_all:
             if node.type.name in NODE_START_NAME:
@@ -371,8 +389,8 @@ def project_module_detail(request, module_id):
                 tmp['color'] = outside_module_node_color
 
             network_nodes.append(tmp)
-            print(node.id)
-            print(node.name)
+            # print(node.id)
+            # print(node.name)
 
     else:
         # try use custom icon for nodes
