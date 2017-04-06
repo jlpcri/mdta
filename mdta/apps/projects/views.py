@@ -163,6 +163,7 @@ def fetch_project_catalogs_members(request):
 
     return HttpResponse(json.dumps(data), content_type='application/json')
 
+
 @user_passes_test(user_is_staff)
 def module_new(request):
     """
@@ -422,6 +423,17 @@ def project_data_migrate_nodes(nodes):
                         tmp_property[key] = ''
 
             # print(node.properties, tmp_property)
+            node.properties = tmp_property
+            node.save()
+
+        if 'DataQueries' in node.type.name:
+            tmp_property = {}
+            for key in node.type.keys:
+                try:
+                    tmp_property[key] = node.properties[key]
+                except KeyError:
+                    tmp_property[key] = ''
+
             node.properties = tmp_property
             node.save()
 

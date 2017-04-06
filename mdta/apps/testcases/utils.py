@@ -1,4 +1,6 @@
-from mdta.apps.graphs.models import Node
+import collections
+
+from mdta.apps.graphs.models import Node, Edge
 from mdta.apps.projects.models import Project, TestRailConfiguration
 from mdta.apps.testcases.testrail import APIClient, APIError
 from mdta.apps.testcases.utils_backwards_traverse import path_traverse_backwards
@@ -91,6 +93,7 @@ def get_paths_through_all_edges(edges, th_module=None, language=None):
                     if 'tcs_cannot_route' in path_data.keys():
                         data.append({
                             'tcs_cannot_route': path_data['tcs_cannot_route'],
+                            'id': edge.id,
                             'title': 'Route from \'' +
                                      edge.from_node.name +
                                      '\' to \'' +
@@ -99,16 +102,18 @@ def get_paths_through_all_edges(edges, th_module=None, language=None):
                     else:
                         title = 'Route from \'' + edge.from_node.name +\
                                     '\' to \'' + edge.to_node.name + '\''
+                        # edge_id = edge.id,
                         data.append({
                                 'pre_conditions': path_data['pre_conditions'],
                                 'tc_steps': path_data['tc_steps'],
-                                'title': title
+                                'id': edge.id,
+                                'title': title,
                             })
 
                         if edge.to_node.type.name in NODE_MP_NAME:
-                            negative_testcase_generation(data, path_data, title, edge.to_node, language=language)
+                            negative_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
                             if edge.to_node.type.name == NODE_MP_NAME[1]:
-                                rejected_testcase_generation(data, path_data, title, edge.to_node, language=language)
+                                rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
 
     else:
         for edge in edges:
@@ -119,17 +124,21 @@ def get_paths_through_all_edges(edges, th_module=None, language=None):
                 if 'tcs_cannot_route' in path_data.keys():
                     data.append({
                         'tcs_cannot_route': path_data['tcs_cannot_route'],
+                        'id': edge.id,
                         'title': 'Route from \'' +
                                  edge.from_node.name +
                                  '\' to \'' +
                                  edge.to_node.name + '\''
                     })
+                    print(edge.id)
                 else:
                     title = 'Route from \'' + edge.from_node.name +\
                                     '\' to \'' + edge.to_node.name + '\''
+                    # edge_id = edge.id,
                     data.append({
                             'pre_conditions': path_data['pre_conditions'],
                             'tc_steps': path_data['tc_steps'],
+                            'id': edge.id,
                             'title': title
                         })
 
@@ -168,13 +177,13 @@ def routing_path_to_node(node, visited_nodes):
 
     visited_nodes.append(node)
 
-    path = breadth_first_search(node, visited_nodes)
+    path = backwards_search(node, visited_nodes)
 
     # print(path)
     return path
 
 
-def breadth_first_search(node, visited_nodes):
+def backwards_search(node, visited_nodes):
     """
     Search a path from Start node(type='Start') to current Node
     Breadth
@@ -192,12 +201,13 @@ def breadth_first_search(node, visited_nodes):
         if edges.count() == 1:
             edge = edges[0]
         elif edges.count() > 1:
-            for tmp_edge in edges:
-                if tmp_edge.type.name == 'Connector':
-                    edge = tmp_edge
-                    break
-            else:
-                edge = edges[0]
+            edge = get_shortest_edge_from_arriving_edges(node)
+            # for tmp_edge in edges:
+            #     if tmp_edge.type.name == 'Connector':
+            #         edge = tmp_edge
+            #         break
+            # else:
+            #     edge = edges[0]
         else:
             edge = None
 
@@ -209,7 +219,7 @@ def breadth_first_search(node, visited_nodes):
                     if edge.from_node.type.name not in NODE_START_NAME:
                         if edge.from_node.arriving_edges.count() > 0:
                             start_node_found_outside = True
-                            path += breadth_first_search(edge.from_node, visited_nodes)
+                            path += backwards_search(edge.from_node, visited_nodes)
                     else:
                         start_node_found = True
                         path.append(edge.from_node)
@@ -264,6 +274,44 @@ def check_path_contains_in_result(path, result):
             continue
 
     return flag
+
+
+def get_shortest_edge_from_arriving_edges(node):
+    if node.module.project:
+        start_nodes = node.module.project.start_nodes
+    else:
+        start_nodes = node.module.start_nodes
+
+    edge = ''
+    for start_node in start_nodes:
+        path = breadth_first_search(start_node, node)
+        for each in path:
+            edges = Edge.objects.filter(from_node=each, to_node=node)
+            if edges.count() > 0:
+                edge = edges[0]
+            # try:
+            #     edge = Edge.objects.get(from_node=each, to_node=node)
+            #     return edge
+            # except Edge.DoesNotExist:
+            #     pass
+
+    return edge
+
+
+def breadth_first_search(start, end):
+    visited = [start]
+    queue = collections.deque([start])
+    while queue:
+        vertex = queue.popleft()
+        for child in vertex.children:
+            if child not in visited:
+                if child == end:
+                    visited.append(child)
+                    break
+                visited.append(child)
+                queue.append(child)
+
+    return visited
 
 
 # --------------- Routing Project/Module Graph End ---------------

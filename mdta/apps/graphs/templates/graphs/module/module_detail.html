@@ -148,6 +148,20 @@
                                                                         {% endfor %}
                                                                     </tbody>
                                                                 </table>
+                                                            {% elif key == 'OutputData' %}
+                                                                {% for subkey, subvalue in item.properties.OutputData.items %}
+                                                                    <div class="row" style="margin-top: 5px;">
+                                                                        <div class="col-xs-1"></div>
+                                                                        <div class="col-xs-11"><label>Value: </label></div>
+                                                                    </div>
+                                                                    <div class="row" style="margin-top: 5px;">
+                                                                        <div class="col-xs-1"></div>
+                                                                        <div class="col-xs-11">
+                                                                            <input name="{{ subkey }}_0" style="width: 100%"
+                                                                                    value="{{ subvalue }}" placeholder="JSON {'key': 'value'}">
+                                                                        </div>
+                                                                    </div>
+                                                                {% endfor %}
                                                             {% elif key == 'Default' and module.project %}
                                                             {% else %}
                                                                 <div class="row" style="margin-top: 5px;">
@@ -425,8 +439,8 @@
 
 {% block footer %}
     <script>
-        var nodes = {{ network_nodes|safe }};
-        var edges = {{ network_edges|safe }};
+        var nodes = new vis.DataSet({{ network_nodes|safe }});
+        var edges = new vis.DataSet({{ network_edges|safe }});
         var node_names_autocomplete = {{node_names_autocomplete|safe}};
         var data_edge_keys_autocomplete = {{ data_edge_keys_autocomplete|safe }};
         var menu_prompt_outputs_keys_autocomplete = {{ menu_prompt_outputs_keys_autocomplete|safe }};

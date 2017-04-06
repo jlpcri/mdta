@@ -49,16 +49,18 @@ def path_traverse_backwards(path, th_path=None, language=None):
                     if step.from_node.leaving_edges.count() > 1:
                         if non_data_edge_has_higher_priority(step):
                             tcs_cannot_route_flag = True
-                            tcs_cannot_route_msg = 'Non Data Edge has higher priority.'
+                            tcs_cannot_route_msg = 'Non Data/PreCondition Edge has higher priority.'
                             break
 
                     if th_path and edge_property_key_in_th_menuprompt(step, th_path):
                         result_found = step.properties[step.type.keys_data_name][step.type.subkeys_data_name]
                         menu_prompt_outputs_keys = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())
-
                     elif edge_property_key_in_from_menuprompt(step):
                         result_found = step.properties[step.type.keys_data_name][step.type.subkeys_data_name]
                         menu_prompt_outputs_keys = [step.from_node.properties[MP_OUTPUTS]]
+                    elif edge_property_match_set_variable(index, step, path):
+                        result_found = step.properties[step.type.keys_data_name][step.type.subkeys_data_name]
+                        menu_prompt_outputs_keys = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())
                     else:
                         constraints += assert_current_edge_constraint(step)
                         constraints += assert_high_priority_edges_negative(step)
@@ -86,13 +88,13 @@ def path_traverse_backwards(path, th_path=None, language=None):
                             tcs_cannot_route_msg = 'MenuPrompt/MenuPromptWC property \'Outputs\' not found'
                     else:
                         tcs_cannot_route_flag = True
-                        tcs_cannot_route_msg = 'No match result found in DataQueries Node'
+                        tcs_cannot_route_msg = 'No match result found in DataQueries or SetVarialbe'
                         if not th_menu_prompt_outputs_keys:
                             break
 
                 elif step.from_node.leaving_edges.count() > 1:
                     for edge in step.from_node.leaving_edges.exclude(id=step.id):
-                        if edge.type.name == EDGE_DATA_NAME:
+                        if th_path and edge.type.name == EDGE_DATA_NAME:
                             current_edges_key_in_th_menuprompt = edge_property_key_in_th_menuprompt(edge, th_path)
                             if current_edges_key_in_th_menuprompt and edge.priority < step.priority:
                                 # sibling_edges_key_in_th_menuprompt.append(current_edges_key_in_th_menuprompt)
@@ -170,7 +172,10 @@ def get_data_node_result(node, constraints, index=None, path=None):
     :param path: route path
     :return:
     """
-    dicts = node.properties[node.type.keys_data_name]
+    try:
+        dicts = node.properties[node.type.keys_data_name]
+    except KeyError:
+        dicts = {}
     data = {}
     compare_key = ''
 
@@ -233,7 +238,7 @@ def assert_high_priority_edges_negative(edge):
     data = []
     edges = edge.from_node.leaving_edges.exclude(id=edge.id)
     for each_edge in edges:
-        if each_edge.priority < edge.priority:
+        if each_edge.type.name == EDGE_DATA_NAME and each_edge.priority < edge.priority:
             data += get_edge_constraints(each_edge, rule='False')
 
     return data
@@ -248,6 +253,8 @@ def assert_precondition(edge):
     data = []
     edges = edge.from_node.leaving_edges
     for each_edge in edges:
+        if each_edge.priority > edge.priority:
+            continue
         if each_edge.type.name == EDGE_PRECONDITION_NAME:
             tmp = ''
             dicts = each_edge.properties[each_edge.type.keys_data_name][each_edge.type.subkeys_data_name]
@@ -281,8 +288,8 @@ def get_edge_constraints(item, rule):
                         CONSTRAINTS_TRUE_OR_FALSE: rule  # True or False
                     }
                     data.append(tmp)
-            except (KeyError, TypeError) as e:
-                print(e)
+            except (AttributeError, KeyError, TypeError) as e:
+                # print(e)
                 pass
     # print(data)
     return data
@@ -370,7 +377,7 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None, language=
     """
     if node.type.name in [NODE_START_NAME[0], 'Transfer']:  # Start with Dial Number
         add_step(node_start(node), tcs)
-    elif node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME]:
+    elif node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME, NODE_SET_VARIABLE]:
         add_step(node_prompt(node, preceding_edge, language=language), tcs)
 
     if node.type.name == NODE_MP_NAME[1] and following_edge:
@@ -392,7 +399,7 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None, language=
                 tcs[confirm_idx - 1][TR_CONTENT] = 'press 1'  # confirm input
                 tcs.insert(confirm_idx, {
                     'content': content,
-                    'expected': get_verbiage_from_prompt_node(node, language, MP_CVER)
+                    'expected': get_verbiage_from_prompt_node(node, language, MPC_VER)
                 })
 
 
@@ -443,7 +450,11 @@ def edge_property_key_in_th_menuprompt(step, th_path):
     :return:
     """
     data = ''
-    step_key = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())[0]
+    try:
+        step_key = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())[0]
+    except (AttributeError, KeyError, IndexError):
+        step_key = ''
+
     for th_step in th_path:
         if th_step.type.name in NODE_MP_NAME and step_key == th_step.properties[MP_OUTPUTS]:
             data = step_key
@@ -458,13 +469,34 @@ def edge_property_key_in_from_menuprompt(step):
     :param step:
     :return:
     """
-    data = False
+    flag = False
 
-    step_key = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())[0]
+    try:
+        step_key = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())[0]
+    except (AttributeError, KeyError, IndexError):
+        step_key = ''
+
     if step.from_node.type.name in NODE_MP_NAME and step.from_node.properties[MP_OUTPUTS] == step_key:
-        data = True
+        flag = True
 
-    return data
+    return flag
+
+
+def edge_property_match_set_variable(index, step, path):
+    flag = False
+    for item in path[index:]:
+        if item.type.name == NODE_SET_VARIABLE:
+            if item.properties[EDGE_OUTPUTDATA_NAME][item.type.subkeys_data_name] == step.properties[EDGE_OUTPUTDATA_NAME][step.type.subkeys_data_name]:
+                flag = True
+                break
+    if not flag:
+        for item in path[index:]:
+            if isinstance(item, Node) and item.leaving_edges.count() > 1:
+                for edge in item.leaving_edges:
+                    if edge.to_node.type.name == NODE_SET_VARIABLE and edge.to_node.properties[EDGE_OUTPUTDATA_NAME][edge.to_node.type.subkeys_data_name] == step.properties[EDGE_OUTPUTDATA_NAME][step.type.subkeys_data_name]:
+                        flag = True
+                        break
+    return flag
 
 
 def non_data_edge_has_higher_priority(step):
@@ -475,7 +507,7 @@ def non_data_edge_has_higher_priority(step):
     """
     find = False
     for edge in step.from_node.leaving_edges.exclude(id=step.id):
-        if edge.type.name != EDGE_DATA_NAME and edge.priority < step.priority:
+        if edge.type.name not in [EDGE_DATA_NAME, EDGE_PRECONDITION_NAME] and edge.priority < step.priority:
             find = True
             break
 

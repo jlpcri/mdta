@@ -28,22 +28,6 @@ $('.projectEdgeEditForm #projectEdgeEditType').on('change', function(){
 });
 
 function draw_project_graph() {
-    //// create an array with nodes
-    //var nodes = new vis.DataSet([
-    //    {id: 1, label: 'Node 1'},
-    //    {id: 2, label: 'Node 2'},
-    //    {id: 3, label: 'Node 3'},
-    //    {id: 4, label: 'Node 4'},
-    //    {id: 5, label: 'Node 5'}
-    //]);
-    //
-    //// create an array with edges
-    //var edges = new vis.DataSet([
-    //    {from: 1, to: 3},
-    //    {from: 1, to: 2},
-    //    {from: 2, to: 4},
-    //    {from: 2, to: 5}
-    //]);
 
     // create a network
     var container = document.getElementById('module_in_project');
@@ -53,7 +37,6 @@ function draw_project_graph() {
         nodes: nodes,
         edges: edges
     };
-    var image_url = 'http://apps.qaci01.wic.west.com/static/common/brand_icons/turnpost-png-graphics/';
     var options = {
         nodes: {
             shape: 'image',
@@ -73,6 +56,27 @@ function draw_project_graph() {
 
     // initialize your network!
     var network = new vis.Network(container, data, options);
+
+    var n = JSON.stringify("{{ network_nodes|escapejs }}");
+    var node = JSON.parse(n);
+    $.each(JSON.parse(node), function (idx, obj) {
+        if(!$.isEmptyObject(obj.data)) {
+            var details = obj.data;
+            var id = obj.id;
+            for (var i = 0; i < details.length; ++i) {
+                for (var ind in details[i]) {
+                    if (ind === 'tcs_cannot_route') {
+                        nodes.update([{id: id, image: image_url + 'yellow-infrastructure-graphics_o.png'}])
+                    }
+                }
+            }
+        }
+        else {
+        $('a[href="#projectModules"]').click();
+        var id = obj.id;
+        nodes.update([{id: id, image: image_url + 'red-infrastructure-graphics_o.png'}]);
+        }
+    });
 
     network.on('click', function(params){
         //console.log(params.nodes)
@@ -96,6 +100,7 @@ function draw_project_graph() {
         }
     })
 }
+
 
 $(document).ready(function(){
     $('a[href="#projectModules"]').click();

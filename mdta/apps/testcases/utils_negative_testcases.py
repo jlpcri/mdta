@@ -1,5 +1,6 @@
 import random
 
+from mdta.apps.graphs.models import Node, Edge
 from mdta.apps.testcases.utils_backwards_traverse import get_verbiage_from_prompt_node
 from mdta.apps.testcases.constant_names import *
 
@@ -28,11 +29,11 @@ def tc_confirm_no_input_recover(node, language):
     data = [
         {
             TR_CONTENT: get_mpc_valid_input(node),
-            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CVER)
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_VER)
         },
         {
             TR_CONTENT: 'wait',
-            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CNI1, hint='CNI1')
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_NI1, hint='CNI1')
         }
     ]
 
@@ -64,11 +65,11 @@ def tc_confirm_no_match_recover(node, language):
     data = [
         {
             TR_CONTENT: get_mpc_valid_input(node),
-            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CVER)
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_VER)
         },
         {
             TR_CONTENT: get_no_match_content(node),
-            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CNM1, hint='CNM1')
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_NM1, hint='CNM1')
         }
     ]
 
@@ -123,15 +124,15 @@ def tc_confirm_no_input_3_fail(node, language):
         data = [
             {
                 TR_CONTENT: get_mpc_valid_input(node),
-                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CVER)
+                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_VER)
             },
             {
                 TR_CONTENT: 'wait',
-                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CNI1, hint='CNI1')
+                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_NI1, hint='CNI1')
             },
             {
                 TR_CONTENT: 'wait',
-                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CNI2, hint='CNI2')
+                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_NI2, hint='CNI2')
             },
             {
                 TR_CONTENT: 'wait',
@@ -196,15 +197,15 @@ def tc_confirm_no_match_3_fail(node, language):
         data = [
             {
                 TR_CONTENT: get_mpc_valid_input(node),
-                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CVER)
+                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_VER)
             },
             {
                 TR_CONTENT: get_no_match_content(node),
-                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CNM1, hint='CNM1')
+                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_NM1, hint='CNM1')
             },
             {
                 TR_CONTENT: get_no_match_content(node),
-                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CNM2, hint='CNM2')
+                TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_NM2, hint='CNM2')
             },
             {
                 TR_CONTENT: get_no_match_content(node),
@@ -277,7 +278,7 @@ def tc_confirm_ni_nm_3_fail(node, language):
     else:
         data.append({
             TR_CONTENT: get_mpc_valid_input(node),
-            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CVER)
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_VER)
         })
         combinations = random_combination(random_size=3)
         for index, item in enumerate(combinations):
@@ -338,7 +339,7 @@ def get_negative_tc_title(key):
     }.get(key, 'No Input & Recover')
 
 
-def negative_testcase_generation(data, path_data, title, node, language=None):
+def negative_testcase_generation(data, path_data, title, node, edge, language=None):
     """
     Generate negative TestCases of 5 scenarios
     :param data: Test Steps of current TestCase
@@ -351,7 +352,8 @@ def negative_testcase_generation(data, path_data, title, node, language=None):
             _title = title + ', ' + get_negative_tc_title(key)
             data.append({
                 'tcs_cannot_route': 'This test cannot be routed, Non standard fail behavior',
-                'title': _title
+                'title': _title,
+                'id': edge.id
             })
     else:
         for key in NEGATIVE_TESTS_LIST:
@@ -361,14 +363,16 @@ def negative_testcase_generation(data, path_data, title, node, language=None):
             if not negative_tc_steps[0][TR_CONTENT]:
                 data.append({
                     'tcs_cannot_route': negative_tc_steps[0][TR_EXPECTED],
-                    'title': _title
+                    'title': _title,
+                    'id': edge.id
                 })
             else:
                 tc_steps = path_data['tc_steps'] + negative_tc_steps
                 data.append({
                     'pre_conditions': path_data['pre_conditions'],
                     'tc_steps': tc_steps,
-                    'title': _title
+                    'title': _title,
+                    'id': edge.id
                 })
 
 
@@ -442,7 +446,7 @@ def following_dataqueries_node_valid_data(node, subkey, visited_nodes=[]):
     data = []
     visited_nodes.append(node)
     if node.type.name in NODE_DATA_NAME:
-        for item in node.properties[EDGE_INPUTDATA_NAME]:
+        for item in node.properties[NODE_INPUTDATA_NAME]:
             # print(item['Inputs'], node.properties[MP_OUTPUTS])
             try:
                 data.append(item[NODE_DATA_INPUTS][subkey])
@@ -490,7 +494,7 @@ def search_node_name_inside_project(project, node_name):
     return flag
 
 
-def rejected_testcase_generation(data, path_data, title, node, language=None):
+def rejected_testcase_generation(data, path_data, title, node, edge, language=None):
     """
     Generate rejected TestCase for MenuPromptWithConfirmation Node
     :param data: Output TestCases
@@ -500,23 +504,25 @@ def rejected_testcase_generation(data, path_data, title, node, language=None):
     :return: updated param data
     """
     tc_title = title + ', ' + 'Confirm Rejected'
-
     if node.properties[NON_STANDARD_FAIL_KEY] == 'on':
         data.append({
             'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + ', Non standard fail behaviory',
-            'title': tc_title
+            'title': tc_title,
+            'id': edge.id
         })
     else:
         if node.properties[ON_FAIL_GO_TO_KEY] == '':
             data.append({
                 'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo empty',
-                'title': tc_title
+                'title': tc_title,
+                'id': edge.id
             })
         else:
             if not search_node_name_inside_project(node.module.project, node.properties[ON_FAIL_GO_TO_KEY]):
                 data.append({
                     'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo node name invalid',
-                    'title': tc_title
+                    'title': tc_title,
+                    'id': edge.id
                 })
             else:
                 contents = get_mpc_valid_input(node)
@@ -524,7 +530,7 @@ def rejected_testcase_generation(data, path_data, title, node, language=None):
                 rejected_steps = [
                     {
                         TR_CONTENT: contents,
-                        TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_CVER)
+                        TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_VER)
                     },
                     {
                         TR_CONTENT: 'press 2',  # rejected confirm
@@ -535,7 +541,8 @@ def rejected_testcase_generation(data, path_data, title, node, language=None):
                 data.append({
                     'pre_conditions': path_data['pre_conditions'],
                     'tc_steps': path_data['tc_steps'] + rejected_steps,
-                    'title': tc_title
+                    'title': tc_title,
+                    'id': edge.id
                 })
 
 

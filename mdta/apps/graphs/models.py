@@ -143,19 +143,21 @@ class Node(models.Model):
     def properties_sorted(self):
         return sorted(self.properties.items())
 
+    @property
+    def children(self):
+        data = []
+        for edge in self.leaving_edges:
+            data.append(edge.to_node)
+
+        # print(self.name, data)
+        return data
+
 
 class Edge(models.Model):
     """
     Edge between two Nodes (Same Project) to represent the relation of them
     """
-    PRIORITY_CHOICES = (
-        (0, 0),
-        (1, 1),
-        (2, 2),
-        (3, 3),
-        (4, 4),
-        (5, 5)
-    )
+    PRIORITY_CHOICES = tuple(((x, x) for x in range(10)))
     type = models.ForeignKey(EdgeType)
 
     # name = models.TextField(default='')

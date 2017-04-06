@@ -2,11 +2,12 @@
 from mdta.settings.base import *
 
 DEBUG = True
+LOGGING_CONFIG = None
 INSTALLED_APPS += ['debug_toolbar', ]
 MIDDLEWARE_CLASSES += ['debug_toolbar.middleware.DebugToolbarMiddleware', ]
 INTERNAL_IPS = ['127.0.0.1', '10.6.20.97', '10.6.20.60']
 
-DATABASES = {
+QACI = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'mdta',
@@ -29,15 +30,4 @@ DB_6437 = {
     }
 }
 
-DB_AWS_PG = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'mdta',
-        'USER': 'ceeq',
-        'PASSWORD': 'ceeq_development',
-        'HOST': 'pginstance.ce8tamiymyr9.us-west-2.rds.amazonaws.com',
-        'PORT': '5432'
-    }
-}
-
-DATABASES = DB_6437
+DATABASES = QACI

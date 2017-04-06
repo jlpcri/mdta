@@ -18,6 +18,8 @@ from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeAutoNewFor
 from mdta.apps.projects.forms import ModuleForm, UploadForm
 from mdta.apps.testcases.constant_names import NODE_START_NAME, LANGUAGE_DEFAULT_NAME
 from mdta.apps.testcases.tasks import create_testcases_celery, push_testcases_to_testrail_celery
+from mdta.apps.testcases.models import TestCaseResults
+
 
 
 @login_required
@@ -37,7 +39,6 @@ def projects_for_selection(request):
     }
 
     return render(request, 'graphs/projects_for_selection.html', context)
-
 
 @user_passes_test(user_is_superuser)
 def graphs(request):
@@ -169,18 +170,30 @@ def project_detail(request, project_id):
 
     network_nodes = []
     network_edges = []
+    tc_keys = []
     projects = Project.objects.all()
     project = get_object_or_404(Project, pk=project_id)
+    try:
+        tests = project.testcaseresults_set.latest('updated').results
+        testcase = TestCaseResults.objects.filter(project=project)
+    except TestCaseResults.DoesNotExist:
+        tests = []
 
     user = request.user
     user.humanresource.project = project
     user.humanresource.save()
+    for tc in tests:
+        data = tc['data']
+        tc_keys.append(data)
 
     for m in project.modules:
         network_nodes.append({
             'id': m.id,
-            'label': m.name
+            'label': m.name,
         })
+    for d, n in zip(network_nodes, tc_keys):
+        d['data'] = n
+    # print(tests)
     for edge in project.edges_between_modules:
         try:
             if edge.properties[EDGE_TYPES_INVISIBLE_KEY] == 'on':
@@ -204,8 +217,6 @@ def project_detail(request, project_id):
                 'priority': edge.priority,
                 'properties': edge.properties
             })
-
-    # print('**: ', network_edges)
 
     context = {
         'projects': projects,
@@ -236,16 +247,17 @@ def project_module_import(request, project_id):
     :return:
     """
     if request.method == 'GET':
-        form = UploadForm()
-        context = {
-            'form': form,
-            'project_id': project_id
-        }
-        return render(request, 'graphs/project/module_import.html', context)
+        # form = UploadForm()
+        # context = {
+        #     'form': form,
+        #     'project_id': project_id
+        # }
+        # return render(request, 'graphs/project/module_import.html', context)
+        # messages.error(request, "Unable to upload file")
+        return redirect('graphs:project_detail', project_id)
 
     elif request.method == 'POST':
         form = UploadForm(request.POST, request.FILES)
-        # p = get_object_or_404(Project, project_id)
         if form.is_valid():
             if 'file' in request.FILES and request.FILES['file'].name.endswith('.xlsx'):
                 result = helpers.upload_vuid(form.cleaned_data['file'], request.user, project_id)
@@ -303,6 +315,10 @@ def project_module_detail(request, module_id):
     # for module level graph
     network_edges = []
     network_nodes = []
+    tc_keys = []
+    data_keys = []
+    edge_id = []
+    merged = {}
 
     outside_module_node_color = 'rgb(211, 211, 211)'
 
@@ -320,6 +336,35 @@ def project_module_detail(request, module_id):
             'to': edge.to_node.id,
             'from': edge.from_node.id
         })
+
+    try:
+        tmp_data = module.project.testcaseresults_set.latest('updated').results
+        try:
+            tests = [(item for item in tmp_data if item['module'] == module.name).__next__()]
+            for tc in tests:
+                data = tc['data']
+                tc_keys.append(data)
+            for tc in tc_keys:
+                data = tc
+            for d in data:
+                data_keys.append(d)
+            for item in data_keys:
+                e_id = item['id']
+                if 'tcs_cannot_route' in item:
+                    tcr = item['tcs_cannot_route']
+                    edge_id.append({'id': e_id,
+                                    'tcs_cannot_route': tcr})
+            for item in network_edges + edge_id:
+                if item['id'] in merged:
+                    merged[item['id']].update(item)
+                else:
+                    merged[item['id']] = item
+        except StopIteration:
+            pass
+
+    except (AttributeError, TestCaseResults.DoesNotExist):
+        tmp_data = []
+        tests = []
 
     if request.user.username != 'test':
         for node in module.nodes_all:
@@ -341,6 +386,9 @@ def project_module_detail(request, module_id):
                 tmp['color'] = outside_module_node_color
 
             network_nodes.append(tmp)
+            # print(node.id)
+            # print(node.name)
+
     else:
         # try use custom icon for nodes
         image_url = settings.STATIC_URL + 'common/brand_icons/turnpost-png-graphics/'
@@ -379,8 +427,6 @@ def project_module_detail(request, module_id):
                 tmp['shadow'] = 'true'
 
             network_nodes.append(tmp)
-
-    # print(module.nodes)
 
     node_form_type_default = get_object_or_404(NodeType, name='Play Prompt')
     node_new_form = NodeNewForm(module_id=module.id, initial={'type': node_form_type_default.id})
@@ -755,6 +801,7 @@ def get_module_id_from_node_id(request):
         'type_name': node.type.name,
         'properties': node.properties,
         'verbiage': node.verbiage,
+        'node_keys': node.type.keys,
         'v_keys': node.type.verbiage_keys,
         'language': language,  # language default value of node
         'languages': languages,  # all possible languages of current node of module of project
@@ -800,6 +847,7 @@ def module_node_verbiage_edit(request):
             node_type = get_object_or_404(NodeType, pk=node_type_id)
 
             properties = get_properties_for_node_or_edge(request, node_type)
+            # print(request.POST)
 
             language_name = ''
             language_list = request.POST.getlist('moduleNodeEditVerbiageLanguage', '')
