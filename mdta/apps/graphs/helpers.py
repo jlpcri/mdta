@@ -63,7 +63,7 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
         try:
             node = Node.objects.get(module__project=project, name=node_name)
         except Node.DoesNotExist:
-            verbiage_keys = {current_language: {
+            verbiage_keys = {'English': {
                 'InitialPrompt': "",
                 'NoInput1': "",
                 'NoInput2': "",
