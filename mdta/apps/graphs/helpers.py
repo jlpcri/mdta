@@ -3,6 +3,7 @@ import pandas as pd
 
 from mdta.apps.projects.models import Project, Module, VUID, Language
 from mdta.apps.graphs.models import Node, NodeType
+from mdta.apps.testcases.constant_names import LANGUAGE_DEFAULT_NAME
 
 PAGE_NAME = "page name"
 PROMPT_NAME = "prompt name"
@@ -20,6 +21,13 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
 
     project = Project.objects.get(pk=project_id)
 
+    # check and grab all languages set in project
+    lang = Language.objects.filter(project=project)
+    if lang:
+        available_languages = lang.values_list('name', flat=True)
+    else:
+        available_languages = [LANGUAGE_DEFAULT_NAME]
+
     for i in df.index:
         try:
             module_name = (df[PAGE_NAME][i])
@@ -29,6 +37,10 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
         except KeyError:
             return {"valid": False, "message": "Parser error, invalid headers. Please check them again."}
 
+        # if current row is Bravo Path
+        if not node_name:
+            continue
+
         # check if module exists if not create it
         try:
             module = Module.objects.get(name=module_name, project=project)
@@ -36,14 +48,14 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
             module = Module(name=module_name, project=project)
             module.save()
 
-        # check and grab all languages set in project
-        lang = Language.objects.filter(project=project)
-        available_languages = lang.values_list('name', flat=True)
-
-        # if no language set in project, set default to english
-        for current_language in available_languages:
-            if not available_languages.exists():
-                available_languages = ['English']
+        # # check and grab all languages set in project
+        # lang = Language.objects.filter(project=project)
+        # available_languages = lang.values_list('name', flat=True)
+        #
+        # # if no language set in project, set default to english
+        # for current_language in available_languages:
+        #     if not available_languages.exists():
+        #         available_languages = ['English']
 
         # parse, clean, and create nodes
         if node_name.startswith('prompt_'):
@@ -60,16 +72,25 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
             node_name = node_name.replace('say_', ' ').strip(' ')
             keys = {
             }
+        else:
+            type = NodeType.objects.get(name='Play Prompt')
+            keys = {}
+
         try:
             node = Node.objects.get(module__project=project, name=node_name)
         except Node.DoesNotExist:
-            verbiage_keys = {current_language: {
-                'InitialPrompt': "",
-                'NoInput1': "",
-                'NoInput2': "",
-                'NoMatch1': "",
-                'NoMatch2': ""
-            }}
+            if type.name == 'Menu Prompt':
+                verbiage_keys = {LANGUAGE_DEFAULT_NAME: {
+                    'InitialPrompt': "",
+                    'NoInput1': "",
+                    'NoInput2': "",
+                    'NoMatch1': "",
+                    'NoMatch2': ""
+                }}
+            else:
+                verbiage_keys = {LANGUAGE_DEFAULT_NAME: {
+                    'InitialPrompt': "",
+                }}
             node = Node(module=module, name=node_name, type=type, verbiage=verbiage_keys, properties=keys)
 
         # work with the current_language key to setup the node verbiage
