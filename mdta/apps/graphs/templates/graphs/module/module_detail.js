@@ -185,8 +185,8 @@ function draw_module_graph(){
         if(!$.isEmptyObject(obj.tcs_cannot_route)) {
             var route = obj.tcs_cannot_route;
             var id = obj.id;
-            console.log(route);
-            console.log(id);
+            //console.log(route);
+            //console.log(id);
             for (var i = 0; i < route.length; ++i) {
                 for (var ind in route[i]) {
                     // if (ind !== 'tcs_cannot_route') {
