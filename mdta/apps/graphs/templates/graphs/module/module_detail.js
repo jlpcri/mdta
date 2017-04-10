@@ -196,7 +196,6 @@ function draw_module_graph(){
                     }
                 }
             }
-        //}
         else {
             $('a[href="#moduleNodeEdgeEmpty"]').click();
         }
