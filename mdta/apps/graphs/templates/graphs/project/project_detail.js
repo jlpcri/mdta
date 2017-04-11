@@ -74,7 +74,6 @@ function draw_project_graph() {
     //     $("#failed-testcases").change();
     // }
     $('#divNewNotifications li').css('background-color', 'white');
-    $(this).closest('li').css('background-color', 'green');
     });
 
     $('#data-gaps').change(function(){
