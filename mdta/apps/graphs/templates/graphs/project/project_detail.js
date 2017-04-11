@@ -60,7 +60,9 @@ function draw_project_graph() {
     $('.dropdown-toggle').dropdown();
     $('#divNewNotifications li > a').click(function(){
     if (this.text !== ' View Options ') {
-        $('#text').text($(this).html());
+        if (this.text !== ' Failed Testcases ') {
+            $('#text').text($(this).html());
+        }
     }
     if (this.text === ' Default ') {
         $("#default").change();
@@ -68,6 +70,9 @@ function draw_project_graph() {
     if (this.text === ' Data Gaps ') {
         $("#data-gaps").change();
     }
+    // if (this.text === ' Failed Testcases ') {
+    //     $("#failed-testcases").change();
+    // }
     $('#divNewNotifications li').css('background-color', 'white');
     $(this).closest('li').css('background-color', 'green');
     });

@@ -179,27 +179,75 @@ function draw_module_graph(){
     // initialize your network!
     var network = new vis.Network(container, data, options);
 
-    var n = JSON.stringify("{{ network_edges|escapejs }}");
-    var edge = JSON.parse(n);
-    $.each(JSON.parse(edge), function(idx, obj) {
-        if(!$.isEmptyObject(obj.tcs_cannot_route)) {
-            var route = obj.tcs_cannot_route;
-            var id = obj.id;
-            //console.log(route);
-            //console.log(id);
-            for (var i = 0; i < route.length; ++i) {
-                for (var ind in route[i]) {
-                    // if (ind !== 'tcs_cannot_route') {
-                    //     console.log(ind);
-                    // } else {
+    $('.dropdown-toggle').dropdown();
+    $('#divNewNotifications li > a').click(function(){
+    if (this.text !== ' View Options ') {
+        if (this.text !== ' Failed Testcases ') {
+            $('#text').text($(this).html());
+        }
+    }
+    if (this.text === ' Default ') {
+        $("#default").change();
+    }
+    if (this.text === ' Data Gaps ') {
+        $("#data-gaps").change();
+    }
+    // if (this.text === ' Failed Testcases ') {
+    //     $("#failed-testcases").change();
+    // }
+    $('#divNewNotifications li').css('background-color', 'white');
+    $(this).closest('li').css('background-color', 'green');
+    });
+
+    $('#data-gaps').change(function(){
+        var n = JSON.stringify("{{ network_edges|escapejs }}");
+        var edge = JSON.parse(n);
+        $.each(JSON.parse(edge), function(idx, obj) {
+            if (!$.isEmptyObject(obj.tcs_cannot_route)) {
+                var route = obj.tcs_cannot_route;
+                var id = obj.id;
+                for (var i = 0; i < route.length; ++i) {
+                    for (var ind in route[i]) {
                         edges.update([{id: id, color: '#FF3333'}]);
                     }
                 }
             }
-        else {
-            $('a[href="#moduleNodeEdgeEmpty"]').click();
-        }
+            else {
+                $('a[href="#moduleNodeEdgeEmpty"]').click();
+            }
+        });
     });
+
+    $('#default').change(function(){
+        var n = JSON.stringify("{{ network_edges|escapejs }}");
+        var edge = JSON.parse(n);
+        $.each(JSON.parse(edge), function(idx, obj) {
+            var id = obj.id;
+            edges.update([{id: id, color: '#000'}]);
+        });
+    });
+
+    // var n = JSON.stringify("{{ network_edges|escapejs }}");
+    // var edge = JSON.parse(n);
+    // $.each(JSON.parse(edge), function(idx, obj) {
+    //     if(!$.isEmptyObject(obj.tcs_cannot_route)) {
+    //         var route = obj.tcs_cannot_route;
+    //         var id = obj.id;
+    //         //console.log(route);
+    //         //console.log(id);
+    //         for (var i = 0; i < route.length; ++i) {
+    //             for (var ind in route[i]) {
+    //                 // if (ind !== 'tcs_cannot_route') {
+    //                 //     console.log(ind);
+    //                 // } else {
+    //                     edges.update([{id: id, color: '#FF3333'}]);
+    //                 }
+    //             }
+    //         }
+    //     else {
+    //         $('a[href="#moduleNodeEdgeEmpty"]').click();
+    //     }
+    // });
 
     network.on('click', function(params){
         //console.log(params.nodes)
