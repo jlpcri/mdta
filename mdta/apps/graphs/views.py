@@ -360,10 +360,11 @@ def project_module_detail(request, module_id):
                     merged[item['id']] = item
         except StopIteration:
             pass
-
     except (AttributeError, TestCaseResults.DoesNotExist):
         tmp_data = []
         tests = []
+
+    # print(network_edges)
 
     if request.user.username != 'test':
         for node in module.nodes_all:
@@ -385,8 +386,6 @@ def project_module_detail(request, module_id):
                 tmp['color'] = outside_module_node_color
 
             network_nodes.append(tmp)
-            # print(node.id)
-            # print(node.name)
 
     else:
         # try use custom icon for nodes
