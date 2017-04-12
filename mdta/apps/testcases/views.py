@@ -1,6 +1,8 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
+import json
 
 
 from mdta.apps.projects.models import Project, Module, TestRailInstance, TestRailConfiguration
@@ -11,6 +13,7 @@ from mdta.apps.users.views import user_is_superuser, user_is_staff
 from .utils import context_testcases, get_projects_from_testrail, create_routing_test_suite
 from .forms import TestrailConfigurationForm
 from mdta.apps.testcases.testrail import APIClient
+from mdta.celery_module import app as celery_app
 
 
 @login_required
@@ -204,5 +207,16 @@ def testrail_configuration_update(request, testrail_id):
     return render(request, 'projects/project_dashboard.html', context)
 
 
+def check_celery_task_state(request):
+    task_run = False
+    active = celery_app.control.inspect().active()
+    for key in active.keys():
+        if active[key]:
+            project_id = active[key][0]['args']
+            project_id = ''.join(c for c in project_id if c not in '(),')
+            if int(project_id) == request.user.humanresource.project.id:
+                task_run = True
+
+    return HttpResponse(json.dumps(task_run), content_type='application/json')
 
 
