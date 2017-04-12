@@ -42,6 +42,9 @@ def create_testcases_celery(project_id):
         except (ValueError, ValidationError) as e:
             print(str(e))
 
+    msg = push_testcases_to_testrail_celery(project.id)
+    return msg
+
 
 @app.task
 def push_testcases_to_testrail_celery(project_id):
