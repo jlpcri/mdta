@@ -91,14 +91,21 @@
                 }
             });
         });
+
+        check_celery_task_state();
+
         window.setInterval(function(){
+            check_celery_task_state();
+        }, 5000);
+
+        function check_celery_task_state(){
             $.getJSON('{% url 'testcases:check_celery_task_state' %}', function(data){
                 if (data == false){
-                    $('#publish').removeClass('disabled')
+                    button_publish.removeClass('disabled')
                 } else {
-                    $('#publish').addClass('disabled')
+                    button_publish.addClass('disabled')
                 }
             })
-        }, 5000)
+        }
     </script>
 {% endblock %}
