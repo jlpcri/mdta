@@ -155,9 +155,7 @@ def routing_path_to_edge(edge):
     :param edge:
     :return:
     """
-    visited_nodes = [edge.to_node]  # Visited nodes for the path to this Edge
-
-    data = routing_path_to_node(edge.from_node, visited_nodes)
+    data = routing_path_to_node(edge.from_node)
 
     if data:
         data.append(edge)
@@ -167,23 +165,19 @@ def routing_path_to_edge(edge):
     return data
 
 
-def routing_path_to_node(node, visited_nodes):
+def routing_path_to_node(node):
     """
     Routing path to current Node
     :param node:
-    :param visited_nodes:
     :return:
     """
-
-    visited_nodes.append(node)
-
-    path = backwards_search(node, visited_nodes)
+    path = backwards_search(node)
 
     # print(path)
     return path
 
 
-def backwards_search(node, visited_nodes):
+def backwards_search(node):
     """
     Search a path from Start node(type='Start') to current Node
     Breadth
@@ -202,24 +196,15 @@ def backwards_search(node, visited_nodes):
             edge = edges[0]
         elif edges.count() > 1:
             edge = get_shortest_edge_from_arriving_edges(node)
-            # for tmp_edge in edges:
-            #     if tmp_edge.type.name == 'Connector':
-            #         edge = tmp_edge
-            #         break
-            # else:
-            #     edge = edges[0]
         else:
             edge = None
 
         if edge:
             start_node_found = False  # flag to find Start Node in current search
-            # if edge.from_node not in visited_nodes \
-            #         or edge.from_node.type.name in NODE_START_NAME:  # if Node is not visited or Node is Start
-            # if edge.from_node != edge.to_node:
             if edge.from_node.type.name not in NODE_START_NAME:
                 if edge.from_node.arriving_edges.count() > 0:
                     start_node_found_outside = True
-                    path += backwards_search(edge.from_node, visited_nodes)
+                    path += backwards_search(edge.from_node)
             else:
                 start_node_found = True
                 path.append(edge.from_node)
@@ -227,9 +212,6 @@ def backwards_search(node, visited_nodes):
             if start_node_found or start_node_found_outside:  # if found Start Node, add Edge
                 path.append(edge)
                 path.append(node)
-
-                # if start_node_found:  # if found Start Node, break out of for loop
-                #     break
 
     # print('path: ',  path)
     return path
