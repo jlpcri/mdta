@@ -1,3 +1,4 @@
+import socket
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
@@ -210,14 +211,16 @@ def testrail_configuration_update(request, testrail_id):
 def check_celery_task_state(request):
     task_run = False
     active = celery_app.control.inspect().active()
+
+    # celery worker node name
+    key = 'celery@' + socket.gethostname() + '.mdta'
     try:
-        for key in active.keys():
-            if active[key]:
-                project_id = active[key][0]['args']
-                project_id = ''.join(c for c in project_id if c not in '(),')
-                if int(project_id) == request.user.humanresource.project.id:
-                    task_run = True
-    except AttributeError:
+        if active[key]:
+            project_id = active[key][0]['args']
+            project_id = ''.join(c for c in project_id if c not in '(),')
+            if int(project_id) == request.user.humanresource.project.id:
+                task_run = True
+    except (KeyError, TypeError):
         task_run = True
 
     return HttpResponse(json.dumps(task_run), content_type='application/json')
