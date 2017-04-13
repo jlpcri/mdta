@@ -213,20 +213,20 @@ def backwards_search(node, visited_nodes):
 
         if edge:
             start_node_found = False  # flag to find Start Node in current search
-            if edge.from_node not in visited_nodes \
-                    or edge.from_node.type.name in NODE_START_NAME:  # if Node is not visited or Node is Start
-                if edge.from_node != edge.to_node:
-                    if edge.from_node.type.name not in NODE_START_NAME:
-                        if edge.from_node.arriving_edges.count() > 0:
-                            start_node_found_outside = True
-                            path += backwards_search(edge.from_node, visited_nodes)
-                    else:
-                        start_node_found = True
-                        path.append(edge.from_node)
+            # if edge.from_node not in visited_nodes \
+            #         or edge.from_node.type.name in NODE_START_NAME:  # if Node is not visited or Node is Start
+            # if edge.from_node != edge.to_node:
+            if edge.from_node.type.name not in NODE_START_NAME:
+                if edge.from_node.arriving_edges.count() > 0:
+                    start_node_found_outside = True
+                    path += backwards_search(edge.from_node, visited_nodes)
+            else:
+                start_node_found = True
+                path.append(edge.from_node)
 
-                    if start_node_found or start_node_found_outside:  # if found Start Node, add Edge
-                        path.append(edge)
-                        path.append(node)
+            if start_node_found or start_node_found_outside:  # if found Start Node, add Edge
+                path.append(edge)
+                path.append(node)
 
                 # if start_node_found:  # if found Start Node, break out of for loop
                 #     break
@@ -285,7 +285,7 @@ def get_shortest_edge_from_arriving_edges(node):
     edge = ''
     for start_node in start_nodes:
         path = breadth_first_search(start_node, node)
-        for each in path:
+        for each in path[:-1]:
             edges = Edge.objects.filter(from_node=each, to_node=node)
             if edges.count() > 0:
                 edge = edges[0]
