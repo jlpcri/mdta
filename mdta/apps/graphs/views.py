@@ -7,7 +7,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new, check_edge_in_set,\
-    get_properties_for_node_or_edge, EDGE_TYPES_INVISIBLE_KEY, node_related_edges_invisible
+    get_properties_for_node_or_edge, EDGE_TYPES_INVISIBLE_KEY, node_related_edges_invisible, self_reference_edge_node_in_set
 from mdta.apps.projects.models import Project, Module, Language
 from mdta.apps.graphs import helpers
 from mdta.apps.projects.utils import context_project_dashboard
@@ -318,6 +318,7 @@ def project_module_detail(request, module_id):
     data_keys = []
     edge_id = []
     merged = {}
+    edge_reference_sizes = []
 
     outside_module_node_color = 'rgb(211, 211, 211)'
 
@@ -330,10 +331,17 @@ def project_module_detail(request, module_id):
         except KeyError:
             pass
 
+        self_reference_size = 20
+        if edge.from_node.id == edge.to_node.id:
+            self_reference_data = self_reference_edge_node_in_set(edge, network_edges, edge_reference_sizes)
+            if self_reference_data['flag']:
+                self_reference_size = self_reference_data['size']
+
         network_edges.append({
             'id': edge.id,
             'to': edge.to_node.id,
-            'from': edge.from_node.id
+            'from': edge.from_node.id,
+            'selfReferenceSize': self_reference_size
         })
 
     try:
