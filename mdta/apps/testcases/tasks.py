@@ -11,7 +11,7 @@ from mdta.apps.testcases.testrail import APIClient
 
 
 @app.task
-def create_testcases_celery(project_id):
+def create_testcases_celery(project_id, call_from=None):
     """
     Create TestCases per project/module
     :param request:
@@ -42,7 +42,10 @@ def create_testcases_celery(project_id):
         except (ValueError, ValidationError) as e:
             print(str(e))
 
-    msg = push_testcases_to_testrail_celery(project.id)
+    msg = 'TestCases updated.'
+    if not call_from:
+        msg = push_testcases_to_testrail_celery(project.id)
+
     return msg
 
 

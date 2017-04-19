@@ -143,7 +143,7 @@ def get_paths_through_all_edges(edges, th_module=None, language=None):
                         })
 
                     if edge.to_node.type.name == NODE_MP_NAME[0]:
-                        negative_testcase_generation(data, path_data, title, edge.to_node, language=language)
+                        negative_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
 
     # return check_subpath_in_all(data)
     return data
