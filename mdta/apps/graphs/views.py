@@ -11,7 +11,6 @@ from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new
     get_properties_for_node_or_edge, EDGE_TYPES_INVISIBLE_KEY, node_related_edges_invisible
 from mdta.apps.projects.models import Project, Module, Language
 from mdta.apps.graphs import helpers
-# from mdta.apps.projects.models import Project, Module
 from mdta.apps.projects.utils import context_project_dashboard
 from mdta.apps.users.views import user_is_staff, user_is_superuser
 from .models import NodeType, EdgeType, Node, Edge

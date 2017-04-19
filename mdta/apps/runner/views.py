@@ -1,10 +1,12 @@
+import requests
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 
+from mdta.apps.projects.forms import TestRunnerForm
 from mdta.apps.projects.models import TestRailInstance, Project, TestRailConfiguration
-from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, check_result, bulk_hatit_file_generator
+from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, check_result, bulk_hatit_file_generator, HATScript
 
 
 def display_project_suites(request, project_id):
@@ -45,8 +47,10 @@ def run_test_suite(request):
     files_to_monitor = bulk_remote_hat_execute(testrail_cases)
     return JsonResponse({'success': True, 'scripts': files_to_monitor})
 
+
 def run_test_suite_in_hatit(request):
     testrail_suite_id = int(request.GET['suite'])
+    print(testrail_suite_id)
     testrail_instance = TestRailInstance.objects.first()
     project = request.user.humanresource.project
     testrail_project_id = project.testrail.project_id
@@ -55,11 +59,32 @@ def run_test_suite_in_hatit(request):
     testrail_suite = [s for s in testrail_suites if s.id == testrail_suite_id][0]
     testrail_cases = testrail_suite.get_cases()
     hatit_csv_filename = bulk_hatit_file_generator(testrail_cases)
-    with open(hatit_csv_filename) as csv_file:
-        response = HttpResponse(csv_file.read(), content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="{0}"'.format(hatit_csv_filename)
-    return response
+    # with open(hatit_csv_filename) as csv_file:
+    #     response = HttpResponse(csv_file.read(), content_type='text/csv')
+    #     response['Content-Disposition'] = 'attachment; filename="{0}"'.format(hatit_csv_filename)
+    # return response
+    print(hatit_csv_filename)
+    return {'success': True, 'scripts': hatit_csv_filename}
 
+
+def run_all_modal(request):
+    if request.method == 'POST':
+        form = TestRunnerForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            print(data)
+            # hs = HATScript()
+            # hs.apn = data.get('apn')
+            # print(hs.apn)
+            # hs.holly_server = data.get('browser')
+            # print(hs.holly_server)
+            # hs.basic_connection_test()
+            # response = hs.hatit_execute()
+            # print(hs.results())
+        else:
+            print(form.errors)
+
+    return {'success': True}
 
 
 def check_test_result(request):
@@ -89,4 +114,7 @@ def dashboard(request):
     for suite in suites:
         suite.cases = suite.get_cases()
     return render(request, 'runner/dashboard.html', {'project': request.user.humanresource.project,
-                                                     'suites': suites})
+                                                     'suites': suites,
+                                                     'modal_run_all': TestRunnerForm()})
+
+
