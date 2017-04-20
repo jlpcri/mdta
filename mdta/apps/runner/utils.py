@@ -167,9 +167,13 @@ class AutomationScript(object):
 
 
 class HATScript(AutomationScript):
-    def __init__(self, apn='', body='', dialed_number='',
+    def __init__(self, apn='', body='', dialed_number='', csvfile='',
                  holly_server='linux5578.wic.west.com', sonus_server='10.27.138.136',
-                 remote_server='qaci01.wic.west.com', remote_user='wicqacip', remote_password='LogFiles'):
+                 remote_server='qaci01.wic.west.com',
+                 hatit_server='led00098.wic.west.com:8080/hatit/api/csv_req/', remote_user='wicqacip', remote_password='LogFiles'):
+
+        self.csvfile = csvfile
+        self.hatit_server = hatit_server
         self.apn = apn
         self.dialed_number = dialed_number
         self.body = body
@@ -198,13 +202,17 @@ class HATScript(AutomationScript):
         """Uses Frank's HAT User Interface to initate a HAT test"""
         browser = requests.session()
         browser.get('http://{0}/hatit'.format(self.remote_server))
-        csrf_token = browser.cookies['csrftoken']
-        data = {'csrfmiddlewaretoken': csrf_token,
+        # csrf_token = browser.cookies['csrftoken']
+        # 'csrfmiddlewaretoken': csrf_token,
+        data = {
                 'apn': self.apn,
+                'browser': self.holly_server,
                 'port': '5060',
-                'hatscript': self.body}
-        response = browser.post("http://{0}/hatit/results/".format(self.hatit_server), data=data)
+                'csvfile': self.csvfile}
+        response = browser.post("http://{0}/".format(self.hatit_server), data=data)
         browser.close()
+        print(response)
+        print(data)
         return response
 
     def local_hat_execute(self):
@@ -388,6 +396,7 @@ def bulk_remote_hat_execute(case_list):
     client.close()
     return filename_list
 
+
 def bulk_hatit_file_generator(case_list):
     csv_filename = 'hatit_{0}.csv'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
     with open(csv_filename, 'w', newline='') as csvfile:
@@ -397,7 +406,6 @@ def bulk_hatit_file_generator(case_list):
             case.generate_hat_script()
             csv_writer.writerow([case.script.body, ])
     return csv_filename
-
 
 
 def check_result(filename):

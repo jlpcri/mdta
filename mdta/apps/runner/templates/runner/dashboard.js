@@ -1,10 +1,20 @@
 $(function(){
-    $(".run-btn").click(populateSteps)
-    $(".run-all-btn").click(runAll)
+    $(".run-btn").click(populateSteps);
+    $(".run-all-suite").click(getId);
+    $(".run-all-btn").click(runAll);
 });
 
+var s_id;
+
+function getId() {
+    s_id = this.getAttribute('data-suite');
+    return s_id;
+}
+
 function runAll(){
-    var suite_id = this.getAttribute('data-suite')
+    //var suite_id = this.getAttribute('data-suite')
+    var suite_id = s_id;
+    console.log(s_id);
     var button = $(this);
     $("#testcase").html("Generating tests. Please wait.");
     $("#result").html("");
@@ -12,7 +22,7 @@ function runAll(){
         success: function(data, textStatus, jqXHR){
             var div = $("#testcase");
             var table_draw = '<table class="table table-bordered"><tr><th>Title</th><th>Script</th><th>Status</th><th>Call ID</th><th>Failure reason</th></tr>'
-            console.log(data);
+            console.log(data)
             $.each(data.scripts, function(index, value){
                 table_draw += "<tr><td class='title'></td>" +
                     "<td class='script'>" + value + "</td>" +

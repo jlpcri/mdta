@@ -1,10 +1,14 @@
 import requests
-from django.http import HttpResponse
-from django.shortcuts import render
+from django.core.files.storage import default_storage
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, redirect
+from django.core.files import File
+from django.contrib.messages import get_messages
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 
 from mdta.apps.projects.forms import TestRunnerForm
+from mdta.apps.runner.models import HatitFiles
 from mdta.apps.projects.models import TestRailInstance, Project, TestRailConfiguration
 from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, check_result, bulk_hatit_file_generator, HATScript
 
@@ -59,12 +63,16 @@ def run_test_suite_in_hatit(request):
     testrail_suite = [s for s in testrail_suites if s.id == testrail_suite_id][0]
     testrail_cases = testrail_suite.get_cases()
     hatit_csv_filename = bulk_hatit_file_generator(testrail_cases)
+    # storage = default_storage.open(hatit_csv_filename, 'w+')
+    # print(storage)
+    csvfile = HatitFiles(suiteID=testrail_suite_id, upload=hatit_csv_filename, filename=hatit_csv_filename.name)
+    csvfile.save
+    return {'success': True, 'scripts': hatit_csv_filename, 'suite': testrail_suite_id}
     # with open(hatit_csv_filename) as csv_file:
     #     response = HttpResponse(csv_file.read(), content_type='text/csv')
     #     response['Content-Disposition'] = 'attachment; filename="{0}"'.format(hatit_csv_filename)
     # return response
-    print(hatit_csv_filename)
-    return {'success': True, 'scripts': hatit_csv_filename}
+    # return HttpResponseRedirect('/run_all_modal/')
 
 
 def run_all_modal(request):
@@ -73,18 +81,15 @@ def run_all_modal(request):
         if form.is_valid():
             data = form.cleaned_data
             print(data)
-            # hs = HATScript()
-            # hs.apn = data.get('apn')
-            # print(hs.apn)
-            # hs.holly_server = data.get('browser')
-            # print(hs.holly_server)
-            # hs.basic_connection_test()
-            # response = hs.hatit_execute()
-            # print(hs.results())
+            hs = HATScript()
+            hs.apn = data.get('apn')
+            hs.holly_server = data.get('browser')
+            hs.basic_connection_test()
+            response = hs.hatit_execute()
         else:
             print(form.errors)
 
-    return {'success': True}
+        return JsonResponse({'success': True})
 
 
 def check_test_result(request):
