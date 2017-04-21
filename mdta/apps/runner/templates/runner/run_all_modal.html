@@ -1,7 +1,7 @@
 <!-- Run All Modal -->
 <div class="modal fade newModule" id="run-all-modal">
     <div class="modal-dialog">
-        <form action="{% url 'runner:run_all_modal' %}" method="post">
+        <form action="{% url 'runner:run_all_modal' %}" method="post" enctype="multipart/form-data">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
@@ -9,11 +9,11 @@
                     <div class="row">
                         <div class="col-xs-6">
                             <h4 class="modal-title">Run All Data Needed</h4>
+                            <strong>Please Create Script before submitting</strong>
                         </div>
                     </div>
                 </div>
                 <div class="modal-body">
-
                     {% csrf_token %}
                     {{ modal_run_all }}
                 </div>

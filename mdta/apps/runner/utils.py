@@ -153,6 +153,9 @@ def _get_testrail_project_by_id(instance, identifier):
 def _get_testrail_project_by_name(instance, identifier):
     raise NotImplementedError
 
+# def get_hatit_api_data(send_scripts, send_data):
+#     # req = {'apn': request.POST.get('apn', False), 'browser': request.POST.get('browser', False), 'csvfile': request.POST.get('scripts', False)}
+
 
 class AutomationScript(object):
     NOT_RUN = 0
@@ -211,7 +214,6 @@ class HATScript(AutomationScript):
                 'csvfile': self.csvfile}
         response = browser.post("http://{0}/".format(self.hatit_server), data=data)
         browser.close()
-        print(response)
         print(data)
         return response
 
