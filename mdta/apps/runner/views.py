@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 
 from mdta.apps.projects.forms import TestRunnerForm
 from mdta.apps.projects.models import TestRailInstance, Project, TestRailConfiguration
-from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, check_result, bulk_hatit_file_generator, HATScript, get_hatit_api_data
+from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, check_result, bulk_hatit_file_generator, HATScript
 
 
 def display_project_suites(request, project_id):
@@ -59,7 +59,6 @@ def run_test_suite_in_hatit(request):
     testrail_cases = testrail_suite.get_cases()
     hatit_csv_filename = bulk_hatit_file_generator(testrail_cases)
     HATScript.csvfile = hatit_csv_filename
-    print(HATScript.csvfile)
     return 'runner/run_all_modal.html'
 
 
@@ -72,11 +71,10 @@ def run_all_modal(request):
             hs.csvfile = HATScript.csvfile
             hs.apn = data.get('apn')
             hs.holly_server = data.get('browser')
-            response = hs.local_hat_execute()
+            response = hs.hatit_execute()
             print(response.status_code)
         else:
             print(form.errors)
-        # return JsonResponse({'success': True, 'apn': apn, 'browser': browser})
     return redirect('runner:dashboard')
 
 

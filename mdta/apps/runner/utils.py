@@ -154,13 +154,6 @@ def _get_testrail_project_by_name(instance, identifier):
     raise NotImplementedError
 
 
-def get_hatit_api_data(data):
-    print(data)
-    apn = data.get('apn')
-    browser = data.get('browser')
-    return
-
-
 class AutomationScript(object):
     NOT_RUN = 0
     PASS = 1
@@ -209,16 +202,15 @@ class HATScript(AutomationScript):
         """Uses Frank's HAT User Interface to initate a HAT test"""
         browser = requests.session()
         stuff = browser.get('http://{0}/hatit'.format(self.remote_server))
-        print(stuff)
-        # csrf_token = browser.cookies['csrftoken']
-        # 'csrfmiddlewaretoken': csrf_token,
+        print(stuff.status_code)
         data = {'apn': self.apn,
                 'browser': self.holly_server,
-                'port': '5060',
-                'csvfile': self.csvfile}
-        response = browser.post("http://{0}/".format(self.hatit_server), data=data)
+                'port': '5060'}
+        response = browser.post("http://{0}/".format(self.hatit_server), data=data, files={'csvfile': open(self.csvfile)})
+
+        print(response.text)
         browser.close()
-        print(data)
+        # print(data)
         return response
 
     def local_hat_execute(self):
