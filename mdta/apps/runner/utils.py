@@ -153,8 +153,12 @@ def _get_testrail_project_by_id(instance, identifier):
 def _get_testrail_project_by_name(instance, identifier):
     raise NotImplementedError
 
-# def get_hatit_api_data(send_scripts, send_data):
-#     # req = {'apn': request.POST.get('apn', False), 'browser': request.POST.get('browser', False), 'csvfile': request.POST.get('scripts', False)}
+
+def get_hatit_api_data(data):
+    print(data)
+    apn = data.get('apn')
+    browser = data.get('browser')
+    return
 
 
 class AutomationScript(object):
@@ -170,12 +174,12 @@ class AutomationScript(object):
 
 
 class HATScript(AutomationScript):
-    def __init__(self, apn='', body='', dialed_number='', csvfile='',
+    def __init__(self, apn='', body='', dialed_number='',
                  holly_server='linux5578.wic.west.com', sonus_server='10.27.138.136',
-                 remote_server='qaci01.wic.west.com',
-                 hatit_server='led00098.wic.west.com:8080/hatit/api/csv_req/', remote_user='wicqacip', remote_password='LogFiles'):
+                 hatit_server='led00098.wic.west.com:80/hatit/api/csv_req/',
+                 remote_server='qaci01.wic.west.com', remote_user='wicqacip', remote_password='LogFiles'):
 
-        self.csvfile = csvfile
+        self.csvfile = ''
         self.hatit_server = hatit_server
         self.apn = apn
         self.dialed_number = dialed_number
@@ -204,11 +208,11 @@ class HATScript(AutomationScript):
     def hatit_execute(self):
         """Uses Frank's HAT User Interface to initate a HAT test"""
         browser = requests.session()
-        browser.get('http://{0}/hatit'.format(self.remote_server))
+        stuff = browser.get('http://{0}/hatit'.format(self.remote_server))
+        print(stuff)
         # csrf_token = browser.cookies['csrftoken']
         # 'csrfmiddlewaretoken': csrf_token,
-        data = {
-                'apn': self.apn,
+        data = {'apn': self.apn,
                 'browser': self.holly_server,
                 'port': '5060',
                 'csvfile': self.csvfile}
