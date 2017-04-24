@@ -32,26 +32,27 @@ def create_routing_test_suite(project=None, modules=None):
     :return:
     """
     data = []
+    shortest_set = []  # found shortest set from Start to node, key is 'Start + node', value is list of nodes
 
     if project:
         if project.language:
             language = project.language.name
         else:
             language = LANGUAGE_DEFAULT_NAME
-        start = time.time()
-        data = create_routing_test_suite_module(project.modules, language)
-        print(project.name, time.time() - start)
+        # start = time.time()
+        data = create_routing_test_suite_module(project.modules, language, shortest_set)
+        # print(project.name, time.time() - start)
     elif modules:
         if modules[0].project.language:
             language = modules[0].project.language.name
         else:
             language = LANGUAGE_DEFAULT_NAME
-        data = create_routing_test_suite_module(modules, language)
+        data = create_routing_test_suite_module(modules, language, shortest_set)
 
     return data
 
 
-def create_routing_test_suite_module(modules, language):
+def create_routing_test_suite_module(modules, language, shortest_set):
     """
     Create routing paths for list of modules
     :param modules:
@@ -65,19 +66,19 @@ def create_routing_test_suite_module(modules, language):
         th_module = None
 
     for module in modules:
-        start_time = time.time()
-        data = get_paths_through_all_edges(module.edges_all, th_module, language)
+        # start_time = time.time()
+        data = get_paths_through_all_edges(module.edges_all, th_module, language, shortest_set)
 
         test_suites.append({
             'module': module.name,
             'data': data
         })
-        print(module.name, time.time() - start_time)
+        # print(module.name, time.time() - start_time, len(shortest_set))
 
     return test_suites
 
 
-def get_paths_through_all_edges(edges, th_module=None, language=None):
+def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_set=None):
     """
     Get all paths through all edges
     :param edges:
@@ -86,16 +87,12 @@ def get_paths_through_all_edges(edges, th_module=None, language=None):
     th_paths = get_paths_from_test_header(th_module)
     # print(th_paths)
 
-    shortest_set = []  # found shortest set from Start to node, key is 'Start + node', value is list of nodes
-
     data = []
     if th_paths:
         for th_path in th_paths:
             for edge in edges:
                 # print(edge.id)
-                start = time.time()
                 path = routing_path_to_edge(edge, shortest_set)
-                # print(edge.from_node.name, '-', edge.to_node.name, time.time() - start)
 
                 if path:
                     path_data = path_traverse_backwards(path, th_path=th_path, language=language)

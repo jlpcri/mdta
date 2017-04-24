@@ -60,7 +60,9 @@ def create_testcases(request, object_id):
     link_id = ''
     level = request.GET.get('level', '')
     if level == 'project':
-        create_testcases_celery(object_id, call_from='OldTC')
+        # create_testcases_celery(object_id, call_from='OldTC')
+        project = get_object_or_404(Project, pk=object_id)
+        testcases = create_routing_test_suite(project)
 
     elif level == 'module':
         module = get_object_or_404(Module, pk=object_id)
