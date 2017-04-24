@@ -23,6 +23,7 @@ function runAll(){
             var div = $("#testcase");
             var table_draw = '<table class="table table-bordered"><tr><th>Title</th><th>Script</th><th>Status</th><th>Call ID</th><th>Failure reason</th></tr>'
             console.log(data)
+            console.log(data.scripts)
             $.each(data.scripts, function(index, value){
                 table_draw += "<tr><td class='title'></td>" +
                     "<td class='script'>" + value + "</td>" +
