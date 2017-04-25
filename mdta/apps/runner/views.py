@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 
 from mdta.apps.projects.forms import TestRunnerForm
 from mdta.apps.projects.models import TestRailInstance, Project, TestRailConfiguration
-from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, check_result, bulk_hatit_file_generator, HATScript, TestRailSuite, TestRailORM
+from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, check_result, bulk_hatit_file_generator, HATScript
 
 
 def display_project_suites(request, project_id):
@@ -42,7 +42,7 @@ def run_test_suite(request):
     testrail_project_id = project.testrail.project_id
     testrail_project = get_testrail_project(testrail_instance, testrail_project_id)
     testrail_suites = testrail_project.get_suites()
-    testrail_suite = [s for s in testrail_suites if s.id == testrail_suite_id][0]
+    testrail_suite = [s for s in testrail_suites if s.id == testrail_suite_id][0].test_run(testrail_suite_id)
     testrail_cases = testrail_suite.get_cases()
     files_to_monitor = bulk_remote_hat_execute(testrail_cases)
     return JsonResponse({'success': True, 'scripts': files_to_monitor})
@@ -59,7 +59,6 @@ def run_test_suite_in_hatit(request):
     testrail_suite = [s for s in testrail_suites if s.id == testrail_suite_id][0]
     testrail_cases = testrail_suite.get_cases()
     hatit_csv_filename = bulk_hatit_file_generator(testrail_cases)
-    HATScript.csvfile = hatit_csv_filename
     return 'runner/run_all_modal.html/'
 
 
@@ -69,11 +68,9 @@ def run_all_modal(request):
         if form.is_valid():
             data = form.cleaned_data
             hs = HATScript()
-            hs.csvfile = HATScript.csvfile
-            hs.suite_id = HATScript.suite_id
             hs.apn = data.get('apn')
             hs.holly_server = data.get('browser')
-            response = hs.hatit_execute()
+            response = hs.hatit_execute
         else:
             print(form.errors)
     return redirect('runner:dashboard')
@@ -81,7 +78,7 @@ def run_all_modal(request):
 
 def check_test_result(request):
     try:
-        filename = request.GET.get( 'filename', False )
+        filename = request.GET.get('filename', False)
         if not filename:
             return JsonResponse({'success': False, 'reason': 'Could not read filename'})
         response = check_result(filename)
