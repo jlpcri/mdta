@@ -8,7 +8,7 @@
             left: 0px;
             top: 0px;
             overflow: hidden;
-            height: 100vh;
+{#            height: 100vh;#}
             -webkit-transition: all 0.5s ease;
             -moz-transition: all 0.5s ease;
             -o-transition: all 0.5s ease;
@@ -17,7 +17,7 @@
             border-right: 1px solid #ccc;
         }
 
-        .sidebar-nav-togled {
+        .sidebar-nav-toggled {
             margin-left: 0px;
         }
 
@@ -110,7 +110,7 @@
 {% block footer %}
     <script>
         $("#switchProjectMenu, .backdrop, .sideBarCloseIcon").click(function() {
-            $("#mySideBar").toggleClass("sidebar-nav-togled");
+            $("#mySideBar").toggleClass("sidebar-nav-toggled");
             $(".backdrop").toggle();
         });
     </script>
