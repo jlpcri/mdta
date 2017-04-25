@@ -1,23 +1,25 @@
-from django.http import HttpResponse
-from django.shortcuts import render
+import requests
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 
+from mdta.apps.projects.forms import TestRunnerForm
 from mdta.apps.projects.models import TestRailInstance, Project, TestRailConfiguration
-from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, check_result, bulk_hatit_file_generator
+from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, check_result, bulk_hatit_file_generator, HATScript, TestRailSuite, TestRailORM
 
 
 def display_project_suites(request, project_id):
     p = Project.objects.get(id=project_id)
     trp = get_testrail_project(p.testrail.instance, p.testrail.project_id)
     suites = trp.get_suites()
-    return JsonResponse({'suites': [{'name': s.name, 'id': s.id} for s in suites], 
-                         'project': {'name': trp.name, 'id': trp.id}})
+    return JsonResponse({'suites': [{'name': s.name, 'id': s.id} for s in suites],
+                          'project': {'name': trp.name, 'id': trp.id}})
 
 
 def display_testrail_steps(request, mdta_project_id):
     p = Project.objects.get(id=mdta_project_id)
-    tri = p.testrail.instance
+    tri = p.testrail.instanc
     case = get_testrail_steps(tri, request.GET['case_id'])
     return JsonResponse({'steps': case.custom_steps_separated})
 
@@ -34,7 +36,7 @@ def execute_test(request, mdta_project_id):
 
 
 def run_test_suite(request):
-    testrail_suite_id = int(request.GET['suite'])
+    testrail_suite_id = int( request.GET['suite'] )
     testrail_instance = TestRailInstance.objects.first()
     project = request.user.humanresource.project
     testrail_project_id = project.testrail.project_id
@@ -45,8 +47,10 @@ def run_test_suite(request):
     files_to_monitor = bulk_remote_hat_execute(testrail_cases)
     return JsonResponse({'success': True, 'scripts': files_to_monitor})
 
+
 def run_test_suite_in_hatit(request):
     testrail_suite_id = int(request.GET['suite'])
+    HATScript.suite_id = testrail_suite_id
     testrail_instance = TestRailInstance.objects.first()
     project = request.user.humanresource.project
     testrail_project_id = project.testrail.project_id
@@ -55,16 +59,29 @@ def run_test_suite_in_hatit(request):
     testrail_suite = [s for s in testrail_suites if s.id == testrail_suite_id][0]
     testrail_cases = testrail_suite.get_cases()
     hatit_csv_filename = bulk_hatit_file_generator(testrail_cases)
-    with open(hatit_csv_filename) as csv_file:
-        response = HttpResponse(csv_file.read(), content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="{0}"'.format(hatit_csv_filename)
-    return response
+    HATScript.csvfile = hatit_csv_filename
+    return 'runner/run_all_modal.html/'
 
+
+def run_all_modal(request):
+    if request.method == 'POST':
+        form = TestRunnerForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            hs = HATScript()
+            hs.csvfile = HATScript.csvfile
+            hs.suite_id = HATScript.suite_id
+            hs.apn = data.get('apn')
+            hs.holly_server = data.get('browser')
+            response = hs.hatit_execute()
+        else:
+            print(form.errors)
+    return redirect('runner:dashboard')
 
 
 def check_test_result(request):
     try:
-        filename = request.GET.get('filename', False)
+        filename = request.GET.get( 'filename', False )
         if not filename:
             return JsonResponse({'success': False, 'reason': 'Could not read filename'})
         response = check_result(filename)
@@ -73,7 +90,7 @@ def check_test_result(request):
             return JsonResponse(response)
         return JsonResponse({'running': True})
     except Exception as e:
-        return JsonResponse({'success': False, 'reason': 'An untrapped error occurred: ' + str(e.args)})
+        return JsonResponse({'success': False, 'reason': 'An untrapped error occurred: ' + str( e.args )})
 
 
 @login_required
@@ -89,4 +106,5 @@ def dashboard(request):
     for suite in suites:
         suite.cases = suite.get_cases()
     return render(request, 'runner/dashboard.html', {'project': request.user.humanresource.project,
-                                                     'suites': suites})
+                                                     'suites': suites,
+                                                     'modal_run_all': TestRunnerForm()})

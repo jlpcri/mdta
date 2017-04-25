@@ -21,7 +21,7 @@
                                 <ul class="list-group" id="lg-{{ forloop.counter }}">
                                     <li class="list-group-item">
                                         <strong>Run all</strong>
-                                        <a href="{% url 'runner:hatit_download' %}?suite={{ suite.id }}" style="margin-left: 3em;" data-suite="{{ suite.id }}" class="btn btn-success btn-xs pull-right run-all-btn">
+                                        <a href="{% url 'runner:runhatitall' %}?suite={{ suite.id }}" data-toggle="modal" data-target="#run-all-modal" style="margin-left: 3em;"  data-suite="{{ suite.id }}" class="btn btn-success btn-xs pull-right run-all-suite">
                                             Run <i class="fa fa-arrow-right"></i>
                                         </a>
                                     </li>
@@ -41,6 +41,7 @@
                         </div>
                     {% endfor %}
                 </div>
+                {% include "runner/run_all_modal.html" %}
             </div>
             <div class='col-md-6'>
                 <h2>Details</h2>
