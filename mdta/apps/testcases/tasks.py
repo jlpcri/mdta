@@ -43,6 +43,7 @@ def create_testcases_celery(project_id):
             print(str(e))
 
     msg = push_testcases_to_testrail_celery(project.id)
+
     return msg
 
 

@@ -60,7 +60,9 @@ def create_testcases(request, object_id):
     link_id = ''
     level = request.GET.get('level', '')
     if level == 'project':
-        create_testcases_celery(object_id)
+        # create_testcases_celery(object_id, call_from='OldTC')
+        project = get_object_or_404(Project, pk=object_id)
+        testcases = create_routing_test_suite(project)
 
     elif level == 'module':
         module = get_object_or_404(Module, pk=object_id)
@@ -126,7 +128,7 @@ def push_testcases_to_testrail(request, project_id):
     :param project_id:
     :return:
     """
-    testrail_contents = push_testcases_to_testrail_celery(project_id)
+    testrail_contents = push_testcases_to_testrail_celery.delay(project_id)
     # testrail_contents = push_testcases_to_testrail_celery.delay(project_id)
 
     context = context_testcases()
@@ -217,7 +219,7 @@ def check_celery_task_state(request):
     try:
         if active[key]:
             project_id = active[key][0]['args']
-            project_id = ''.join(c for c in project_id if c not in '(),')
+            project_id = ''.join(c for c in project_id if c not in '\'(),')
             if int(project_id) == request.user.humanresource.project.id:
                 task_run = True
     except (KeyError, TypeError):
