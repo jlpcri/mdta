@@ -11,7 +11,7 @@
                         <legend>{{ project.name }} TestCases</legend>
                     </div>
                     <div class="col-xs-3 text-right">
-                        <a href="{% url 'graphs:project_publish' project.id %}" class="btn btn-success">Publish</a>
+                        <a href="#" class="btn btn-success" id="publish">Publish</a>
                         <a href="{% url 'runner:dashboard' %}" class="btn btn-default">Execution</a>
                     </div>
                 </div>
@@ -78,4 +78,34 @@
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block footer %}
+    <script>
+        var button_publish = $('#publish');
+        button_publish.click(function(){
+            $.ajax("{% url 'graphs:project_publish' project.id %}", {
+                type: "GET",
+                success: function(data){
+                    button_publish.addClass('disabled');
+                }
+            });
+        });
+
+        check_celery_task_state();
+
+        window.setInterval(function(){
+            check_celery_task_state();
+        }, 5000);
+
+        function check_celery_task_state(){
+            $.getJSON('{% url 'testcases:check_celery_task_state' %}', function(data){
+                if (data == false){
+                    button_publish.removeClass('disabled')
+                } else {
+                    button_publish.addClass('disabled')
+                }
+            })
+        }
+    </script>
 {% endblock %}

@@ -1,4 +1,5 @@
 import collections
+import time
 
 from mdta.apps.graphs.models import Node, Edge
 from mdta.apps.projects.models import Project, TestRailConfiguration
@@ -31,24 +32,27 @@ def create_routing_test_suite(project=None, modules=None):
     :return:
     """
     data = []
+    shortest_set = []  # found shortest set from Start to node, key is 'Start + node', value is list of nodes
 
     if project:
         if project.language:
             language = project.language.name
         else:
             language = LANGUAGE_DEFAULT_NAME
-        data = create_routing_test_suite_module(project.modules, language)
+        # start = time.time()
+        data = create_routing_test_suite_module(project.modules, language, shortest_set)
+        # print(project.name, time.time() - start)
     elif modules:
         if modules[0].project.language:
             language = modules[0].project.language.name
         else:
             language = LANGUAGE_DEFAULT_NAME
-        data = create_routing_test_suite_module(modules, language)
+        data = create_routing_test_suite_module(modules, language, shortest_set)
 
     return data
 
 
-def create_routing_test_suite_module(modules, language):
+def create_routing_test_suite_module(modules, language, shortest_set):
     """
     Create routing paths for list of modules
     :param modules:
@@ -62,17 +66,19 @@ def create_routing_test_suite_module(modules, language):
         th_module = None
 
     for module in modules:
-        data = get_paths_through_all_edges(module.edges_all, th_module, language)
+        # start_time = time.time()
+        data = get_paths_through_all_edges(module.edges_all, th_module, language, shortest_set)
 
         test_suites.append({
             'module': module.name,
             'data': data
         })
+        # print(module.name, time.time() - start_time, len(shortest_set))
 
     return test_suites
 
 
-def get_paths_through_all_edges(edges, th_module=None, language=None):
+def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_set=None):
     """
     Get all paths through all edges
     :param edges:
@@ -86,13 +92,14 @@ def get_paths_through_all_edges(edges, th_module=None, language=None):
         for th_path in th_paths:
             for edge in edges:
                 # print(edge.id)
-                path = routing_path_to_edge(edge)
+                path = routing_path_to_edge(edge, shortest_set)
 
                 if path:
                     path_data = path_traverse_backwards(path, th_path=th_path, language=language)
                     if 'tcs_cannot_route' in path_data.keys():
                         data.append({
                             'tcs_cannot_route': path_data['tcs_cannot_route'],
+                            'id': edge.id,
                             'title': 'Route from \'' +
                                      edge.from_node.name +
                                      '\' to \'' +
@@ -101,56 +108,60 @@ def get_paths_through_all_edges(edges, th_module=None, language=None):
                     else:
                         title = 'Route from \'' + edge.from_node.name +\
                                     '\' to \'' + edge.to_node.name + '\''
+                        # edge_id = edge.id,
                         data.append({
                                 'pre_conditions': path_data['pre_conditions'],
                                 'tc_steps': path_data['tc_steps'],
-                                'title': title
+                                'id': edge.id,
+                                'title': title,
                             })
 
                         if edge.to_node.type.name in NODE_MP_NAME:
-                            negative_testcase_generation(data, path_data, title, edge.to_node, language=language)
+                            negative_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
                             if edge.to_node.type.name == NODE_MP_NAME[1]:
-                                rejected_testcase_generation(data, path_data, title, edge.to_node, language=language)
+                                rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
 
     else:
         for edge in edges:
-            path = routing_path_to_edge(edge)
+            path = routing_path_to_edge(edge, shortest_set)
 
             if path:
                 path_data = path_traverse_backwards(path, language=language)
                 if 'tcs_cannot_route' in path_data.keys():
                     data.append({
                         'tcs_cannot_route': path_data['tcs_cannot_route'],
+                        'id': edge.id,
                         'title': 'Route from \'' +
                                  edge.from_node.name +
                                  '\' to \'' +
                                  edge.to_node.name + '\''
                     })
+                    print(edge.id)
                 else:
                     title = 'Route from \'' + edge.from_node.name +\
                                     '\' to \'' + edge.to_node.name + '\''
+                    # edge_id = edge.id,
                     data.append({
                             'pre_conditions': path_data['pre_conditions'],
                             'tc_steps': path_data['tc_steps'],
+                            'id': edge.id,
                             'title': title
                         })
 
                     if edge.to_node.type.name == NODE_MP_NAME[0]:
-                        negative_testcase_generation(data, path_data, title, edge.to_node, language=language)
+                        negative_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
 
     # return check_subpath_in_all(data)
     return data
 
 
-def routing_path_to_edge(edge):
+def routing_path_to_edge(edge, shortest_set=None):
     """
     Routing path to current Edge, edge.from_node
     :param edge:
     :return:
     """
-    visited_nodes = [edge.to_node]  # Visited nodes for the path to this Edge
-
-    data = routing_path_to_node(edge.from_node, visited_nodes)
+    data = routing_path_to_node(edge.from_node, shortest_set)
 
     if data:
         data.append(edge)
@@ -160,23 +171,19 @@ def routing_path_to_edge(edge):
     return data
 
 
-def routing_path_to_node(node, visited_nodes):
+def routing_path_to_node(node, shortest_set=None):
     """
     Routing path to current Node
     :param node:
-    :param visited_nodes:
     :return:
     """
-
-    visited_nodes.append(node)
-
-    path = backwards_search(node, visited_nodes)
+    path = backwards_search(node, shortest_set)
 
     # print(path)
     return path
 
 
-def backwards_search(node, visited_nodes):
+def backwards_search(node, shortest_set=None):
     """
     Search a path from Start node(type='Start') to current Node
     Breadth
@@ -194,35 +201,23 @@ def backwards_search(node, visited_nodes):
         if edges.count() == 1:
             edge = edges[0]
         elif edges.count() > 1:
-            edge = get_shortest_edge_from_arriving_edges(node)
-            # for tmp_edge in edges:
-            #     if tmp_edge.type.name == 'Connector':
-            #         edge = tmp_edge
-            #         break
-            # else:
-            #     edge = edges[0]
+            edge = get_shortest_edge_from_arriving_edges(node, shortest_set)
         else:
             edge = None
 
         if edge:
             start_node_found = False  # flag to find Start Node in current search
-            if edge.from_node not in visited_nodes \
-                    or edge.from_node.type.name in NODE_START_NAME:  # if Node is not visited or Node is Start
-                if edge.from_node != edge.to_node:
-                    if edge.from_node.type.name not in NODE_START_NAME:
-                        if edge.from_node.arriving_edges.count() > 0:
-                            start_node_found_outside = True
-                            path += backwards_search(edge.from_node, visited_nodes)
-                    else:
-                        start_node_found = True
-                        path.append(edge.from_node)
+            if edge.from_node.type.name not in NODE_START_NAME:
+                if edge.from_node.arriving_edges.count() > 0:
+                    start_node_found_outside = True
+                    path += backwards_search(edge.from_node, shortest_set)
+            else:
+                start_node_found = True
+                path.append(edge.from_node)
 
-                    if start_node_found or start_node_found_outside:  # if found Start Node, add Edge
-                        path.append(edge)
-                        path.append(node)
-
-                # if start_node_found:  # if found Start Node, break out of for loop
-                #     break
+            if start_node_found or start_node_found_outside:  # if found Start Node, add Edge
+                path.append(edge)
+                path.append(node)
 
     # print('path: ',  path)
     return path
@@ -269,7 +264,7 @@ def check_path_contains_in_result(path, result):
     return flag
 
 
-def get_shortest_edge_from_arriving_edges(node):
+def get_shortest_edge_from_arriving_edges(node, shortest_set=None):
     if node.module.project:
         start_nodes = node.module.project.start_nodes
     else:
@@ -277,16 +272,25 @@ def get_shortest_edge_from_arriving_edges(node):
 
     edge = ''
     for start_node in start_nodes:
-        path = breadth_first_search(start_node, node)
-        for each in path:
-            edges = Edge.objects.filter(from_node=each, to_node=node)
-            if edges.count() > 0:
-                edge = edges[0]
-            # try:
-            #     edge = Edge.objects.get(from_node=each, to_node=node)
-            #     return edge
-            # except Edge.DoesNotExist:
-            #     pass
+        tmp = start_node.name + '-' + node.name
+        exist_shortest = next((item for item in shortest_set if item['name'] == tmp), None)
+        if exist_shortest:
+            edge = exist_shortest['edge']
+        else:
+            # print(tmp)
+            path = breadth_first_search(start_node, node)
+            for each in path[::-1][1:]:
+                edges = Edge.objects.filter(from_node=each, to_node=node)
+                if edges.count() > 0:
+                    edge = edges[0]
+                    break
+            shortest_set.append({
+                'name': tmp,
+                'edge': edge
+            })
+
+        if edge:
+            break
 
     return edge
 

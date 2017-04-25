@@ -39,9 +39,19 @@
                             <h4>Test Header - {{ module.name }}</h4>
                         {% endif %}
                     </div>
-                    <div class="col-xs-3 pull-right">
+                    <div class="col-xs-6 text-right">
                         <a href="#" data-toggle="modal" data-target="#module-node-new-modal" class="btn btn-default">New Node</a>
                         <a href="#" data-toggle="modal" data-target="#module-edge-new-modal" class="btn btn-default">New Edge</a>
+                        <div class="btn-group" data-toggle="buttons">
+                                <label class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                    <span id="text"> View Options </span><span class="caret"></span>
+                                </label>
+                                <ul class="dropdown-menu" id="divNewNotifications">
+                                    <li><a class="dropdown-item" id="default"> Default </a></li>
+                                    <li><a class="dropdown-item" id="data-gaps"> Data Gaps </a></li>
+                                    <li class="disabled"><a class="dropdown-item" id="failed-testcases"> Failed Testcases </a></li>
+                                </ul>
+                        </div>
                     </div>
                 </div>
                 <div class="row">
@@ -439,8 +449,8 @@
 
 {% block footer %}
     <script>
-        var nodes = {{ network_nodes|safe }};
-        var edges = {{ network_edges|safe }};
+        var nodes = new vis.DataSet({{ network_nodes|safe }});
+        var edges = new vis.DataSet({{ network_edges|safe }});
         var node_names_autocomplete = {{node_names_autocomplete|safe}};
         var data_edge_keys_autocomplete = {{ data_edge_keys_autocomplete|safe }};
         var menu_prompt_outputs_keys_autocomplete = {{ menu_prompt_outputs_keys_autocomplete|safe }};

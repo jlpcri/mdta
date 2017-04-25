@@ -7,17 +7,17 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new, check_edge_in_set,\
-    get_properties_for_node_or_edge, EDGE_TYPES_INVISIBLE_KEY, node_related_edges_invisible
+    get_properties_for_node_or_edge, EDGE_TYPES_INVISIBLE_KEY, node_related_edges_invisible, self_reference_edge_node_in_set
 from mdta.apps.projects.models import Project, Module, Language
 from mdta.apps.graphs import helpers
-from mdta.apps.projects.models import Project, Module
 from mdta.apps.projects.utils import context_project_dashboard
 from mdta.apps.users.views import user_is_staff, user_is_superuser
 from .models import NodeType, EdgeType, Node, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeAutoNewForm
 from mdta.apps.projects.forms import ModuleForm, UploadForm
 from mdta.apps.testcases.constant_names import NODE_START_NAME, LANGUAGE_DEFAULT_NAME
-from mdta.apps.testcases.tasks import create_testcases_celery, push_testcases_to_testrail_celery
+from mdta.apps.testcases.tasks import create_testcases_celery
+from mdta.apps.testcases.models import TestCaseResults
 
 
 @login_required
@@ -169,18 +169,30 @@ def project_detail(request, project_id):
 
     network_nodes = []
     network_edges = []
+    tc_keys = []
     projects = Project.objects.all()
     project = get_object_or_404(Project, pk=project_id)
+    try:
+        tests = project.testcaseresults_set.latest('updated').results
+        testcase = TestCaseResults.objects.filter(project=project)
+    except TestCaseResults.DoesNotExist:
+        tests = []
 
     user = request.user
     user.humanresource.project = project
     user.humanresource.save()
+    for tc in tests:
+        data = tc['data']
+        tc_keys.append(data)
 
     for m in project.modules:
         network_nodes.append({
             'id': m.id,
-            'label': m.name
+            'label': m.name,
         })
+    for d, n in zip(network_nodes, tc_keys):
+        d['data'] = n
+    # print(tests)
     for edge in project.edges_between_modules:
         try:
             if edge.properties[EDGE_TYPES_INVISIBLE_KEY] == 'on':
@@ -204,8 +216,6 @@ def project_detail(request, project_id):
                 'priority': edge.priority,
                 'properties': edge.properties
             })
-
-    # print('**: ', network_edges)
 
     context = {
         'projects': projects,
@@ -304,6 +314,11 @@ def project_module_detail(request, module_id):
     # for module level graph
     network_edges = []
     network_nodes = []
+    tc_keys = []
+    data_keys = []
+    edge_id = []
+    merged = {}
+    edge_reference_sizes = []
 
     outside_module_node_color = 'rgb(211, 211, 211)'
 
@@ -316,13 +331,50 @@ def project_module_detail(request, module_id):
         except KeyError:
             pass
 
+        self_reference_size = 20
+        if edge.from_node.id == edge.to_node.id:
+            self_reference_data = self_reference_edge_node_in_set(edge, network_edges, edge_reference_sizes)
+            if self_reference_data['flag']:
+                self_reference_size = self_reference_data['size']
+
         network_edges.append({
             'id': edge.id,
             'to': edge.to_node.id,
-            'from': edge.from_node.id
+            'from': edge.from_node.id,
+            'selfReferenceSize': self_reference_size
         })
 
-    if request.user.username != 'test1':
+    try:
+        tmp_data = module.project.testcaseresults_set.latest('updated').results
+        try:
+            tests = [(item for item in tmp_data if item['module'] == module.name).__next__()]
+            for tc in tests:
+                data = tc['data']
+                tc_keys.append(data)
+            for tc in tc_keys:
+                data = tc
+            for d in data:
+                data_keys.append(d)
+            for item in data_keys:
+                e_id = item['id']
+                if 'tcs_cannot_route' in item:
+                    tcr = item['tcs_cannot_route']
+                    edge_id.append({'id': e_id,
+                                    'tcs_cannot_route': tcr})
+            for item in network_edges + edge_id:
+                if item['id'] in merged:
+                    merged[item['id']].update(item)
+                else:
+                    merged[item['id']] = item
+        except StopIteration:
+            pass
+    except (AttributeError, TestCaseResults.DoesNotExist):
+        tmp_data = []
+        tests = []
+
+    # print(network_edges)
+
+    if request.user.username != 'test':
         for node in module.nodes_all:
             if node.type.name in NODE_START_NAME:
                 shape = 'star'
@@ -342,6 +394,7 @@ def project_module_detail(request, module_id):
                 tmp['color'] = outside_module_node_color
 
             network_nodes.append(tmp)
+
     else:
         # try use custom icon for nodes
         image_url = settings.STATIC_URL + 'common/brand_icons/turnpost-png-graphics/'
@@ -380,8 +433,6 @@ def project_module_detail(request, module_id):
                 tmp['shadow'] = 'true'
 
             network_nodes.append(tmp)
-
-    # print(module.nodes)
 
     node_form_type_default = get_object_or_404(NodeType, name='Play Prompt')
     node_new_form = NodeNewForm(module_id=module.id, initial={'type': node_form_type_default.id})
@@ -781,9 +832,9 @@ def project_publish(request, project_id):
     """
     project = get_object_or_404(Project, pk=project_id)
     create_testcases_celery.delay(project.id)
-    push_testcases_to_testrail_celery.delay(project.id)
 
-    return redirect('testcases:tcs_project')
+    # return redirect('testcases:tcs_project')
+    return HttpResponse(json.dumps(project.id), content_type="application/json")
 
 
 def module_node_verbiage_edit(request):
