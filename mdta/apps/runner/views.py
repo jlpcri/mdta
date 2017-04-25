@@ -48,32 +48,45 @@ def run_test_suite(request):
     return JsonResponse({'success': True, 'scripts': files_to_monitor})
 
 
-def run_test_suite_in_hatit(request):
-    testrail_suite_id = int(request.GET['suite'])
-    HATScript.suite_id = testrail_suite_id
-    testrail_instance = TestRailInstance.objects.first()
-    project = request.user.humanresource.project
-    testrail_project_id = project.testrail.project_id
-    testrail_project = get_testrail_project(testrail_instance, testrail_project_id)
-    testrail_suites = testrail_project.get_suites()
-    testrail_suite = [s for s in testrail_suites if s.id == testrail_suite_id][0]
-    testrail_cases = testrail_suite.get_cases()
-    hatit_csv_filename = bulk_hatit_file_generator(testrail_cases)
-    return 'runner/run_all_modal.html/'
-
-
 def run_all_modal(request):
     if request.method == 'POST':
+        testrail_suite_id = int(request.POST['suite'])
+        print(testrail_suite_id)
+        HATScript.suite_id = testrail_suite_id
+        testrail_instance = TestRailInstance.objects.first()
+        project = request.user.humanresource.project
+        testrail_project_id = project.testrail.project_id
+        testrail_project = get_testrail_project( testrail_instance, testrail_project_id )
+        testrail_suites = testrail_project.get_suites()
+        testrail_suite = [s for s in testrail_suites if s.id == testrail_suite_id][0]
+        testrail_cases = testrail_suite.get_cases()
+        hatit_csv_filename = bulk_hatit_file_generator(testrail_cases)
         form = TestRunnerForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
             hs = HATScript()
+            hs.csvfile = hatit_csv_filename
+            print(hs.csvfile)
             hs.apn = data.get('apn')
             hs.holly_server = data.get('browser')
             response = hs.hatit_execute
         else:
             print(form.errors)
-    return redirect('runner:dashboard')
+        return redirect('runner:dashboard')
+
+
+# def run_all_modal(request):
+#     if request.method == 'POST':
+#         form = TestRunnerForm(request.POST)
+#         if form.is_valid():
+#             data = form.cleaned_data
+#             hs = HATScript()
+#             hs.apn = data.get('apn')
+#             hs.holly_server = data.get('browser')
+#             response = hs.hatit_execute
+#         else:
+#             print(form.errors)
+#     return redirect('runner:dashboard')
 
 
 def check_test_result(request):

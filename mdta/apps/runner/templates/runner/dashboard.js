@@ -8,6 +8,7 @@ var s_id;
 
 function getId() {
     s_id = this.getAttribute('data-suite');
+    $("#suiteid").val(s_id);
     return s_id;
 }
 

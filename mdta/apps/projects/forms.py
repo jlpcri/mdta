@@ -85,6 +85,8 @@ class TestRunnerForm(forms.Form):
         apn = forms.CharField(max_length=50, required=True,
                            widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '4061702'}))
 
+        suite = forms.CharField(widget=forms.HiddenInput(attrs={'id': 'suiteid'}), required=False, max_length=50)
+
 
 class ProjectConfigForm(ModelForm):
     def __init__(self, *args, **kwargs):

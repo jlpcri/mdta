@@ -169,11 +169,12 @@ class AutomationScript(object):
 
 class HATScript(AutomationScript):
 
-    def __init__(self, apn='', body='', dialed_number='',
+    def __init__(self, apn='', body='', dialed_number='', csvfile='',
                  holly_server='linux5578.wic.west.com', sonus_server='10.27.138.136',
                  hatit_server='linux6351.wic.west.com:8080/hatit/api/csv_req/',
                  remote_server='qaci01.wic.west.com', remote_user='wicqacip', remote_password='LogFiles'):
 
+        self.csvfile = csvfile
         self.hatscript = ''
         self.hatit_server = hatit_server
         self.runID = ''
@@ -206,25 +207,21 @@ class HATScript(AutomationScript):
         """Uses Frank's HAT User Interface to initate a HAT test"""
         jsonList = []
         browser = requests.session()
-        stuff = browser.get('http://{0}/hatit'.format(self.remote_server))
-        try:
-            script_file = NamedTemporaryFile(mode='w')
-            self.filename = script_file.name
-            data = {'apn': self.apn,
-                    'browser': self.holly_server,
-                    'port': '5060'}
-            response = browser.post("http://{0}/".format(self.hatit_server), data=data,
-                                     files={'csvfile': open(self.filename), 'hatscript': open('csv.hat')})
-            print(response.text)
-            jsonList.append(response.json())
-            for data in jsonList:
-                self.runID = data['runid']
-            result = browser.get("http://linux6351.wic.west.com:8080/hatit/api/check_run/?runid={0}".format(self.runID))
-            print(result.text)
-            browser.close()
-            return result
-        finally:
-            script_file.close()
+        qaci = browser.get('http://{0}/hatit'.format(self.remote_server))
+
+        data = {'apn': self.apn,
+                'browser': self.holly_server,
+                'port': '5060'}
+        response = browser.post("http://{0}/".format(self.hatit_server), data=data,
+                                 files={'csvfile': open(self.csvfile), 'hatscript': open('csv.hat')})
+        print(response.text)
+        jsonList.append(response.json())
+        for data in jsonList:
+            self.runID = data['runid']
+        result = browser.get("http://linux6351.wic.west.com:8080/hatit/api/check_run/?runid={0}".format(self.runID))
+        print(result.text)
+        browser.close()
+        return result
 
     def local_hat_execute(self):
         """
