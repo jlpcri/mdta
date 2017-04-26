@@ -78,7 +78,7 @@ def run_all_modal(request):
                 testrail_test_run = testrail_run.id,
                 project = project
             )
-            poll_result_loop.delay()
+            poll_result_loop.delay(mdta_test_run.pk)
             for case in testrail_cases:
                 AutomatedTestCase.objects.create(test_run=mdta_test_run, testrail_case_id=case.id)
         else:
