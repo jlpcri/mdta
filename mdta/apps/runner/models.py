@@ -14,7 +14,7 @@ class TestRun(models.Model):
     testrail_suite_id = models.IntegerField()
     testrail_test_run = models.IntegerField()
     project = models.ForeignKey('projects.Project')
-    
+
 
 class AutomatedTestCase(models.Model):
     INCOMPLETE = 1

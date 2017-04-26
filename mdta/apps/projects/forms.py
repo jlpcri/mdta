@@ -80,7 +80,7 @@ class TestHeaderForm(ModelForm):
 
 
 class TestRunnerForm(forms.Form):
-    TEST_CHOICES = [[x.id, x.name] for x in TestServers.objects.all()]
+    TEST_CHOICES = [[x.server, x.name] for x in TestServers.objects.all()]
 
     browser = forms.CharField(max_length=100,
                                   widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "linux5578"}))
