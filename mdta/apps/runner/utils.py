@@ -3,6 +3,7 @@ import csv
 import textwrap
 from contextlib import contextmanager
 from tempfile import NamedTemporaryFile
+import io
 import os
 import sys
 import time
@@ -213,7 +214,7 @@ class HATScript(AutomationScript):
                 'browser': self.holly_server,
                 'port': '5060'}
         response = browser.post("http://{0}/".format(self.hatit_server), data=data,
-                                 files={'csvfile': open(self.csvfile), 'hatscript': open('csv.hat')})
+                                 files={'csvfile': open(self.csvfile), 'hatscript': io.StringIO('%everything%')})
         print(response.text)
         jsonList.append(response.json())
         for data in jsonList:
