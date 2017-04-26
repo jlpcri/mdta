@@ -264,3 +264,40 @@ def node_related_edges_invisible(node, module):
         flag = False
 
     return flag
+
+
+def self_reference_edge_node_in_set(edge, network_edges, edge_reference_sizes):
+    found = False
+    size_found = False
+    size = 20
+
+    for item in network_edges:
+        if item['from'] == item['to']:
+            if item['from'] == edge.from_node.id:
+                found = True
+                for each_size in edge_reference_sizes:
+                    if each_size['node_id'] == item['from']:
+                        each_size['size'] += 10
+                        size = each_size['size']
+                        size_found = True
+                        break
+                else:
+                    edge_reference_sizes.append({
+                        'node_id': item['from'],
+                        'size': 20
+                    })
+
+                if size_found:
+                    break
+    else:
+        edge_reference_sizes.append({
+            'node_id': edge.from_node.id,
+            'size': 20
+        })
+
+    data = {
+        'flag': found,
+        'size': size
+    }
+
+    return data
