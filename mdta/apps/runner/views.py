@@ -1,17 +1,13 @@
 import json
 
-import requests
-
-from django.core import serializers
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 
 from mdta.apps.projects.forms import TestRunnerForm
 from mdta.apps.projects.models import TestRailInstance, Project, TestRailConfiguration
-from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, bulk_hatit_file_generator, HATScript
-from mdta.apps.runner.models import TestRun, AutomatedTestCase, TestServer
+from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, bulk_hatit_file_generator, HATScript, check_result
+from mdta.apps.runner.models import TestRun, AutomatedTestCase, TestServers
 
 
 def display_project_suites(request, project_id):
@@ -76,7 +72,7 @@ def run_all_modal(request):
             response = hs.hatit_execute()
             mdta_test_run = TestRun.objects.create(
                 hat_run_id = json.loads(response.text)['runid'],
-                hat_server = TestServer.objects.first(),
+                hat_server = TestServers.objects.first(),
                 testrail_project_id = testrail_project_id,
                 testrail_suite_id = testrail_suite_id,
                 testrail_test_run = testrail_run.id,
@@ -86,21 +82,24 @@ def run_all_modal(request):
                 AutomatedTestCase.objects.create(test_run=mdta_test_run, testrail_case_id=case.id)
         else:
             print(form.errors)
-        return JsonResponse({'run': mdta_test_run,
-                             'cases': mdta_test_run.automatedtestcase_set.all()})
+        return JsonResponse({'run': mdta_test_run.pk,
+                             'cases': [{
+                                 'testrail_case_id': c.testrail_case_id,
+                                 'status': c.status
+                             } for c in mdta_test_run.automatedtestcase_set.all()]})
 
-# def check_test_result(request):
-#     try:
-#         filename = request.GET.get('filename', False)
-#         if not filename:
-#             return JsonResponse({'success': False, 'reason': 'Could not read filename'})
-#         response = check_result(filename)
-#         if response:
-#             response['running'] = False
-#             return JsonResponse(response)
-#         return JsonResponse({'running': True})
-#     except Exception as e:
-#         return JsonResponse({'success': False, 'reason': 'An untrapped error occurred: ' + str( e.args )})
+def check_test_result(request):
+    try:
+        filename = request.GET.get('filename', False)
+        if not filename:
+            return JsonResponse({'success': False, 'reason': 'Could not read filename'})
+        response = check_result(filename)
+        if response:
+            response['running'] = False
+            return JsonResponse(response)
+        return JsonResponse({'running': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'reason': 'An untrapped error occurred: ' + str( e.args )})
 
 
 @login_required

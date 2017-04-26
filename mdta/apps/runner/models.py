@@ -7,7 +7,7 @@ class TestServers(models.Model):
 
 class TestRun(models.Model):
     hat_run_id = models.IntegerField()
-    hat_server = models.ForeignKey('TestServer')
+    hat_server = models.ForeignKey('TestServers')
     testrail_project_id = models.IntegerField()
     testrail_suite_id = models.IntegerField()
     testrail_test_run = models.IntegerField()

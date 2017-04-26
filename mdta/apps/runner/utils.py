@@ -14,7 +14,7 @@ from paramiko.client import AutoAddPolicy
 from paramiko import SSHClient, SFTPClient, Transport
 
 import mdta.apps.testcases.testrail as testrail
-# from mdta.apps.runner.models import TestServer
+from mdta.apps.runner.models import TestServers
 
 if os.name == 'posix' and sys.version_info[0] < 3:
     import subprocess32 as subprocess
@@ -431,22 +431,22 @@ def bulk_hatit_file_generator(case_list):
     return csv_filename
 
 
-# def check_result(filename):
-#     ts = TestServer.objects.first()
-#     client = SSHClient()
-#     client.set_missing_host_key_policy(AutoAddPolicy())
-#     client.load_system_host_keys()
-#     client.connect(ts.host, username=ts.remote_user, password=ts.remote_password)
-#     command = "grep {0} /var/mdta/report/CallReport.log".format(filename)
-#     stdin, stdout, stderr = client.exec_command(command)
-#     result_line = stdout.read()
-#     try:
-#         result_fields = result_line.decode('utf-8').split(",")
-#         result = {'result': result_fields[-4],
-#                   'reason': result_fields[-2],
-#                   'call_id': result_fields[2]}
-#         return result
-#     except IndexError:
-#         return False
+def check_result(filename):
+    ts = TestServers.objects.first()
+    client = SSHClient()
+    client.set_missing_host_key_policy(AutoAddPolicy())
+    client.load_system_host_keys()
+    client.connect(ts.host, username=ts.remote_user, password=ts.remote_password)
+    command = "grep {0} /var/mdta/report/CallReport.log".format(filename)
+    stdin, stdout, stderr = client.exec_command(command)
+    result_line = stdout.read()
+    try:
+        result_fields = result_line.decode('utf-8').split(",")
+        result = {'result': result_fields[-4],
+                  'reason': result_fields[-2],
+                  'call_id': result_fields[2]}
+        return result
+    except IndexError:
+        return False
 
 
