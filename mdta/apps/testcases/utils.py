@@ -7,7 +7,7 @@ from mdta.apps.testcases.testrail import APIClient, APIError
 from mdta.apps.testcases.utils_backwards_traverse import path_traverse_backwards
 from mdta.apps.testcases.utils_negative_testcases import negative_testcase_generation, rejected_testcase_generation
 
-from mdta.apps.testcases.constant_names import NODE_START_NAME, NODE_MP_NAME, LANGUAGE_DEFAULT_NAME
+from mdta.apps.testcases.constant_names import NODE_START_NAME, NODE_MP_NAME, LANGUAGE_DEFAULT_NAME, MP_VER
 
 
 def context_testcases():
@@ -87,7 +87,9 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
     th_paths = get_paths_from_test_header(th_module)
     # print(th_paths)
 
-    data = []
+    data = []  # test cases set
+    domain_set = []  # MP/MPC node testcases (NI,NM etc.) domain, tagged when touched
+
     if th_paths:
         for th_path in th_paths:
             for edge in edges:
@@ -95,7 +97,7 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                 path = routing_path_to_edge(edge, shortest_set)
 
                 if path:
-                    path_data = path_traverse_backwards(path, th_path=th_path, language=language)
+                    path_data = path_traverse_backwards(path, th_path=th_path, language=language, domain_set=domain_set)
                     if 'tcs_cannot_route' in path_data.keys():
                         data.append({
                             'tcs_cannot_route': path_data['tcs_cannot_route'],
@@ -117,6 +119,10 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                             })
 
                         if edge.to_node.type.name in NODE_MP_NAME:
+                            exist_node = next((item for item in domain_set if item['name'] ==edge.to_node.module.name + '-' + edge.to_node.name), None)
+                            if exist_node:
+                                # print(exist_node['domain'][MP_VER])
+                                data.pop()
                             negative_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
                             if edge.to_node.type.name == NODE_MP_NAME[1]:
                                 rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
