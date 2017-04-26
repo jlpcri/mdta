@@ -156,8 +156,6 @@ def get_testrail_project(instance, identifier):
     return project
 
 
-
-
 def _get_testrail_project_by_id(instance, identifier):
     client = testrail.APIClient(instance.host)
     client.user = instance.username

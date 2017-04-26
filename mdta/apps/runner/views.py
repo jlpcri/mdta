@@ -84,11 +84,12 @@ def run_all_modal(request):
                 AutomatedTestCase.objects.create(test_run=mdta_test_run, testrail_case_id=case.id)
         else:
             print(form.errors)
+
         return JsonResponse({'run': mdta_test_run.pk,
-                             'cases': [{
-                                 'testrail_case_id': c.testrail_case_id,
-                                 'status': c.status
-                             } for c in mdta_test_run.automatedtestcase_set.all()]})
+                                  'cases': [{
+                                     'testrail_case_id': c.testrail_case_id,
+                                     'status': c.status
+                                  } for c in mdta_test_run.automatedtestcase_set.all()]})
 
 
 def check_test_result(request):

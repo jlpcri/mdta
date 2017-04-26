@@ -26,6 +26,7 @@ class TestRun(models.Model):
         response = requests.get(self.hat_server.server + 'api/check_run/?runid=' + str(self.hat_run_id))
         return json.loads(response.text)
 
+
 class AutomatedTestCase(models.Model):
     INCOMPLETE = 1
     PASS = 2
