@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 
 from mdta.apps.projects.forms import TestRunnerForm
 from mdta.apps.projects.models import TestRailInstance, Project, TestRailConfiguration
-from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, check_result, bulk_hatit_file_generator, HATScript
+from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, bulk_hatit_file_generator, HATScript
 
 
 def display_project_suites(request, project_id):
@@ -73,18 +73,18 @@ def run_all_modal(request):
         return redirect('runner:dashboard')
 
 
-def check_test_result(request):
-    try:
-        filename = request.GET.get('filename', False)
-        if not filename:
-            return JsonResponse({'success': False, 'reason': 'Could not read filename'})
-        response = check_result(filename)
-        if response:
-            response['running'] = False
-            return JsonResponse(response)
-        return JsonResponse({'running': True})
-    except Exception as e:
-        return JsonResponse({'success': False, 'reason': 'An untrapped error occurred: ' + str( e.args )})
+# def check_test_result(request):
+#     try:
+#         filename = request.GET.get('filename', False)
+#         if not filename:
+#             return JsonResponse({'success': False, 'reason': 'Could not read filename'})
+#         response = check_result(filename)
+#         if response:
+#             response['running'] = False
+#             return JsonResponse(response)
+#         return JsonResponse({'running': True})
+#     except Exception as e:
+#         return JsonResponse({'success': False, 'reason': 'An untrapped error occurred: ' + str( e.args )})
 
 
 @login_required
