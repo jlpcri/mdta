@@ -17,7 +17,9 @@ class Migration(migrations.Migration):
             name='TestServer',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('server', models.TextField()),
+                ('host', models.TextField()),
+                ('remote_user', models.TextField()),
+                ('remote_password', models.TextField()),
                 ('name', models.TextField(unique=True)),
             ],
         ),
