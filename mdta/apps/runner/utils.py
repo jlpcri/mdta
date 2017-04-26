@@ -62,11 +62,12 @@ class TestRailSuite(TestRailORM):
     def test_run(self):
         print("Starting...")
         payload = {'suite_id': self.id}
+        print(payload)
         res = self.client().send_post('add_run/{0}'.format(self.parent.id), payload)
         trr = TestRailRun(self.instance,
                           self.client().send_post('add_run/{0}'.format(self.parent.id), payload),
                           parent=self)
-        yield trr
+        # yield trr
         self.client().send_post('close_run/{0}'.format(trr.id), {})
         return True
 

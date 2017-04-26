@@ -3,10 +3,9 @@ from django.utils.datetime_safe import time
 
 
 class TestServer(models.Model):
-    host = models.TextField()
-    remote_user = models.TextField()
-    remote_password = models.TextField()
+    server = models.TextField()
     name = models.TextField(unique=True)
+
 
 
 

@@ -56,9 +56,10 @@ def run_all_modal(request):
     testrail_project = get_testrail_project(testrail_instance, testrail_project_id)
     testrail_suites = testrail_project.get_suites()
     testrail_suite = [s for s in testrail_suites if s.id == testrail_suite_id][0]
+    print(testrail_suite)
     testrail_cases = testrail_suite.get_cases()
     hatit_csv_filename = bulk_hatit_file_generator(testrail_cases)
-    testrail_suite.test_run()
+    testrun = [s for s in testrail_suites if s.id == testrail_suite_id][0].test_run()
     if request.method == 'POST':
         form = TestRunnerForm(request.POST)
         if form.is_valid():
@@ -67,24 +68,10 @@ def run_all_modal(request):
             hs.csvfile = hatit_csv_filename
             hs.apn = data.get('apn')
             hs.holly_server = data.get('browser')
-            response = hs.hatit_execute
+            result = hs.hatit_execute
         else:
             print(form.errors)
         return redirect('runner:dashboard')
-
-
-# def run_all_modal(request):
-#     if request.method == 'POST':
-#         form = TestRunnerForm(request.POST)
-#         if form.is_valid():
-#             data = form.cleaned_data
-#             hs = HATScript()
-#             hs.apn = data.get('apn')
-#             hs.holly_server = data.get('browser')
-#             response = hs.hatit_execute
-#         else:
-#             print(form.errors)
-#     return redirect('runner:dashboard')
 
 
 def check_test_result(request):
