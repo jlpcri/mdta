@@ -5,10 +5,9 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from celery import chord
 
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new, check_edge_in_set,\
-    get_properties_for_node_or_edge, EDGE_TYPES_INVISIBLE_KEY, node_related_edges_invisible
+    get_properties_for_node_or_edge, EDGE_TYPES_INVISIBLE_KEY, node_related_edges_invisible, self_reference_edge_node_in_set
 from mdta.apps.projects.models import Project, Module, Language
 from mdta.apps.graphs import helpers
 from mdta.apps.projects.utils import context_project_dashboard
@@ -17,7 +16,7 @@ from .models import NodeType, EdgeType, Node, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeAutoNewForm
 from mdta.apps.projects.forms import ModuleForm, UploadForm
 from mdta.apps.testcases.constant_names import NODE_START_NAME, LANGUAGE_DEFAULT_NAME
-from mdta.apps.testcases.tasks import create_testcases_celery, push_testcases_to_testrail_celery
+from mdta.apps.testcases.tasks import create_testcases_celery
 from mdta.apps.testcases.models import TestCaseResults
 
 
@@ -319,6 +318,7 @@ def project_module_detail(request, module_id):
     data_keys = []
     edge_id = []
     merged = {}
+    edge_reference_sizes = []
 
     outside_module_node_color = 'rgb(211, 211, 211)'
 
@@ -331,10 +331,17 @@ def project_module_detail(request, module_id):
         except KeyError:
             pass
 
+        self_reference_size = 20
+        if edge.from_node.id == edge.to_node.id:
+            self_reference_data = self_reference_edge_node_in_set(edge, network_edges, edge_reference_sizes)
+            if self_reference_data['flag']:
+                self_reference_size = self_reference_data['size']
+
         network_edges.append({
             'id': edge.id,
             'to': edge.to_node.id,
-            'from': edge.from_node.id
+            'from': edge.from_node.id,
+            'selfReferenceSize': self_reference_size
         })
 
     try:
@@ -365,7 +372,7 @@ def project_module_detail(request, module_id):
         tmp_data = []
         tests = []
 
-    print(network_edges)
+    # print(network_edges)
 
     if request.user.username != 'test':
         for node in module.nodes_all:
@@ -824,9 +831,10 @@ def project_publish(request, project_id):
     :return:
     """
     project = get_object_or_404(Project, pk=project_id)
-    chord(create_testcases_celery.delay(project.id), push_testcases_to_testrail_celery.delay(project.id))
+    create_testcases_celery.delay(project.id)
 
-    return redirect('testcases:tcs_project')
+    # return redirect('testcases:tcs_project')
+    return HttpResponse(json.dumps(project.id), content_type="application/json")
 
 
 def module_node_verbiage_edit(request):

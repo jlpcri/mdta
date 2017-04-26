@@ -581,7 +581,7 @@ def get_mpc_valid_input(node):
 def get_random_verbiage_from_prompt_node(node, language, verbiage_key='', hint='', index=''):
     try:
         data = node.name + '{0}{1}: '.format(hint, index) + node.verbiage[language]['{0}{1}'.format(verbiage_key, index)]
-    except KeyError:
+    except (KeyError, TypeError):
         data = node.name + '{0}{1}: '.format(hint, index)
 
     return data
