@@ -1,16 +1,12 @@
 import json
 
-import requests
-
-from django.core import serializers
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 
 from mdta.apps.projects.forms import TestRunnerForm
 from mdta.apps.projects.models import TestRailInstance, Project, TestRailConfiguration
-from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, check_result, bulk_hatit_file_generator, HATScript
+from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, bulk_hatit_file_generator, HATScript, check_result
 from mdta.apps.runner.models import TestRun, AutomatedTestCase, TestServers
 
 
@@ -86,9 +82,11 @@ def run_all_modal(request):
                 AutomatedTestCase.objects.create(test_run=mdta_test_run, testrail_case_id=case.id)
         else:
             print(form.errors)
-        return JsonResponse({'run': mdta_test_run,
-                             'cases': mdta_test_run.automatedtestcase_set.all()})
-
+        return JsonResponse({'run': mdta_test_run.pk,
+                             'cases': [{
+                                 'testrail_case_id': c.testrail_case_id,
+                                 'status': c.status
+                             } for c in mdta_test_run.automatedtestcase_set.all()]})
 
 def check_test_result(request):
     try:
