@@ -1,3 +1,7 @@
+import json
+
+import requests
+
 from django.db import models
 from django.utils.datetime_safe import time
 
@@ -13,6 +17,10 @@ class TestRun(models.Model):
     testrail_test_run = models.IntegerField()
     project = models.ForeignKey('projects.Project')
 
+    def get_current_hat_results(self):
+        response = requests.get(self.hat_server.server + 'api/check_run/?runid=' + str(self.hat_run_id))
+        return json.loads(response.text)
+
 class AutomatedTestCase(models.Model):
     INCOMPLETE = 1
     PASS = 2
@@ -25,3 +33,5 @@ class AutomatedTestCase(models.Model):
     test_run = models.ForeignKey('TestRun')
     testrail_case_id = models.IntegerField()
     status = models.IntegerField(choices=STATUS_CHOICES, default=INCOMPLETE)
+    failure_reason = models.TextField(default='')
+    call_id = models.TextField(default='')
