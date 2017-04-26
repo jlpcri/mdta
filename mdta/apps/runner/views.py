@@ -56,7 +56,6 @@ def run_all_modal(request):
     testrail_project = get_testrail_project(testrail_instance, testrail_project_id)
     testrail_suites = testrail_project.get_suites()
     testrail_suite = [s for s in testrail_suites if s.id == testrail_suite_id][0]
-    print(testrail_suite)
     testrail_cases = testrail_suite.get_cases()
     hatit_csv_filename = bulk_hatit_file_generator(testrail_cases)
     testrun = [s for s in testrail_suites if s.id == testrail_suite_id][0].test_run()
