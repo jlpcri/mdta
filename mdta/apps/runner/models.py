@@ -9,6 +9,22 @@ class TestServers(models.Model):
 
 class TestRun(models.Model):
     hat_run_id = models.IntegerField()
+    hat_server = models.ForeignKey('TestServer')
     testrail_project_id = models.IntegerField()
     testrail_suite_id = models.IntegerField()
+    testrail_test_run = models.IntegerField()
     project = models.ForeignKey('projects.Project')
+
+
+class AutomatedTestCase(models.Model):
+    INCOMPLETE = 1
+    PASS = 2
+    FAIL = 3
+    STATUS_CHOICES = (
+        (INCOMPLETE, 'Incomplete'),
+        (PASS, 'Pass'),
+        (FAIL, 'Fail'),
+    )
+    test_run = models.ForeignKey('TestRun')
+    testrail_case_id = models.IntegerField()
+    status = models.IntegerField(choices=STATUS_CHOICES, default=INCOMPLETE)

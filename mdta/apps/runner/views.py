@@ -1,4 +1,8 @@
+import json
+
 import requests
+
+from django.core import serializers
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
@@ -6,7 +10,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 
 from mdta.apps.projects.forms import TestRunnerForm
 from mdta.apps.projects.models import TestRailInstance, Project, TestRailConfiguration
-from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, bulk_hatit_file_generator, HATScript
+from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, check_result, bulk_hatit_file_generator, HATScript
+from mdta.apps.runner.models import TestRun, AutomatedTestCase, TestServers
 
 
 def display_project_suites(request, project_id):
@@ -36,6 +41,7 @@ def execute_test(request, mdta_project_id):
 
 
 def run_test_suite(request):
+    """Probably dead code. Check and refactor."""
     testrail_suite_id = int( request.GET['suite'] )
     testrail_instance = TestRailInstance.objects.first()
     project = request.user.humanresource.project
@@ -49,28 +55,39 @@ def run_test_suite(request):
 
 
 def run_all_modal(request):
-    testrail_suite_id = int(request.POST['suite'])
-    testrail_instance = TestRailInstance.objects.first()
-    project = request.user.humanresource.project
-    testrail_project_id = project.testrail.project_id
-    testrail_project = get_testrail_project(testrail_instance, testrail_project_id)
-    testrail_suites = testrail_project.get_suites()
-    testrail_suite = [s for s in testrail_suites if s.id == testrail_suite_id][0]
-    testrail_cases = testrail_suite.get_cases()
-    hatit_csv_filename = bulk_hatit_file_generator(testrail_cases)
-    testrun = [s for s in testrail_suites if s.id == testrail_suite_id][0].test_run()
     if request.method == 'POST':
         form = TestRunnerForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
+            testrail_suite_id = int(data.get('suite'))
+            testrail_instance = TestRailInstance.objects.first()
+            project = request.user.humanresource.project
+            testrail_project_id = project.testrail.project_id
+            testrail_project = get_testrail_project(testrail_instance, testrail_project_id)
+            testrail_suites = testrail_project.get_suites()
+            testrail_suite = [s for s in testrail_suites if s.id == testrail_suite_id][0]
+            testrail_cases = testrail_suite.get_cases()
+            hatit_csv_filename = bulk_hatit_file_generator(testrail_cases)
+            testrail_run = testrail_suite.open_test_run()
             hs = HATScript()
             hs.csvfile = hatit_csv_filename
             hs.apn = data.get('apn')
             hs.holly_server = data.get('browser')
-            result = hs.hatit_execute
+            response = hs.hatit_execute()
+            mdta_test_run = TestRun.objects.create(
+                hat_run_id = json.loads(response.text)['runid'],
+                hat_server = TestServer.objects.first(),
+                testrail_project_id = testrail_project_id,
+                testrail_suite_id = testrail_suite_id,
+                testrail_test_run = testrail_run.id,
+                project = project
+            )
+            for case in testrail_cases:
+                AutomatedTestCase.objects.create(test_run=mdta_test_run, testrail_case_id=case.id)
         else:
             print(form.errors)
-        return redirect('runner:dashboard')
+        return JsonResponse({'run': mdta_test_run,
+                             'cases': mdta_test_run.automatedtestcase_set.all()})
 
 
 def check_test_result(request):
