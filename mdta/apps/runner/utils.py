@@ -58,18 +58,30 @@ class TestRailSuite(TestRailORM):
         return [TestRailCase(self.instance, res, self)
                 for res in self.client().send_get('get_cases/{0}&suite_id={1}'.format(self.project_id, self.id))]
 
+    def __str__(self):
+        return "{0}: {1}".format(self.id, self.name)
+
+    def __repr__(self):
+        return str(self)
+
 
     @contextmanager
     def test_run(self):
-        print("Starting...")
+        trr = self.open_test_run()
+        yield trr
+        self.close_test_run(trr.id)
+        return True
+
+    def open_test_run(self):
         payload = {'suite_id': self.id}
         res = self.client().send_post('add_run/{0}'.format(self.parent.id), payload)
         trr = TestRailRun(self.instance,
                           self.client().send_post('add_run/{0}'.format(self.parent.id), payload),
                           parent=self)
-        yield trr
-        self.client().send_post('close_run/{0}'.format(trr.id), {})
-        return True
+        return trr
+
+    def close_test_run(self, run_id):
+        self.client().send_post('close_run/{0}'.format(run_id), {})
 
     def test(self):
         with self.test_run() as tr:
@@ -205,7 +217,6 @@ class HATScript(AutomationScript):
             ENDCALL
             """)
 
-    @property
     def hatit_execute(self):
         """Uses Frank's HAT User Interface to initate a HAT test"""
         jsonList = []
