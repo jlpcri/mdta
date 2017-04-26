@@ -15,7 +15,6 @@ class TestRun(models.Model):
     testrail_test_run = models.IntegerField()
     project = models.ForeignKey('projects.Project')
 
-
 class AutomatedTestCase(models.Model):
     INCOMPLETE = 1
     PASS = 2
@@ -28,3 +27,4 @@ class AutomatedTestCase(models.Model):
     test_run = models.ForeignKey('TestRun')
     testrail_case_id = models.IntegerField()
     status = models.IntegerField(choices=STATUS_CHOICES, default=INCOMPLETE)
+

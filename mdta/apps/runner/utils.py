@@ -217,7 +217,6 @@ class HATScript(AutomationScript):
             ENDCALL
             """)
 
-    @property
     def hatit_execute(self):
         """Uses Frank's HAT User Interface to initate a HAT test"""
         jsonList = []

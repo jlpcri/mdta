@@ -89,19 +89,18 @@ def run_all_modal(request):
         return JsonResponse({'run': mdta_test_run,
                              'cases': mdta_test_run.automatedtestcase_set.all()})
 
-
-def check_test_result(request):
-    try:
-        filename = request.GET.get('filename', False)
-        if not filename:
-            return JsonResponse({'success': False, 'reason': 'Could not read filename'})
-        response = check_result(filename)
-        if response:
-            response['running'] = False
-            return JsonResponse(response)
-        return JsonResponse({'running': True})
-    except Exception as e:
-        return JsonResponse({'success': False, 'reason': 'An untrapped error occurred: ' + str( e.args )})
+# def check_test_result(request):
+#     try:
+#         filename = request.GET.get('filename', False)
+#         if not filename:
+#             return JsonResponse({'success': False, 'reason': 'Could not read filename'})
+#         response = check_result(filename)
+#         if response:
+#             response['running'] = False
+#             return JsonResponse(response)
+#         return JsonResponse({'running': True})
+#     except Exception as e:
+#         return JsonResponse({'success': False, 'reason': 'An untrapped error occurred: ' + str( e.args )})
 
 
 @login_required
