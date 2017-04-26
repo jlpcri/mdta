@@ -144,6 +144,8 @@ def get_testrail_project(instance, identifier):
     return project
 
 
+
+
 def _get_testrail_project_by_id(instance, identifier):
     client = testrail.APIClient(instance.host)
     client.user = instance.username
@@ -213,8 +215,9 @@ class HATScript(AutomationScript):
         data = {'apn': self.apn,
                 'browser': self.holly_server,
                 'port': '5060'}
+        hat_script_template = "STARTCALL\nREPORT %id%\n%everything%\nENDCALL"
         response = browser.post("http://{0}/".format(self.hatit_server), data=data,
-                                 files={'csvfile': open(self.csvfile), 'hatscript': io.StringIO('%everything%')})
+                                 files={'csvfile': open(self.csvfile), 'hatscript': io.StringIO(hat_script_template)})
         print(response.text)
         jsonList.append(response.json())
         for data in jsonList:
@@ -350,8 +353,7 @@ class HATScript(AutomationScript):
         elif step[:4].upper() == 'DIAL':
             self.dialed_number = step[5:].strip()
         assert (len(self.body) == 0)
-        self.body = 'STARTCALL\n' + \
-                    'IGNORE answer asr_session document_dump document_transition fetch grammar_activation license ' + \
+        self.body = 'IGNORE answer asr_session document_dump document_transition fetch grammar_activation license ' + \
                     'log note prompt recognition_start recognition_end redux severe sip_session system_response ' + \
                     'transfer_start transfer_end vxml_event vxml_trace warning\n' + \
                     'EXPECT call_start\n'
@@ -363,7 +365,8 @@ class HATScript(AutomationScript):
         self.body += 'EXPECT recognition_end\n'
 
     def end_of_call(self):
-        self.body += 'ENDCALL\n'
+        """Previously used to append ENDCALL. Todo: refactor out"""
+        pass
 
     def sip_string(self):
         if self.dialed_number:
@@ -410,10 +413,10 @@ def bulk_hatit_file_generator(case_list):
     csv_filename = 'hatit_{0}.csv'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
     with open(csv_filename, 'w', newline='') as csvfile:
         csv_writer = csv.writer(csvfile)
-        csv_writer.writerow(['everything', ])
+        csv_writer.writerow(['everything', 'id'])
         for case in case_list:
             case.generate_hat_script()
-            csv_writer.writerow([case.script.body, ])
+            csv_writer.writerow([case.script.body, "{0}: {1}".format(case.id, case.title)])
     return csv_filename
 
 
