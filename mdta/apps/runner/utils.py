@@ -27,8 +27,6 @@ class TestRailORM(object):
         self.api_return = api_return
         self.instance = instance
         self.parent = parent
-        print(api_return)
-        print(instance)
         try:
             for k, v in api_return.items():
                 self.__dict__[k] = v
@@ -59,8 +57,10 @@ class TestRailSuite(TestRailORM):
         return [TestRailCase(self.instance, res, self)
                 for res in self.client().send_get('get_cases/{0}&suite_id={1}'.format(self.project_id, self.id))]
 
+
     @contextmanager
     def test_run(self):
+        print("Starting...")
         payload = {'suite_id': self.id}
         res = self.client().send_post('add_run/{0}'.format(self.parent.id), payload)
         trr = TestRailRun(self.instance,
@@ -168,16 +168,16 @@ class AutomationScript(object):
 
 
 class HATScript(AutomationScript):
-    def __init__(self, apn='', body='', dialed_number='',
+
+    def __init__(self, apn='', body='', dialed_number='', csvfile='',
                  holly_server='linux5578.wic.west.com', sonus_server='10.27.138.136',
                  hatit_server='linux6351.wic.west.com:8080/hatit/api/csv_req/',
                  remote_server='qaci01.wic.west.com', remote_user='wicqacip', remote_password='LogFiles'):
 
-        self.csvfile = ''
+        self.csvfile = csvfile
         self.hatscript = ''
-        self.runID = ''
-        self.suite_id = ''
         self.hatit_server = hatit_server
+        self.runID = ''
         self.apn = apn
         self.dialed_number = dialed_number
         self.body = body
@@ -202,22 +202,24 @@ class HATScript(AutomationScript):
             ENDCALL
             """)
 
+    @property
     def hatit_execute(self):
         """Uses Frank's HAT User Interface to initate a HAT test"""
         jsonList = []
         browser = requests.session()
-        stuff = browser.get('http://{0}/hatit'.format(self.remote_server))
-        print(stuff.status_code)
+        qaci = browser.get('http://{0}/hatit'.format(self.remote_server))
+
         data = {'apn': self.apn,
                 'browser': self.holly_server,
                 'port': '5060'}
-        response = browser.post("http://{0}/".format(self.hatit_server), data=data, files={'csvfile': open(self.csvfile), 'hatscript':  open('csv.hat')})
+        response = browser.post("http://{0}/".format(self.hatit_server), data=data,
+                                 files={'csvfile': open(self.csvfile), 'hatscript': open('csv.hat')})
+        print(response.text)
         jsonList.append(response.json())
         for data in jsonList:
             self.runID = data['runid']
         result = browser.get("http://linux6351.wic.west.com:8080/hatit/api/check_run/?runid={0}".format(self.runID))
         print(result.text)
-        # TestRailSuite(TestRailORM.instance, TestRailORM.api_return).test_run(self.suite_id)
         browser.close()
         return result
 
