@@ -13,13 +13,12 @@ function getId() {
 }
 
 function runAll(){
-    //var suite_id = this.getAttribute('data-suite')
     var suite_id = s_id;
     console.log(s_id);
     var button = $(this);
     $("#testcase").html("Generating tests. Please wait.");
     $("#result").html("");
-    $.ajax('{% url "runner:runall" %}?suite=' + suite_id, {
+    $.ajax('{% url "runner:run_all_modal" %}?suite=' + suite_id, {
         success: function(data, textStatus, jqXHR){
             var div = $("#testcase");
             var table_draw = '<table class="table table-bordered"><tr><th>Title</th><th>Script</th><th>Status</th><th>Call ID</th><th>Failure reason</th></tr>'

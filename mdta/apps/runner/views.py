@@ -70,9 +70,10 @@ def run_all_modal(request):
             hs.apn = data.get('apn')
             hs.holly_server = data.get('browser')
             response = hs.hatit_execute()
+            testserver = data.get('testserver')
             mdta_test_run = TestRun.objects.create(
                 hat_run_id = json.loads(response.text)['runid'],
-                hat_server = TestServers.objects.first(),
+                hat_server = TestServers.objects.get(server=testserver),
                 testrail_project_id = testrail_project_id,
                 testrail_suite_id = testrail_suite_id,
                 testrail_test_run = testrail_run.id,
@@ -87,6 +88,7 @@ def run_all_modal(request):
                                  'testrail_case_id': c.testrail_case_id,
                                  'status': c.status
                              } for c in mdta_test_run.automatedtestcase_set.all()]})
+
 
 def check_test_result(request):
     try:
