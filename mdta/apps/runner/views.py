@@ -76,7 +76,7 @@ def run_all_modal(request):
             response = hs.hatit_execute()
             mdta_test_run = TestRun.objects.create(
                 hat_run_id = json.loads(response.text)['runid'],
-                hat_server = TestServer.objects.first(),
+                hat_server = TestServers.objects.first(),
                 testrail_project_id = testrail_project_id,
                 testrail_suite_id = testrail_suite_id,
                 testrail_test_run = testrail_run.id,
@@ -89,18 +89,19 @@ def run_all_modal(request):
         return JsonResponse({'run': mdta_test_run,
                              'cases': mdta_test_run.automatedtestcase_set.all()})
 
-# def check_test_result(request):
-#     try:
-#         filename = request.GET.get('filename', False)
-#         if not filename:
-#             return JsonResponse({'success': False, 'reason': 'Could not read filename'})
-#         response = check_result(filename)
-#         if response:
-#             response['running'] = False
-#             return JsonResponse(response)
-#         return JsonResponse({'running': True})
-#     except Exception as e:
-#         return JsonResponse({'success': False, 'reason': 'An untrapped error occurred: ' + str( e.args )})
+
+def check_test_result(request):
+    try:
+        filename = request.GET.get('filename', False)
+        if not filename:
+            return JsonResponse({'success': False, 'reason': 'Could not read filename'})
+        response = check_result(filename)
+        if response:
+            response['running'] = False
+            return JsonResponse(response)
+        return JsonResponse({'running': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'reason': 'An untrapped error occurred: ' + str( e.args )})
 
 
 @login_required
