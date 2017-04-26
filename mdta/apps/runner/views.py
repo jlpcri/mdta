@@ -8,7 +8,7 @@ from mdta.apps.projects.forms import TestRunnerForm
 from mdta.apps.projects.models import TestRailInstance, Project, TestRailConfiguration
 from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, bulk_hatit_file_generator, HATScript, check_result
 from mdta.apps.runner.models import TestRun, AutomatedTestCase, TestServers
-
+from mdta.apps.runner.tasks import poll_result_loop
 
 def display_project_suites(request, project_id):
     p = Project.objects.get(id=project_id)
@@ -79,6 +79,7 @@ def run_all_modal(request):
                 testrail_test_run = testrail_run.id,
                 project = project
             )
+            poll_result_loop.delay()
             for case in testrail_cases:
                 AutomatedTestCase.objects.create(test_run=mdta_test_run, testrail_case_id=case.id)
         else:
