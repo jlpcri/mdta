@@ -45,15 +45,16 @@ def poll_result(test_run_id):
             client = APIClient(tri.host)
             client.user = tri.username
             client.password = tri.password
-            client.send_post('add_result_for_case/{0}/{1}'.format(test_run_id, tc_id),
-                             {'status_id': 1})
+            response = client.send_post('add_result_for_case/{0}/{1}'.format(test_run.testrail_test_run, tc_id),
+                                       {'status_id': 1})
+            print(response)
         else:
             atc.status = AutomatedTestCase.FAIL
             atc.failure_reason = call['err_str']
             client = APIClient(tri.host)
             client.user = tri.username
             client.password = tri.password
-            client.send_post('add_result_for_case/{0}/{1}'.format(test_run_id, tc_id),
+            client.send_post('add_result_for_case/{0}/{1}'.format(test_run.testrail_test_run, tc_id),
                              {'status_id': 5, 'defects': call['err_str']})
         atc.call_id = call['callseq']
         atc.save()
@@ -66,6 +67,6 @@ def poll_result(test_run_id):
             client = APIClient(tri.host)
             client.user = tri.username
             client.password = tri.password
-            client.send_post('add_result_for_case/{0}/{1}'.format(test_run_id, tc_id),
+            client.send_post('add_result_for_case/{0}/{1}'.format(test_run.testrail_test_run, tc_id),
                              {'status_id': 4, 'comment': 'MDTA error - could not find result'})
-        # todo: close run here
+        client.send_post('close_run/{0}'.format(test_run.testrail_test_run), {})
