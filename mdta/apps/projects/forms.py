@@ -78,6 +78,16 @@ class TestHeaderForm(ModelForm):
         }
 
 
+class TestRunnerForm(forms.Form):
+        browser = forms.CharField(max_length=100, required=False,
+                                  widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "linux5578"}))
+
+        apn = forms.CharField(max_length=50, required=True,
+                           widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '4061702'}))
+
+        suite = forms.CharField(widget=forms.HiddenInput(attrs={'id': 'suiteid'}), required=False, max_length=50)
+
+
 class ProjectConfigForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProjectConfigForm, self).__init__(*args, **kwargs)

@@ -1,8 +1,8 @@
 from django.contrib import admin
 
-from .models import TestServer
+from .models import TestServers, TestRun, AutomatedTestCase
 
 
-@admin.register(TestServer)
+@admin.register(TestServers, TestRun, AutomatedTestCase)
 class RunnerAdmin(admin.ModelAdmin):
     pass

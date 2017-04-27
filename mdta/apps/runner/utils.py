@@ -3,6 +3,7 @@ import csv
 import textwrap
 from contextlib import contextmanager
 from tempfile import NamedTemporaryFile
+import io
 import os
 import sys
 import time
@@ -13,7 +14,7 @@ from paramiko.client import AutoAddPolicy
 from paramiko import SSHClient, SFTPClient, Transport
 
 import mdta.apps.testcases.testrail as testrail
-from mdta.apps.runner.models import TestServer
+from mdta.apps.runner.models import TestServers
 
 if os.name == 'posix' and sys.version_info[0] < 3:
     import subprocess32 as subprocess
@@ -57,17 +58,30 @@ class TestRailSuite(TestRailORM):
         return [TestRailCase(self.instance, res, self)
                 for res in self.client().send_get('get_cases/{0}&suite_id={1}'.format(self.project_id, self.id))]
 
+    def __str__(self):
+        return "{0}: {1}".format(self.id, self.name)
+
+    def __repr__(self):
+        return str(self)
+
 
     @contextmanager
     def test_run(self):
+        trr = self.open_test_run()
+        yield trr
+        self.close_test_run(trr.id)
+        return True
+
+    def open_test_run(self):
         payload = {'suite_id': self.id}
         res = self.client().send_post('add_run/{0}'.format(self.parent.id), payload)
         trr = TestRailRun(self.instance,
                           self.client().send_post('add_run/{0}'.format(self.parent.id), payload),
                           parent=self)
-        yield trr
-        self.client().send_post('close_run/{0}'.format(trr.id), {})
-        return True
+        return trr
+
+    def close_test_run(self, run_id):
+        self.client().send_post('close_run/{0}'.format(run_id), {})
 
     def test(self):
         with self.test_run() as tr:
@@ -142,6 +156,8 @@ def get_testrail_project(instance, identifier):
     return project
 
 
+
+
 def _get_testrail_project_by_id(instance, identifier):
     client = testrail.APIClient(instance.host)
     client.user = instance.username
@@ -167,9 +183,16 @@ class AutomationScript(object):
 
 
 class HATScript(AutomationScript):
-    def __init__(self, apn='', body='', dialed_number='',
+
+    def __init__(self, apn='', body='', dialed_number='', csvfile='',
                  holly_server='linux5578.wic.west.com', sonus_server='10.27.138.136',
+                 hatit_server='linux6351.wic.west.com:8080/hatit/api/csv_req/',
                  remote_server='qaci01.wic.west.com', remote_user='wicqacip', remote_password='LogFiles'):
+
+        self.csvfile = csvfile
+        self.hatscript = ''
+        self.hatit_server = hatit_server
+        self.runID = ''
         self.apn = apn
         self.dialed_number = dialed_number
         self.body = body
@@ -196,16 +219,24 @@ class HATScript(AutomationScript):
 
     def hatit_execute(self):
         """Uses Frank's HAT User Interface to initate a HAT test"""
+        jsonList = []
         browser = requests.session()
-        browser.get('http://{0}/hatit'.format(self.remote_server))
-        csrf_token = browser.cookies['csrftoken']
-        data = {'csrfmiddlewaretoken': csrf_token,
-                'apn': self.apn,
-                'port': '5060',
-                'hatscript': self.body}
-        response = browser.post("http://{0}/hatit/results/".format(self.hatit_server), data=data)
+        qaci = browser.get('http://{0}/hatit'.format(self.remote_server))
+
+        data = {'apn': self.apn,
+                'browser': self.holly_server,
+                'port': '5060'}
+        hat_script_template = "STARTCALL\nREPORT %id%\n%everything%\nENDCALL"
+        response = browser.post("http://{0}/".format(self.hatit_server), data=data,
+                                 files={'csvfile': open(self.csvfile), 'hatscript': io.StringIO(hat_script_template)})
+        print(response.text)
+        jsonList.append(response.json())
+        for data in jsonList:
+            self.runID = data['runid']
+        result = browser.get("http://linux6351.wic.west.com:8080/hatit/api/check_run/?runid={0}".format(self.runID))
+        print(result.text)
         browser.close()
-        return response
+        return result
 
     def local_hat_execute(self):
         """
@@ -333,8 +364,7 @@ class HATScript(AutomationScript):
         elif step[:4].upper() == 'DIAL':
             self.dialed_number = step[5:].strip()
         assert (len(self.body) == 0)
-        self.body = 'STARTCALL\n' + \
-                    'IGNORE answer asr_session document_dump document_transition fetch grammar_activation license ' + \
+        self.body = 'IGNORE answer asr_session document_dump document_transition fetch grammar_activation license ' + \
                     'log note prompt recognition_start recognition_end redux severe sip_session system_response ' + \
                     'transfer_start transfer_end vxml_event vxml_trace warning\n' + \
                     'EXPECT call_start\n'
@@ -346,7 +376,8 @@ class HATScript(AutomationScript):
         self.body += 'EXPECT recognition_end\n'
 
     def end_of_call(self):
-        self.body += 'ENDCALL\n'
+        """Previously used to append ENDCALL. Todo: refactor out"""
+        pass
 
     def sip_string(self):
         if self.dialed_number:
@@ -388,20 +419,20 @@ def bulk_remote_hat_execute(case_list):
     client.close()
     return filename_list
 
+
 def bulk_hatit_file_generator(case_list):
     csv_filename = 'hatit_{0}.csv'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
     with open(csv_filename, 'w', newline='') as csvfile:
         csv_writer = csv.writer(csvfile)
-        csv_writer.writerow(['everything', ])
+        csv_writer.writerow(['everything', 'id'])
         for case in case_list:
             case.generate_hat_script()
-            csv_writer.writerow([case.script.body, ])
+            csv_writer.writerow([case.script.body, "{0}: {1}".format(case.id, case.title)])
     return csv_filename
 
 
-
 def check_result(filename):
-    ts = TestServer.objects.first()
+    ts = TestServers.objects.first()
     client = SSHClient()
     client.set_missing_host_key_policy(AutoAddPolicy())
     client.load_system_host_keys()
