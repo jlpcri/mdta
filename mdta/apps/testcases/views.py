@@ -40,7 +40,7 @@ def tcs_project(request):
         return redirect('graphs:projects_for_selection')
 
 
-@user_passes_test(user_is_superuser)
+@user_passes_test(user_is_staff)
 def testcases(request):
     context = context_testcases()
 

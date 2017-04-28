@@ -95,14 +95,27 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
 
         # work with the current_language key to setup the node verbiage
         for current_language in available_languages:
-            if current_language not in node.verbiage.keys():
-                node.verbiage[current_language] = {
-                    'InitialPrompt': "",
-                    'NoInput1': "",
-                    'NoInput2': "",
-                    'NoMatch1': "",
-                    'NoMatch2': ""
+            # Add exception if node exists and its verbiage field is null
+            try:
+                if current_language not in node.verbiage.keys():
+                    node.verbiage[current_language] = {
+                        'InitialPrompt': "",
+                        'NoInput1': "",
+                        'NoInput2': "",
+                        'NoMatch1': "",
+                        'NoMatch2': ""
+                    }
+            except AttributeError:
+                node.verbiage = {
+                    current_language: {
+                        'InitialPrompt': "",
+                        'NoInput1': "",
+                        'NoInput2': "",
+                        'NoMatch1': "",
+                        'NoMatch2': ""
+                    }
                 }
+
             if current_language == 'English':
                 verbiage = str(english_text)
             elif current_language != 'English':
