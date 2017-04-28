@@ -93,6 +93,7 @@ class TestRunnerForm(forms.Form):
     suite = forms.CharField(widget=forms.HiddenInput(attrs={'id': 'suiteid'}), required=False, max_length=50)
 
 
+
 class ProjectConfigForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProjectConfigForm, self).__init__(*args, **kwargs)
