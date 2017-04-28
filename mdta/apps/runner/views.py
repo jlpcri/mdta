@@ -53,8 +53,10 @@ def run_test_suite(request):
 
 def run_all_modal(request):
     if request.method == 'POST':
-        print('entered ugh')
-        form = TestRunnerForm(data=request.POST)
+        post_data = request.POST
+        print(request.body)
+        form = TestRunnerForm(request.POST)
+        print(form.data)
         if form.is_valid():
             data = form.cleaned_data
             print(data)
@@ -85,14 +87,15 @@ def run_all_modal(request):
             poll_result_loop.delay( mdta_test_run.pk )
             for case in testrail_cases:
                 AutomatedTestCase.objects.create(test_run=mdta_test_run, testrail_case_id=case.id)
+            return JsonResponse(data={'run': mdta_test_run.pk,
+                                      'cases': [{
+                                          'testrail_case_id': c.testrail_case_id,
+                                          'status': c.status
+                                      } for c in mdta_test_run.automatedtestcase_set.all()]})
         else:
-            print(form.errors)
+            return JsonResponse({'error': form.errors})
 
-        return JsonResponse(data={'run': mdta_test_run.pk,
-                                  'cases': [{
-                                     'testrail_case_id': c.testrail_case_id,
-                                     'status': c.status
-                                  } for c in mdta_test_run.automatedtestcase_set.all()]})
+
 
 
 def check_test_result(request):
