@@ -53,39 +53,42 @@ def run_test_suite(request):
 
 def run_all_modal(request):
     if request.method == 'POST':
-        form = request.POST.get('data')
-        data = form.cleaned_data
-        testrail_suite_id = int( data.get( 'suite' ) )
-        testrail_instance = TestRailInstance.objects.first()
-        project = request.user.humanresource.project
-        testrail_project_id = project.testrail.project_id
-        testrail_project = get_testrail_project( testrail_instance, testrail_project_id )
-        testrail_suites = testrail_project.get_suites()
-        testrail_suite = [s for s in testrail_suites if s.id == testrail_suite_id][0]
-        testrail_cases = testrail_suite.get_cases()
-        hatit_csv_filename = bulk_hatit_file_generator( testrail_cases )
-        testrail_run = testrail_suite.open_test_run()
-        hs = HATScript()
-        hs.csvfile = hatit_csv_filename
-        hs.apn = data.get('apn')
-        hs.holly_server = data.get('browser')
-        response = hs.hatit_execute()
-        testserver = data.get('testserver')
-        mdta_test_run = TestRun.objects.create(
-            hat_run_id=json.loads(response.text)['runid'],
-            hat_server=TestServers.objects.get( server=testserver ),
-            testrail_project_id=testrail_project_id,
-            testrail_suite_id=testrail_suite_id,
-            testrail_test_run=testrail_run.id,
-            project=project
-        )
-        poll_result_loop.delay( mdta_test_run.pk )
-        for case in testrail_cases:
-            AutomatedTestCase.objects.create( test_run=mdta_test_run, testrail_case_id=case.id )
-    else:
-        print(form.errors)
+        print('entered ugh')
+        form = TestRunnerForm(data=request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            print(data)
+            testrail_suite_id = int(data.get('suite'))
+            testrail_instance = TestRailInstance.objects.first()
+            project = request.user.humanresource.project
+            testrail_project_id = project.testrail.project_id
+            testrail_project = get_testrail_project( testrail_instance, testrail_project_id)
+            testrail_suites = testrail_project.get_suites()
+            testrail_suite = [s for s in testrail_suites if s.id == testrail_suite_id][0]
+            testrail_cases = testrail_suite.get_cases()
+            hatit_csv_filename = bulk_hatit_file_generator(testrail_cases)
+            testrail_run = testrail_suite.open_test_run()
+            hs = HATScript()
+            hs.csvfile = hatit_csv_filename
+            hs.apn = data.get('apn')
+            hs.holly_server = data.get('browser')
+            response = hs.hatit_execute()
+            testserver = data.get('testserver')
+            mdta_test_run = TestRun.objects.create(
+                hat_run_id=json.loads(response.text)['runid'],
+                hat_server=TestServers.objects.get( server=testserver ),
+                testrail_project_id=testrail_project_id,
+                testrail_suite_id=testrail_suite_id,
+                testrail_test_run=testrail_run.id,
+                project=project
+            )
+            poll_result_loop.delay( mdta_test_run.pk )
+            for case in testrail_cases:
+                AutomatedTestCase.objects.create(test_run=mdta_test_run, testrail_case_id=case.id)
+        else:
+            print(form.errors)
 
-    return JsonResponse(data={'run': mdta_test_run.pk,
+        return JsonResponse(data={'run': mdta_test_run.pk,
                                   'cases': [{
                                      'testrail_case_id': c.testrail_case_id,
                                      'status': c.status

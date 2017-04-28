@@ -1,8 +1,6 @@
 $(function(){
     $(".run-btn").click(populateSteps);
     $(".run-all-suite").click(getId);
-    //$(".run-all-btn").click(create_post);
-
 });
 
 var s_id;
@@ -13,75 +11,42 @@ function getId() {
     return s_id;
 }
 
-$("#run-all-modal").on('submit', function(e) {
-        e.preventDefault();
-        console.log("form submitted!");
-        create_post()
-});
-
-function create_post() {
-    console.log("create post is working!"); // sanity check
-    var $form = $('#run-all-modal');
-    var submit = $('#submit');
-    $.ajax({
-        url: "run_all_modal/",
+function runAll(){
+    //var suite_id = this.getAttribute('data-suite')
+    var suite_id = s_id;
+    var button = $(this);
+    $(location).attr('href', 'runner/dashboard.html');
+    $("#testcase").html("Generating tests. Please wait.");
+    $("#result").html("");
+    $.ajax('{% url "runner:run_all_modal" %}?suite=' + suite_id, {
         type: "POST",
-        dataType: 'json',
-        data: $form.serialize(),
-        beforeSend: function() {
-           alert.fadeOut();
-           submit.html('Sending....'); // change submit button text
-        },
         success: function(data, textStatus, jqXHR){
             var div = $("#testcase");
+            var table_draw = '<table class="table table-bordered"><tr><th>Run ID</th><th>Cases</th></tr>'
             console.log(data);
-            console.log("success");
-            alert.html(data).fadeIn();
-            $form.trigger('reset');
-        },
-        error: function (xhr, errmsg, err) {
-            $('#results').html("<div class='alert-box alert radius' data-alert>Oops! We have encountered an error: " + errmsg +
-                " <a href='#' class='close'>&times;</a></div>"); // add the error to the dom
-            console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+            $.each(data.cases, function(index, value){
+                table_draw += "<tr><td class='run'></td>" +
+                    "<td class='cases'>" + value + "</td>" + "</tr>"
+            });
+            table_draw += "</table>";
+            div.html(table_draw);
+            $(location).attr('href', 'runner/dashboard.html');
+            var counter = 0;
+            var poll = setInterval(function() {
+                checkScript(data.cases[counter])
+                counter++;
+                if (counter >= data.cases.length){
+                    if (checkCompletion()) {
+                        console.log('Run complete')
+                        clearInterval(poll)
+                    }
+                    counter = 0
+                }
+
+            }, 750)
         }
-    });
+    })
 }
-// function runAll(){
-//     //var suite_id = this.getAttribute('data-suite')
-//     var suite_id = s_id;
-//     var button = $(this);
-//     $(location).attr('href', 'runner/dashboard.html');
-//     $("#testcase").html("Generating tests. Please wait.");
-//     $("#result").html("");
-//     $.ajax('{% url "runner:run_all_modal" %}?suite=' + suite_id, {
-//         type: "POST",
-//         success: function(data, textStatus, jqXHR){
-//             var div = $("#testcase");
-//             var table_draw = '<table class="table table-bordered"><tr><th>Run ID</th><th>Cases</th></tr>'
-//             console.log(data);
-//             $.each(data.cases, function(index, value){
-//                 table_draw += "<tr><td class='run'></td>" +
-//                     "<td class='cases'>" + value + "</td>" + "</tr>"
-//             });
-//             table_draw += "</table>";
-//             div.html(table_draw);
-//             $(location).attr('href', 'runner/dashboard.html');
-//             // var counter = 0;
-//             // var poll = setInterval(function() {
-//             //     checkScript(data.cases[counter])
-//             //     counter++;
-//             //     if (counter >= data.cases.length){
-//             //         if (checkCompletion()) {
-//             //             console.log('Run complete')
-//             //             clearInterval(poll)
-//             //         }
-//             //         counter = 0
-//             //     }
-//             //
-//             // }, 750)
-//         }
-//     })
-// }
 
 function checkCompletion(script){
     var done = true;
