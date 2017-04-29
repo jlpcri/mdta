@@ -1,5 +1,6 @@
 import json
 
+from operator import itemgetter
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -57,7 +58,7 @@ def run_all_modal(request):
         browser = request.POST.get('browser')
         apn = request.POST.get('apn')
         suite = request.POST.get('suite')
-        testrail_suite_id = suite
+        testrail_suite_id = int(suite)
         testrail_instance = TestRailInstance.objects.first()
         project = request.user.humanresource.project
         testrail_project_id = project.testrail.project_id
@@ -73,9 +74,11 @@ def run_all_modal(request):
         hs.holly_server = browser
         response = hs.hatit_execute()
         mdta_test_run = TestRun.objects.create(hat_run_id=json.loads(response.text)['runid'],
-                                               hat_server=TestServers.objects.get( server=testserver ), testrail_project_id=testrail_project_id,
-                                               testrail_suite_id=testrail_suite_id, testrail_test_run=testrail_run.id, project=project)
-        poll_result_loop.delay( mdta_test_run.pk )
+                                               hat_server=TestServers.objects.get( server=testserver),
+                                               testrail_project_id=testrail_project_id,
+                                               testrail_suite_id=testrail_suite_id,
+                                               testrail_test_run=testrail_run.id, project=project)
+        poll_result_loop.delay(mdta_test_run.pk)
         for case in testrail_cases:
             AutomatedTestCase.objects.create(test_run=mdta_test_run, testrail_case_id=case.id)
 
@@ -98,7 +101,7 @@ def check_test_result(request):
             return JsonResponse(response)
         return JsonResponse({'running': True})
     except Exception as e:
-        return JsonResponse({'success': False, 'reason': 'An untrapped error occurred: ' + str( e.args )})
+        return JsonResponse({'success': False, 'reason': 'An untrapped error occurred: ' + str(e.args)})
 
 
 @login_required

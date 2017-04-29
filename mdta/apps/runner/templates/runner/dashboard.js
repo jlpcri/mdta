@@ -1,7 +1,7 @@
 $(function(){
     $(".run-btn").click(populateSteps);
     $(".run-all-suite").click(getId);
-    $(".run-all-btn").click(runnAll);
+    $(".run-all-btn").click(runAll);
 });
 
 var s_id;
@@ -42,10 +42,11 @@ $.ajaxSetup({
     }
 });
 
-function runnAll() {
+function runAll() {
     $('#run-all-modal-form').on('submit', function( event ) {
         event.preventDefault();
-        console.log('enter');
+        $("#testcase").html("Generating tests. Please wait.");
+        $("#result").html("");
         var data = $(this).serialize();
         console.log(data);
         $.ajax({
@@ -55,103 +56,91 @@ function runnAll() {
             dataType: 'json',
             success: function (data, status) {
                 console.log('it worked!');
+                $('#run-all-modal').modal('hide');
+                $(location).attr('href', '#');
+                var div = $("#testcase");
+                var table_draw = '<table class="table table-bordered"><thead><tr><th class="col-md-1 cdiv">Run ID: ' +  data.run + '</th></tr></thead>'
+                + '<thead><tr><th class="col-md-1">Cases</th></tr></thead>';
+                console.log(data.cases);
+                $.each(data.cases, function (index, value) {
+                    table_draw +=
+                     "<tr><td>Testrail Case ID: " + value.testrail_case_id + "</td></tr>";
+                });
+                table_draw += "</table>";
+                div.html(table_draw);
+                var counter = 0;
+                // var poll = setInterval(function() {
+                //     checkScript(data.scripts[counter])
+                //     counter++;
+                //     if (counter >= data.scripts.length) {
+                //         if (checkCompletion()) {
+                //             console.log('Run complete')
+                //             clearInterval(poll)
+                //         }
+                //         counter = 0
+                //     }
+                //
+                // }, 750)
             }
-        });
+        }, 750);
         return false;
     });
 }
 
 
-function runAll(){
-    //var suite_id = this.getAttribute('data-suite')
-    var suite_id = s_id;
-    var button = $(this);
-    $(location).attr('href', 'runner/dashboard.html');
-    $("#testcase").html("Generating tests. Please wait.");
-    $("#result").html("");
-    $.ajax('{% url "runner:run_all_modal" %}?suite=' + suite_id, {
-        type: "POST",
-        success: function(data, textStatus, jqXHR){
-            var div = $("#testcase");
-            var table_draw = '<table class="table table-bordered"><tr><th>Run ID</th><th>Cases</th></tr>'
-            console.log(data);
-            $.each(data.cases, function(index, value){
-                table_draw += "<tr><td class='run'></td>" +
-                    "<td class='cases'>" + value + "</td>" + "</tr>"
-            });
-            table_draw += "</table>";
-            div.html(table_draw);
-            $(location).attr('href', 'runner/dashboard.html');
-            var counter = 0;
-            var poll = setInterval(function() {
-                checkScript(data.cases[counter])
-                counter++;
-                if (counter >= data.cases.length){
-                    if (checkCompletion()) {
-                        console.log('Run complete')
-                        clearInterval(poll)
-                    }
-                    counter = 0
-                }
+// function checkCompletion(script){
+//     var done = true;
+//     $(".status span").each(function(i, element){
+//         if (element.innerHTML === " Running...") {
+//             done = false
+//         }
+//     });
+//     return done
+// }
 
-            }, 750)
-        }
-    })
-}
+// function checkScript(script){
+//     $.ajax('{% url "runner:check_result" %}' + "?filename=" + script, {
+//         success: function(data, textStatus, jqXHR){
+//             console.log(data);
+//             if (!data.running) {
+//                 if (data.success) {
+//                     markSuccess(script, data.call_id)
+//                 }
+//                 else {
+//                     markFailure(script, data.call_id, data.reason)
+//                 }
+//             }
+//         }
+//     })
+//
+// }
 
-function checkCompletion(script){
-    var done = true;
-    $(".status span").each(function(i, element){
-        if (element.innerHTML === " Running...") {
-            done = false
-        }
-    });
-    return done
-}
+// function markSuccess(script, callId){
+//     updateStatusClassAndText(script, "fa fa-check-square text-success", "Pass");
+//     updateCallID(script, callId)
+// }
+//
+// function markFailure(script, callId, failureReason){
+//     updateStatusClassAndText(script, "fa fa-minus-square text-danger", "Fail");
+//     updateCallID(script, callId);
+//     updateFailureReason(script, failureReason)
+// }
 
-function checkScript(script){
-    $.ajax('{% url "runner:check_result" %}' + "?filename=" + script, {
-        success: function(data, textStatus, jqXHR){
-            console.log(data);
-            if (!data.running) {
-                if (data.success) {
-                    markSuccess(script, data.call_id)
-                }
-                else {
-                    markFailure(script, data.call_id, data.reason)
-                }
-            }
-        }
-    })
-
-}
-
-function markSuccess(script, callId){
-    updateStatusClassAndText(script, "fa fa-check-square text-success", "Pass");
-    updateCallID(script, callId)
-}
-
-function markFailure(script, callId, failureReason){
-    updateStatusClassAndText(script, "fa fa-minus-square text-danger", "Fail");
-    updateCallID(script, callId);
-    updateFailureReason(script, failureReason)
-}
-
-function updateStatusClassAndText(script, cls, text){
-    var status_td = $("#testcase table").find('td.script:contains("' + script + '")').siblings(".status");
-    status_td.find("i").attr("class", cls);
-    status_td.find("span").html(text)
-}
-
-function updateCallID(script, callId){
-    var id_td = $("#testcase table").find('td.script:contains("' + script + '")').siblings(".call-id");
-    id_td.html(callId)
-}
-
-function updateFailureReason(script, failureReason){
-    var reason_td = $("#testcase table").find('td.script:contains("' + script + '")').siblings(".reason");
-    reason_td.html(failureReason)
-}
+// function updateStatusClassAndText(script, cls, text){
+//     var status_td = $("#testcase table").find('td.script:contains("' + script + '")').siblings(".status");
+//     status_td.find("i").attr("class", cls);
+//     status_td.find("span").html(text)
+// }
+//
+// function updateCallID(script, callId){
+//     var id_td = $("#testcase table").find('td.script:contains("' + script + '")').siblings(".call-id");
+//     id_td.html(callId)
+// }
+//
+// function updateFailureReason(script, failureReason){
+//     var reason_td = $("#testcase table").find('td.script:contains("' + script + '")').siblings(".reason");
+//     reason_td.html(failureReason)
+// }
 
 function populateSteps(){
     var case_id = this.getAttribute('data-case');
