@@ -2,7 +2,7 @@
 
 <div class="modal fade newModule" id="run-all-modal">
     <div class="modal-dialog">
-        <form action="#" method="post" enctype="multipart/form-data">
+        <form action="#" method="post" id="run-all-modal-form" enctype="application/x-www-form-urlencoded">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
@@ -25,51 +25,3 @@
         </form>
     </div>
 </div>
-
-<script type="text/javascript">
-    function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i++) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-    }
-    var csrftoken = getCookie('csrftoken');
-    console.log(csrftoken);
-    function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            }
-        }
-    });
-
-    $(document).on('submit', '#run-all-modal', function() {
-        console.log('enter');
-        $.post({
-            type: 'POST',
-            data: $(this).serialize(),
-            url: '{% url 'runner:run_all_modal' %}',
-            cache: 'false',
-            contentType:'application/json',
-            success: function(data, status){
-                console.log(data);
-                console.log(url);
-                console.log('it worked!');
-            }
-        });
-    });
-
-</script>
