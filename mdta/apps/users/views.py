@@ -85,8 +85,11 @@ def user_update(request, user_id):
             or request.POST.get('is_superuser', False)
         user.is_staff = request.POST.get('is_staff', False)
         user.is_superuser = request.POST.get('is_superuser', False)
-
         user.save()
+
+        user.humanresource.lead = request.POST.get('is_lead', False)
+        user.humanresource.manager = request.POST.get('is_manager', False)
+        user.humanresource.save()
 
         return redirect('users:management')
     else:
