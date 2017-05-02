@@ -137,7 +137,7 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                                  '\' to \'' +
                                  edge.to_node.name + '\''
                     })
-                    print(edge.id)
+                    # print(edge.id)
                 else:
                     title = 'Route from \'' + edge.from_node.name +\
                                     '\' to \'' + edge.to_node.name + '\''
