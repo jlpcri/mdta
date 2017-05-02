@@ -39,7 +39,7 @@ def projects_for_selection(request):
     return render(request, 'graphs/projects_for_selection.html', context)
 
 
-@user_passes_test(user_is_superuser)
+@user_passes_test(user_is_staff)
 def graphs(request):
     """
     View of apps/graphs, include projects list, node type, edge type
@@ -59,7 +59,7 @@ def graphs(request):
     return render(request, 'graphs/graphs.html', context)
 
 
-@user_passes_test(user_is_staff)
+@user_passes_test(user_is_superuser)
 def node_type_new(request):
     """
     Add new NodeType from apps/graphs
@@ -76,7 +76,7 @@ def node_type_new(request):
         return render(request, 'projects/project_dashboard.html', context)
 
 
-@user_passes_test(user_is_staff)
+@user_passes_test(user_is_superuser)
 def node_type_edit(request):
     """
     Edit NodeType from apps/graphs
@@ -95,7 +95,7 @@ def node_type_edit(request):
         return render(request, 'projects/project_dashboard.html', context)
 
 
-@user_passes_test(user_is_staff)
+@user_passes_test(user_is_superuser)
 def edge_type_new(request):
     """
     Add new EdgeType from apps/graphs
@@ -112,7 +112,7 @@ def edge_type_new(request):
         return render(request, 'projects/project_dashboard.html', context)
 
 
-@user_passes_test(user_is_staff)
+@user_passes_test(user_is_superuser)
 def edge_type_edit(request):
     """
     Edit EdgeType from apps/graphs
