@@ -2,7 +2,7 @@
 #PROJECTNAME=demo
 #set -x 
 
-REPO=/var/repos/hg
+REPO=/var/hg/repos
 CLONE_LOC=/opt
 
 if [ -z $1 ]; then
@@ -14,7 +14,7 @@ fi
 
 #Create directory
 echo "Creating Project Directory......."
-rm -rf $REPO/$1
+rm -r $REPO/$1
 mkdir -p $REPO/$1
 
 #Initiate and clone mercurial repository
