@@ -88,6 +88,7 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
     # print(th_paths)
 
     data = []
+    domain_set = []
     if th_paths:
         for th_path in th_paths:
             for edge in edges:
@@ -95,7 +96,7 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                 path = routing_path_to_edge(edge, shortest_set)
 
                 if path:
-                    path_data = path_traverse_backwards(path, th_path=th_path, language=language)
+                    path_data = path_traverse_backwards(path, th_path=th_path, language=language, domain_set=domain_set)
                     if 'tcs_cannot_route' in path_data.keys():
                         data.append({
                             'tcs_cannot_route': path_data['tcs_cannot_route'],
@@ -117,17 +118,21 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                             })
 
                         if edge.to_node.type.name in NODE_MP_NAME:
+                            exist_node = next((item for item in domain_set if item['name'] ==edge.to_node.module.name + '-' + edge.to_node.name), None)
+                            if exist_node:
+                                # print(exist_node['domain'][MP_VER])
+                                data.pop()
                             negative_testcase_generation(data, path_data, title, NEGATIVE_TESTS_LIST, edge, language=language)
                             if edge.to_node.type.name == NODE_MP_NAME[1]:
                                 negative_testcase_generation(data, path_data, title, NEGATIVE_CONFIRM_TESTS_LIST, edge, language=language)
                                 rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
-
+        print(domain_set)
     else:
         for edge in edges:
             path = routing_path_to_edge(edge, shortest_set)
 
             if path:
-                path_data = path_traverse_backwards(path, language=language)
+                path_data = path_traverse_backwards(path, language=language, domain_set=domain_set)
                 if 'tcs_cannot_route' in path_data.keys():
                     data.append({
                         'tcs_cannot_route': path_data['tcs_cannot_route'],
