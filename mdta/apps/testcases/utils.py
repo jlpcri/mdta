@@ -7,7 +7,7 @@ from mdta.apps.testcases.testrail import APIClient, APIError
 from mdta.apps.testcases.utils_backwards_traverse import path_traverse_backwards
 from mdta.apps.testcases.utils_negative_testcases import negative_testcase_generation, rejected_testcase_generation
 
-from mdta.apps.testcases.constant_names import NODE_START_NAME, NODE_MP_NAME, LANGUAGE_DEFAULT_NAME
+from mdta.apps.testcases.constant_names import NODE_START_NAME, NODE_MP_NAME, LANGUAGE_DEFAULT_NAME, NEGATIVE_TESTS_LIST, NEGATIVE_CONFIRM_TESTS_LIST
 
 
 def context_testcases():
@@ -117,8 +117,9 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                             })
 
                         if edge.to_node.type.name in NODE_MP_NAME:
-                            negative_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
+                            negative_testcase_generation(data, path_data, title, NEGATIVE_TESTS_LIST, edge, language=language)
                             if edge.to_node.type.name == NODE_MP_NAME[1]:
+                                negative_testcase_generation(data, path_data, title, NEGATIVE_CONFIRM_TESTS_LIST, edge, language=language)
                                 rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
 
     else:
@@ -148,8 +149,11 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                             'title': title
                         })
 
-                    if edge.to_node.type.name == NODE_MP_NAME[0]:
-                        negative_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
+                    if edge.to_node.type.name in NODE_MP_NAME:
+                        negative_testcase_generation(data, path_data, title, NEGATIVE_TESTS_LIST, edge, language=language)
+                        if edge.to_node.type.name == NODE_MP_NAME[1]:
+                            negative_testcase_generation(data, path_data, title, NEGATIVE_CONFIRM_TESTS_LIST, edge, language=language)
+                            rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
 
     # return check_subpath_in_all(data)
     return data
