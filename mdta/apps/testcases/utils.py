@@ -7,7 +7,7 @@ from mdta.apps.testcases.testrail import APIClient, APIError
 from mdta.apps.testcases.utils_backwards_traverse import path_traverse_backwards
 from mdta.apps.testcases.utils_negative_testcases import negative_testcase_generation, rejected_testcase_generation
 
-from mdta.apps.testcases.constant_names import NODE_START_NAME, NODE_MP_NAME, LANGUAGE_DEFAULT_NAME, NEGATIVE_TESTS_LIST, NEGATIVE_CONFIRM_TESTS_LIST
+from mdta.apps.testcases.constant_names import *
 
 
 def context_testcases():
@@ -118,15 +118,19 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                             })
 
                         if edge.to_node.type.name in NODE_MP_NAME:
-                            exist_node = next((item for item in domain_set if item['name'] ==edge.to_node.module.name + '-' + edge.to_node.name), None)
-                            if exist_node:
-                                # print(exist_node['domain'][MP_VER])
+                            exist_node = next((item for item in domain_set if item['id'] == 'node-{0}'.format(edge.to_node.id)), None)
+                            exist_edge = next((item for item in domain_set if item['id'] == 'edge-{0}'.format(edge.id)), None)
+                            if exist_edge and exist_edge['visited'] and len(edge.to_node.leaving_edges) > 0:
                                 data.pop()
-                            negative_testcase_generation(data, path_data, title, NEGATIVE_TESTS_LIST, edge, language=language)
+                                # print(exist_edge)
+                            if exist_node and not exist_node['visited']:
+                                negative_testcase_generation(data, path_data, title, NEGATIVE_TESTS_LIST, edge, language=language)
+                                exist_node['visited'] = True
+                                # print(exist_node)
                             if edge.to_node.type.name == NODE_MP_NAME[1]:
                                 negative_testcase_generation(data, path_data, title, NEGATIVE_CONFIRM_TESTS_LIST, edge, language=language)
                                 rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
-        print(domain_set)
+        # print(domain_set)
     else:
         for edge in edges:
             path = routing_path_to_edge(edge, shortest_set)

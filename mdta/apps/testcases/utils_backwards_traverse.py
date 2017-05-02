@@ -382,37 +382,23 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None, language=
     elif node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME, NODE_SET_VARIABLE]:
         add_step(node_prompt(node, preceding_edge, language=language), tcs)
 
-        exist_node_name = node.module.name + '-' + node.name
-        exist_node = next((item for item in domain_set if item['name'] == exist_node_name), None)
+        exist_node_id = 'node-{0}'.format(node.id)
+        exist_node = next((item for item in domain_set if item['id'] == exist_node_id), None)
         if not exist_node:
-            if node.type.name == NODE_MP_NAME[0]:
-                domain_set.append({
-                    'name': exist_node_name,
-                    'domain': {
-                        MP_VER: 1,  # 1: visited, 0: not visited
-                        MP_NI1: 0,
-                        MP_NI2: 0,
-                        MP_NM1: 0,
-                        MP_NM2: 0
-                    }
-                })
-            elif node.type.name == NODE_MP_NAME[1]:
-                domain_set.append({
-                    'name': exist_node_name,
-                    'domain': {
-                        MP_VER: 1,
-                        MP_NI1: 0,
-                        MP_NI2: 0,
-                        MP_NM1: 0,
-                        MP_NM2: 0,
-                        MPC_VER: 0,
-                        MPC_NI1: 0,
-                        MPC_NI2: 0,
-                        MPC_NM1: 0,
-                        MPC_NM2: 0,
-                        MPC_RJ1: 0
-                    }
-                })
+            domain_set.append({
+                'id': exist_node_id,
+                'type': node.type.name,
+                'visited': False
+            })
+
+        exist_edge_id = 'edge-{0}'.format(preceding_edge.id)
+        exist_edge = next((item for item in domain_set if item['id'] == exist_edge_id), None)
+        if not exist_edge:
+            domain_set.append({
+                'id': exist_edge_id,
+                'type': '',
+                'visited': True
+            })
 
     if node.type.name == NODE_MP_NAME[1] and following_edge:
         flag = True
