@@ -1,15 +1,16 @@
 import json
 
-from operator import itemgetter
+from celery.result import AsyncResult
+
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 
 from mdta.apps.projects.forms import TestRunnerForm
 from mdta.apps.projects.models import TestRailInstance, Project, TestRailConfiguration
-from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, bulk_hatit_file_generator, HATScript, check_result
+from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, bulk_hatit_file_generator, HATScript
 from mdta.apps.runner.models import TestRun, AutomatedTestCase, TestServers
-from mdta.apps.runner.tasks import poll_result_loop
+from mdta.apps.runner.tasks import poll_result_loop, poll_result
 
 
 def display_project_suites(request, project_id):
@@ -40,7 +41,7 @@ def execute_test(request, mdta_project_id):
 
 def run_test_suite(request):
     """Probably dead code. Check and refactor."""
-    testrail_suite_id = int( request.GET['suite'] )
+    testrail_suite_id = int(request.GET['suite'])
     testrail_instance = TestRailInstance.objects.first()
     project = request.user.humanresource.project
     testrail_project_id = project.testrail.project_id
@@ -74,7 +75,7 @@ def run_all_modal(request):
         hs.holly_server = browser
         response = hs.hatit_execute()
         mdta_test_run = TestRun.objects.create(hat_run_id=json.loads(response.text)['runid'],
-                                               hat_server=TestServers.objects.get( server=testserver),
+                                               hat_server=TestServers.objects.get(server=testserver),
                                                testrail_project_id=testrail_project_id,
                                                testrail_suite_id=testrail_suite_id,
                                                testrail_test_run=testrail_run.id, project=project)
@@ -92,13 +93,14 @@ def run_all_modal(request):
 
 def check_test_result(request):
     try:
-        filename = request.GET.get('filename', False)
-        if not filename:
-            return JsonResponse({'success': False, 'reason': 'Could not read filename'})
-        response = check_result(filename)
-        if response:
-            response['running'] = False
-            return JsonResponse(response)
+        run_id = int(request.GET.get['run_id'])
+        if not run_id:
+            return JsonResponse({'success': False, 'reason': 'Could not read run'})
+        res = poll_result_loop.AysncResult(run_id)
+        res.get()
+        if res:
+            res['running'] = False
+            return JsonResponse(res)
         return JsonResponse({'running': True})
     except Exception as e:
         return JsonResponse({'success': False, 'reason': 'An untrapped error occurred: ' + str(e.args)})

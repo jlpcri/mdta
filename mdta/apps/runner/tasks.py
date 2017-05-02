@@ -19,8 +19,6 @@ def poll_result_loop(test_run_id):
     time.sleep(1)
     poll_result_loop.delay(test_run_id)
 
-
-
 @app.task
 def poll_result(test_run_id):
     test_run = TestRun.objects.get(pk=test_run_id)

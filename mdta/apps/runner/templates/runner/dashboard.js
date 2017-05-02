@@ -43,104 +43,114 @@ $.ajaxSetup({
 });
 
 function runAll() {
-    $('#run-all-modal-form').on('submit', function( event ) {
+    $('#run-all-modal-form').on('submit', function(event) {
         event.preventDefault();
+        var button = $(this);
         $("#testcase").html("Generating tests. Please wait.");
         $("#result").html("");
         var data = $(this).serialize();
-        console.log(data);
         $.ajax({
             type: 'POST',
             data: data,
             url: '{% url "runner:run_all_modal" %}',
             dataType: 'json',
             success: function (data, status) {
-                console.log('it worked!');
                 $('#run-all-modal').modal('hide');
                 $(location).attr('href', '#');
+                var cases = data;
                 var div = $("#testcase");
                 var table_draw = '<table class="table table-bordered"><thead><tr><th class="col-md-1 cdiv">Run ID: ' +  data.run + '</th></tr></thead>'
                 + '<thead><tr><th class="col-md-1">Cases</th></tr></thead>';
-                console.log(data.cases);
-                $.each(data.cases, function (index, value) {
-                    table_draw +=
-                     "<tr><td>Testrail Case ID: " + value.testrail_case_id + "</td></tr>";
+                $.each(cases.cases, function (index, value) {
+                    table_draw += "<tr><td>Testrail Case ID: " + value.testrail_case_id + "</td>" +
+                    "<td class='status'><i class='fa fa-spin fa-spinner'></i> <span> Running...</span></td>" +
+                    "<td class='defects'></td>" +
+                    "<td class='comment'></td>" +
+                    "<td class='content'></td>" +
+                    "<td class='expected'></td></tr>"
                 });
                 table_draw += "</table>";
                 div.html(table_draw);
                 var counter = 0;
-                // var poll = setInterval(function() {
-                //     checkScript(data.scripts[counter])
-                //     counter++;
-                //     if (counter >= data.scripts.length) {
-                //         if (checkCompletion()) {
-                //             console.log('Run complete')
-                //             clearInterval(poll)
-                //         }
-                //         counter = 0
-                //     }
-                //
-                // }, 750)
+                var poll = setInterval(function () {
+                    var run_id = parseInt(cases.run);
+                    checkCase(run_id);
+                    getSteps(cases.cases[counter]);
+                    counter++;
+                    if (counter >= cases.cases.length) {
+                        if (checkCompletion()) {
+                            console.log('Run complete')
+                            clearInterval(poll)
+                        }
+                        counter = 0
+                    }
+
+                }, 750)
             }
-        }, 750);
+        });
         return false;
     });
 }
 
+function checkCompletion(cases){
+    var done = true;
+    $(".status span").each(function(i, element){
+        if (element.innerHTML === " Running...") {
+            done = false
+        }
+    });
+    return done
+}
 
-// function checkCompletion(script){
-//     var done = true;
-//     $(".status span").each(function(i, element){
-//         if (element.innerHTML === " Running...") {
-//             done = false
-//         }
-//     });
-//     return done
+function checkCase(run){
+    //var run_id = parseInt(run);
+    console.log(run);
+    $.ajax('{% url "runner:check_result" %}' + "?run_id=" + run, {
+        success: function(data, textStatus, jqXHR){
+            console.log(data);
+            if (!data.running) {
+                if (data.success) {
+                    //markSuccess(run_id, data.call_id)
+                    console.log(run)
+                }
+                else {
+                    //markFailure(run_id, data.call_id, data.reason)
+                    console.log(data.reason)
+                }
+            }
+        }
+    })
+
+}
+
+function getSteps(cases) {
+    console.log(cases.testrail_case_id);
+    $.ajax('{% url "runner:steps" project.id %}?case_id=' + cases.testrail_case_id, {
+        success: function (data, textStatus, jqXHR) {
+            var div = $("#testcase");
+            var table_draw = '<table class="table table-bordered"><thead><tr><th class="col-md-4">Content</th><th class="col-md-8">Expected Result</th></tr></thead>';
+            $.each(data.steps, function (index, value) {
+                // updateContent(status, value);
+                // updateExpected(status, value);
+                table_draw += "<tr><td>" + value.content + "</td><td>" + value.expected + "</td></tr>";
+                console.log(value);
+            });
+            table_draw += "</table>";
+            div.html(table_draw)
+        }
+    });
+}
+
+// function updateContent(status, value) {
+//     var content_td = $("#testcase table").find('td.status:contains("' + status + '")').siblings(".content");
+//                 content_td.html(value.content);
+// }
+//
+// function updateExpected(status, value) {
+//     var expected_td = $("#testcase table").find('td.status:contains("' + status + '")').siblings(".expected");
+//                 expected_td.html(value.expected);
 // }
 
-// function checkScript(script){
-//     $.ajax('{% url "runner:check_result" %}' + "?filename=" + script, {
-//         success: function(data, textStatus, jqXHR){
-//             console.log(data);
-//             if (!data.running) {
-//                 if (data.success) {
-//                     markSuccess(script, data.call_id)
-//                 }
-//                 else {
-//                     markFailure(script, data.call_id, data.reason)
-//                 }
-//             }
-//         }
-//     })
-//
-// }
-
-// function markSuccess(script, callId){
-//     updateStatusClassAndText(script, "fa fa-check-square text-success", "Pass");
-//     updateCallID(script, callId)
-// }
-//
-// function markFailure(script, callId, failureReason){
-//     updateStatusClassAndText(script, "fa fa-minus-square text-danger", "Fail");
-//     updateCallID(script, callId);
-//     updateFailureReason(script, failureReason)
-// }
-
-// function updateStatusClassAndText(script, cls, text){
-//     var status_td = $("#testcase table").find('td.script:contains("' + script + '")').siblings(".status");
-//     status_td.find("i").attr("class", cls);
-//     status_td.find("span").html(text)
-// }
-//
-// function updateCallID(script, callId){
-//     var id_td = $("#testcase table").find('td.script:contains("' + script + '")').siblings(".call-id");
-//     id_td.html(callId)
-// }
-//
-// function updateFailureReason(script, failureReason){
-//     var reason_td = $("#testcase table").find('td.script:contains("' + script + '")').siblings(".reason");
-//     reason_td.html(failureReason)
-// }
 
 function populateSteps(){
     var case_id = this.getAttribute('data-case');
@@ -178,7 +188,7 @@ function populateSteps(){
                 button.siblings(".text-danger").removeClass("hidden");
                 button.siblings(".text-success").addClass("hidden");
             }
-            
+
         },
         error: function(jqXHR, textStatus, errorThrown) {
             console.log("FAIL: " + textStatus);
@@ -192,5 +202,5 @@ function populateSteps(){
             $("#result").html(result_table);
         }
     });
-    
+
 }
