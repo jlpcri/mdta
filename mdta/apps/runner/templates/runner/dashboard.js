@@ -58,16 +58,16 @@ function runAll() {
                 $('#run-all-modal').modal('hide');
                 $(location).attr('href', '#');
                 var cases = data;
+                temprun = parseInt(95);
                 var div = $("#testcase");
-                var table_draw = '<table class="table table-bordered"><thead><tr><th class="col-md-1 cdiv">Run ID: ' +  data.run + '</th></tr></thead>'
-                + '<thead><tr><th class="col-md-1">Cases</th></tr></thead>';
+                var table_draw = '<table class="table table-bordered"><tr><th>Title</th><th>Run</th><th>Status</th><th>Holly</th><th>Call ID</th><th>Failure reason</th></tr>';
                 $.each(cases.cases, function (index, value) {
-                    table_draw += "<tr><td>Testrail Case ID: " + value.testrail_case_id + "</td>" +
-                    "<td class='status'><i class='fa fa-spin fa-spinner'></i> <span> Running...</span></td>" +
-                    "<td class='defects'></td>" +
-                    "<td class='comment'></td>" +
-                    "<td class='content'></td>" +
-                    "<td class='expected'></td></tr>"
+                    table_draw += "<tr><td class='title'>" + cases.title + "</td>" +
+                    "<td class='run'>"  + temprun + "</td>" +
+                    "<td class='status'><i class='fa fa-spin fa-spinner'></i><span> Running...</span></td>" +
+                    "<td class='holly'>" + cases.holly + "</td>" +
+                    "<td class='call-id'></td>" +
+                    "<td class='reason'></td></tr>"
                 });
                 table_draw += "</table>";
                 div.html(table_draw);
@@ -75,11 +75,11 @@ function runAll() {
                 var poll = setInterval(function () {
                     var run_id = parseInt(cases.run);
                     checkCase(run_id);
-                    getSteps(cases.cases[counter]);
+                    //getSteps(cases.cases[counter]);
                     counter++;
                     if (counter >= cases.cases.length) {
                         if (checkCompletion()) {
-                            console.log('Run complete')
+                            console.log('Run complete');
                             clearInterval(poll)
                         }
                         counter = 0
@@ -103,43 +103,67 @@ function checkCompletion(cases){
 }
 
 function checkCase(run){
-    //var run_id = parseInt(run);
-    console.log(run);
     $.ajax('{% url "runner:check_result" %}' + "?run_id=" + run, {
         success: function(data, textStatus, jqXHR){
             console.log(data);
             if (!data.running) {
                 if (data.success) {
-                    //markSuccess(run_id, data.call_id)
-                    console.log(run)
+                    markSuccess(data.test_run_id, data.call_id);
+                    console.log(data.test_run_id, data.call_id);
                 }
                 else {
-                    //markFailure(run_id, data.call_id, data.reason)
-                    console.log(data.reason)
+                    markFailure(data.test_run_id, data.call_id, data.reason);
+                    console.log(data.test_run_id, data.call_id, data.reason);
                 }
             }
         }
     })
-
 }
 
-function getSteps(cases) {
-    console.log(cases.testrail_case_id);
-    $.ajax('{% url "runner:steps" project.id %}?case_id=' + cases.testrail_case_id, {
-        success: function (data, textStatus, jqXHR) {
-            var div = $("#testcase");
-            var table_draw = '<table class="table table-bordered"><thead><tr><th class="col-md-4">Content</th><th class="col-md-8">Expected Result</th></tr></thead>';
-            $.each(data.steps, function (index, value) {
-                // updateContent(status, value);
-                // updateExpected(status, value);
-                table_draw += "<tr><td>" + value.content + "</td><td>" + value.expected + "</td></tr>";
-                console.log(value);
-            });
-            table_draw += "</table>";
-            div.html(table_draw)
-        }
-    });
+function markSuccess(run, callId){
+    updateStatusClassAndText(run, "fa fa-check-square text-success", "Pass");
+    updateCallID(run, callId)
 }
+
+function markFailure(run, callId, failureReason){
+    updateStatusClassAndText(run, "fa fa-minus-square text-danger", "Fail");
+    updateCallID(run, callId);
+    updateFailureReason(run, failureReason)
+}
+
+function updateStatusClassAndText(run, cls, text){
+    var status_td = $("#testcase table").find('td.run:contains("' + run + '")').siblings(".status");
+    status_td.find("i").attr("class", cls);
+    status_td.find("span").html(text)
+}
+
+function updateCallID(run, callId){
+    var id_td = $("#testcase table").find('td.run:contains("' + run + '")').siblings(".call-id");
+    id_td.html(callId)
+}
+
+function updateFailureReason(run, failureReason) {
+    var reason_td = $("#testcase table").find('td.run:contains("' + run + '")').siblings(".reason");
+    reason_td.html(failureReason)
+}
+
+// function getSteps(cases) {
+//     console.log(cases.testrail_case_id);
+//     $.ajax('{% url "runner:steps" project.id %}?case_id=' + cases.testrail_case_id, {
+//         success: function (data, textStatus, jqXHR) {
+//             var div = $("#testcase");
+//             var table_draw = '<table class="table table-bordered"><thead><tr><th class="col-md-4">Content</th><th class="col-md-8">Expected Result</th></tr></thead>';
+//             $.each(data.steps, function (index, value) {
+//                 // updateContent(status, value);
+//                 // updateExpected(status, value);
+//                 table_draw += "<tr><td>" + value.content + "</td><td>" + value.expected + "</td></tr>";
+//                 console.log(value);
+//             });
+//             table_draw += "</table>";
+//             div.html(table_draw)
+//         }
+//     });
+// }
 
 // function updateContent(status, value) {
 //     var content_td = $("#testcase table").find('td.status:contains("' + status + '")').siblings(".content");

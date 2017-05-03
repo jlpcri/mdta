@@ -1,7 +1,5 @@
 import json
 
-from celery.result import AsyncResult
-
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -10,7 +8,7 @@ from mdta.apps.projects.forms import TestRunnerForm
 from mdta.apps.projects.models import TestRailInstance, Project, TestRailConfiguration
 from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, bulk_hatit_file_generator, HATScript
 from mdta.apps.runner.models import TestRun, AutomatedTestCase, TestServers
-from mdta.apps.runner.tasks import poll_result_loop, poll_result
+from mdta.apps.runner.tasks import poll_result_loop
 
 
 def display_project_suites(request, project_id):
@@ -67,6 +65,8 @@ def run_all_modal(request):
         testrail_suites = testrail_project.get_suites()
         testrail_suite = [s for s in testrail_suites if s.id == testrail_suite_id][0]
         testrail_cases = testrail_suite.get_cases()
+        for case in testrail_cases:
+            case_title = case.title
         hatit_csv_filename = bulk_hatit_file_generator(testrail_cases)
         testrail_run = testrail_suite.open_test_run()
         hs = HATScript()
@@ -83,7 +83,7 @@ def run_all_modal(request):
         for case in testrail_cases:
             AutomatedTestCase.objects.create(test_run=mdta_test_run, testrail_case_id=case.id)
 
-        return JsonResponse({'run': mdta_test_run.pk,
+        return JsonResponse({'run': mdta_test_run.pk, 'holly': browser, 'title': case_title,
                             'cases': [{'testrail_case_id': c.testrail_case_id, 'status': c.status} for c in
                                              mdta_test_run.automatedtestcase_set.all()]})
     else:
@@ -93,15 +93,27 @@ def run_all_modal(request):
 
 def check_test_result(request):
     try:
-        run_id = int(request.GET.get['run_id'])
+        run_id = int(95)
         if not run_id:
             return JsonResponse({'success': False, 'reason': 'Could not read run'})
-        res = poll_result_loop.AysncResult(run_id)
-        res.get()
-        if res:
-            res['running'] = False
-            return JsonResponse(res)
-        return JsonResponse({'running': True})
+        results = AutomatedTestCase.objects.filter(test_run_id=run_id)
+        result = results.values()
+        print(result)
+        for res in result:
+            print(res['call_id'])
+            if res['status'] != 1:
+                print(res['status'])
+                return JsonResponse({'success': True,
+                                     'running': False,
+                                     'status': res['status'],
+                                     'test_run_id': run_id,
+                                     'call_id': res['call_id']})
+            return JsonResponse({'success': False,
+                                 'running': True,
+                                 'status': res['status'],
+                                 'test_run_id': run_id,
+                                 'call_id': res['call_id'],
+                                 'reason': res['reason']})
     except Exception as e:
         return JsonResponse({'success': False, 'reason': 'An untrapped error occurred: ' + str(e.args)})
 
