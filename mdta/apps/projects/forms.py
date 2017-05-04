@@ -2,6 +2,7 @@ from django import forms
 from django.forms import ModelForm
 from django.shortcuts import get_object_or_404
 from mdta.apps.users.models import HumanResource
+from mdta.apps.runner.models import TestServers
 
 from .models import Project, Module, CatalogItem, Language
 
@@ -79,13 +80,17 @@ class TestHeaderForm(ModelForm):
 
 
 class TestRunnerForm(forms.Form):
-        browser = forms.CharField(max_length=100, required=False,
+    TEST_CHOICES = [[x.server, x.name] for x in TestServers.objects.all()]
+
+    browser = forms.CharField(max_length=100,
                                   widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "linux5578"}))
 
-        apn = forms.CharField(max_length=50, required=True,
+    apn = forms.CharField(max_length=50,
                            widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '4061702'}))
 
-        suite = forms.CharField(widget=forms.HiddenInput(attrs={'id': 'suiteid'}), required=False, max_length=50)
+    testserver = forms.ChoiceField(choices=TEST_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
+
+    suite = forms.CharField(widget=forms.HiddenInput(attrs={'id': 'suiteid'}), required=False, max_length=50)
 
 
 class ProjectConfigForm(ModelForm):
