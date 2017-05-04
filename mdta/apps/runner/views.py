@@ -88,6 +88,7 @@ def run_all_modal(request):
         return JsonResponse({'error': request.errors})
 
 
+
 def check_test_result(request):
     data_list = []
     try:
