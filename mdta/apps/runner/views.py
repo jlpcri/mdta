@@ -65,8 +65,6 @@ def run_all_modal(request):
         testrail_suites = testrail_project.get_suites()
         testrail_suite = [s for s in testrail_suites if s.id == testrail_suite_id][0]
         testrail_cases = testrail_suite.get_cases()
-        for case in testrail_cases:
-            case_title = case.title
         hatit_csv_filename = bulk_hatit_file_generator(testrail_cases)
         testrail_run = testrail_suite.open_test_run()
         hs = HATScript()
@@ -81,39 +79,34 @@ def run_all_modal(request):
                                                testrail_test_run=testrail_run.id, project=project)
         poll_result_loop.delay(mdta_test_run.pk)
         for case in testrail_cases:
-            AutomatedTestCase.objects.create(test_run=mdta_test_run, testrail_case_id=case.id)
+            AutomatedTestCase.objects.create(test_run=mdta_test_run, testrail_case_id=case.id, case_title=case.title)
 
-        return JsonResponse({'run': mdta_test_run.pk, 'holly': browser, 'title': case_title,
-                            'cases': [{'testrail_case_id': c.testrail_case_id, 'status': c.status} for c in
+        return JsonResponse({'run': mdta_test_run.pk, 'holly': browser,
+                            'cases': [{'testrail_case_id': c.testrail_case_id, 'status': c.status, 'title': c.case_title} for c in
                                              mdta_test_run.automatedtestcase_set.all()]})
     else:
-        print(request.errors)
         return JsonResponse({'error': request.errors})
 
 
 def check_test_result(request):
+    data_list = []
     try:
-        run_id = int(95)
+        run_id = int(request.GET.get('run_id'))
         if not run_id:
             return JsonResponse({'success': False, 'reason': 'Could not read run'})
-        results = AutomatedTestCase.objects.filter(test_run_id=run_id)
-        result = results.values()
-        print(result)
+        result = AutomatedTestCase.objects.filter(test_run_id=run_id).values()
         for res in result:
-            print(res['call_id'])
-            if res['status'] != 1:
-                print(res['status'])
-                return JsonResponse({'success': True,
-                                     'running': False,
-                                     'status': res['status'],
-                                     'test_run_id': run_id,
-                                     'call_id': res['call_id']})
-            return JsonResponse({'success': False,
-                                 'running': True,
-                                 'status': res['status'],
-                                 'test_run_id': run_id,
-                                 'call_id': res['call_id'],
-                                 'reason': res['reason']})
+            if res['status'] != 1 and res['call_id'] != '':
+                data = {'status': res['status'], 'testrail_case_id': res['testrail_case_id'], 'title': res['case_title'],
+                         'test_run_id': run_id, 'call_id': res['call_id']}
+                data_list.append(data)
+
+            elif res['status'] == 1 and res['call_id'] != '':
+                 data = {'status': res['status'], 'testrail_case_id': res['testrail_case_id'], 'title': res['case_title'],
+                         'test_run_id': run_id, 'call_id': res['call_id'], 'reason': res['failure_reason']}
+                 data_list.append(data)
+
+        return JsonResponse({'success': True, 'running': False, 'data': data_list})
     except Exception as e:
         return JsonResponse({'success': False, 'reason': 'An untrapped error occurred: ' + str(e.args)})
 

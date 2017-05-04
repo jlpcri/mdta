@@ -41,3 +41,4 @@ class AutomatedTestCase(models.Model):
     status = models.IntegerField(choices=STATUS_CHOICES, default=INCOMPLETE)
     failure_reason = models.TextField(default='')
     call_id = models.TextField(default='')
+    case_title = models.TextField(default='')

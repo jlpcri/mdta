@@ -58,12 +58,11 @@ function runAll() {
                 $('#run-all-modal').modal('hide');
                 $(location).attr('href', '#');
                 var cases = data;
-                temprun = parseInt(95);
                 var div = $("#testcase");
-                var table_draw = '<table class="table table-bordered"><tr><th>Title</th><th>Run</th><th>Status</th><th>Holly</th><th>Call ID</th><th>Failure reason</th></tr>';
+                var table_draw = '<table class="table table-bordered"><tr><th>Title</th><th>Status</th><th>Holly</th><th>Call ID</th><th>Failure reason</th></tr>';
                 $.each(cases.cases, function (index, value) {
-                    table_draw += "<tr><td class='title'>" + cases.title + "</td>" +
-                    "<td class='run'>"  + temprun + "</td>" +
+                    console.log(value.title);
+                    table_draw += "<tr><td class='title'>" + value.title + "</td>" +
                     "<td class='status'><i class='fa fa-spin fa-spinner'></i><span> Running...</span></td>" +
                     "<td class='holly'>" + cases.holly + "</td>" +
                     "<td class='call-id'></td>" +
@@ -74,8 +73,8 @@ function runAll() {
                 var counter = 0;
                 var poll = setInterval(function () {
                     var run_id = parseInt(cases.run);
-                    checkCase(run_id);
-                    //getSteps(cases.cases[counter]);
+                    //var tc_id = parseInt(data.cases[0].testrail_case_id);
+                    checkCase(cases.cases[counter], run_id);
                     counter++;
                     if (counter >= cases.cases.length) {
                         if (checkCompletion()) {
@@ -102,78 +101,55 @@ function checkCompletion(cases){
     return done
 }
 
-function checkCase(run){
+function checkCase(cases, run){
     $.ajax('{% url "runner:check_result" %}' + "?run_id=" + run, {
-        success: function(data, textStatus, jqXHR){
+        success: function(data, textStatus, jqXHR) {
             console.log(data);
             if (!data.running) {
                 if (data.success) {
-                    markSuccess(data.test_run_id, data.call_id);
-                    console.log(data.test_run_id, data.call_id);
+                    $.each(data.data, function (index, value) {
+                        markSuccess(value.title, value.call_id);
+                        console.log(value.title, value.call_id);
+
+                    })
                 }
                 else {
-                    markFailure(data.test_run_id, data.call_id, data.reason);
-                    console.log(data.test_run_id, data.call_id, data.reason);
+                    $.each(data.data, function (index, value) {
+                        markFailure(value.title, value.call_id, value.reason);
+                        console.log(value.title, value.call_id, value.reason);
+                    })
                 }
             }
         }
     })
 }
 
-function markSuccess(run, callId){
-    updateStatusClassAndText(run, "fa fa-check-square text-success", "Pass");
-    updateCallID(run, callId)
+function markSuccess(title, callId){
+    updateStatusClassAndText(title, "fa fa-check-square text-success", "Pass");
+    updateCallID(title, callId)
 }
 
-function markFailure(run, callId, failureReason){
-    updateStatusClassAndText(run, "fa fa-minus-square text-danger", "Fail");
-    updateCallID(run, callId);
-    updateFailureReason(run, failureReason)
+function markFailure(title, callId, failureReason){
+    updateStatusClassAndText(title, "fa fa-minus-square text-danger", "Fail");
+    updateCallID(title, callId);
+    updateFailureReason(title, failureReason)
 }
 
-function updateStatusClassAndText(run, cls, text){
-    var status_td = $("#testcase table").find('td.run:contains("' + run + '")').siblings(".status");
+function updateStatusClassAndText(title, cls, text){
+    var status_td = $("#testcase table").find('td.title:contains("' + title + '")').siblings(".status");
     status_td.find("i").attr("class", cls);
     status_td.find("span").html(text)
 }
 
-function updateCallID(run, callId){
-    var id_td = $("#testcase table").find('td.run:contains("' + run + '")').siblings(".call-id");
+function updateCallID(title, callId){
+    var id_td = $("#testcase table").find('td.title:contains("' + title + '")').siblings(".call-id");
     id_td.html(callId)
 }
 
-function updateFailureReason(run, failureReason) {
-    var reason_td = $("#testcase table").find('td.run:contains("' + run + '")').siblings(".reason");
+function updateFailureReason(title, failureReason) {
+    var reason_td = $("#testcase table").find('td.title:contains("' + title + '")').siblings(".reason");
     reason_td.html(failureReason)
 }
-
-// function getSteps(cases) {
-//     console.log(cases.testrail_case_id);
-//     $.ajax('{% url "runner:steps" project.id %}?case_id=' + cases.testrail_case_id, {
-//         success: function (data, textStatus, jqXHR) {
-//             var div = $("#testcase");
-//             var table_draw = '<table class="table table-bordered"><thead><tr><th class="col-md-4">Content</th><th class="col-md-8">Expected Result</th></tr></thead>';
-//             $.each(data.steps, function (index, value) {
-//                 // updateContent(status, value);
-//                 // updateExpected(status, value);
-//                 table_draw += "<tr><td>" + value.content + "</td><td>" + value.expected + "</td></tr>";
-//                 console.log(value);
-//             });
-//             table_draw += "</table>";
-//             div.html(table_draw)
-//         }
-//     });
-// }
-
-// function updateContent(status, value) {
-//     var content_td = $("#testcase table").find('td.status:contains("' + status + '")').siblings(".content");
-//                 content_td.html(value.content);
-// }
-//
-// function updateExpected(status, value) {
-//     var expected_td = $("#testcase table").find('td.status:contains("' + status + '")').siblings(".expected");
-//                 expected_td.html(value.expected);
-// }
 
 
 function populateSteps(){
