@@ -62,18 +62,17 @@ function runAll() {
                 var table_draw = '<table class="table table-bordered"><tr><th>Title</th><th>Status</th><th>Holly</th><th>Call ID</th><th>Failure reason</th></tr>';
                 $.each(cases.cases, function (index, value) {
                     console.log(value.title);
-                    table_draw += "<tr><td class='title'>" + value.title + "</td>" +
-                    "<td class='status'><i class='fa fa-spin fa-spinner'></i><span> Running...</span></td>" +
-                    "<td class='holly'>" + cases.holly + "</td>" +
-                    "<td class='call-id'></td>" +
-                    "<td class='reason'></td></tr>"
+                    table_draw += "<tr><td class='title col-xs-2'>" + value.title + "</td>" +
+                    "<td class='status col-xs-1'><i class='fa fa-spin fa-spinner'></i><span> Running...</span></td>" +
+                    "<td class='holly col-xs-1'>" + cases.holly + "</td>" +
+                    "<td class='call-id col-xs-1'></td>" +
+                    "<td class='reason col-xs-2'></td></tr>"
                 });
                 table_draw += "</table>";
                 div.html(table_draw);
                 var counter = 0;
                 var poll = setInterval(function () {
                     var run_id = parseInt(cases.run);
-                    //var tc_id = parseInt(data.cases[0].testrail_case_id);
                     checkCase(cases.cases[counter], run_id);
                     counter++;
                     if (counter >= cases.cases.length) {
@@ -101,24 +100,22 @@ function checkCompletion(cases){
     return done
 }
 
-function checkCase(cases, run){
+function checkCase(cases, run) {
     $.ajax('{% url "runner:check_result" %}' + "?run_id=" + run, {
-        success: function(data, textStatus, jqXHR) {
+        success: function (data, textStatus, jqXHR) {
             console.log(data);
             if (!data.running) {
-                if (data.success) {
-                    $.each(data.data, function (index, value) {
+                $.each(data.data, function (index, value) {
+                    if (value.hasOwnProperty('reason')) {
+                        markFailure(value.title, value.call_id, value.reason);
+                        console.log(value.title, value.call_id, value.reason);
+                    }
+                    else {
                         markSuccess(value.title, value.call_id);
                         console.log(value.title, value.call_id);
 
-                    })
-                }
-                else {
-                    $.each(data.data, function (index, value) {
-                        markFailure(value.title, value.call_id, value.reason);
-                        console.log(value.title, value.call_id, value.reason);
-                    })
-                }
+                    }
+                })
             }
         }
     })
