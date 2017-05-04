@@ -4,10 +4,12 @@ import requests
 
 from django.db import models
 from django.utils.datetime_safe import time
+from django.core.validators import URLValidator
 
 
 class TestServers(models.Model):
     server = models.TextField()
+    server_url = models.TextField(validators=[URLValidator()], default='')
     name = models.TextField(unique=True)
 
     def __str__(self):

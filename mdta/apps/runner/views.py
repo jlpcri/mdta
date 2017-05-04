@@ -70,6 +70,7 @@ def run_all_modal(request):
         hs = HATScript()
         hs.csvfile = hatit_csv_filename
         hs.apn = apn
+        hs.hatit_server = testserver
         hs.holly_server = browser
         response = hs.hatit_execute()
         mdta_test_run = TestRun.objects.create(hat_run_id=json.loads(response.text)['runid'],
@@ -88,7 +89,6 @@ def run_all_modal(request):
         return JsonResponse({'error': request.errors})
 
 
-
 def check_test_result(request):
     data_list = []
     try:
@@ -96,6 +96,7 @@ def check_test_result(request):
         if not run_id:
             return JsonResponse({'success': False, 'reason': 'Could not read run'})
         result = AutomatedTestCase.objects.filter(test_run_id=run_id).values()
+        print(result)
         for res in result:
             if res['status'] == 2 and res['call_id'] != '':
                 data = {'status': res['status'], 'testrail_case_id': res['testrail_case_id'], 'title': res['case_title'],
