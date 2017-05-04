@@ -179,8 +179,10 @@ def project_detail(request, project_id):
         tests = []
 
     user = request.user
-    user.humanresource.project = project
-    user.humanresource.save()
+    if user.humanresource.project != project:
+        user.humanresource.project = project
+        user.humanresource.save()
+
     for tc in tests:
         data = tc['data']
         tc_keys.append(data)

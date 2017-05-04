@@ -339,7 +339,7 @@ def get_negative_tc_title(key):
     }.get(key, 'No Input & Recover')
 
 
-def negative_testcase_generation(data, path_data, title, node, edge, language=None):
+def negative_testcase_generation(data, path_data, title, tc_list, edge, language=None):
     """
     Generate negative TestCases of 5 scenarios
     :param data: Test Steps of current TestCase
@@ -347,8 +347,9 @@ def negative_testcase_generation(data, path_data, title, node, edge, language=No
     :param title: title of current TestCase
     :return:
     """
+    node = edge.to_node
     if node.properties[NON_STANDARD_FAIL_KEY] == 'on':
-        for key in NEGATIVE_TESTS_LIST:
+        for key in tc_list:
             _title = title + ', ' + get_negative_tc_title(key)
             data.append({
                 'tcs_cannot_route': 'This test cannot be routed, Non standard fail behavior',
@@ -356,7 +357,7 @@ def negative_testcase_generation(data, path_data, title, node, edge, language=No
                 'id': edge.id
             })
     else:
-        for key in NEGATIVE_TESTS_LIST:
+        for key in tc_list:
             _title = title + ', ' + get_negative_tc_title(key)
             negative_tc_steps = get_negative_tc_steps(key)(node, language)
 

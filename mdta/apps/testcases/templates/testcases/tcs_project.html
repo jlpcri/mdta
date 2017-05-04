@@ -66,7 +66,7 @@
                                 {% for module in project.modules %}
                                     <li>
                                         <a href="#{{ module.name }}">{{ module.name }}</a>
-                                        {% if user.is_superuser %}
+                                        {% if user.is_staff %}
                                             <a href="{% url 'testcases:create_testcases' module.id %}?level=module" title="Create TCs"><i class="fa fa-hourglass-2 fa-fw"></i></a>
                                         {% endif %}
                                     </li>
