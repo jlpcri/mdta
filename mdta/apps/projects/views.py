@@ -40,7 +40,7 @@ def project_config(request, project_id):
         return redirect('projects:project_dashboard')
 
 
-@user_passes_test(user_is_superuser)
+@user_passes_test(user_is_staff)
 def projects(request):
     """
     View of apps/projects

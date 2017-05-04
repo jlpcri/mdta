@@ -74,6 +74,10 @@
 				border: solid black 2px;
 				padding:3px;
             }
+            .cdiv {
+               width: 100%;
+               text-align: center;
+            }
             .bar {
             	margin: 0 auto;
             	border-left: solid black 2px;
@@ -145,14 +149,16 @@
                                 {% if request.user.humanresource.project %}
                                     <li><a href="{% url 'graphs:projects_for_selection' %}"><i class="fa fa-object-group fa-fw"></i> Switch Projects</a></li>
                                 {% endif %}
-                                {% if user.is_superuser %}
-                                    <li class="divider"></li>
-                                    <li><a href="{% url 'users:management' %}"><i class="fa fa-random"></i> User Management</a> </li>
-                                    <li><a href="{% url 'admin:index' %}" target="_blank"><i class="fa fa-cogs"></i> Django Admin</a> </li>
+                                {% if user.is_staff %}
                                     <li class="divider"></li>
                                     <li><a href="{% url 'projects:projects' %}"><i class="fa fa-sitemap fa-fw"></i> Previous Projects</a></li>
                                     <li><a href="{% url 'graphs:graphs' %}"><i class="fa fa-reorder fa-fw"></i> Previous Graphs</a> </li>
                                     <li><a href="{% url 'testcases:testcases' %}"><i class="fa fa-automobile fa-fw"></i> Previous TCs</a> </li>
+                                {% endif %}
+                                {% if user.is_superuser %}
+                                    <li class="divider"></li>
+                                    <li><a href="{% url 'users:management' %}"><i class="fa fa-random"></i> User Management</a> </li>
+                                    <li><a href="{% url 'admin:index' %}" target="_blank"><i class="fa fa-cogs"></i> Django Admin</a> </li>
                                 {% endif %}
                             </ul>
                         </li>

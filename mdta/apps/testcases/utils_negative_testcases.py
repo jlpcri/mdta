@@ -13,7 +13,7 @@ def tc_no_input_recover(node, language):
     data = [
         {
             TR_CONTENT: 'wait',
-            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_NI1)
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_NI1, hint='NI1')
         }
     ]
 
