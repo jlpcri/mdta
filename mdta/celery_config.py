@@ -13,5 +13,8 @@ CELERY_TIMEZONE = 'America/Chicago'
 CELERY_ROUTES = {
     'mdta.apps.testcases.tasks.create_testcases_celery': {'queue': 'mdta_queue'},
     'mdta.apps.testcases.tasks.push_testcases_to_testrail_celery': {'queue': 'mdta_queue'},
+    'mdta.apps.runner.tasks.poll_result': {'queue': 'mdta_queue'},
+    'mdta.apps.runner.tasks.poll_result_loop': {'queue': 'mdta_queue'},
+
 }
 
