@@ -220,12 +220,12 @@ class HATScript(AutomationScript):
         jsonList = []
         browser = requests.session()
         qaci = browser.get('http://{0}/hatit'.format(self.remote_server))
-
+        print(self.hatit_server)
         data = {'apn': self.apn,
                 'browser': self.holly_server,
                 'port': '5060'}
         hat_script_template = "STARTCALL\nREPORT %id%\n%everything%\nENDCALL"
-        response = browser.post("http://{0}/".format(self.hatit_server) + "api/csv_req/", data=data,
+        response = browser.post("{0}".format(self.hatit_server) + "api/csv_req/", data=data,
                                  files={'csvfile': open(self.csvfile), 'hatscript': io.StringIO(hat_script_template)})
         print(response.text)
         jsonList.append(response.json())
