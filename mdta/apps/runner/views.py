@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 
+
 from mdta.apps.projects.forms import TestRunnerForm
 from mdta.apps.projects.models import TestRailInstance, Project, TestRailConfiguration
 from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, bulk_hatit_file_generator, HATScript
@@ -61,12 +62,14 @@ def run_all_modal(request):
         testrail_instance = TestRailInstance.objects.first()
         project = request.user.humanresource.project
         testrail_project_id = project.testrail.project_id
+        testrail_host = testrail_instance.host
         testrail_project = get_testrail_project(testrail_instance, testrail_project_id)
         testrail_suites = testrail_project.get_suites()
         testrail_suite = [s for s in testrail_suites if s.id == testrail_suite_id][0]
         testrail_cases = testrail_suite.get_cases()
         hatit_csv_filename = bulk_hatit_file_generator(testrail_cases)
         testrail_run = testrail_suite.open_test_run()
+
         hs = HATScript()
         hs.csvfile = hatit_csv_filename
         hs.apn = apn
@@ -82,7 +85,7 @@ def run_all_modal(request):
         for case in testrail_cases:
             AutomatedTestCase.objects.create(test_run=mdta_test_run, testrail_case_id=case.id, case_title=case.title)
 
-        return JsonResponse({'run': mdta_test_run.pk, 'holly': browser,
+        return JsonResponse({'run': mdta_test_run.pk, 'holly': browser, 'tr_p_id': testrail_project_id, 'tr_host': testrail_host,
                             'cases': [{'testrail_case_id': c.testrail_case_id, 'status': c.status, 'title': c.case_title} for c in
                                              mdta_test_run.automatedtestcase_set.all()]})
     else:

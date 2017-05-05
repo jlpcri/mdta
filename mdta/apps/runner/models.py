@@ -9,7 +9,7 @@ from django.core.validators import URLValidator
 
 class TestServers(models.Model):
     server = models.TextField()
-    server_url = models.TextField(validators=[URLValidator()], default='')
+    server_url = models.TextField(default='')
     name = models.TextField(unique=True)
 
     def __str__(self):
@@ -43,4 +43,5 @@ class AutomatedTestCase(models.Model):
     status = models.IntegerField(choices=STATUS_CHOICES, default=INCOMPLETE)
     failure_reason = models.TextField(default='')
     call_id = models.TextField(default='')
+    tr_test_id = models.TextField(default='')
     case_title = models.TextField(default='')

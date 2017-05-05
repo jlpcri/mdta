@@ -27,6 +27,7 @@ def poll_result(test_run_id):
     client = APIClient(tri.host)
     client.user = tri.username
     client.password = tri.password
+    jsonList = []
     for call in status['calls']:
         try:
             tc_id = call['options']['id'].split(':')[0]
@@ -40,17 +41,23 @@ def poll_result(test_run_id):
             options_json = json.loads(options_text)
             tc_id = options_json['id'].split(':')[0]
 
-        atc = AutomatedTestCase.objects.get(test_run=test_run, testrail_case_id=tc_id)
+        atc = AutomatedTestCase.objects.get(test_run=test_run, testrail_case_id=tc_id, )
         if call['status'].upper() == 'PASS':
             atc.status = AutomatedTestCase.PASS
             response = client.send_post('add_result_for_case/{0}/{1}'.format(test_run.testrail_test_run, tc_id),
                                        {'status_id': 1})
-            print(response)
+            jsonList.append(response.json())
+            for data in jsonList:
+                atc.tr_test_id = data['test_id']
         else:
             atc.status = AutomatedTestCase.FAIL
             atc.failure_reason = call['err_str']
-            client.send_post('add_result_for_case/{0}/{1}'.format(test_run.testrail_test_run, tc_id),
+            response = client.send_post('add_result_for_case/{0}/{1}'.format(test_run.testrail_test_run, tc_id),
                              {'status_id': 5, 'defects': call['err_str']})
+            jsonList.append(response.json())
+            for data in jsonList:
+                atc.tr_test_id = data['test_id']
+
         atc.call_id = call['callseq']
         atc.save()
     if status['complete']:
@@ -62,4 +69,5 @@ def poll_result(test_run_id):
             case.save()
             client.send_post('add_result_for_case/{0}/{1}'.format(test_run.testrail_test_run, tc_id),
                              {'status_id': 4, 'comment': 'MDTA error - could not find result'})
+
         client.send_post('close_run/{0}'.format(test_run.testrail_test_run), {})
