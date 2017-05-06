@@ -41,12 +41,12 @@ def poll_result(test_run_id):
             options_json = json.loads(options_text)
             tc_id = options_json['id'].split(':')[0]
 
-        atc = AutomatedTestCase.objects.get(test_run=test_run, testrail_case_id=tc_id, )
+        atc = AutomatedTestCase.objects.get(test_run=test_run, testrail_case_id=tc_id)
         if call['status'].upper() == 'PASS':
             atc.status = AutomatedTestCase.PASS
             response = client.send_post('add_result_for_case/{0}/{1}'.format(test_run.testrail_test_run, tc_id),
                                        {'status_id': 1})
-            print(response.text)
+            print(response)
             # jsonList.append(response.json())
             # for data in jsonList:
             #     atc.tr_test_id = data['test_id']

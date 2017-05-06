@@ -1,5 +1,6 @@
 import json
 
+from celery.task.control import revoke
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -99,6 +100,7 @@ def check_test_result(request):
         if not run_id:
             return JsonResponse({'success': False, 'reason': 'Could not read run'})
         result = AutomatedTestCase.objects.filter(test_run_id=run_id).values()
+        revoke(run_id, terminate=True)
         print(result)
         for res in result:
             if res['status'] == 2 and res['call_id'] != '':
@@ -107,9 +109,9 @@ def check_test_result(request):
                 data_list.append(data)
 
             elif res['status'] == 3 and res['call_id'] != '':
-                 data = {'status': res['status'], 'testrail_case_id': res['testrail_case_id'], 'title': res['case_title'],
+                data = {'status': res['status'], 'testrail_case_id': res['testrail_case_id'], 'title': res['case_title'],
                          'test_run_id': run_id, 'call_id': res['call_id'], 'reason': res['failure_reason']}
-                 data_list.append(data)
+                data_list.append(data)
 
         return JsonResponse({'success': True, 'running': False, 'data': data_list})
     except Exception as e:
