@@ -47,7 +47,7 @@ def poll_result(test_run_id):
             response = client.send_post('add_result_for_case/{0}/{1}'.format(test_run.testrail_test_run, tc_id),
                                        {'status_id': 1})
             print(response)
-            jsonList.append(response.json())
+            jsonList.append(response)
             for data in jsonList:
                 atc.tr_test_id = data['test_id']
                 atc.save()
@@ -57,7 +57,7 @@ def poll_result(test_run_id):
             response = client.send_post('add_result_for_case/{0}/{1}'.format(test_run.testrail_test_run, tc_id),
                              {'status_id': 5, 'defects': call['err_str']})
             print(response)
-            jsonList.append(response.json())
+            jsonList.append(response)
             for data in jsonList:
                 atc.tr_test_id = data['test_id']
                 atc.save()
