@@ -46,17 +46,21 @@ def poll_result(test_run_id):
             atc.status = AutomatedTestCase.PASS
             response = client.send_post('add_result_for_case/{0}/{1}'.format(test_run.testrail_test_run, tc_id),
                                        {'status_id': 1})
+            print(response.text)
             jsonList.append(response.json())
             for data in jsonList:
                 atc.tr_test_id = data['test_id']
+                atc.save()
         else:
             atc.status = AutomatedTestCase.FAIL
             atc.failure_reason = call['err_str']
             response = client.send_post('add_result_for_case/{0}/{1}'.format(test_run.testrail_test_run, tc_id),
                              {'status_id': 5, 'defects': call['err_str']})
+            print(response.text)
             jsonList.append(response.json())
             for data in jsonList:
                 atc.tr_test_id = data['test_id']
+                atc.save()
 
         atc.call_id = call['callseq']
         atc.save()
