@@ -1,6 +1,5 @@
 import json
 
-from celery.task.control import revoke
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -56,6 +55,7 @@ def run_test_suite(request):
 def run_all_modal(request):
     if request.method == 'POST':
         testserver = request.POST.get('testserver')
+        hollytrace_url = request.POST.get('hollytrace_url')
         browser = request.POST.get('browser')
         apn = request.POST.get('apn')
         suite = request.POST.get('suite')
@@ -87,8 +87,8 @@ def run_all_modal(request):
             AutomatedTestCase.objects.create(test_run=mdta_test_run, testrail_case_id=case.id, case_title=case.title)
 
         return JsonResponse({'run': mdta_test_run.pk, 'holly': browser, 'tr_p_id': testrail_project_id, 'tr_host': testrail_host,
-                            'cases': [{'testrail_case_id': c.testrail_case_id, 'status': c.status, 'title': c.case_title} for c in
-                                             mdta_test_run.automatedtestcase_set.all()]})
+                             'hollytrace_url': hollytrace_url, 'cases': [{'testrail_case_id': c.testrail_case_id, 'status': c.status,
+                                                                          'title': c.case_title} for c in mdta_test_run.automatedtestcase_set.all()]})
     else:
         return JsonResponse({'error': request.errors})
 
@@ -100,17 +100,16 @@ def check_test_result(request):
         if not run_id:
             return JsonResponse({'success': False, 'reason': 'Could not read run'})
         result = AutomatedTestCase.objects.filter(test_run_id=run_id).values()
-        revoke(run_id, terminate=True)
-        print(result)
+
         for res in result:
             if res['status'] == 2 and res['call_id'] != '':
                 data = {'status': res['status'], 'testrail_case_id': res['testrail_case_id'], 'title': res['case_title'],
-                         'test_run_id': run_id, 'call_id': res['call_id']}
+                         'test_run_id': run_id, 'call_id': res['call_id'], 'tr_test_id': res['tr_test_id']}
                 data_list.append(data)
 
             elif res['status'] == 3 and res['call_id'] != '':
                 data = {'status': res['status'], 'testrail_case_id': res['testrail_case_id'], 'title': res['case_title'],
-                         'test_run_id': run_id, 'call_id': res['call_id'], 'reason': res['failure_reason']}
+                         'test_run_id': run_id, 'call_id': res['call_id'], 'reason': res['failure_reason'], 'tr_test_id': res['tr_test_id']}
                 data_list.append(data)
 
         return JsonResponse({'success': True, 'running': False, 'data': data_list})

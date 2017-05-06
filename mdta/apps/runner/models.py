@@ -9,7 +9,7 @@ from django.core.validators import URLValidator
 
 class TestServers(models.Model):
     server = models.TextField()
-    server_url = models.TextField(default='')
+    hollytrace_url = models.TextField(default='')
     name = models.TextField(unique=True)
 
     def __str__(self):
