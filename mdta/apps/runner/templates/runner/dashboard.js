@@ -72,7 +72,9 @@ function runAll() {
                 var counter = 0;
                 var poll = setInterval(function () {
                     var run_id = parseInt(cases.run);
-                    checkCase(cases.cases[counter], run_id);
+                    var tr_host = cases.tr_host;
+                    var tr_p_id = cases.tr_p_id;
+                    checkCase(cases.cases[counter], run_id, tr_host, tr_p_id);
                     counter++;
                     if (counter >= cases.cases.length) {
                         if (checkCompletion()) {
@@ -99,19 +101,19 @@ function checkCompletion(cases){
     return done
 }
 
-function checkCase(cases, run) {
+function checkCase(cases, run, tr_host, tr_p_id) {
     $.ajax('{% url "runner:check_result" %}' + "?run_id=" + run, {
         success: function (data, textStatus, jqXHR) {
             console.log(data);
             if (!data.running) {
                 $.each(data.data, function (index, value) {
                     if (value.hasOwnProperty('reason')) {
-                        markFailure(value.title, value.call_id, value.reason, value.testrail_case_id);
-                        console.log(value.title, value.call_id, value.reason, value.testrail_case_id);
+                        markFailure(value.title, value.call_id, value.reason, value.testrail_case_id, tr_host, tr_p_id);
+                        console.log(value.title, value.call_id, value.reason, value.testrail_case_id, tr_host, tr_p_id);
                     }
                     else {
-                        markSuccess(value.title, value.call_id, value.testrail_case_id);
-                        console.log(value.title, value.call_id, value.testrail_case_id);
+                        markSuccess(value.title, value.call_id, value.testrail_case_id, tr_host, tr_p_id);
+                        console.log(value.title, value.call_id, value.testrail_case_id, tr_host, tr_p_id);
 
                     }
                 })
@@ -120,14 +122,14 @@ function checkCase(cases, run) {
     })
 }
 
-function markSuccess(title, callId, tc_id){
+function markSuccess(title, callId, tc_id, tr_host, tr_p_id){
     updateStatusClassAndText(title, "fa fa-check-square text-success", "Pass");
-    updateCallID(title, callId, tc_id)
+    updateCallID(title, callId, tc_id, tr_host, tr_p_id)
 }
 
-function markFailure(title, callId, failureReason, tc_id){
+function markFailure(title, callId, failureReason, tc_id, tr_host, tr_p_id){
     updateStatusClassAndText(title, "fa fa-minus-square text-danger", "Fail");
-    updateCallID(title, callId, tc_id);
+    updateCallID(title, callId, tc_id, tr_host, tr_p_id);
     updateFailureReason(title, failureReason)
 }
 
@@ -137,9 +139,11 @@ function updateStatusClassAndText(title, cls, text){
     status_td.find("span").html(text)
 }
 
-function updateCallID(title, callId, tc_id){
+function updateCallID(title, callId, tc_id, tr_host, tr_p_id) {
     var id_td = $("#testcase table").find('td.title:contains("' + title + '")').siblings(".call-id");
-    id_td.html("<strong>Call ID:</strong> " + callId + "<br>" + "<strong>TestRail:</strong> " + tc_id)
+    var trurl = "<a href=" + tr_host + '/index.php?/projects/overview/' + tr_p_id +" onclick='window.open("+ tr_host + '/index.php?/projects/overview/' + tr_p_id +");return false;'>" + tc_id + "</a>";
+    console.log(trurl);
+    id_td.html("<strong>Call ID:</strong> " + callId + "<br>" + "<strong>TestRail:</strong> " + trurl);
 }
 
 function updateFailureReason(title, failureReason) {
