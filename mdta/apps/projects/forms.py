@@ -90,6 +90,9 @@ class TestRunnerForm(forms.Form):
 
     testserver = forms.ChoiceField(choices=TEST_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
 
+    hollytrace_url = forms.CharField(max_length=50,
+                           widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: linux6352.wic.west.com:2020'}))
+
     suite = forms.CharField(widget=forms.HiddenInput(attrs={'id': 'suiteid'}), required=False, max_length=50)
 
 
