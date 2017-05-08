@@ -181,10 +181,34 @@ def routing_path_to_node(node, shortest_set=None):
     :param node:
     :return:
     """
-    path = backwards_search(node, shortest_set)
+    path = []
+    # check node is connected to Start Node
+    if check_node_connect_to_start_node(node):
+        path = backwards_search(node, shortest_set)
 
     # print(path)
     return path
+
+
+def check_node_connect_to_start_node(node):
+    """
+    Checking if current node is connected to Start Node
+    :param node:
+    :return: True or False
+    """
+    flag = False
+    if node.module.project:
+        start_nodes = node.module.project.start_nodes
+    else:
+        start_nodes = node.module.start_nodes
+
+    for start_node in start_nodes:
+        path = breadth_first_search(start_node, node)
+        if node in path:
+            flag = True
+            break
+
+    return flag
 
 
 def backwards_search(node, shortest_set=None):
