@@ -70,7 +70,6 @@ def run_all_modal(request):
         hatit_csv_filename = bulk_hatit_file_generator(testrail_cases)
         testrail_run = testrail_suite.open_test_run()
         hollytrace_url = TestServers.objects.values_list('hollytrace_url', flat=True).get(server=testserver)
-        print(hollytrace_url)
         hs = HATScript()
         hs.csvfile = hatit_csv_filename
         hs.apn = apn
@@ -84,11 +83,11 @@ def run_all_modal(request):
                                                testrail_test_run=testrail_run.id, project=project)
         poll_result_loop.delay(mdta_test_run.pk)
         for case in testrail_cases:
-            AutomatedTestCase.objects.create(test_run=mdta_test_run, testrail_case_id=case.id, case_title=case.title)
+            AutomatedTestCase.objects.create(test_run=mdta_test_run, testrail_case_id=case.id, case_title=case.title, case_script=case.script.body)
 
         return JsonResponse({'run': mdta_test_run.pk, 'holly': browser, 'tr_p_id': testrail_project_id, 'tr_host': testrail_host,
                              'hollytrace_url': hollytrace_url, 'cases': [{'testrail_case_id': c.testrail_case_id, 'status': c.status,
-                                                                          'title': c.case_title} for c in mdta_test_run.automatedtestcase_set.all()]})
+                                                                          'title': c.case_title, 'script': c.case_script} for c in mdta_test_run.automatedtestcase_set.all()]})
     else:
         return JsonResponse({'error': request.errors})
 
@@ -100,16 +99,16 @@ def check_test_result(request):
         if not run_id:
             return JsonResponse({'success': False, 'reason': 'Could not read run'})
         result = AutomatedTestCase.objects.filter(test_run_id=run_id).values()
-
         for res in result:
             if res['status'] == 2 and res['call_id'] != '':
                 data = {'status': res['status'], 'testrail_case_id': res['testrail_case_id'], 'title': res['case_title'],
-                         'test_run_id': run_id, 'call_id': res['call_id'], 'tr_test_id': res['tr_test_id']}
+                        'test_run_id': run_id, 'call_id': res['call_id'], 'tr_test_id': res['tr_test_id']}
                 data_list.append(data)
 
             elif res['status'] == 3 and res['call_id'] != '':
                 data = {'status': res['status'], 'testrail_case_id': res['testrail_case_id'], 'title': res['case_title'],
-                         'test_run_id': run_id, 'call_id': res['call_id'], 'reason': res['failure_reason'], 'tr_test_id': res['tr_test_id']}
+                        'test_run_id': run_id, 'call_id': res['call_id'], 'reason': res['failure_reason'],
+                        'tr_test_id': res['tr_test_id']}
                 data_list.append(data)
 
         return JsonResponse({'success': True, 'running': False, 'data': data_list})

@@ -18,6 +18,10 @@
         <script src="{% static 'scorecard/jquery/jquery-1.12.0.js' %}"></script>
         <script src="{% static 'scorecard/jquery/jquery-ui-1.11.4/jquery-ui.js' %}"></script>
 
+        <!-- Load Bootstrap JS source for popover -->
+        <script src="{% static 'common/tooltip/tether.min.js' %}"></script>
+        <script src="{% static 'common/bootstrap/3.3.5/dist/js/bootstrap.min.js' %}"></script>
+
         <!-- Load Bootstrap daterangepicker-->
         <script src="{% static 'common/bootstrap-daterangepicker/2.1.17/moment.min.js' %}"></script>
         <link href="{% static 'common/bootstrap-daterangepicker/2.1.17/daterangepicker.css' %}" rel="stylesheet">
@@ -219,8 +223,6 @@
                 </div>
             </div>
         </div>
-
-        <script src="{% static 'common/bootstrap/3.3.5/dist/js/bootstrap.min.js' %}"></script>
         <script>
             {% include 'core/core.js' %}
         </script>
