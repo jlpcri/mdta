@@ -227,7 +227,6 @@ class HATScript(AutomationScript):
         hat_script_template = "STARTCALL\nREPORT %id%\n%everything%\nENDCALL"
         response = browser.post("{0}".format(self.hatit_server) + "api/csv_req/", data=data,
                                  files={'csvfile': open(self.csvfile), 'hatscript': io.StringIO(hat_script_template)})
-        print(response.text)
         jsonList.append(response.json())
         for data in jsonList:
             self.runID = data['runid']
