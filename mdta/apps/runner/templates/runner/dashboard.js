@@ -144,7 +144,6 @@ function updateCallID(title, callId, tc_id, tr_host, hollytrace_url, tr_test_id)
     var id_td = $("#testcase table").find('td.title:contains("' + title + '")').siblings(".call-id");
     var trurl = "<a href="  + tr_host + '/index.php?/tests/view/' + tr_test_id +" onclick='window.open(" + tr_host + '/index.php?/tests/view/' + tr_test_id +");return false;'>" + tc_id + "</a>";
     var callurl = "<a href=" + 'http://' + hollytrace_url + '/call/' + callId +" onclick='window.open(" + hollytrace_url + '/call/' + callId +");return false;'>" + callId + "</a>";
-    console.log(callurl);
     id_td.html("<strong>Call ID:</strong> " + callurl + "<br>" + "<strong>TestRail:</strong> " + trurl);
 }
 
