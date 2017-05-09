@@ -16,3 +16,7 @@ function deleteModal (project_name, project_id) {
 
     $('#confirmModal').modal('show');
 }
+
+$('.fa-hourglass-2').click(function(){
+    $(this).removeClass('fa-hourglass-2').addClass('fa-spinner fa-pulse fa-2x');
+});
