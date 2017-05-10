@@ -160,10 +160,19 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                         })
 
                     if edge.to_node.type.name in NODE_MP_NAME:
-                        negative_testcase_generation(data, path_data, title, NEGATIVE_TESTS_LIST, edge, language=language)
-                        if edge.to_node.type.name == NODE_MP_NAME[1]:
-                            negative_testcase_generation(data, path_data, title, NEGATIVE_CONFIRM_TESTS_LIST, edge, language=language)
-                            rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
+                        exist_node = next((item for item in domain_set if item['id'] == 'node-{0}'.format(edge.to_node.id)), None)
+                        exist_edge = next((item for item in domain_set if item['id'] == 'edge-{0}'.format(edge.id)), None)
+                        if exist_edge and exist_edge['visited'] and len(edge.to_node.leaving_edges) > 0:
+                            data.pop()
+                            # print(exist_edge)
+                        if exist_node and not exist_node['visited']:
+                            negative_testcase_generation(data, path_data, title, NEGATIVE_TESTS_LIST, edge, language=language)
+                            # print(exist_node)
+                            if edge.to_node.type.name == NODE_MP_NAME[1]:
+                                negative_testcase_generation(data, path_data, title, NEGATIVE_CONFIRM_TESTS_LIST, edge, language=language)
+                                rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
+
+                            exist_node['visited'] = True
 
     # return check_subpath_in_all(data)
     return data
