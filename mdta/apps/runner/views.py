@@ -55,7 +55,6 @@ def run_test_suite(request):
 def run_all_modal(request):
     if request.method == 'POST':
         testserver = request.POST.get('testserver')
-        hollytrace_url = request.POST.get('hollytrace_url')
         browser = request.POST.get('browser')
         apn = request.POST.get('apn')
         suite = request.POST.get('suite')
@@ -70,7 +69,8 @@ def run_all_modal(request):
         testrail_cases = testrail_suite.get_cases()
         hatit_csv_filename = bulk_hatit_file_generator(testrail_cases)
         testrail_run = testrail_suite.open_test_run()
-
+        hollytrace_url = TestServers.objects.values_list('hollytrace_url', flat=True).get(server=testserver)
+        print(hollytrace_url)
         hs = HATScript()
         hs.csvfile = hatit_csv_filename
         hs.apn = apn
