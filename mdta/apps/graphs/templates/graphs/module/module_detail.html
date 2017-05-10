@@ -341,7 +341,7 @@
                                                     <label for="moduleEdgeEditToNode">ToNode:</label>
                                                     <select class="form-control" id="moduleEdgeEditToNode" name="moduleEdgeEditToNode">
                                                         {% for node in module_nodes_set %}
-                                                            <option value="{{ node.id }}" {% if item.to_node.id == node.id %}selected{% endif %}>{{ module.name }}:{{ node.name }}</option>
+                                                            <option value="{{ node.id }}" {% if item.to_node.id == node.id %}selected{% endif %}>{{ node.module.name }}:{{ node.name }}</option>
                                                         {% endfor %}
                                                     </select>
                                                 </div>

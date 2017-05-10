@@ -183,8 +183,8 @@ class AutomationScript(object):
 class HATScript(AutomationScript):
 
     def __init__(self, apn='', body='', dialed_number='', csvfile='',
-                 holly_server='linux5578.wic.west.com', sonus_server='10.27.138.136',
-                 hatit_server='linux6351.wic.west.com:8080/hatit/api/csv_req/',
+                 holly_server='', sonus_server='10.27.138.136',
+                 hatit_server='',
                  remote_server='qaci01.wic.west.com', remote_user='wicqacip', remote_password='LogFiles'):
 
         self.csvfile = csvfile
@@ -220,14 +220,13 @@ class HATScript(AutomationScript):
         jsonList = []
         browser = requests.session()
         qaci = browser.get('http://{0}/hatit'.format(self.remote_server))
-
+        print(self.hatit_server)
         data = {'apn': self.apn,
                 'browser': self.holly_server,
                 'port': '5060'}
         hat_script_template = "STARTCALL\nREPORT %id%\n%everything%\nENDCALL"
-        response = browser.post("http://{0}/".format(self.hatit_server), data=data,
+        response = browser.post("{0}".format(self.hatit_server) + "api/csv_req/", data=data,
                                  files={'csvfile': open(self.csvfile), 'hatscript': io.StringIO(hat_script_template)})
-        print(response.text)
         jsonList.append(response.json())
         for data in jsonList:
             self.runID = data['runid']

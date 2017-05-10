@@ -59,9 +59,8 @@ function runAll() {
                 $(location).attr('href', '#');
                 var cases = data;
                 var div = $("#testcase");
-                var table_draw = '<table class="table table-bordered"><tr><th>Title</th><th>Status</th><th>Holly</th><th>Call ID</th><th>Failure reason</th></tr>';
+                var table_draw = '<table class="table table-bordered"><tr><th>Title</th><th>Status</th><th>Holly</th><th>Call ID & TestRail ID</th><th>Failure reason</th></tr>';
                 $.each(cases.cases, function (index, value) {
-                    console.log(value.title);
                     table_draw += "<tr><td class='title col-xs-2'>" + value.title + "</td>" +
                     "<td class='status col-xs-1'><i class='fa fa-spin fa-spinner'></i><span> Running...</span></td>" +
                     "<td class='holly col-xs-1'>" + cases.holly + "</td>" +
@@ -73,7 +72,10 @@ function runAll() {
                 var counter = 0;
                 var poll = setInterval(function () {
                     var run_id = parseInt(cases.run);
-                    checkCase(cases.cases[counter], run_id);
+                    var hollytrace_url = cases.hollytrace_url;
+                    var tr_host = cases.tr_host;
+                    //var tr_p_id = cases.tr_p_id;
+                    checkCase(cases.cases[counter], run_id, tr_host, hollytrace_url);
                     counter++;
                     if (counter >= cases.cases.length) {
                         if (checkCompletion()) {
@@ -100,19 +102,19 @@ function checkCompletion(cases){
     return done
 }
 
-function checkCase(cases, run) {
+function checkCase(cases, run, tr_host, hollytrace_url) {
     $.ajax('{% url "runner:check_result" %}' + "?run_id=" + run, {
         success: function (data, textStatus, jqXHR) {
             console.log(data);
             if (!data.running) {
                 $.each(data.data, function (index, value) {
                     if (value.hasOwnProperty('reason')) {
-                        markFailure(value.title, value.call_id, value.reason);
-                        console.log(value.title, value.call_id, value.reason);
+                        markFailure(value.title, value.call_id, value.reason, value.testrail_case_id, tr_host, hollytrace_url, value.tr_test_id);
+                        console.log(value.title, value.call_id, value.reason, value.testrail_case_id, tr_host, hollytrace_url, value.tr_test_id);
                     }
                     else {
-                        markSuccess(value.title, value.call_id);
-                        console.log(value.title, value.call_id);
+                        markSuccess(value.title, value.call_id, value.testrail_case_id, tr_host, hollytrace_url, value.tr_test_id);
+                        console.log(value.title, value.call_id, value.testrail_case_id, tr_host, hollytrace_url, value.tr_test_id);
 
                     }
                 })
@@ -121,14 +123,14 @@ function checkCase(cases, run) {
     })
 }
 
-function markSuccess(title, callId){
+function markSuccess(title, callId, tc_id, tr_host, hollytrace_url, tr_test_id){
     updateStatusClassAndText(title, "fa fa-check-square text-success", "Pass");
-    updateCallID(title, callId)
+    updateCallID(title, callId, tc_id, tr_host, hollytrace_url, tr_test_id)
 }
 
-function markFailure(title, callId, failureReason){
+function markFailure(title, callId, failureReason, tc_id, tr_host, hollytrace_url, tr_test_id){
     updateStatusClassAndText(title, "fa fa-minus-square text-danger", "Fail");
-    updateCallID(title, callId);
+    updateCallID(title, callId, tc_id, tr_host, hollytrace_url, tr_test_id);
     updateFailureReason(title, failureReason)
 }
 
@@ -138,9 +140,11 @@ function updateStatusClassAndText(title, cls, text){
     status_td.find("span").html(text)
 }
 
-function updateCallID(title, callId){
+function updateCallID(title, callId, tc_id, tr_host, hollytrace_url, tr_test_id) {
     var id_td = $("#testcase table").find('td.title:contains("' + title + '")').siblings(".call-id");
-    id_td.html(callId)
+    var trurl = "<a href="  + tr_host + '/index.php?/tests/view/' + tr_test_id +" onclick='window.open(" + tr_host + '/index.php?/tests/view/' + tr_test_id +");return false;'>" + tc_id + "</a>";
+    var callurl = "<a href=" + 'http://' + hollytrace_url + '/call/' + callId +" onclick='window.open(" + hollytrace_url + '/call/' + callId +");return false;'>" + callId + "</a>";
+    id_td.html("<strong>Call ID:</strong> " + callurl + "<br>" + "<strong>TestRail:</strong> " + trurl);
 }
 
 function updateFailureReason(title, failureReason) {
