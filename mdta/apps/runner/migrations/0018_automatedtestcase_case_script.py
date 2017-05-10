@@ -7,10 +7,6 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('runner', '0017_remove_automatedtestcase_script'),
-    ]
-
     operations = [
         migrations.AddField(
             model_name='automatedtestcase',
