@@ -1,8 +1,15 @@
 $(function(){
-    $(".run-btn").click(populateSteps);
-    $(".run-all-suite").click(getId);
-    $(".run-all-btn").click(runAll);
+    $(".run-btn").on("click", populateSteps);
+    $(".run-all-suite").on("click", getId);
+    $(".run-all-btn").on("click", runAll);
 });
+
+function myFunction() {
+    $('[data-toggle="popover"]').popover({
+        html: true
+    }).popover('show');
+}
+
 
 var s_id;
 
@@ -61,16 +68,26 @@ function runAll() {
                 var div = $("#testcase");
                 var table_draw = '<table class="table table-bordered"><tr><th>Title</th><th>Status</th><th>Holly</th><th>Call ID & TestRail ID</th><th>Failure reason</th></tr>';
                 $.each(cases.cases, function (index, value) {
-                    table_draw += "<tr><td id='cinfo' class='title col-xs-2'>" + value.title+ "</td>" +
+                    var script = value.script;
+                    script = script.replace(/\n/g,'<br/>');
+                    var popupControl = "<a href='javascript://' tabindex='0' class='popoverButton' onclick='myFunction()' data-container='body' data-toggle='popover' data-content='" + script + "' data-original-title='HAT Script' title=''>" + value.title + "</a>";
+                    table_draw += "<tr><td class='title col-xs-2'>" + popupControl +"</td>" +
                     "<td class='status col-xs-1'><i class='fa fa-spin fa-spinner'></i><span> Running...</span></td>" +
                     "<td class='holly col-xs-1'>" + cases.holly + "</td>" +
                     "<td class='call-id col-xs-1'></td>" +
                     "<td class='reason col-xs-2'></td></tr>";
+
+                    $('body').on('click', function (e) {
+                        $('[data-toggle="popover"]').each(function () {
+
+                            if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+                                $(this).popover('hide');
+                            }
+                        });
+                    });
                 });
                 table_draw += "</table>";
                 div.html(table_draw);
-                $('#cinfo').append('<a href="javascript://" data-html="true" data-content="" title="Case Script" data-trigger="focus" data-toggle="popover">' + value.title + '</a>');
-                $('#cinfo a').popover({ content:cases.cases.script });
                 var counter = 0;
                 var poll = setInterval(function () {
                     var run_id = parseInt(cases.run);
@@ -152,7 +169,6 @@ function updateFailureReason(title, failureReason) {
     var reason_td = $("#testcase table").find('td.title:contains("' + title + '")').siblings(".reason");
     reason_td.html(failureReason)
 }
-
 
 function populateSteps(){
     var case_id = this.getAttribute('data-case');

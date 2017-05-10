@@ -3,6 +3,42 @@
 <script>
 {% include 'runner/dashboard.js' %}
 </script>
+    <style type="text/css">
+
+        .output {
+            font-size: 16px;
+        }
+
+        .popover-content > .header {
+            padding: 20px;
+        }
+
+        .popover-content > .body {
+            padding: 60px;
+        }
+
+        .popover {
+            postition: relative;
+            left: 60px !important;
+            max-width: 700px;
+            border: 1px solid;
+        }
+
+        .popover-title {
+            color: black;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .popover-inner {
+            width: 400px;
+
+        }
+
+        .popover .arrow {
+            display: none;
+        }
+    </style>
 {% endblock %}
 {% block body %}
     <div class='container'>

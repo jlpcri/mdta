@@ -10,17 +10,20 @@
 
 {#        <link rel="shortcut icon" href="http://www.west.com/wp-content/themes/cornerstone-master/images/west_favicon.png" />#}
 
-        <link href="{% static 'common/font-awesome/4.4.0/css/font-awesome.min.css' %}" rel="stylesheet">
-        <link href="{% static 'common/bootswatch/3.3.5/cerulean/bootstrap.min.css' %}" rel="stylesheet">
-
         <!-- Load Jquery Source -->
-        <link rel="stylesheet" href="{% static 'scorecard/jquery/jquery-ui-themes-1.11.4/themes/smoothness/jquery-ui.css' %}">
         <script src="{% static 'scorecard/jquery/jquery-1.12.0.js' %}"></script>
         <script src="{% static 'scorecard/jquery/jquery-ui-1.11.4/jquery-ui.js' %}"></script>
+        <link href="{% static 'scorecard/jquery/jquery-ui-themes-1.11.4/themes/smoothness/jquery-ui.css' %}" rel="stylesheet">
+
 
         <!-- Load Bootstrap JS source for popover -->
+        <script src="{% static 'common/jquery/1.10.2/jquery.min.js' %}"></script>
         <script src="{% static 'common/tooltip/tether.min.js' %}"></script>
         <script src="{% static 'common/bootstrap/3.3.5/dist/js/bootstrap.min.js' %}"></script>
+
+        <!--Load CSS Source -->
+        <link href="{% static 'common/font-awesome/4.4.0/css/font-awesome.min.css' %}" rel="stylesheet">
+        <link href="{% static 'common/bootswatch/3.3.5/cerulean/bootstrap.min.css' %}" rel="stylesheet">
 
         <!-- Load Bootstrap daterangepicker-->
         <script src="{% static 'common/bootstrap-daterangepicker/2.1.17/moment.min.js' %}"></script>
@@ -66,18 +69,19 @@
                 width: 11em;
             }
             .r-rect {
-            	text-align:center;
-            	background-color:#F0F0F0;
-            	background-size:cover;
-            	background-repeat:no-repeat;
-            	width: 340px;
-            	margin: auto;
-            	border-radius: 9px;
-            	-moz-border-radius: 9px;
-				-webkit-border-radius:9px;
-				border: solid black 2px;
-				padding:3px;
+                text-align: center;
+                background-color: #F0F0F0;
+                background-size: cover;
+                background-repeat: no-repeat;
+            {#            	width: 340px;#}
+                margin: auto;
+                border-radius: 9px;
+                -moz-border-radius: 9px;
+                -webkit-border-radius: 9px;
+                border: solid black 2px;
+                padding: 3px;
             }
+
             .cdiv {
                width: 100%;
                text-align: center;
