@@ -19,4 +19,8 @@ function deleteModal (project_name, project_id) {
 
 $('.fa-hourglass-2').click(function(){
     $(this).removeClass('fa-hourglass-2').addClass('fa-spinner fa-pulse fa-2x');
+    $('#project-testcases').html('<legend>TestCases</legend>');
+
+    $(this).closest('li').find('.tc_loading').show();
+    $(this).closest('td').find('.tc_loading').show();
 });
