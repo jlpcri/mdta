@@ -80,7 +80,7 @@ class TestHeaderForm(ModelForm):
 
 
 class TestRunnerForm(forms.Form):
-    TEST_CHOICES = [[x.server, x.name] for x in TestServers.objects.all()]
+    # TEST_CHOICES = [[x.server, x.name] for x in TestServers.objects.all()]
 
     browser = forms.CharField(max_length=100,
                                   widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "linux5578"}))
@@ -88,7 +88,7 @@ class TestRunnerForm(forms.Form):
     apn = forms.CharField(max_length=50,
                            widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '4061702'}))
 
-    testserver = forms.ChoiceField(choices=TEST_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
+    # testserver = forms.ChoiceField(choices=TEST_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
 
     suite = forms.CharField(widget=forms.HiddenInput(attrs={'id': 'suiteid'}), required=False, max_length=50)
 
