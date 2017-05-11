@@ -45,3 +45,5 @@ class AutomatedTestCase(models.Model):
     call_id = models.TextField(default='')
     tr_test_id = models.TextField(default='')
     case_title = models.TextField(default='')
+    case_script = models.TextField(default='')
+

@@ -1,8 +1,15 @@
 $(function(){
-    $(".run-btn").click(populateSteps);
-    $(".run-all-suite").click(getId);
-    $(".run-all-btn").click(runAll);
+    $(".run-btn").on("click", populateSteps);
+    $(".run-all-suite").on("click", getId);
+    $(".run-all-btn").on("click", runAll);
 });
+
+function myFunction() {
+    $('[data-toggle="popover"]').popover({
+        html: true
+    }).popover('show');
+}
+
 
 var s_id;
 
@@ -61,11 +68,23 @@ function runAll() {
                 var div = $("#testcase");
                 var table_draw = '<table class="table table-bordered"><tr><th>Title</th><th>Status</th><th>Holly</th><th>Call ID & TestRail ID</th><th>Failure reason</th></tr>';
                 $.each(cases.cases, function (index, value) {
-                    table_draw += "<tr><td class='title col-xs-2'>" + value.title + "</td>" +
+                    var script = value.script;
+                    script = script.replace(/\n/g,'<br/>');
+                    var popupControl = "<a href='javascript://' tabindex='0' class='popoverButton' onclick='myFunction()' data-container='body' data-toggle='popover' data-content='" + script + "' data-original-title='HAT Script' title=''>" + value.title + "</a>";
+                    table_draw += "<tr><td class='title col-xs-2'>" + popupControl +"</td>" +
                     "<td class='status col-xs-1'><i class='fa fa-spin fa-spinner'></i><span> Running...</span></td>" +
                     "<td class='holly col-xs-1'>" + cases.holly + "</td>" +
                     "<td class='call-id col-xs-1'></td>" +
-                    "<td class='reason col-xs-2'></td></tr>"
+                    "<td class='reason col-xs-2'></td></tr>";
+
+                    $('body').on('click', function (e) {
+                        $('[data-toggle="popover"]').each(function () {
+
+                            if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+                                $(this).popover('hide');
+                            }
+                        });
+                    });
                 });
                 table_draw += "</table>";
                 div.html(table_draw);
@@ -74,7 +93,6 @@ function runAll() {
                     var run_id = parseInt(cases.run);
                     var hollytrace_url = cases.hollytrace_url;
                     var tr_host = cases.tr_host;
-                    //var tr_p_id = cases.tr_p_id;
                     checkCase(cases.cases[counter], run_id, tr_host, hollytrace_url);
                     counter++;
                     if (counter >= cases.cases.length) {
@@ -142,8 +160,8 @@ function updateStatusClassAndText(title, cls, text){
 
 function updateCallID(title, callId, tc_id, tr_host, hollytrace_url, tr_test_id) {
     var id_td = $("#testcase table").find('td.title:contains("' + title + '")').siblings(".call-id");
-    var trurl = "<a href="  + tr_host + '/index.php?/tests/view/' + tr_test_id +" onclick='window.open(" + tr_host + '/index.php?/tests/view/' + tr_test_id +");return false;'>" + tc_id + "</a>";
-    var callurl = "<a href=" + 'http://' + hollytrace_url + '/call/' + callId +" onclick='window.open(" + hollytrace_url + '/call/' + callId +");return false;'>" + callId + "</a>";
+    var trurl = "<a href="  + tr_host + '/index.php?/tests/view/' + tr_test_id +" target='_blank'>" + tc_id + "</a>";
+    var callurl = "<a href=" + 'http://' + hollytrace_url + '/call/' + callId +" target='_blank'>" + callId + "</a>";
     id_td.html("<strong>Call ID:</strong> " + callurl + "<br>" + "<strong>TestRail:</strong> " + trurl);
 }
 
@@ -151,7 +169,6 @@ function updateFailureReason(title, failureReason) {
     var reason_td = $("#testcase table").find('td.title:contains("' + title + '")').siblings(".reason");
     reason_td.html(failureReason)
 }
-
 
 function populateSteps(){
     var case_id = this.getAttribute('data-case');
