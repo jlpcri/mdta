@@ -3,11 +3,47 @@
 <script>
 {% include 'runner/dashboard.js' %}
 </script>
+    <style type="text/css">
+
+        .output {
+            font-size: 16px;
+        }
+
+        .popover-content > .header {
+            padding: 20px;
+        }
+
+        .popover-content > .body {
+            padding: 60px;
+        }
+
+        .popover {
+            postition: relative;
+            left: 60px !important;
+            max-width: 700px;
+            border: 1px solid;
+        }
+
+        .popover-title {
+            color: black;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .popover-inner {
+            width: 400px;
+
+        }
+
+        .popover .arrow {
+            display: none;
+        }
+    </style>
 {% endblock %}
 {% block body %}
     <div class='container'>
         <div class='row'>
-            <div id='suites' class='col-md-6'>
+            <div id='suites' class='col-md-5'>
                 <h2>Suites</h2>
                 <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
                     {% for suite in suites %}
@@ -21,7 +57,7 @@
                                 <ul class="list-group" id="lg-{{ forloop.counter }}">
                                     <li class="list-group-item">
                                         <strong>Run all</strong>
-                                        <a href="{% url 'runner:hatit_download' %}?suite={{ suite.id }}" style="margin-left: 3em;" data-suite="{{ suite.id }}" class="btn btn-success btn-xs pull-right run-all-btn">
+                                        <a href="#" data-toggle="modal" data-target="#run-all-modal" style="margin-left: 3em;" data-suite="{{ suite.id }}" class="btn btn-success btn-xs pull-right run-all-suite">
                                             Run <i class="fa fa-arrow-right"></i>
                                         </a>
                                     </li>
@@ -41,8 +77,9 @@
                         </div>
                     {% endfor %}
                 </div>
+                {% include "runner/run_all_modal.html" %}
             </div>
-            <div class='col-md-6'>
+            <div class='col-md-7'>
                 <h2>Details</h2>
                 <div id="testcase"></div>
                 <div id="result"></div>
@@ -50,3 +87,4 @@
         </div>
     </div>
 {% endblock %}
+

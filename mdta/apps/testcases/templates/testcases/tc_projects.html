@@ -18,8 +18,9 @@
                                     <td><a href="#project-{{ project.id }}" data-toggle="tab">{{ project.name }}</a></td>
                                     <td>
                                         <a href="{% url 'testcases:demonstrate_testcases' project.id %}?level=project">TCs</a>
-                                        {% if user.is_superuser %}
+                                        {% if user.is_staff %}
                                             <a href="{% url 'testcases:create_testcases' project.id %}?level=project" title="Create TCs"><i class="fa fa-hourglass-2 fa-fw"></i></a>
+                                            <span class="tc_loading" hidden>Loading...</span>
                                         {% endif %}
                                     </td>
                                     <td><a href="{% url 'testcases:push_testcases_to_testrail' project.id %}">Push to TestRail</a></td>
@@ -108,8 +109,9 @@
                                     {% for module in project.modules %}
                                         <li>
                                             <a href="{% url 'testcases:demonstrate_testcases' module.id %}?level=module">{{ module.name }}</a>
-                                            {% if user.is_superuser %}
+                                            {% if user.is_staff %}
                                                 <a href="{% url 'testcases:create_testcases' module.id %}?level=module" title="Create TCs"><i class="fa fa-hourglass-2 fa-fw"></i></a>
+                                                <span class="tc_loading" hidden>Loading...</span>
                                             {% endif %}
                                         </li>
                                     {% endfor %}

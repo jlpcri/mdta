@@ -1,0 +1,27 @@
+<!-- Run All Modal -->
+
+<div class="modal fade newModule" id="run-all-modal">
+    <div class="modal-dialog">
+        <form action="#" method="post" id="run-all-modal-form" enctype="application/x-www-form-urlencoded">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4 class="modal-title">Run All Data Needed</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    {% csrf_token %}
+                    {{ modal_run_all }}
+                </div>
+                <div class="modal-footer">
+                    <input id="runall" class="btn btn-primary run-all-btn" type="submit" value="Run All">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

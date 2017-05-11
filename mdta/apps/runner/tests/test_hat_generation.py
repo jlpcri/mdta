@@ -16,3 +16,17 @@ class BasicConnectionToLab(TestCase):
         response = hs.remote_hat_execute()
         print(hs.results())
 
+
+class TestHatScript(object):
+    def __init__(self, wrapped_class, *args, **kargs):
+        self.wrapped_class = wrapped_class(*args, **kargs)
+
+    def basic_connection_test(self):
+        pass
+
+    def hatit_execute(self):
+        pass
+
+
+
+

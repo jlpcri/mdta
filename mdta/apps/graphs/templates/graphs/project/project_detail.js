@@ -57,25 +57,55 @@ function draw_project_graph() {
     // initialize your network!
     var network = new vis.Network(container, data, options);
 
-    var n = JSON.stringify("{{ network_nodes|escapejs }}");
-    var node = JSON.parse(n);
-    $.each(JSON.parse(node), function (idx, obj) {
-        if(!$.isEmptyObject(obj.data)) {
-            var details = obj.data;
-            var id = obj.id;
-            for (var i = 0; i < details.length; ++i) {
-                for (var ind in details[i]) {
-                    if (ind === 'tcs_cannot_route') {
-                        nodes.update([{id: id, image: image_url + 'yellow-infrastructure-graphics_o.png'}])
+    $('.dropdown-toggle').dropdown();
+    $('#divNewNotifications li > a').click(function(){
+    if (this.text !== ' View Options ') {
+        if (this.text !== ' Failed Testcases ') {
+            $('#text').text($(this).html());
+        }
+    }
+    if (this.text === ' Default ') {
+        $("#default").change();
+    }
+    if (this.text === ' Data Gaps ') {
+        $("#data-gaps").change();
+    }
+    // if (this.text === ' Failed Testcases ') {
+    //     $("#failed-testcases").change();
+    // }
+    $('#divNewNotifications li').css('background-color', 'white');
+    });
+
+    $('#data-gaps').change(function(){
+        var n = JSON.stringify("{{ network_nodes|escapejs }}");
+        var node = JSON.parse(n);
+        $.each(JSON.parse(node), function (idx, obj) {
+            if (!$.isEmptyObject(obj.data)) {
+                var details = obj.data;
+                var id = obj.id;
+                for (var i = 0; i < details.length; ++i) {
+                    for (var ind in details[i]) {
+                        if (ind === 'tcs_cannot_route') {
+                            nodes.update([{id: id, image: image_url + 'yellow-infrastructure-graphics_o.png'}])
+                        }
                     }
                 }
             }
-        }
-        else {
-        $('a[href="#projectModules"]').click();
-        var id = obj.id;
-        nodes.update([{id: id, image: image_url + 'red-infrastructure-graphics_o.png'}]);
-        }
+            else {
+                $('a[href="#projectModules"]').click();
+                var id = obj.id;
+                nodes.update([{id: id, image: image_url + 'red-infrastructure-graphics_o.png'}]);
+            }
+        });
+    });
+
+    $('#default').change(function(){
+        var n = JSON.stringify("{{ network_nodes|escapejs }}");
+        var node = JSON.parse(n);
+        $.each(JSON.parse(node), function (idx, obj) {
+            var id = obj.id;
+            nodes.update([{id: id, image: image_url + 'blue-infrastructure-graphics_11435264594_o.png'}]);
+        });
     });
 
     network.on('click', function(params){

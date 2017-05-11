@@ -48,8 +48,8 @@ LANGUAGE_DEFAULT_NAME = 'English'
 CONSTRAINTS_TRUE_OR_FALSE = 'tof'
 TESTCASE_NOT_ROUTE_MESSAGE = 'This edge cannot be routed'
 
-NEGATIVE_TESTS_LIST = ['NIR', 'NMR', 'NIF', 'NMF', 'NINMF',
-                       'CNIR', 'CNMR', 'CNIF', 'CNMF', 'CNINMF']
+NEGATIVE_TESTS_LIST = ['NIR', 'NMR', 'NIF', 'NMF', 'NINMF']
+NEGATIVE_CONFIRM_TESTS_LIST = ['CNIR', 'CNMR', 'CNIF', 'CNMF', 'CNINMF']
 
 # TestRail tcs key name
 TR_CONTENT = 'content'

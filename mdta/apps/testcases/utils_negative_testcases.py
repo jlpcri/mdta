@@ -13,7 +13,7 @@ def tc_no_input_recover(node, language):
     data = [
         {
             TR_CONTENT: 'wait',
-            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_NI1)
+            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_NI1, hint='NI1')
         }
     ]
 
@@ -339,7 +339,7 @@ def get_negative_tc_title(key):
     }.get(key, 'No Input & Recover')
 
 
-def negative_testcase_generation(data, path_data, title, node, edge, language=None):
+def negative_testcase_generation(data, path_data, title, tc_list, edge, language=None):
     """
     Generate negative TestCases of 5 scenarios
     :param data: Test Steps of current TestCase
@@ -347,8 +347,9 @@ def negative_testcase_generation(data, path_data, title, node, edge, language=No
     :param title: title of current TestCase
     :return:
     """
+    node = edge.to_node
     if node.properties[NON_STANDARD_FAIL_KEY] == 'on':
-        for key in NEGATIVE_TESTS_LIST:
+        for key in tc_list:
             _title = title + ', ' + get_negative_tc_title(key)
             data.append({
                 'tcs_cannot_route': 'This test cannot be routed, Non standard fail behavior',
@@ -356,7 +357,7 @@ def negative_testcase_generation(data, path_data, title, node, edge, language=No
                 'id': edge.id
             })
     else:
-        for key in NEGATIVE_TESTS_LIST:
+        for key in tc_list:
             _title = title + ', ' + get_negative_tc_title(key)
             negative_tc_steps = get_negative_tc_steps(key)(node, language)
 
@@ -581,7 +582,7 @@ def get_mpc_valid_input(node):
 def get_random_verbiage_from_prompt_node(node, language, verbiage_key='', hint='', index=''):
     try:
         data = node.name + '{0}{1}: '.format(hint, index) + node.verbiage[language]['{0}{1}'.format(verbiage_key, index)]
-    except KeyError:
+    except (KeyError, TypeError):
         data = node.name + '{0}{1}: '.format(hint, index)
 
     return data

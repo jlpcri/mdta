@@ -3,6 +3,7 @@ from django.test import TestCase
 from mdta.apps.runner.utils import get_testrail_project
 from mdta.apps.projects.models import TestRailInstance
 
+
 class TestRailInterface(TestCase):
     """
     Attempts to create a test run based on a known suite. Really only appropriate for development checks.

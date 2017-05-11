@@ -34,7 +34,7 @@
                                 </td>
                                 <td>
                                     {% if project.testrail %}
-                                        <a href="{{ project.testrail.instance.host_abbreviation }}/index.php?/suites/overview/{{ project.testrail.project_id }}" target="_blank">{{ project.testrail.project_name }}: {{ project.version }}</a>
+                                        <a href="{{ project.testrail.instance.host }}/index.php?/suites/overview/{{ project.testrail.project_id }}" target="_blank">{{ project.testrail.project_name }}: {{ project.version }}</a>
                                     {% else %}
                                         None
                                     {% endif %}
@@ -57,6 +57,13 @@
                             </tr>
                         </tbody>
                     </table>
+                    <hr>
+                    <strong>Members:</strong>
+                    <ul>
+                        {% for item in project.humanresource_set.all %}
+                            <li>{{ item.user.first_name }} {{ item.user.last_name }}</li>
+                        {% endfor %}
+                    </ul>
                 </div>
             {% else %}
                 No Projects
