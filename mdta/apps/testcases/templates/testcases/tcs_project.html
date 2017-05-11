@@ -68,6 +68,7 @@
                                         <a href="#{{ module.name }}">{{ module.name }}</a>
                                         {% if user.is_staff %}
                                             <a href="{% url 'testcases:create_testcases' module.id %}?level=module" title="Create TCs"><i class="fa fa-hourglass-2 fa-fw"></i></a>
+                                            <span class="tc_loading" hidden>Loading...</span>
                                         {% endif %}
                                     </li>
                                 {% endfor %}
@@ -107,5 +108,11 @@
                 }
             })
         }
+
+        $('.fa-hourglass-2').click(function(){
+            $(this).removeClass('fa-hourglass-2').addClass('fa-spinner fa-pulse fa-2x');
+
+            $(this).closest('li').find('.tc_loading').show();
+        });
     </script>
 {% endblock %}
