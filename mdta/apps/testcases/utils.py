@@ -182,9 +182,10 @@ def routing_path_to_node(node, shortest_set=None):
     :return:
     """
     path = []
+    visited_nodes = []
     # check node is connected to Start Node
     if check_node_connect_to_start_node(node):
-        path = backwards_search(node, shortest_set)
+        path = backwards_search(node, visited_nodes, shortest_set)
 
     # print(path)
     return path
@@ -211,7 +212,7 @@ def check_node_connect_to_start_node(node):
     return flag
 
 
-def backwards_search(node, shortest_set=None):
+def backwards_search(node, visited_nodes, shortest_set=None):
     """
     Search a path from Start node(type='Start') to current Node
     Breadth
@@ -220,6 +221,9 @@ def backwards_search(node, shortest_set=None):
     """
 
     path = []
+    if node not in visited_nodes:
+        visited_nodes.append(node)
+
     start_node_found_outside = False  # flag to find Start Node outside
 
     if node.type.name in NODE_START_NAME:
@@ -236,9 +240,9 @@ def backwards_search(node, shortest_set=None):
         if edge:
             start_node_found = False  # flag to find Start Node in current search
             if edge.from_node.type.name not in NODE_START_NAME:
-                if edge.from_node.arriving_edges.count() > 0:
+                if edge.from_node.arriving_edges.count() > 0 and edge.from_node not in visited_nodes:
                     start_node_found_outside = True
-                    path += backwards_search(edge.from_node, shortest_set)
+                    path += backwards_search(edge.from_node, visited_nodes, shortest_set)
             else:
                 start_node_found = True
                 path.append(edge.from_node)
