@@ -78,6 +78,17 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
 
         try:
             node = Node.objects.get(module__project=project, name=node_name)
+
+            if type.name == 'Menu Prompt' and node.type.name != 'Menu Prompt':
+                node.verbiage = {LANGUAGE_DEFAULT_NAME: {
+                    'InitialPrompt': "",
+                    'NoInput1': "",
+                    'NoInput2': "",
+                    'NoMatch1': "",
+                    'NoMatch2': ""
+                }}
+                node.type = type
+                node.save()
         except Node.DoesNotExist:
             if type.name == 'Menu Prompt':
                 verbiage_keys = {LANGUAGE_DEFAULT_NAME: {
@@ -138,7 +149,11 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
                 node.verbiage[current_language]['NoMatch2'] += verbiage
             else:
                 node.verbiage[current_language]['InitialPrompt'] += verbiage
-        node.save()
+        try:
+            node.save()
+        except Exception as e:
+            print(node, e)
+            pass
 
     return {"valid": True, "message": 'Handled'}
 

@@ -41,6 +41,7 @@ MPC_NI2 = 'ConfirmNoInput2'
 MPC_NM1 = 'ConfirmNoMatch1'
 MPC_NM2 = 'ConfirmNoMatch2'
 MPC_RJ1 = 'Reject1'
+MPC_NO_VALID_INPUTS = 'MPC no valid inputs'
 
 LANGUAGE_DEFAULT_NAME = 'English'
 
