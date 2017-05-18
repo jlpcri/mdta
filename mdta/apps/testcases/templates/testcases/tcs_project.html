@@ -100,11 +100,17 @@
         }, 5000);
 
         function check_celery_task_state(){
-            $.getJSON('{% url 'testcases:check_celery_task_state' %}', function(data){
-                if (data == false){
-                    button_publish.removeClass('disabled')
+            var previouse_disabled = button_publish.is('.disabled');
+
+            $.getJSON('{% url 'testcases:check_celery_task_state' %}', function(task_run){
+                if (task_run == false){
+                    if (previouse_disabled == true){
+                        location.reload();
+                    }
                 } else {
-                    button_publish.addClass('disabled')
+                    if (previouse_disabled == false) {
+                        button_publish.addClass('disabled')
+                    }
                 }
             })
         }
