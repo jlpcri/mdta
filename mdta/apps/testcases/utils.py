@@ -36,7 +36,6 @@ def create_routing_test_suite(project=None, modules=None):
 
     from mdta.apps.testcases.tasks import create_testcases_celery
     create_testcases_celery.update_state(state='PROGRESS', meta={'process_percent': 20})
-    sleep(5)
 
     if project:
         if project.language:
@@ -79,7 +78,7 @@ def create_routing_test_suite_module(modules, language, shortest_set):
         create_testcases_celery.update_state(state='PROGRESS', meta={'process_percent': 60})
         # print(module.name, time.time() - start_time, len(shortest_set))
     create_testcases_celery.update_state(state='PROGRESS', meta={'process_percent': 80})
-    sleep(20)
+
     return test_suites
 
 

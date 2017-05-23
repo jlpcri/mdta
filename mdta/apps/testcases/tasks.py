@@ -21,7 +21,6 @@ def create_testcases_celery(self, project_id):
     :return:
     """
     self.update_state(state='PROGRESS', meta={'process_percent': 10})
-    sleep(10)
 
     project = get_object_or_404(Project, pk=project_id)
     testcases = create_routing_test_suite(project=project)
