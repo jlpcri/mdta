@@ -15,12 +15,10 @@
                         <a href="{% url 'runner:dashboard' %}" class="btn btn-default">Execution</a>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-xs-12 progress">
-                        <div class="status"></div>
-                            <div class="progress">
-                                <div class="bar"></div>
-                            </div>
+                <div class="progress col-xs-12"
+                     style="margin-bottom:10px;margin-top:0px;padding-left:0px !important;padding-right:0px !important;">
+                    <div class="progress progress-bar progress-bar-success" role=progressbar" aria-valuemin="0"
+                         aria-valuemax="100" id="tracking" style="width: 0%;">
                     </div>
                 </div>
                 <div class="row" id="project-testcases">
@@ -90,12 +88,16 @@
 
 {% block footer %}
     <script>
+        $(function(){
+            $(".progress").hide();
+        });
         var button_publish = $('#publish');
         button_publish.click(function(){
             $.ajax("{% url 'graphs:project_publish' project.id %}", {
                 type: "GET",
                 success: function(data){
                     button_publish.addClass('disabled');
+                    $(".progress").show();
                 }
             });
         });
@@ -109,26 +111,39 @@
         function check_celery_task_state(){
             var previouse_disabled = button_publish.is('.disabled');
 
-            $.getJSON('{% url 'testcases:check_celery_task_state' %}', function(task_run){
-                if (task_run == false){
-                    if (previouse_disabled == true){
-                        location.reload();
-                    }
             $.getJSON('{% url 'testcases:check_celery_task_state' %}', function(data){
                 console.log(data);
                 if (data.task_run === false){
-                    button_publish.removeClass('disabled');
+                    if (previouse_disabled === true){
+                        $('#tracking').css({'width': 100 + '%'});
+                        $('#tracking').html(100 + '%');
+                        setTimeout(location.reload.bind(location), 5000);
+                    }
                 } else {
-                    if (previouse_disabled == false) {
-                        button_publish.addClass('disabled')
+                    if (previouse_disabled === false) {
+                        button_publish.addClass('disabled');
+                        $(".progress").show();
+                        if (data.task_state === 'FAILURE'){
+                            $('#tracking').removeClass('progress-bar-success');
+                            $('#tracking').addClass('progress-bar-danger');
+                            $('#tracking').css({'width': 100 + '%'});
+                            $('#tracking').html('Task Failed');
+                        } else {
+                            $('#tracking').css({'width': data.task_result.process_percent + '%'});
+                            $('#tracking').html(data.task_result.process_percent + '%');
+                        }
                     }
                     button_publish.addClass('disabled');
-                }
-                if (data.task_result.process_percent === null || data.task_result.process_percent === undefined) {
-                    $('.bar').css({'width': 0 + '%'});
-                } else {
-                    $('.bar').css({'width': data.task_result.process_percent + '%'});
-                    $('.bar').html(data.task_result.process_percent + '%');
+                    $(".progress").show();
+                    if (data.task_state === 'FAILURE'){
+                            $('#tracking').removeClass('progress-bar-success');
+                            $('#tracking').addClass('progress-bar-danger');
+                            $('#tracking').css({'width': 100 + '%'});
+                            $('#tracking').html('Task Failed');
+                        } else {
+                            $('#tracking').css({'width': data.task_result.process_percent + '%'});
+                            $('#tracking').html(data.task_result.process_percent + '%');
+                        }
                 }
             })
         }

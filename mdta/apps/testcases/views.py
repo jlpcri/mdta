@@ -212,7 +212,7 @@ def testrail_configuration_update(request, testrail_id):
 
 
 def check_celery_task_state(request):
-    data_list = []
+    task_id = None
     task_run = False
     active = celery_app.control.inspect().active()
 
@@ -229,6 +229,8 @@ def check_celery_task_state(request):
                 if tstate == 'SUCCESS':
                     tresult = {'process_percent': 100}
                 elif tstate == 'PENDING':
+                    tresult = {'process_percent': 0}
+                elif tstate == 'FAILURE':
                     tresult = {'process_percent': 0}
             project_id = active[key][0]['args']
             project_id = ''.join(c for c in project_id if c not in '\'(),')
