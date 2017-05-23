@@ -15,7 +15,14 @@
                         <a href="{% url 'runner:dashboard' %}" class="btn btn-default">Execution</a>
                     </div>
                 </div>
-
+                <div class="row">
+                    <div class="col-xs-12 progress">
+                        <div class="status"></div>
+                            <div class="progress">
+                                <div class="bar"></div>
+                            </div>
+                    </div>
+                </div>
                 <div class="row" id="project-testcases">
                     {% for item in testcases %}
                         {% if item.data %}
@@ -88,6 +95,7 @@
             $.ajax("{% url 'graphs:project_publish' project.id %}", {
                 type: "GET",
                 success: function(data){
+                    console.log(data);
                     button_publish.addClass('disabled');
                 }
             });
@@ -101,10 +109,17 @@
 
         function check_celery_task_state(){
             $.getJSON('{% url 'testcases:check_celery_task_state' %}', function(data){
-                if (data == false){
-                    button_publish.removeClass('disabled')
+                console.log(data);
+                if (data.task_run === false){
+                    button_publish.removeClass('disabled');
                 } else {
-                    button_publish.addClass('disabled')
+                    button_publish.addClass('disabled');
+                }
+                if (data.task_result.process_percent === null || data.task_result.process_percent === undefined) {
+                    $('.bar').css({'width': 0 + '%'});
+                } else {
+                    $('.bar').css({'width': data.task_result.process_percent + '%'});
+                    $('.bar').html(data.task_result.process_percent + '%');
                 }
             })
         }
