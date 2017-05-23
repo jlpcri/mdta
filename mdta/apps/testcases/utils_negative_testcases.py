@@ -361,6 +361,7 @@ def negative_testcase_generation(data, path_data, title, tc_list, edge, language
             _title = title + ', ' + get_negative_tc_title(key)
             negative_tc_steps = get_negative_tc_steps(key)(node, language)
 
+            # print(negative_tc_steps[0])
             if not negative_tc_steps[0][TR_CONTENT]:
                 data.append({
                     'tcs_cannot_route': negative_tc_steps[0][TR_EXPECTED],
@@ -368,13 +369,20 @@ def negative_testcase_generation(data, path_data, title, tc_list, edge, language
                     'id': edge.id
                 })
             else:
-                tc_steps = path_data['tc_steps'] + negative_tc_steps
-                data.append({
-                    'pre_conditions': path_data['pre_conditions'],
-                    'tc_steps': tc_steps,
-                    'title': _title,
-                    'id': edge.id
-                })
+                if negative_tc_steps[0][TR_CONTENT] == MPC_NO_VALID_INPUTS:
+                    data.append({
+                        'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + ': ' + MPC_NO_VALID_INPUTS,
+                        'title': _title,
+                        'id': edge.id
+                    })
+                else:
+                    tc_steps = path_data['tc_steps'] + negative_tc_steps
+                    data.append({
+                        'pre_conditions': path_data['pre_conditions'],
+                        'tc_steps': tc_steps,
+                        'title': _title,
+                        'id': edge.id
+                    })
 
 
 def random_combination(random_size=None):
@@ -528,23 +536,30 @@ def rejected_testcase_generation(data, path_data, title, node, edge, language=No
             else:
                 contents = get_mpc_valid_input(node)
 
-                rejected_steps = [
-                    {
-                        TR_CONTENT: contents,
-                        TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_VER)
-                    },
-                    {
-                        TR_CONTENT: 'press 2',  # rejected confirm
-                        TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_VER)
-                    }
-                ]
+                if contents == MPC_NO_VALID_INPUTS:
+                    data.append({
+                        'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + ': ' + MPC_NO_VALID_INPUTS,
+                        'title': tc_title,
+                        'id': edge.id
+                    })
+                else:
+                    rejected_steps = [
+                        {
+                            TR_CONTENT: contents,
+                            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MPC_VER)
+                        },
+                        {
+                            TR_CONTENT: 'press 2',  # rejected confirm
+                            TR_EXPECTED: get_verbiage_from_prompt_node(node, language, MP_VER)
+                        }
+                    ]
 
-                data.append({
-                    'pre_conditions': path_data['pre_conditions'],
-                    'tc_steps': path_data['tc_steps'] + rejected_steps,
-                    'title': tc_title,
-                    'id': edge.id
-                })
+                    data.append({
+                        'pre_conditions': path_data['pre_conditions'],
+                        'tc_steps': path_data['tc_steps'] + rejected_steps,
+                        'title': tc_title,
+                        'id': edge.id
+                    })
 
 
 def get_mpc_valid_input(node):
@@ -574,7 +589,7 @@ def get_mpc_valid_input(node):
         except TypeError:
             contents = 'TypeError'
     else:
-        contents = 'No valid inputs'
+        contents = MPC_NO_VALID_INPUTS
 
     return contents
 

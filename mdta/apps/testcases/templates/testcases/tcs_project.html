@@ -95,7 +95,6 @@
             $.ajax("{% url 'graphs:project_publish' project.id %}", {
                 type: "GET",
                 success: function(data){
-                    console.log(data);
                     button_publish.addClass('disabled');
                 }
             });
@@ -108,11 +107,21 @@
         }, 5000);
 
         function check_celery_task_state(){
+            var previouse_disabled = button_publish.is('.disabled');
+
+            $.getJSON('{% url 'testcases:check_celery_task_state' %}', function(task_run){
+                if (task_run == false){
+                    if (previouse_disabled == true){
+                        location.reload();
+                    }
             $.getJSON('{% url 'testcases:check_celery_task_state' %}', function(data){
                 console.log(data);
                 if (data.task_run === false){
                     button_publish.removeClass('disabled');
                 } else {
+                    if (previouse_disabled == false) {
+                        button_publish.addClass('disabled')
+                    }
                     button_publish.addClass('disabled');
                 }
                 if (data.task_result.process_percent === null || data.task_result.process_percent === undefined) {
