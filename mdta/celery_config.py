@@ -6,6 +6,7 @@ CELERY_ACCEPT_CONTENT = ['pickle', 'json', ]
 CELERY_RESULT_BACKEND = 'rpc://'
 CELERY_RESULT_PERSISTENT = True
 CELERY_RESULT_SERIALIZER = 'pickle'
+
 CELERY_TASK_RESULT_EXPIRES = None   # no result is return back
 
 CELERY_TIMEZONE = 'America/Chicago'
