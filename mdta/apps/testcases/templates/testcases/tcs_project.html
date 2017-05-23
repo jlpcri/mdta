@@ -102,13 +102,13 @@
         function check_celery_task_state(){
             var previouse_disabled = button_publish.is('.disabled');
 
-            $.getJSON('{% url 'testcases:check_celery_task_state' %}', function(task_run){
-                if (task_run == false){
-                    if (previouse_disabled == true){
+            $.getJSON('{% url 'testcases:check_celery_task_state' %}', function(data){
+                if (data.task_run === false){
+                    if (previouse_disabled === true){
                         location.reload();
                     }
                 } else {
-                    if (previouse_disabled == false) {
+                    if (previouse_disabled === false) {
                         button_publish.addClass('disabled')
                     }
                 }
