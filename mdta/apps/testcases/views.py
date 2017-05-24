@@ -55,12 +55,10 @@ def create_testcases(request, object_id):
     :param object_id: project_id/module_id
     :return:
     """
-
     testcases = []
     link_id = ''
     level = request.GET.get('level', '')
     if level == 'project':
-        # create_testcases_celery(object_id, call_from='OldTC')
         project = get_object_or_404(Project, pk=object_id)
         testcases = create_routing_test_suite(project)
 
@@ -219,21 +217,23 @@ def check_celery_task_state(request):
     key = 'celery@' + socket.gethostname() + '.mdta'
     try:
         if active[key]:
-            for a in active[key]:
-                task_id = a['id']
-                tresult = celery_app.backend.get_result(task_id)
-                tstate = celery_app.backend.get_status(task_id)
-                if tstate == 'SUCCESS':
-                    tresult = {'process_percent': 100}
-                elif tstate == 'PENDING':
-                    pass
-                elif tstate == 'FAILURE':
-                    tresult = {'process_percent': 100}
+            # for a in active[key]:
+            #     task_id = a['id']
+            #     tresult = celery_app.backend.get_result(task_id)
+            #     print(tresult)
+            #     tstate = celery_app.backend.get_status(task_id)
+            #     if tstate == 'SUCCESS':
+            #         tresult = {'process_percent': 100}
+            #     elif tstate == 'PENDING':
+            #         tresult = {'process_percent': 0}
+            #     elif tstate == 'FAILURE':
+            #         tresult = {'process_percent': 100}
             project_id = active[key][0]['args']
             project_id = ''.join(c for c in project_id if c not in '\'(),')
             if int(project_id) == request.user.humanresource.project.id:
                 project = get_object_or_404(Project, pk=project_id)
-                return JsonResponse({'task_run': True, 'task_result': tresult, 'task_state': tstate, 'task_id': task_id})
+                # return JsonResponse({'task_run': True, 'task_result': tresult, 'task_state': tstate, 'task_id': task_id})
+                return JsonResponse({'task_run': True})
     except (KeyError, TypeError):
         return JsonResponse({'task_run': True})
 

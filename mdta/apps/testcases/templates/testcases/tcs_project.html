@@ -106,44 +106,46 @@
 
         window.setInterval(function(){
             check_celery_task_state();
-        }, 10000);
+        }, 5000);
 
         function check_celery_task_state(){
             var previouse_disabled = button_publish.is('.disabled');
 
             $.getJSON('{% url 'testcases:check_celery_task_state' %}', function(data){
-                console.log(data);
                 if (data.task_run === false){
                     if (previouse_disabled === true){
-                        $('#tracking').css({'width': 100 + '%'});
-                        $('#tracking').html(100 + '%');
+{#                        $('#tracking').css({'width': 100 + '%'});#}
+{#                        $('#tracking').html(100 + '%');#}
                         setTimeout(location.reload.bind(location), 5000);
                     }
                 } else {
                     if (previouse_disabled === false) {
                         button_publish.addClass('disabled');
-{#                        $(".progress").show();#}
+                        {% comment %}$(".progress").show();
                         if (data.task_state === 'FAILURE'){
                             $('#tracking').removeClass('progress-bar-success');
                             $('#tracking').addClass('progress-bar-danger');
                             $('#tracking').css({'width': 100 + '%'});
                             $('#tracking').html('Task Failed');
+                        if (data.task_state === 'PENDING'){
+                            console.log(data.task_state);
+                        }
                         } else {
                             $('#tracking').css({'width': data.task_result.process_percent + '%'});
                             $('#tracking').html(data.task_result.process_percent + '%');
-                        }
+                        }{% endcomment %}
                     }
                     button_publish.addClass('disabled');
 {#                    $(".progress").show();#}
-                    if (data.task_state === 'FAILURE'){
-                            $('#tracking').removeClass('progress-bar-success');
-                            $('#tracking').addClass('progress-bar-danger');
-                            $('#tracking').css({'width': 100 + '%'});
-                            $('#tracking').html('Task Failed');
-                        } else {
-                            $('#tracking').css({'width': data.task_result.process_percent + '%'});
-                            $('#tracking').html(data.task_result.process_percent + '%');
-                        }
+{#                    if (data.task_state === 'FAILURE'){#}
+{#                            $('#tracking').removeClass('progress-bar-success');#}
+{#                            $('#tracking').addClass('progress-bar-danger');#}
+{#                            $('#tracking').css({'width': 100 + '%'});#}
+{#                            $('#tracking').html('Task Failed');#}
+{#                        } else {#}
+{#                            $('#tracking').css({'width': data.task_result.process_percent + '%'});#}
+{#                            $('#tracking').html(data.task_result.process_percent + '%');#}
+{#                        }#}
                 }
             })
         }
