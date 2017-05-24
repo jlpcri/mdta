@@ -1,7 +1,6 @@
 from datetime import datetime
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
-from celery import current_task
 from time import sleep
 
 from mdta.celery_module import app
@@ -12,7 +11,7 @@ from mdta.apps.testcases.utils import create_routing_test_suite, add_testsuite_t
 from mdta.apps.testcases.testrail import APIClient
 
 
-@app.task(bind=True)
+@app.task(bind=True, ignore_result=True)
 def create_testcases_celery(self, project_id):
     """
     Create TestCases per project/module
@@ -20,7 +19,9 @@ def create_testcases_celery(self, project_id):
     :param project_id:
     :return:
     """
+
     self.update_state(state='PROGRESS', meta={'process_percent': 10})
+    sleep(10)
 
     project = get_object_or_404(Project, pk=project_id)
     testcases = create_routing_test_suite(project=project)
@@ -45,6 +46,7 @@ def create_testcases_celery(self, project_id):
         except (ValueError, ValidationError) as e:
             print(str(e))
     msg = push_testcases_to_testrail_celery(project.id)
+
     return msg
 
 
@@ -83,6 +85,7 @@ def push_testcases_to_testrail_celery(self, project_id):
 
         # Find or Create Section of TestSuites
         for item in testcases:
+
             try:
                 section = (section for section in tr_suite_sections if section['name'] == item['module']).__next__()
                 remove_section_from_testsuite(client, str(section['id']))

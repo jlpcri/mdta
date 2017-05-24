@@ -113,6 +113,7 @@
 
             $.getJSON('{% url 'testcases:check_celery_task_state' %}', function(data){
                 console.log(data);
+                console.log(data.task_state);
                 if (data.task_run === false){
                     if (previouse_disabled === true){
                         $('#tracking').css({'width': 100 + '%'});

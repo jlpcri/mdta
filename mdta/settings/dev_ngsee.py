@@ -2,7 +2,6 @@
 from mdta.settings.base import *
 
 DEBUG = True
-BROKER_URL = 'amqp://guest:guest@localhost//'
 # CELERY_ACCEPT_CONTENT = ['json']
 # CELERY_TASK_SERIALIZER = 'json'
 # CELERY_RESULT_SERIALIZER = 'json'
