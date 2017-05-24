@@ -97,7 +97,7 @@
                 type: "GET",
                 success: function(data){
                     button_publish.addClass('disabled');
-                    $(".progress").show();
+{#                    $(".progress").show();#}
                 }
             });
         });
@@ -122,7 +122,7 @@
                 } else {
                     if (previouse_disabled === false) {
                         button_publish.addClass('disabled');
-                        $(".progress").show();
+{#                        $(".progress").show();#}
                         if (data.task_state === 'FAILURE'){
                             $('#tracking').removeClass('progress-bar-success');
                             $('#tracking').addClass('progress-bar-danger');
@@ -134,7 +134,7 @@
                         }
                     }
                     button_publish.addClass('disabled');
-                    $(".progress").show();
+{#                    $(".progress").show();#}
                     if (data.task_state === 'FAILURE'){
                             $('#tracking').removeClass('progress-bar-success');
                             $('#tracking').addClass('progress-bar-danger');
