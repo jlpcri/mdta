@@ -3,7 +3,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
-from celery.result import AsyncResult
 import json
 
 
@@ -215,6 +214,7 @@ def check_celery_task_state(request):
     task_id = None
     task_run = False
     active = celery_app.control.inspect().active()
+    print(active)
 
     # celery worker node name
     key = 'celery@' + socket.gethostname() + '.mdta'
@@ -222,16 +222,15 @@ def check_celery_task_state(request):
         if active[key]:
             for a in active[key]:
                 task_id = a['id']
-                task = AsyncResult(task_id)
-                tresult = task.result
-                tstate = task.state
+                tresult = celery_app.backend.get_result(task_id)
+                tstate = celery_app.backend.get_status(task_id)
                 print(tstate)
                 if tstate == 'SUCCESS':
                     tresult = {'process_percent': 100}
                 elif tstate == 'PENDING':
                     tresult = {'process_percent': 0}
                 elif tstate == 'FAILURE':
-                    tresult = {'process_percent': 0}
+                    tresult = {'process_percent': 100}
             project_id = active[key][0]['args']
             project_id = ''.join(c for c in project_id if c not in '\'(),')
             if int(project_id) == request.user.humanresource.project.id:
