@@ -11,7 +11,7 @@ from mdta.apps.testcases.utils import create_routing_test_suite, add_testsuite_t
 from mdta.apps.testcases.testrail import APIClient
 
 
-@app.task(bind=True, ignore_result=True)
+@app.task(bind=True)
 def create_testcases_celery(self, project_id):
     """
     Create TestCases per project/module
