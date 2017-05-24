@@ -34,9 +34,9 @@ def create_routing_test_suite(project=None, modules=None):
     data = []
     shortest_set = []  # found shortest set from Start to node, key is 'Start + node', value is list of nodes
 
-    from mdta.apps.testcases.tasks import create_testcases_celery
-    create_testcases_celery.update_state(state='PROGRESS', meta={'process_percent': 20})
-    sleep(10)
+    # from mdta.apps.testcases.tasks import create_testcases_celery
+    # create_testcases_celery.update_state(state='PROGRESS', meta={'process_percent': 20})
+    # sleep(10)
 
     if project:
         if project.language:
@@ -63,7 +63,7 @@ def create_routing_test_suite_module(modules, language, shortest_set):
     :return:
     """
     test_suites = []
-    from mdta.apps.testcases.tasks import create_testcases_celery
+    # from mdta.apps.testcases.tasks import create_testcases_celery
     if len(modules) > 0 and modules[0].project.test_header:
         th_module = modules[0].project.test_header
     else:
@@ -77,12 +77,12 @@ def create_routing_test_suite_module(modules, language, shortest_set):
             'data': data
         })
 
-        create_testcases_celery.update_state(state='PROGRESS', meta={'process_percent': 60})
-        sleep(10)
+        # create_testcases_celery.update_state(state='PROGRESS', meta={'process_percent': 60})
+        # sleep(10)
         # print(module.name, time.time() - start_time, len(shortest_set))
 
-    create_testcases_celery.update_state(state='PROGRESS', meta={'process_percent': 80})
-    sleep(10)
+    # create_testcases_celery.update_state(state='PROGRESS', meta={'process_percent': 80})
+    # sleep(10)
 
     return test_suites
 
