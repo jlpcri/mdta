@@ -228,7 +228,7 @@ def check_celery_task_state(request):
                 if tstate == 'SUCCESS':
                     tresult = {'process_percent': 100}
                 elif tstate == 'PENDING':
-                    tresult = {'process_percent': 0}
+                    tresult = {'process_percent': 100}
                 elif tstate == 'FAILURE':
                     tresult = {'process_percent': 100}
             project_id = active[key][0]['args']
