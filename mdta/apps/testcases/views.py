@@ -214,7 +214,6 @@ def check_celery_task_state(request):
     task_id = None
     task_run = False
     active = celery_app.control.inspect().active()
-    print(active)
 
     # celery worker node name
     key = 'celery@' + socket.gethostname() + '.mdta'
@@ -224,11 +223,10 @@ def check_celery_task_state(request):
                 task_id = a['id']
                 tresult = celery_app.backend.get_result(task_id)
                 tstate = celery_app.backend.get_status(task_id)
-                print(tstate)
                 if tstate == 'SUCCESS':
                     tresult = {'process_percent': 100}
                 elif tstate == 'PENDING':
-                    tresult = {'process_percent': 100}
+                    pass
                 elif tstate == 'FAILURE':
                     tresult = {'process_percent': 100}
             project_id = active[key][0]['args']

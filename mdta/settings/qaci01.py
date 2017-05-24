@@ -1,8 +1,6 @@
 __author__ = 'sliu'
 from mdta.settings.base import *
 
-BROKER_URL = 'amqp://guest:guest@localhost:5672//'
-
 SETTINGS_MODULE = 'mdta.settings.qaci01'
 
 ALLOWED_HOSTS = [
