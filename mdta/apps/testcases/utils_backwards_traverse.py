@@ -108,10 +108,10 @@ def path_traverse_backwards(path, th_path=None, language=None, domain_set=None):
                     pre_conditions += pre_condition
         else:
             if len(result_found_all) > 0:
-                result_found = result_found_all[0]
+                result_keys = list(set().union(*(d.keys() for d in result_found_all)))
             else:
-                result_found = None
-            # print('t: ', result_found)
+                result_keys = None
+            # print('th: ', result_found_all, result_keys)
             if th_path:
                 # th_path.reverse()
                 for th_index, th_step in enumerate(th_path[::-1]):
@@ -119,9 +119,11 @@ def path_traverse_backwards(path, th_path=None, language=None, domain_set=None):
                         if isinstance(th_step, Node):
                             if th_step.type.name in NODE_MP_NAME:
                                 th_key = th_step.properties[MP_OUTPUTS]
-                                if result_found and th_key:
-                                    if th_key in result_found.keys():
-                                        result = result_found
+                                if result_keys and th_key:
+                                    if th_key in result_keys:
+                                        th_key_idx = next((i for i, x in enumerate(result_found_all) if th_key in x), None)
+                                        result = result_found_all[th_key_idx]
+                                        # print(result)
                                         # Then this test case can be routed
                                         tcs_cannot_route_flag = False
                                     else:

@@ -3,7 +3,7 @@ import socket
 from celery import Celery
 from django.conf import settings
 
-if socket.gethostname() in ('sliu-OptiPlex-GX520', 'OM1960L1'):
+if socket.gethostname() in ('sliu-OptiPlex-GX520', 'OM1960L1', 'sigma'):
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mdta.settings.dev_sliu')
 elif socket.gethostname() == "seenaomi-HP-Compaq-6005-Pro-SFF-PC":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mdta.settings.dev_ngsee")

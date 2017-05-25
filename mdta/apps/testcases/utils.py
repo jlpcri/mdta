@@ -1,5 +1,5 @@
 import collections
-import time
+from time import sleep
 
 from mdta.apps.graphs.models import Node, Edge
 from mdta.apps.projects.models import Project, TestRailConfiguration
@@ -34,6 +34,13 @@ def create_routing_test_suite(project=None, modules=None):
     data = []
     shortest_set = []  # found shortest set from Start to node, key is 'Start + node', value is list of nodes
 
+    # from mdta.apps.testcases.tasks import create_testcases_celery
+    # try:
+    #     create_testcases_celery.update_state(state='PROGRESS', meta={'process_percent': 20})
+    #     sleep(10)
+    # except RuntimeError:
+    #     pass
+
     if project:
         if project.language:
             language = project.language.name
@@ -59,21 +66,30 @@ def create_routing_test_suite_module(modules, language, shortest_set):
     :return:
     """
     test_suites = []
-
+    # from mdta.apps.testcases.tasks import create_testcases_celery
     if len(modules) > 0 and modules[0].project.test_header:
         th_module = modules[0].project.test_header
     else:
         th_module = None
 
     for module in modules:
-        # start_time = time.time()
         data = get_paths_through_all_edges(module.edges_all, th_module, language, shortest_set)
 
         test_suites.append({
             'module': module.name,
             'data': data
         })
+        # try:
+        #     create_testcases_celery.update_state(state='PROGRESS', meta={'process_percent': 60})
+        #     sleep(10)
+        # except RuntimeError:
+        #     pass
         # print(module.name, time.time() - start_time, len(shortest_set))
+    # try:
+    #     create_testcases_celery.update_state(state='PROGRESS', meta={'process_percent': 80})
+    #     sleep(10)
+    # except RuntimeError:
+    #     pass
 
     return test_suites
 
@@ -92,7 +108,6 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
     if th_paths:
         for th_path in th_paths:
             for edge in edges:
-                # print(edge.id)
                 path = routing_path_to_edge(edge, shortest_set)
 
                 if path:
@@ -109,7 +124,6 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                     else:
                         title = 'Route from \'' + edge.from_node.name +\
                                     '\' to \'' + edge.to_node.name + '\''
-                        # edge_id = edge.id,
                         data.append({
                                 'pre_conditions': path_data['pre_conditions'],
                                 'tc_steps': path_data['tc_steps'],
@@ -174,7 +188,6 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
 
                             exist_node['visited'] = True
 
-    # return check_subpath_in_all(data)
     return data
 
 

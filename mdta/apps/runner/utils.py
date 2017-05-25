@@ -230,7 +230,7 @@ class HATScript(AutomationScript):
         jsonList.append(response.json())
         for data in jsonList:
             self.runID = data['runid']
-        result = browser.get("http://linux6351.wic.west.com:8080/hatit/api/check_run/?runid={0}".format(self.runID))
+        result = browser.get("{0}".format(self.hatit_server) + "api/check_run/?runid={0}".format(self.runID))
         browser.close()
         return result
 

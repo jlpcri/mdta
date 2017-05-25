@@ -3,7 +3,9 @@ from celery.schedules import crontab
 # Celery config
 CELERY_ACCEPT_CONTENT = ['pickle', 'json', ]
 # CELERY_ENABLE_UTC = False
+CELERY_TRACK_STARTED = True
 CELERY_RESULT_BACKEND = 'rpc://'
+# BROKER_URL = 'amqp://wicqacip:@apps.qaci01.wic.west.com:5672//'
 CELERY_RESULT_PERSISTENT = True
 CELERY_RESULT_SERIALIZER = 'pickle'
 CELERY_TASK_RESULT_EXPIRES = None   # no result is return back
