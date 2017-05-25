@@ -163,6 +163,8 @@ class Edge(models.Model):
     # name = models.TextField(default='')
     priority = models.SmallIntegerField(choices=PRIORITY_CHOICES, default=0)
 
+    celery_visited = models.TextField(default=True)
+
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
 
