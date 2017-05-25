@@ -2,7 +2,10 @@
 from mdta.settings.base import *
 
 DEBUG = True
-LOGGING_CONFIG = None
+# CELERY_ACCEPT_CONTENT = ['json']
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_RESULT_SERIALIZER = 'json'
+BROKER_URL = 'amqp://guest:guest@localhost:5672//'
 INSTALLED_APPS += ['debug_toolbar', ]
 MIDDLEWARE_CLASSES += ['debug_toolbar.middleware.DebugToolbarMiddleware', ]
 INTERNAL_IPS = ['127.0.0.1', '10.6.20.97', '10.6.20.60']
