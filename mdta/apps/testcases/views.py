@@ -11,7 +11,7 @@ from mdta.apps.projects.utils import context_project_dashboard
 from mdta.apps.testcases.models import TestCaseResults
 from mdta.apps.testcases.tasks import create_testcases_celery, push_testcases_to_testrail_celery
 from mdta.apps.users.views import user_is_superuser, user_is_staff
-from .utils import context_testcases, get_projects_from_testrail, create_routing_test_suite
+from .utils import context_testcases, get_projects_from_testrail, create_routing_test_suite, check_edges_visited_percentage
 from .forms import TestrailConfigurationForm
 from mdta.apps.testcases.testrail import APIClient
 from mdta.celery_module import app as celery_app
@@ -209,7 +209,6 @@ def testrail_configuration_update(request, testrail_id):
 
 
 def check_celery_task_state(request):
-    task_id = None
     task_run = False
     active = celery_app.control.inspect().active()
 
@@ -217,26 +216,29 @@ def check_celery_task_state(request):
     key = 'celery@' + socket.gethostname() + '.mdta'
     try:
         if active[key]:
-            # for a in active[key]:
-            #     task_id = a['id']
-            #     tresult = celery_app.backend.get_result(task_id)
-            #     print(tresult)
-            #     tstate = celery_app.backend.get_status(task_id)
-            #     if tstate == 'SUCCESS':
-            #         tresult = {'process_percent': 100}
-            #     elif tstate == 'PENDING':
-            #         tresult = {'process_percent': 0}
-            #     elif tstate == 'FAILURE':
-            #         tresult = {'process_percent': 100}
             project_id = active[key][0]['args']
             project_id = ''.join(c for c in project_id if c not in '\'(),')
             if int(project_id) == request.user.humanresource.project.id:
                 project = get_object_or_404(Project, pk=project_id)
-                # return JsonResponse({'task_run': True, 'task_result': tresult, 'task_state': tstate, 'task_id': task_id})
                 return JsonResponse({'task_run': True})
     except (KeyError, TypeError):
         return JsonResponse({'task_run': True})
 
     return JsonResponse({'task_run': task_run})
+
+
+def check_edges_visited(request, project_id):
+    task_run = False
+    project = get_object_or_404(Project, pk=project_id)
+    try:
+        percentage = check_edges_visited_percentage(project.modules)
+        if not percentage:
+            return JsonResponse({'task_run': task_run, 'reason': 'Could not read percentage'})
+        return JsonResponse({'task_run': True, 'process_percent': percentage})
+
+    except Exception as e:
+        return JsonResponse({'task_run': task_run, 'reason': 'An untrapped error occurred: ' + str(e.args)})
+
+    return JsonResponse({'task_run': task_run, 'reason': 'Done'})
 
 

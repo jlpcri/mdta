@@ -1,7 +1,6 @@
 from datetime import datetime
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
-from time import sleep
 
 from mdta.celery_module import app
 from mdta.apps.projects.models import Project
@@ -24,6 +23,12 @@ def create_testcases_celery(self, project_id):
     # sleep(10)
 
     project = get_object_or_404(Project, pk=project_id)
+
+    edges = project.edges
+    for edge in edges:
+        edge.celery_visited = True
+        edge.save()
+
     testcases = create_routing_test_suite(project=project)
     tc_results = TestCaseResults.objects.filter(project=project)
     if tc_results.count() > 2:

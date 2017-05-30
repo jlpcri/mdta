@@ -17,4 +17,5 @@ urlpatterns = [
     url(r'^testrail_configuration_update/(?P<testrail_id>\d+)/$', views.testrail_configuration_update, name='testrail_configuration_update'),
 
     url(r'^check_celery_task_state/$', views.check_celery_task_state, name='check_celery_task_state'),
+    url(r'^check_edges_visited/(?P<project_id>\d+)', views.check_edges_visited, name='check_edges_visited'),
 ]
