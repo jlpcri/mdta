@@ -2,7 +2,7 @@ import collections
 from django.http import JsonResponse
 
 from mdta.apps.graphs.models import Node, Edge
-from mdta.apps.projects.models import Project, TestRailConfiguration
+from mdta.apps.projects.models import Project, TestRailConfiguration, Language
 from mdta.apps.testcases.testrail import APIClient, APIError
 from mdta.apps.testcases.utils_backwards_traverse import path_traverse_backwards
 from mdta.apps.testcases.utils_negative_testcases import negative_testcase_generation, rejected_testcase_generation
@@ -35,12 +35,18 @@ def create_routing_test_suite(project=None, modules=None):
     shortest_set = []  # found shortest set from Start to node, key is 'Start + node', value is list of nodes
 
     if project:
-        if project.language:
-            language = project.language.name
-        else:
-            language = LANGUAGE_DEFAULT_NAME
+        # print(project.language_only_one)
+        # if project.language:
+        #     language = project.language.name
+        # else:
+        #     language = LANGUAGE_DEFAULT_NAME
         # start = time.time()
-        data = create_routing_test_suite_module(project.modules, language, shortest_set)
+        languages = Language.objects.filter(project=project)
+        if languages:
+            available_languages = languages.values_list('name', flat=True)
+            for language in available_languages:
+                data += create_routing_test_suite_module(project.modules, language, shortest_set)
+                print(data)
         # print(project.name, time.time() - start)
     elif modules:
         if modules[0].project.language:
@@ -72,8 +78,9 @@ def create_routing_test_suite_module(modules, language, shortest_set):
             edge.celery_visited = False
             edge.save()
 
+        title = module.name + '-' + language
         test_suites.append({
-            'module': module.name,
+            'module': title,
             'data': data
         })
 

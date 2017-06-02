@@ -331,7 +331,7 @@ def update_tcs_next_step_content(tcs, result_found, menu_prompt_outputs_keys=Non
     key_found = True
     if menu_prompt_outputs_keys:
         keys = [x.strip() for x in menu_prompt_outputs_keys[0].split(',')]
-
+        print(keys)
         for key in keys:
             if key not in result_found.keys():
                 key_found = False
