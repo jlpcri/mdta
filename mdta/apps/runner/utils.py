@@ -13,8 +13,10 @@ import requests
 from paramiko.client import AutoAddPolicy
 from paramiko import SSHClient, SFTPClient, Transport
 
+import mdta.settings.base as base
+
 import mdta.apps.testcases.testrail as testrail
-from mdta.apps.runner.models import TestServers
+
 
 if os.name == 'posix' and sys.version_info[0] < 3:
     import subprocess32 as subprocess
@@ -226,8 +228,9 @@ class HATScript(AutomationScript):
                 'browser': self.holly_server,
                 'port': '5060'}
         hat_script_template = "STARTCALL\nREPORT %id%\n%everything%\nENDCALL"
+        path = base.TMP_DIR
         response = browser.post("{0}".format(self.hatit_server) + "api/csv_req/", data=data,
-                                 files={'csvfile': open(self.csvfile), 'hatscript': io.StringIO(hat_script_template)})
+                                 files={'csvfile': open(os.path.join(path, self.csvfile)), 'hatscript': io.StringIO(hat_script_template)})
         jsonList.append(response.json())
         for data in jsonList:
             self.runID = data['runid']
@@ -419,12 +422,17 @@ def bulk_remote_hat_execute(case_list):
 
 def bulk_hatit_file_generator(case_list):
     csv_filename = 'hatit_{0}.csv'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
-    with open(csv_filename, 'w', newline='') as csvfile:
+    path = base.TMP_DIR
+    if not os.path.exists(path):
+        os.mkdir(path)
+    with open(os.path.join(path, csv_filename), 'w', newline='') as csvfile:
         csv_writer = csv.writer(csvfile)
         csv_writer.writerow(['everything', 'id'])
         for case in case_list:
             case.generate_hat_script()
             csv_writer.writerow([case.script.body, "{0}: {1}".format(case.id, case.title)])
+
+
     return csv_filename
 
 
