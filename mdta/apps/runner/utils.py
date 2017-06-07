@@ -120,6 +120,7 @@ class TestRailCase(TestRailORM):
                       'DIAL': self.script.start_of_call,
                       'DIALEDNUMBER': self.script.start_of_call,
                       'APN': self.script.start_of_call,
+                      'HOLLYBROWSER': self.script.start_of_call,
                       'PRESS': self.script.dtmf_step,
                       'WAIT': self.script.no_input}
         action_map[action](step)
