@@ -109,6 +109,7 @@ class TestRailCase(TestRailORM):
         if not self.script:
             self.script = HATScript()
         for step in self.custom_steps_separated:
+
             self._content_routing(step['content'])
             self._expected_routing(step['expected'])
         self.script.end_of_call()
@@ -122,10 +123,13 @@ class TestRailCase(TestRailORM):
                       'DIAL': self.script.start_of_call,
                       'DIALEDNUMBER': self.script.start_of_call,
                       'APN': self.script.start_of_call,
-                      'HOLLYBROWSER': self.script.start_of_call,
                       'PRESS': self.script.dtmf_step,
-                      'WAIT': self.script.no_input}
-        action_map[action](step)
+                      'WAIT': self.script.no_input,
+                       }
+        try:
+            action_map[action](step)
+        except KeyError:
+            pass
 
     def _expected_routing(self, step):
         if not step:
