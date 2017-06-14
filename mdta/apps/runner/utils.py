@@ -70,7 +70,7 @@ class TestRailSuite(TestRailORM):
         trr = self.open_test_run()
         yield trr
         self.close_test_run(trr.id)
-        return True
+        return
 
     def open_test_run(self):
         payload = {'suite_id': self.id}

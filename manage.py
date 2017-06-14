@@ -5,9 +5,9 @@ import sys
 
 if __name__ == "__main__":
     if socket.gethostname() == 'alpha':
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mdta.settings.dev_heyden")
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mdta.settings.dev_mohan")
     else:
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mdta.settings.base")
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mdta.settings.dev_mohan")
 
     from django.core.management import execute_from_command_line
 
