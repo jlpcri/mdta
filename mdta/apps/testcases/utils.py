@@ -33,21 +33,28 @@ def create_routing_test_suite(project=None, modules=None):
     """
     data = []
     shortest_set = []  # found shortest set from Start to node, key is 'Start + node', value is list of nodes
+    language_path = []
 
     if project:
-        # print(project.language_only_one)
-        # if project.language:
-        #     language = project.language.name
-        # else:
-        #     language = LANGUAGE_DEFAULT_NAME
-        # start = time.time()
         languages = Language.objects.filter(project=project)
         if languages:
             available_languages = languages.values_list('name', flat=True)
             for language in available_languages:
-                data += create_routing_test_suite_module(project.modules, language, shortest_set)
+                root_paths = languages.values_list('root_path', flat=True)
+                language_paths = list(root_paths)
+                for path in language_paths:
+                    if language.lower() in path:
+                        language_path = path
+                    elif language == 'English':
+                        language_path = 'audio/'
+                print(language)
+                print(language_path)
+                data += create_routing_test_suite_module( project.modules, language, language_path, shortest_set)
                 print(data)
-        # print(project.name, time.time() - start)
+        else:
+            language = LANGUAGE_DEFAULT_NAME
+            language_path = 'audio/'
+            data = create_routing_test_suite_module(project.modules, language, language_path, shortest_set)
     elif modules:
         if modules[0].project.language:
             language = modules[0].project.language.name
@@ -58,7 +65,7 @@ def create_routing_test_suite(project=None, modules=None):
     return data
 
 
-def create_routing_test_suite_module(modules, language, shortest_set):
+def create_routing_test_suite_module(modules, language, language_path, shortest_set):
     """
     Create routing paths for list of modules
     :param modules:
@@ -72,7 +79,7 @@ def create_routing_test_suite_module(modules, language, shortest_set):
         th_module = None
 
     for module in modules:
-        data = get_paths_through_all_edges(module.edges_all, th_module, language, shortest_set)
+        data = get_paths_through_all_edges(module.edges_all, th_module, language, language_path, shortest_set)
 
         for edge in module.edges_all:
             edge.celery_visited = False
@@ -101,7 +108,7 @@ def check_edges_visited_percentage(modules):
     return percentage
 
 
-def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_set=None):
+def get_paths_through_all_edges(edges, th_module=None, language=None, language_path=None, shortest_set=None):
     """
     Get all paths through all edges
     :param edges:
@@ -122,6 +129,8 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                         data.append({
                             'tcs_cannot_route': path_data['tcs_cannot_route'],
                             'id': edge.id,
+                            'default_audio_path': language_path,
+                            'call_language_audio_path': language_path,
                             'title': 'Route from \'' +
                                      edge.from_node.name +
                                      '\' to \'' +
@@ -133,15 +142,17 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                         data.append({
                                 'pre_conditions': path_data['pre_conditions'],
                                 'tc_steps': path_data['tc_steps'],
+                                'default_audio_path': language_path,
+                                'call_language_audio_path': language_path,
                                 'id': edge.id,
                                 'title': title,
                             })
 
                         if edge.to_node.type.name in NODE_MP_NAME:
-                            negative_testcase_generation(data, path_data, title, NEGATIVE_TESTS_LIST, edge, language=language)
+                            negative_testcase_generation(data, path_data, title, NEGATIVE_TESTS_LIST, edge, language=language, language_path=language_path)
                             if edge.to_node.type.name == NODE_MP_NAME[1]:
-                                negative_testcase_generation(data, path_data, title, NEGATIVE_CONFIRM_TESTS_LIST, edge, language=language)
-                                rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
+                                negative_testcase_generation(data, path_data, title, NEGATIVE_CONFIRM_TESTS_LIST, edge, language=language, language_path=language_path)
+                                rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language, language_path=language_path)
 
     else:
         for edge in edges:
@@ -153,28 +164,32 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                     data.append({
                         'tcs_cannot_route': path_data['tcs_cannot_route'],
                         'id': edge.id,
+                        'default_audio_path': language_path,
+                        'call_language_audio_path': language_path,
                         'title': 'Route from \'' +
                                  edge.from_node.name +
                                  '\' to \'' +
                                  edge.to_node.name + '\''
                     })
-                    # print(edge.id)
+
                 else:
                     title = 'Route from \'' + edge.from_node.name +\
                                     '\' to \'' + edge.to_node.name + '\''
-                    # edge_id = edge.id,
+            
                     data.append({
                             'pre_conditions': path_data['pre_conditions'],
                             'tc_steps': path_data['tc_steps'],
+                            'default_audio_path': language_path,
+                            'call_language_audio_path': language_path,
                             'id': edge.id,
                             'title': title
                         })
 
                     if edge.to_node.type.name in NODE_MP_NAME:
-                        negative_testcase_generation(data, path_data, title, NEGATIVE_TESTS_LIST, edge, language=language)
+                        negative_testcase_generation(data, path_data, title, NEGATIVE_TESTS_LIST, edge, language=language, language_path=language_path)
                         if edge.to_node.type.name == NODE_MP_NAME[1]:
-                            negative_testcase_generation(data, path_data, title, NEGATIVE_CONFIRM_TESTS_LIST, edge, language=language)
-                            rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
+                            negative_testcase_generation(data, path_data, title, NEGATIVE_CONFIRM_TESTS_LIST, edge, language=language, language_path=language_path)
+                            rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language, language_path=language_path)
 
     return data
 
@@ -436,7 +451,6 @@ def add_section_to_testsuite(client, project_id, suite_id, section_name):
         'suite_id': suite_id,
         'name': section_name
     }
-
     section = client.send_post('add_section/' + project_id, data)
 
     return str(section['id'])
@@ -460,6 +474,7 @@ def add_testcase_to_section(client, section_id, data):
     :param data: TestCases
     :return:
     """
+    print(data)
     try:
         for each_tc in data:
             if 'tcs_cannot_route' not in each_tc.keys():
@@ -470,7 +485,9 @@ def add_testcase_to_section(client, section_id, data):
                 tc_data = {
                     'title': each_tc['title'],
                     'custom_preconds': custom_preconds,
-                    'custom_steps_seperated': each_tc['tc_steps']
+                    'custom_steps_seperated': each_tc['tc_steps'],
+                    'custom_default_audio_path': each_tc['default_audio_path'],
+                    'custom_call_language_audio_path': each_tc['call_language_audio_path']
                 }
                 client.send_post('add_case/' + section_id, tc_data)
     except APIError as e:

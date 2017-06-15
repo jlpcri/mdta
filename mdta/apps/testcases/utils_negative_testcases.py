@@ -339,7 +339,7 @@ def get_negative_tc_title(key):
     }.get(key, 'No Input & Recover')
 
 
-def negative_testcase_generation(data, path_data, title, tc_list, edge, language=None):
+def negative_testcase_generation(data, path_data, title, tc_list, edge, language=None, language_path=None):
     """
     Generate negative TestCases of 5 scenarios
     :param data: Test Steps of current TestCase
@@ -354,7 +354,9 @@ def negative_testcase_generation(data, path_data, title, tc_list, edge, language
             data.append({
                 'tcs_cannot_route': 'This test cannot be routed, Non standard fail behavior',
                 'title': _title,
-                'id': edge.id
+                'id': edge.id,
+                'default_audio_path': language_path,
+                'call_language_audio_path': language_path,
             })
     else:
         for key in tc_list:
@@ -366,14 +368,18 @@ def negative_testcase_generation(data, path_data, title, tc_list, edge, language
                 data.append({
                     'tcs_cannot_route': negative_tc_steps[0][TR_EXPECTED],
                     'title': _title,
-                    'id': edge.id
+                    'id': edge.id,
+                    'default_audio_path': language_path,
+                    'call_language_audio_path': language_path,
                 })
             else:
                 if negative_tc_steps[0][TR_CONTENT] == MPC_NO_VALID_INPUTS:
                     data.append({
                         'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + ': ' + MPC_NO_VALID_INPUTS,
                         'title': _title,
-                        'id': edge.id
+                        'id': edge.id,
+                        'default_audio_path': language_path,
+                        'call_language_audio_path': language_path,
                     })
                 else:
                     tc_steps = path_data['tc_steps'] + negative_tc_steps
@@ -381,6 +387,8 @@ def negative_testcase_generation(data, path_data, title, tc_list, edge, language
                         'pre_conditions': path_data['pre_conditions'],
                         'tc_steps': tc_steps,
                         'title': _title,
+                        'default_audio_path': language_path,
+                        'call_language_audio_path': language_path,
                         'id': edge.id
                     })
 
@@ -503,7 +511,7 @@ def search_node_name_inside_project(project, node_name):
     return flag
 
 
-def rejected_testcase_generation(data, path_data, title, node, edge, language=None):
+def rejected_testcase_generation(data, path_data, title, node, edge, language=None, language_path=None):
     """
     Generate rejected TestCase for MenuPromptWithConfirmation Node
     :param data: Output TestCases
@@ -517,21 +525,27 @@ def rejected_testcase_generation(data, path_data, title, node, edge, language=No
         data.append({
             'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + ', Non standard fail behaviory',
             'title': tc_title,
-            'id': edge.id
+            'id': edge.id,
+            'default_audio_path': language_path,
+            'call_language_audio_path': language_path,
         })
     else:
         if node.properties[ON_FAIL_GO_TO_KEY] == '':
             data.append({
                 'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo empty',
                 'title': tc_title,
-                'id': edge.id
+                'id': edge.id,
+                'default_audio_path': language_path,
+                'call_language_audio_path': language_path,
             })
         else:
             if not search_node_name_inside_project(node.module.project, node.properties[ON_FAIL_GO_TO_KEY]):
                 data.append({
                     'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo node name invalid',
                     'title': tc_title,
-                    'id': edge.id
+                    'id': edge.id,
+                    'default_audio_path': language_path,
+                    'call_language_audio_path': language_path,
                 })
             else:
                 contents = get_mpc_valid_input(node)
@@ -540,7 +554,9 @@ def rejected_testcase_generation(data, path_data, title, node, edge, language=No
                     data.append({
                         'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + ': ' + MPC_NO_VALID_INPUTS,
                         'title': tc_title,
-                        'id': edge.id
+                        'id': edge.id,
+                        'default_audio_path': language_path,
+                        'call_language_audio_path': language_path,
                     })
                 else:
                     rejected_steps = [
@@ -558,7 +574,9 @@ def rejected_testcase_generation(data, path_data, title, node, edge, language=No
                         'pre_conditions': path_data['pre_conditions'],
                         'tc_steps': path_data['tc_steps'] + rejected_steps,
                         'title': tc_title,
-                        'id': edge.id
+                        'id': edge.id,
+                        'default_audio_path': language_path,
+                        'call_language_audio_path': language_path,
                     })
 
 
