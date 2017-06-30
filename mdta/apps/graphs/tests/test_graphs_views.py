@@ -49,26 +49,11 @@ class GraphsViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(self.project, response.context['project'])
 
-    def test_graphs_with_login(self):
-        self.client.login(username='UserAccount', password='UserPassword')
-        response = self.client.get('/mdta/graphs/')
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(self.project in response.context['projects'])
-
     def test_graphs_without_login(self):
         response = self.client.get('/mdta/graphs/')
         self.assertRedirects(response,'/mdta/?next=/mdta/graphs/',status_code=302, target_status_code=200)
 
 
-#    def test_redirection_to_project_detail_not_as_HR(self):
-#        self.client.login(username= 'UserAccount', password='UserPassword')
-#        response = self.client.get('graphs:project_detail/'+str(self.hr.project.id), follow=True)
-#        self.assertEqual(response.status_code, 404)
-
-#    def test_redirection_to_project_detail_as_HR(self):
-#        self.client.login(username= 'UserAccount', password='UserPassword')
-#        response = self.client.get('/mdta/graphs/project_detail/'+str(self.hr.project.id))
-#        self.assertEqual(response.status_code, 200)
 
 
 
