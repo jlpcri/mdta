@@ -3,8 +3,7 @@ import json
 import requests
 
 from django.db import models
-from django.utils.datetime_safe import time
-from django.core.validators import URLValidator
+
 
 
 class TestServers(models.Model):
