@@ -99,7 +99,6 @@ def push_testcases_to_testrail_celery(self, project_id):
                                                       project.testrail.project_id,
                                                       tr_suite['id'],
                                                       item['module'])
-                print(item['data'])
                 add_testcase_to_section(client, section_id, item['data'])
 
             except StopIteration as e:

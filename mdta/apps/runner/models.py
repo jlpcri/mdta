@@ -5,7 +5,6 @@ import requests
 from django.db import models
 
 
-
 class TestServers(models.Model):
     server = models.TextField()
     hollytrace_url = models.TextField(default='')

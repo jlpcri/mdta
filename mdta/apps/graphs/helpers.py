@@ -56,16 +56,20 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
                 'Outputs': "",
                 'OnFailGoTo': "",
                 'NonStandardFail': "",
-                'Default': ""
+                'Default': "",
+                'MonoLingual': ""
             }
         elif node_name.startswith(('say_', 'play_')):
             type = NodeType.objects.get(name='Play Prompt')
             node_name = node_name.replace('say_', ' ').strip(' ')
             keys = {
+                'MonoLingual': ""
             }
         else:
             type = NodeType.objects.get(name='Play Prompt')
-            keys = {}
+            keys = {
+                'MonoLingual': ""
+            }
 
         try:
             node = Node.objects.get(module__project=project, name=node_name)

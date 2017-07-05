@@ -8,7 +8,6 @@ from mdta.apps.runner.models import TestRun, AutomatedTestCase
 from mdta.apps.testcases.testrail import APIClient
 from mdta.apps.projects.models import TestRailInstance
 
-
 @app.task
 def poll_result_loop(test_run_id):
     test_run = TestRun.objects.get(pk=test_run_id)
@@ -37,7 +36,6 @@ def poll_result(test_run_id):
             options_text = options_text.replace("', 'id': '", '", "id": "')
             options_text = options_text.replace("', 'id':", '", "id":')
             options_text = options_text.replace("'}", '"}')
-            print(options_text)
             options_json = json.loads(options_text)
             tc_id = options_json['id'].split(':')[0]
 
@@ -46,7 +44,6 @@ def poll_result(test_run_id):
             atc.status = AutomatedTestCase.PASS
             response = client.send_post('add_result_for_case/{0}/{1}'.format(test_run.testrail_test_run, tc_id),
                                        {'status_id': 1})
-            print(response)
             jsonList.append(response)
             for data in jsonList:
                 atc.tr_test_id = data['test_id']
@@ -56,7 +53,7 @@ def poll_result(test_run_id):
             atc.failure_reason = call['err_str']
             response = client.send_post('add_result_for_case/{0}/{1}'.format(test_run.testrail_test_run, tc_id),
                              {'status_id': 5, 'defects': call['err_str']})
-            print(response)
+
             jsonList.append(response)
             for data in jsonList:
                 atc.tr_test_id = data['test_id']

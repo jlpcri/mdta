@@ -97,6 +97,7 @@ class TestRailCase(TestRailORM):
         super(TestRailCase, self).__init__(instance, api_return, parent)
         self.script = None
 
+
     @property
     def custom_steps_separated(self):
         """Because someone made this field with a typo and it can't be changed."""
@@ -108,11 +109,13 @@ class TestRailCase(TestRailORM):
     def generate_hat_script(self):
         if not self.script:
             self.script = HATScript()
+        expected = ""
         for step in self.custom_steps_separated:
-
             self._content_routing(step['content'])
-            self._expected_routing(step['expected'])
+            expected = step['expected']
         self.script.end_of_call()
+        path = self.custom_call_language_audio_path
+        self._expected_routing(expected, path)
 
     def _content_routing(self, step):
         if not step:
@@ -131,13 +134,13 @@ class TestRailCase(TestRailORM):
         except KeyError:
             pass
 
-    def _expected_routing(self, step):
-        if not step:
+    def _expected_routing(self, expected, path):
+        if not expected:
             return
         # The following should be moved to HATScript, but because there is no real branching at this point yet,
         # I'm leaving it as-is for now.
-        prompt = step.split(':')[0]
-        self.script.body += 'EXPECT prompt URI=audio/' + prompt + '.wav\n'
+        prompt = expected.split(':')[0]
+        self.script.body += 'EXPECT prompt URI=' + path + prompt + '.wav\n'
 
 
 def get_testrail_steps(instance, case_id):
@@ -227,7 +230,6 @@ class HATScript(AutomationScript):
         jsonList = []
         browser = requests.session()
         qaci = browser.get('http://{0}/hatit'.format(self.remote_server))
-        print(self.hatit_server)
         data = {'apn': self.apn,
                 'browser': self.holly_server,
                 'port': '5060'}
@@ -432,10 +434,10 @@ def bulk_hatit_file_generator(case_list):
     with open(os.path.join(path, csv_filename), 'w', newline='') as csvfile:
         csv_writer = csv.writer(csvfile)
         csv_writer.writerow(['everything', 'id'])
+        print(case_list)
         for case in case_list:
             case.generate_hat_script()
             csv_writer.writerow([case.script.body, "{0}: {1}".format(case.id, case.title)])
-
 
     return csv_filename
 

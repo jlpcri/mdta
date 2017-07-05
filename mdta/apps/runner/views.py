@@ -83,6 +83,7 @@ def run_all_modal(request):
                                                testrail_test_run=testrail_run.id, project=project)
         poll_result_loop.delay(mdta_test_run.pk)
         for case in testrail_cases:
+            print(dir(case))
             AutomatedTestCase.objects.create(test_run=mdta_test_run, testrail_case_id=case.id, case_title=case.title, case_script=case.script.body)
 
         return JsonResponse({'run': mdta_test_run.pk, 'holly': browser, 'tr_p_id': testrail_project_id, 'tr_host': testrail_host,

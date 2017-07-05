@@ -9,7 +9,6 @@ class NodeType(models.Model):
     """
     Type of Node: DataQueries Database, DataQueries WebService
                   Language
-                  Language Audio Path
                   Play Prompt
                   Menu Prompt, Menu Prompt with Confirmation
                   Start

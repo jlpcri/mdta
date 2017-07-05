@@ -47,9 +47,8 @@ def create_routing_test_suite(project=None, modules=None):
                         language_path = path
                     elif language == 'English':
                         language_path = 'audio/'
-                print(language)
-                print(language_path)
-                data += create_routing_test_suite_module( project.modules, language, language_path, shortest_set)
+
+                data += create_routing_test_suite_module(project.modules, language, language_path, shortest_set)
                 print(data)
         else:
             language = LANGUAGE_DEFAULT_NAME
@@ -57,10 +56,26 @@ def create_routing_test_suite(project=None, modules=None):
             data = create_routing_test_suite_module(project.modules, language, language_path, shortest_set)
     elif modules:
         if modules[0].project.language:
-            language = modules[0].project.language.name
+            languages = Language.objects.filter(project=modules[0].project)
+            if languages:
+                available_languages = languages.values_list('name', flat=True)
+                for language in available_languages:
+                    root_paths = languages.values_list('root_path', flat=True)
+                    language_paths = list(root_paths)
+                    for path in language_paths:
+                        if language.lower() in path:
+                            language_path = path
+                        elif language == 'English':
+                            language_path = 'audio/'
+                    print(language)
+                    print(language_path)
+                    data += create_routing_test_suite_module(modules, language, language_path, shortest_set)
+                    print(data)
         else:
             language = LANGUAGE_DEFAULT_NAME
-        data = create_routing_test_suite_module(modules, language, shortest_set)
+            language_path = 'audio/'
+            data = create_routing_test_suite_module(modules, language, language_path, shortest_set)
+
 
     return data
 
@@ -175,7 +190,7 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, language_p
                 else:
                     title = 'Route from \'' + edge.from_node.name +\
                                     '\' to \'' + edge.to_node.name + '\''
-            
+
                     data.append({
                             'pre_conditions': path_data['pre_conditions'],
                             'tc_steps': path_data['tc_steps'],
