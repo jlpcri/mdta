@@ -13,7 +13,7 @@ from mdta.apps.runner.tasks import poll_result_loop
 class TestPollResultLoop(TestCase):
 
     def testNoError(self):
-        result = poll_result_loop.delay(8, 8)
+        result = poll_result_loop.delay(8)
 
-        self.assertEquals(result.get(), 16)
+        self.assertEquals(result.get(), None)
         self.assertTrue(result.successful())
