@@ -11,12 +11,6 @@ class ProjectForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProjectForm, self).__init__(*args, **kwargs)
         self.fields['test_header'].queryset = Module.objects.filter(project=None)
-        if self.instance.name:
-            self.fields['language'].queryset = Language.objects.filter(project=self.instance)
-            self.fields['language'].label_from_instance = lambda obj: "%s" % obj.name
-        else:
-            self.fields['language'].queryset = Language.objects.all()
-
         self.fields['test_header'].label_from_instance = lambda obj: "%s" % obj.name
         self.fields['testrail'].label_from_instance = lambda obj: "%s" % obj.project_name
         self.fields['catalog'].queryset = CatalogItem.objects.select_related('parent').all()
@@ -26,11 +20,11 @@ class ProjectForm(ModelForm):
 
     class Meta:
         model = Project
+        fields = ['name', 'test_header', 'version', 'catalog', 'testrail', 'lead', 'members'  ]
         exclude = ['created', 'updated']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'test_header': forms.Select(attrs={'class': 'form-control'}),
-            'language': forms.Select(attrs={'class': 'form-control'}),
             'version': forms.TextInput(attrs={'class': 'form-control'}),
             'catalog': forms.SelectMultiple(attrs={
                 'class': 'form-control',

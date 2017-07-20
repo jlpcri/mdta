@@ -97,16 +97,51 @@
                 type: "GET",
                 success: function(data){
                     button_publish.addClass('disabled');
-{#                    $(".progress").show();#}
+                    $(".progress").show();
                 }
             });
         });
 
-        check_celery_task_state();
+{#        check_celery_task_state();#}
 
         window.setInterval(function(){
             check_celery_task_state();
         }, 5000);
+
+        function check_edges_visited(){
+            var previouse_disabled = button_publish.is('.disabled');
+            $.getJSON('{% url 'testcases:check_edges_visited' project.id%}', function(data){
+                if (data.task_run === false) {
+                    $('#tracking').css({'width': '99%'});
+                    $('#tracking').html('99%');
+                } else {
+                    if (previouse_disabled === false) {
+                        if (data.process_percent >= 100) {
+                            $(".progress").show();
+                            $('#tracking').css({'width': '99%'});
+                            $('#tracking').html('99%');
+                        } else {
+                            $(".progress").show();
+                            $('#tracking').css({'width': data.process_percent + '%'});
+                            $('#tracking').html(data.process_percent + '%');
+
+                        }
+                    }
+                }
+                if (data.process_percent >= 100) {
+                    $(".progress").show();
+                    $('#tracking').css({'width': '99%'});
+                    $('#tracking').html('99%');
+                } else {
+                    $(".progress").show();
+                    $('#tracking').css({'width': data.process_percent + '%'});
+                    $('#tracking').html(data.process_percent + '%');
+
+                }
+
+            })
+
+        }
 
         function check_celery_task_state(){
             var previouse_disabled = button_publish.is('.disabled');
@@ -114,38 +149,17 @@
             $.getJSON('{% url 'testcases:check_celery_task_state' %}', function(data){
                 if (data.task_run === false){
                     if (previouse_disabled === true){
-{#                        $('#tracking').css({'width': 100 + '%'});#}
-{#                        $('#tracking').html(100 + '%');#}
-                        setTimeout(location.reload.bind(location), 5000);
+                        location.reload();
                     }
                 } else {
                     if (previouse_disabled === false) {
                         button_publish.addClass('disabled');
-                        {% comment %}$(".progress").show();
-                        if (data.task_state === 'FAILURE'){
-                            $('#tracking').removeClass('progress-bar-success');
-                            $('#tracking').addClass('progress-bar-danger');
-                            $('#tracking').css({'width': 100 + '%'});
-                            $('#tracking').html('Task Failed');
-                        if (data.task_state === 'PENDING'){
-                            console.log(data.task_state);
-                        }
-                        } else {
-                            $('#tracking').css({'width': data.task_result.process_percent + '%'});
-                            $('#tracking').html(data.task_result.process_percent + '%');
-                        }{% endcomment %}
+{#                        setTimeout(check_edges_visited, 5000);#}
+                        check_edges_visited();
                     }
                     button_publish.addClass('disabled');
-{#                    $(".progress").show();#}
-{#                    if (data.task_state === 'FAILURE'){#}
-{#                            $('#tracking').removeClass('progress-bar-success');#}
-{#                            $('#tracking').addClass('progress-bar-danger');#}
-{#                            $('#tracking').css({'width': 100 + '%'});#}
-{#                            $('#tracking').html('Task Failed');#}
-{#                        } else {#}
-{#                            $('#tracking').css({'width': data.task_result.process_percent + '%'});#}
-{#                            $('#tracking').html(data.task_result.process_percent + '%');#}
-{#                        }#}
+{#                    setTimeout(check_edges_visited, 5000);#}
+                    check_edges_visited();
                 }
             })
         }
