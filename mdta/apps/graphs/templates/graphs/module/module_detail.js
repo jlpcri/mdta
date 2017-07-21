@@ -427,7 +427,7 @@ function get_properties_contents(node_keys, properties, node_id, node_in){
             if (!((k == 'Default') && (node_in == 'module'))) {
                 properties_contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
                 properties_contents += '<div class=\'col-xs-4\'><label>{0}:</label></div>'.format(k);
-                if (k == 'NonStandardFail') {
+                if (toggle_style_key_list.indexOf(k) >= 0) {
                     properties_contents += '<div class=\'col-xs-8\'>';
                     if (properties[k] == 'on') {
                         properties_contents += '<input name=\'{0}\' type=\'checkbox\' checked class=\'myToggle\' data-on=\'True\' data-width=\'100\' data-onstyle=\'success\' data-off=\'False\' >'.format(k);

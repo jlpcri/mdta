@@ -65,7 +65,8 @@ def parse_out_promptmodulesandnodes(vuid, project_id):
                 'Outputs': "",
                 'OnFailGoTo': "",
                 'NonStandardFail': "",
-                'Default': ""
+                'Default': "",
+                'TextToSpeech': ""
             }
         elif node_name.startswith(('say_', 'play_')):
             type = NodeType.objects.get(name='Play Prompt')

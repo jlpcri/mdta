@@ -518,7 +518,10 @@ def non_data_edge_has_higher_priority(step):
 
 def get_verbiage_from_prompt_node(node, language, verbiage_key, hint=''):
     try:
-        data = "{0}{1}: {2}".format(node.name, hint, node.verbiage[language][verbiage_key])
+        if node.properties[TTS] == '':
+            data = "{0}{1}: {2}".format(node.name, hint, node.verbiage[language][verbiage_key])
+        else:
+            data = '[TTS]'
     except (TypeError, KeyError):
         data = "{0}{1}: ".format(node.name, hint)
 
