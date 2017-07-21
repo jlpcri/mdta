@@ -1,5 +1,5 @@
 /* Start Module Node New Node & Edge Code */
-var toggle_style_edge_key_list = ['Invisible', 'NoneConfirm'];
+//var toggle_style_edge_key_list = ['Invisible', 'NoneConfirm'];
 
 function load_keys_from_type_contents_edge_auto(item_id, location, type){
     $.getJSON("{% url 'graphs:get_keys_from_type' %}?id={0}&type={1}".format(item_id, type)).done(function(data){
@@ -190,7 +190,7 @@ function load_keys_from_type_contents_node_auto(item_id, location, type, call_fr
                 contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
                 contents += '<div class=\'col-xs-1\'></div>';
                 contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
-                if (keys[k] == 'NonStandardFail'){
+                if (toggle_style_key_list.indexOf(keys[k]) >= 0){
                     contents += '<div class=\'col-xs-8\'><input name=\'node_{0}\' type=\'checkbox\' data-toggle=\'toggle\' class=\'myToggle\' data-on=\'True\' data-width=\'100\' data-onstyle=\'success\' data-off=\'False\' style=\'width:80% align:left;\' /></div>'.format(keys[k]);
                 } else {
                     contents += '<div class=\'col-xs-8\'><input name=\'node_{0}\' style=\'width:80%\' placeholder=\'{1}\' /></div>'.format(keys[k], get_placeholder(keys[k]));
