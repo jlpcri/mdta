@@ -222,7 +222,7 @@ def check_celery_task_state(request):
                 project = get_object_or_404(Project, pk=project_id)
                 return JsonResponse({'task_run': True})
     except (KeyError, TypeError):
-        return JsonResponse({'task_run': True})
+        return JsonResponse({'task_run': 'down'})
 
     return JsonResponse({'task_run': task_run})
 
