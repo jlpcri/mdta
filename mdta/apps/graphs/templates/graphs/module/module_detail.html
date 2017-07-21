@@ -449,15 +449,15 @@
 
 {% block footer %}
     <script>
-        var nodes = new vis.DataSet({{ network_nodes|safe }});
-        var edges = new vis.DataSet({{ network_edges|safe }});
-        var node_names_autocomplete = {{node_names_autocomplete|safe}};
-        var data_edge_keys_autocomplete = {{ data_edge_keys_autocomplete|safe }};
-        var menu_prompt_outputs_keys_autocomplete = {{ menu_prompt_outputs_keys_autocomplete|safe }};
-        var place_holder_json = '\"JSON {\'key\': \'value\'}\"';
+        var nodes = new vis.DataSet({{ network_nodes|safe }}),
+            edges = new vis.DataSet({{ network_edges|safe }}),
+            node_names_autocomplete = {{node_names_autocomplete|safe}},
+            data_edge_keys_autocomplete = {{ data_edge_keys_autocomplete|safe }},
+            menu_prompt_outputs_keys_autocomplete = {{ menu_prompt_outputs_keys_autocomplete|safe }},
+            place_holder_json = '\"JSON {\'key\': \'value\'}\"',
 
-        var toggle_style_key_list = ['NonStandardFail', 'TextToSpeech', 'Invisible', 'NoneConfirm'];
-        var toggle_style_edge_key_list = ['Invisible', 'NoneConfirm'];
+            toggle_style_key_list = ['NonStandardFail', 'TextToSpeech', 'Invisible', 'NoneConfirm'],
+            toggle_style_edge_key_list = ['Invisible', 'NoneConfirm'];
 
         {% include 'graphs/module/module_detail.js' %}
         {% include 'graphs/node_edge_properties.js' %}
