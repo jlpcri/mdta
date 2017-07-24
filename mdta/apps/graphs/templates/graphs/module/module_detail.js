@@ -2,9 +2,9 @@
  * Created by sliu on 6/8/16.
  */
 
-//$('#module-node-new-modal').draggable();
-//$('#module-edge-new-modal').draggable();
-$('.modal').draggable();
+$('#module-node-new-modal').draggable();
+$('#module-edge-new-modal').draggable();
+//$('.modal').draggable();
 
 /* Start Module Node Edit Code */
 $('.moduleNodeEditForm #moduleNodeEditType').on('change', function(e){
