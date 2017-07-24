@@ -31,7 +31,24 @@ def home(request):
 
 @login_required
 def projects_for_selection(request):
-    projects = Project.objects.all()
+    tmp1 = []
+    tmp2 = []
+
+    ps = Project.objects.all()
+    for idx, p in enumerate(ps):
+        if idx % 2 == 0:
+            tmp1.append(p)
+        else:
+            tmp2.append(p)
+
+    if len(tmp1) > len(tmp2):
+        tmp2.append('')
+    elif len(tmp1) < len(tmp2):
+        tmp1.append('')
+
+    projects = zip(tmp1, tmp2)
+    # for p in projects:
+    #     print(p)
     context = {
         'projects': projects
     }
