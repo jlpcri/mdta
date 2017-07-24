@@ -39,6 +39,8 @@ $('#module-edge-new-modal').on('shown.bs.modal', function(){
     var node_id = $('#select_node_id').val();
     if (node_id > 1){
         $('#project-edge-new-from-node').val(node_id)
+    } else {
+        $('#project-edge-new-from-node').val($('#project-edge-new-to-node').val())
     }
 });
 
