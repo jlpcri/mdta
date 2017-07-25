@@ -15,6 +15,10 @@ def user_is_staff(user):
     return user.is_staff or user.is_superuser
 
 
+def user_is_manager(user):
+    return user.humanresource.manager or user.is_superuser
+
+
 @login_required
 def intro(request):
     return render(request, 'users/intro.html')
