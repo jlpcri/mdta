@@ -16,7 +16,7 @@ def context_testcases():
     :return:
     """
     context = {
-        'projects': Project.objects.all(),
+        'projects': Project.objects.filter(archive=False),
         'testrails': TestRailConfiguration.objects.all(),
     }
 

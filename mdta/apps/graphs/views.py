@@ -34,7 +34,7 @@ def projects_for_selection(request):
     tmp1 = []
     tmp2 = []
 
-    ps = Project.objects.all()
+    ps = Project.objects.filter(archive=False)
     for idx, p in enumerate(ps):
         if idx % 2 == 0:
             tmp1.append(p)
@@ -64,7 +64,7 @@ def graphs(request):
     :return:
     """
     context = {
-        'projects': Project.objects.all(),
+        'projects': Project.objects.filter(archive=False),
         'test_headers': Module.objects.filter(project=None),
 
         'node_types': NodeType.objects.all(),
@@ -187,7 +187,7 @@ def project_detail(request, project_id):
     network_nodes = []
     network_edges = []
     tc_keys = []
-    projects = Project.objects.all()
+    projects = Project.objects.filter(archive=False)
     project = get_object_or_404(Project, pk=project_id)
     try:
         tests = project.testcaseresults_set.latest('updated').results

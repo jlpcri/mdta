@@ -12,6 +12,7 @@
                                 <th class="col-xs-1">Version(TestSuites)</th>
                                 <th class="col-xs-1">TestHeader</th>
                                 <th class="col-xs-2">Members</th>
+                                <th class="col-xs-1">Archive</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -51,6 +52,9 @@
                                                 <li>{{ item.user.first_name }} {{ item.user.last_name }}</li>
                                             {% endfor %}
                                         </ul>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" {% if project.archive %}checked{% endif %} disabled="disabled">
                                     </td>
                                 </tr>
                             {% endfor %}

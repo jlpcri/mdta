@@ -20,7 +20,7 @@ class ProjectForm(ModelForm):
 
     class Meta:
         model = Project
-        fields = ['name', 'test_header', 'version', 'catalog', 'testrail', 'lead', 'members'  ]
+        fields = ['name', 'test_header', 'version', 'catalog', 'testrail', 'lead', 'members', 'archive']
         exclude = ['created', 'updated']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
