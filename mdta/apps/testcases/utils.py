@@ -7,7 +7,7 @@ from mdta.apps.testcases.testrail import APIClient, APIError
 from mdta.apps.testcases.utils_backwards_traverse import path_traverse_backwards
 from mdta.apps.testcases.utils_negative_testcases import negative_testcase_generation, rejected_testcase_generation
 
-from mdta.apps.testcases.constant_names import NODE_START_NAME, NODE_MP_NAME, LANGUAGE_DEFAULT_NAME, NEGATIVE_TESTS_LIST, NEGATIVE_CONFIRM_TESTS_LIST
+from mdta.apps.testcases.constant_names import *
 
 
 def context_testcases():
@@ -110,24 +110,57 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                 path = routing_path_to_edge(edge, shortest_set)
 
                 if path:
+                    title = 'Route from \'' + edge.from_node.name +\
+                                    '\' to \'' + edge.to_node.name + '\''
                     path_data = path_traverse_backwards(path, th_path=th_path, language=language)
+                    if edge.to_node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME]:
+                        if 'tcs_cannot_route' in path_data.keys():
+                            data.append({
+                                'tcs_cannot_route': path_data['tcs_cannot_route'],
+                                'id': edge.id,
+                                'title': title
+                            })
+                        else:
+                            data.append({
+                                    'pre_conditions': path_data['pre_conditions'],
+                                    'tc_steps': path_data['tc_steps'],
+                                    'id': edge.id,
+                                    'title': title,
+                                })
+
+                            if edge.to_node.type.name in NODE_MP_NAME:
+                                negative_testcase_generation(data, path_data, title, NEGATIVE_TESTS_LIST, edge, language=language)
+                                if edge.to_node.type.name == NODE_MP_NAME[1]:
+                                    negative_testcase_generation(data, path_data, title, NEGATIVE_CONFIRM_TESTS_LIST, edge, language=language)
+                                    rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
+                    else:
+                        data.append({
+                            'tcs_cannot_route': 'End node is not Prompt',
+                            'id': edge.id,
+                            'title': title
+                        })
+
+    else:
+        for edge in edges:
+            path = routing_path_to_edge(edge, shortest_set)
+
+            if path:
+                title = 'Route from \'' + edge.from_node.name +\
+                                    '\' to \'' + edge.to_node.name + '\''
+                path_data = path_traverse_backwards(path, language=language)
+                if edge.to_node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME]:
                     if 'tcs_cannot_route' in path_data.keys():
                         data.append({
                             'tcs_cannot_route': path_data['tcs_cannot_route'],
                             'id': edge.id,
-                            'title': 'Route from \'' +
-                                     edge.from_node.name +
-                                     '\' to \'' +
-                                     edge.to_node.name + '\''
+                            'title': title
                         })
                     else:
-                        title = 'Route from \'' + edge.from_node.name +\
-                                    '\' to \'' + edge.to_node.name + '\''
                         data.append({
                                 'pre_conditions': path_data['pre_conditions'],
                                 'tc_steps': path_data['tc_steps'],
                                 'id': edge.id,
-                                'title': title,
+                                'title': title
                             })
 
                         if edge.to_node.type.name in NODE_MP_NAME:
@@ -135,39 +168,12 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                             if edge.to_node.type.name == NODE_MP_NAME[1]:
                                 negative_testcase_generation(data, path_data, title, NEGATIVE_CONFIRM_TESTS_LIST, edge, language=language)
                                 rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
-
-    else:
-        for edge in edges:
-            path = routing_path_to_edge(edge, shortest_set)
-
-            if path:
-                path_data = path_traverse_backwards(path, language=language)
-                if 'tcs_cannot_route' in path_data.keys():
-                    data.append({
-                        'tcs_cannot_route': path_data['tcs_cannot_route'],
-                        'id': edge.id,
-                        'title': 'Route from \'' +
-                                 edge.from_node.name +
-                                 '\' to \'' +
-                                 edge.to_node.name + '\''
-                    })
-                    # print(edge.id)
                 else:
-                    title = 'Route from \'' + edge.from_node.name +\
-                                    '\' to \'' + edge.to_node.name + '\''
-                    # edge_id = edge.id,
                     data.append({
-                            'pre_conditions': path_data['pre_conditions'],
-                            'tc_steps': path_data['tc_steps'],
-                            'id': edge.id,
-                            'title': title
-                        })
-
-                    if edge.to_node.type.name in NODE_MP_NAME:
-                        negative_testcase_generation(data, path_data, title, NEGATIVE_TESTS_LIST, edge, language=language)
-                        if edge.to_node.type.name == NODE_MP_NAME[1]:
-                            negative_testcase_generation(data, path_data, title, NEGATIVE_CONFIRM_TESTS_LIST, edge, language=language)
-                            rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
+                        'tcs_cannot_route': 'End node is not Prompt',
+                        'id': edge.id,
+                        'title': title
+                    })
 
     return data
 
