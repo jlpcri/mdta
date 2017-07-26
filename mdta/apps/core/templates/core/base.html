@@ -147,7 +147,7 @@
                     <ul class="nav navbar-nav">
                         <li{% if active == 'home' %} class="active" {% endif %}><a href="{% url 'home' %}"><i class="fa fa-home fa-fw"></i> Home </a></li>
                         <li{% if active == 'testcases' %} class="active" {% endif %}><a href="{% url 'testcases:tcs_project' %}"><i class="fa fa-automobile fa-fw"></i> TestCases</a> </li>
-                        <li{% if active == 'help' %} class="active" {% endif %}><a href="{% url 'help:help' %}"><i class="fa fa-thumbs-o-up"></i> Help</a> </li>
+                        <li{% if active == 'help' %} class="active" {% endif %}><a href="{% url 'help:help' %}" target="_blank"><i class="fa fa-thumbs-o-up"></i> Help</a> </li>
                     </ul>
 
                     <ul class="nav navbar-nav navbar-right">

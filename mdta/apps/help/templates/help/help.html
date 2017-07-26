@@ -7,12 +7,74 @@
         <H4>MDTA Manual</H4>
         <ul>
             <li>Projects</li>
+                <ul>
+
+                </ul>
             <li>Modules</li>
+                <ul>
+                    <li>New Node modal draggable</li>
+                    <li>New Edge modal draggable</li>
+                    <li>Different scenarios before New Edge</li>
+                        <ul>
+                            <li>The from node of new edge is current node if select a node which is in current module</li>
+                            <li>The from node of new edge is default - first node of current module</li>
+                                <ul>
+                                    <li>If select a node which is not in current module</li>
+                                    <li>If select an edge</li>
+                                    <li>If select nothing</li>
+                                </ul>
+
+                        </ul>
+                </ul>
             <li>Nodes</li>
             <li>Edges</li>
             <li>Working Project</li>
             <li>Project Dashboard</li>
             <li>TestCases Generation</li>
+                <ul>
+                    <li>TestCases generated based on edges, which end node is
+                        one of PlayPrompt, MenuPrompt, MenuPromptWithConfirmation.</li>
+                    <li>Fields of node </li>
+                        <ul>
+                            <li>'Default', default value if MDTA cannot find valid value from DataQueries node through valid key</li>
+                            <li>'NonStandardFail'</li>
+                                <ul>
+                                    <li>'False', default value</li>
+                                        <ul>
+                                            <li>MenuPrompt/MenuPromptWithConfirmation negative testcases</li>
+                                                <ul>
+                                                    <li>No Input & Recover</li>
+                                                    <li>No Input 3 times Fail</li>
+                                                    <li>No Match & Recover</li>
+                                                    <li>No Match 3 times Fail</li>
+                                                    <li>No Input or No Match 3 times Fail</li>
+                                                </ul>
+                                            <li>MenuPromptWithConfirmation confirmation negative testcases</li>
+                                                <ul>
+                                                    <li>Confirm No Input & Recover</li>
+                                                    <li>Confirm No Match & Recover</li>
+                                                    <li>Confirm No Input 3 Times Fail</li>
+                                                    <li>Confirm No Match 3 Times Fail</li>
+                                                    <li>Confirm No Input or No Match 3 Times Fail</li>
+                                                </ul>
+                                        </ul>
+                                    <li>'True', MDTA will not generate negative TCs</li>
+                                </ul>
+                            <li>'OnFailGoTo'</li>
+                                <ul>
+                                    <li>Node name, autocomplete </li>
+                                    <li>When negative tcs fail, it'll route to this node</li>
+                                    <li>If empty, negative fail tc cannot be routed</li>
+                                </ul>
+                            <li>'Outputs'</li>
+                                <ul>
+                                    <li>Key which MDTA uses to search from DataQueries node</li>
+                                    <li>Autocomplete, fetched from DataQueries node 'Inputs'</li>
+                                    <li>If MDTA cannot find the valid value, it'll use field 'Default'</li>
+                                </ul>
+                            <li>'TextToSpeech'</li>
+                        </ul>
+                </ul>
             <li>TestCases Storage</li>
             <li>TestCases Execution</li>
         </ul>

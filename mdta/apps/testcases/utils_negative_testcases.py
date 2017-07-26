@@ -85,12 +85,12 @@ def tc_no_input_3_fail(node, language):
     if node.properties[ON_FAIL_GO_TO_KEY] == '':
         data.append({
             TR_CONTENT: False,
-            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo empty'
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + 'OnFailGoTo empty'
         })
     elif not search_node_name_inside_project(node.module.project, node.properties[ON_FAIL_GO_TO_KEY]):
         data.append({
             TR_CONTENT: False,
-            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo node name invalid'
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + 'OnFailGoTo node name invalid'
         })
     else:
         data.append({
@@ -113,12 +113,12 @@ def tc_confirm_no_input_3_fail(node, language):
     if node.properties[ON_FAIL_GO_TO_KEY] == '':
         data = [{
             TR_CONTENT: False,
-            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo empty'
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + 'OnFailGoTo empty'
         }]
     elif not search_node_name_inside_project(node.module.project, node.properties[ON_FAIL_GO_TO_KEY]):
         data = [{
             TR_CONTENT: False,
-            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo node name invalid'
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + 'OnFailGoTo node name invalid'
         }]
     else:
         data = [
@@ -153,12 +153,12 @@ def tc_no_match_3_fail(node, language):
     if node.properties[ON_FAIL_GO_TO_KEY] == '':
         data.append({
             TR_CONTENT: False,
-            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo empty'
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + 'OnFailGoTo empty'
         })
     elif not search_node_name_inside_project(node.module.project, node.properties[ON_FAIL_GO_TO_KEY]):
         data.append({
             TR_CONTENT: False,
-            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo node name invalid'
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + 'OnFailGoTo node name invalid'
         })
     else:
         no_match_content = get_no_match_content(node)
@@ -186,12 +186,12 @@ def tc_confirm_no_match_3_fail(node, language):
     if node.properties[ON_FAIL_GO_TO_KEY] == '':
         data = [{
             TR_CONTENT: False,
-            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo empty'
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + 'OnFailGoTo empty'
         }]
     elif not search_node_name_inside_project(node.module.project, node.properties[ON_FAIL_GO_TO_KEY]):
         data = [{
             TR_CONTENT: False,
-            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo node name invalid'
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + 'OnFailGoTo node name invalid'
         }]
     else:
         data = [
@@ -228,12 +228,12 @@ def tc_ni_nm_3_fail(node, language):
     if node.properties[ON_FAIL_GO_TO_KEY] == '':
         data.append({
             TR_CONTENT: False,
-            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo empty'
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + 'OnFailGoTo empty'
         })
     elif not search_node_name_inside_project(node.module.project, node.properties[ON_FAIL_GO_TO_KEY]):
         data.append({
             TR_CONTENT: False,
-            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo node name invalid'
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + 'OnFailGoTo node name invalid'
         })
     else:
         combinations = random_combination(random_size=3)
@@ -268,12 +268,12 @@ def tc_confirm_ni_nm_3_fail(node, language):
     if node.properties[ON_FAIL_GO_TO_KEY] == '':
         data.append({
             TR_CONTENT: False,
-            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo empty'
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + 'OnFailGoTo empty'
         })
     elif not search_node_name_inside_project(node.module.project, node.properties[ON_FAIL_GO_TO_KEY]):
         data.append({
             TR_CONTENT: False,
-            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + ', OnFailGoTo node name invalid'
+            TR_EXPECTED: TESTCASE_NOT_ROUTE_MESSAGE + 'OnFailGoTo node name invalid'
         })
     else:
         data.append({
@@ -371,7 +371,7 @@ def negative_testcase_generation(data, path_data, title, tc_list, edge, language
             else:
                 if negative_tc_steps[0][TR_CONTENT] == MPC_NO_VALID_INPUTS:
                     data.append({
-                        'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + ': ' + MPC_NO_VALID_INPUTS,
+                        'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + MPC_NO_VALID_INPUTS,
                         'title': _title,
                         'id': edge.id
                     })
@@ -515,7 +515,7 @@ def rejected_testcase_generation(data, path_data, title, node, edge, language=No
     tc_title = title + ', ' + 'Confirm Rejected'
     if node.properties[NON_STANDARD_FAIL_KEY] == 'on':
         data.append({
-            'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + ', Non standard fail behaviory',
+            'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + ', Non standard fail behavior',
             'title': tc_title,
             'id': edge.id
         })

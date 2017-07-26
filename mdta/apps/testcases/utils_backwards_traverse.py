@@ -154,7 +154,7 @@ def path_traverse_backwards(path, th_path=None, language=None):
 
     if tcs_cannot_route_flag:
         data = {
-            'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + ': ' + tcs_cannot_route_msg
+            'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + tcs_cannot_route_msg
         }
     else:
         tcs.reverse()
