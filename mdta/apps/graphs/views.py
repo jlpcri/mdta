@@ -15,7 +15,7 @@ from mdta.apps.users.views import user_is_staff, user_is_superuser
 from .models import NodeType, EdgeType, Node, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeAutoNewForm
 from mdta.apps.projects.forms import ModuleForm, UploadForm
-from mdta.apps.testcases.constant_names import NODE_START_NAME, LANGUAGE_DEFAULT_NAME
+from mdta.apps.testcases.constant_names import NODE_START_NAME, LANGUAGE_DEFAULT_NAME, NODE_DATA_NAME, NODE_SET_VARIABLE
 from mdta.apps.testcases.tasks import create_testcases_celery
 from mdta.apps.testcases.models import TestCaseResults
 
@@ -377,6 +377,8 @@ def project_module_detail(request, module_id):
             for item in data_keys:
                 e_id = item['id']
                 if 'tcs_cannot_route' in item:
+                    if 'gap_color' in item:
+                        continue
                     tcr = item['tcs_cannot_route']
                     edge_id.append({'id': e_id,
                                     'tcs_cannot_route': tcr})
@@ -397,7 +399,7 @@ def project_module_detail(request, module_id):
         for node in module.nodes_all:
             if node.type.name in NODE_START_NAME:
                 shape = 'star'
-            elif node.type.name in ['DataQueries Database', 'DataQueries WebService']:
+            elif node.type.name in NODE_DATA_NAME + [NODE_SET_VARIABLE]:
                 shape = 'ellipse'
             else:
                 shape = 'box'
