@@ -87,17 +87,19 @@
                         </ul>
                 </ul>
             <li>Edges</li>
-                If property 'Invisible' is True (Default is False), then the edge will not be drawn in the graph.
                 <ul>
-                    <li>Data</li>
+                    <li>If property 'Invisible' of edge is True (Default is False),
+                        then the edge will not be drawn in the graph.</li>
+                    <li>DataEdge has value: {'key': 'value'}, search order followed by:</li>
                         <ul>
-                            <li>Follow if {'key': 'value'}</li>
-                            <li>Check if {'key': 'value'} is found in DataQueries node 'Outputs'</li>
+                            <li>If 'key' is in Testheader MP/MPC and 'key' = node['outputs']</li>
+                            <li>If from node of edge is MP/MPC node and 'key' = node['outputs']</li>
+                            <li>If 'key' is found in SetVariable node: {'key_setVariable': '...'} and 'key' = 'key_setVariable'</li>
+                            <li>If {'key': 'value'} is found in DataQueries node 'Outputs'</li>
                                 <ul>
                                     <li>Matched 'Inputs' of DataQueries node - {'key_inputs': 'value_inputs'}
                                     where 'key_inputs' is defined in MP/MPC node property 'outputs'</li>
                                 </ul>
-                            <li>Check if 'key' is set in SetVariable node</li>
                         </ul>
                     <li>PreCondition</li>
                         <ul>
@@ -123,21 +125,21 @@
                                     <li>'False', default value</li>
                                         <ul>
                                             <li>MenuPrompt/MenuPromptWithConfirmation negative testcases</li>
-                                                <ul>
+                                                <ol>
                                                     <li>No Input & Recover</li>
                                                     <li>No Input 3 times Fail</li>
                                                     <li>No Match & Recover</li>
                                                     <li>No Match 3 times Fail</li>
                                                     <li>No Input or No Match 3 times Fail</li>
-                                                </ul>
+                                                </ol>
                                             <li>MenuPromptWithConfirmation confirmation negative testcases</li>
-                                                <ul>
+                                                <ol>
                                                     <li>Confirm No Input & Recover</li>
                                                     <li>Confirm No Match & Recover</li>
                                                     <li>Confirm No Input 3 Times Fail</li>
                                                     <li>Confirm No Match 3 Times Fail</li>
                                                     <li>Confirm No Input or No Match 3 Times Fail</li>
-                                                </ul>
+                                                </ol>
                                         </ul>
                                     <li>'True', MDTA will not generate negative TCs</li>
                                 </ul>
