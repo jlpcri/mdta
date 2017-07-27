@@ -135,7 +135,7 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                                     rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
                     else:
                         data.append({
-                            'tcs_cannot_route': 'End node is not Prompt',
+                            'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + 'End node is not Prompt.',
                             'id': edge.id,
                             'title': title
                         })
@@ -170,7 +170,7 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                                 rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
                 else:
                     data.append({
-                        'tcs_cannot_route': 'End node is not Prompt',
+                        'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + 'End node is not Prompt.',
                         'id': edge.id,
                         'title': title
                     })

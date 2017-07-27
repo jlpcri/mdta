@@ -1,10 +1,9 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.conf import settings
+from django.shortcuts import redirect, render
 
 
 @login_required
 def help(request):
-    if request.user.username == 'sliu':
-        return render(request, 'help/help.html')
-    return redirect(settings.CONFLUENCE_LINK)
+    # return render(request, 'help/help.html')
+    help_url = 'https://wiki.west.com/display/QE/MDTA'
+    return redirect(help_url)

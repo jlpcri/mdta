@@ -29,7 +29,6 @@ MEDIA_URL = '/mdta/media/'
 import ldap
 from django_auth_ldap.config import LDAPSearch
 LOGIN_URL = '/mdta/'
-CONFLUENCE_LINK = 'https://wiki.west.com/'
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
