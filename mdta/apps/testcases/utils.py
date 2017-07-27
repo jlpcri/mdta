@@ -137,7 +137,8 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                         data.append({
                             'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + 'End node is not Prompt.',
                             'id': edge.id,
-                            'title': title
+                            'title': title,
+                            'gap_color': 'default'  # display normal color in data gaps of module graph
                         })
 
     else:
@@ -172,7 +173,8 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                     data.append({
                         'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + 'End node is not Prompt.',
                         'id': edge.id,
-                        'title': title
+                        'title': title,
+                        'gap_color': 'default'  # display normal color in data gaps of module graph
                     })
 
     return data
