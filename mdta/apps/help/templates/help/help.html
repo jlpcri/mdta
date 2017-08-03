@@ -72,6 +72,9 @@
                     <li>Start/End</li>
                         <ul>
                             <li>Start, used for call flow starts</li>
+                                <ul>
+                                    <li>APN & HollyBrowser used to handle multiple running environments for testcases execution.</li>
+                                </ul>
                             <li>TestHeader Start, only exists in test header</li>
                             <li>TestHeader End, only exists in test header</li>
                         </ul>
@@ -90,28 +93,54 @@
                 <ul>
                     <li>If property 'Invisible' of edge is True (Default is False),
                         then the edge will not be drawn in the graph.</li>
-                    <li>DataEdge has value: {'key': 'value'}, search order followed by:</li>
+                    <li>Types</li>
                         <ul>
-                            <li>If 'key' is in Testheader MP/MPC and 'key' = node['outputs']</li>
-                            <li>If from node of edge is MP/MPC node and 'key' = node['outputs']</li>
-                            <li>If 'key' is found in SetVariable node: {'key_setVariable': '...'} and 'key' = 'key_setVariable'</li>
-                            <li>If {'key': 'value'} is found in DataQueries node 'Outputs'</li>
+                            <li>DataEdge has value: {'key': 'value'}, search order followed by:</li>
                                 <ul>
-                                    <li>Matched 'Inputs' of DataQueries node - {'key_inputs': 'value_inputs'}
-                                    where 'key_inputs' is defined in MP/MPC node property 'outputs'</li>
+                                    <li>If 'key' is in Testheader MP/MPC and 'key' = node['outputs']</li>
+                                    <li>If from node of edge is MP/MPC node and 'key' = node['outputs']</li>
+                                    <li>If 'key' is found in SetVariable node: {'key_setVariable': '...'} and 'key' = 'key_setVariable'</li>
+                                    <li>If {'key': 'value'} is found in DataQueries node 'Outputs'</li>
+                                        <ul>
+                                            <li>Matched 'Inputs' of DataQueries node - {'key_inputs': 'value_inputs'}
+                                            where 'key_inputs' is defined in MP/MPC node property 'outputs'</li>
+                                        </ul>
+                                </ul>
+                            <li>PreCondition</li>
+                                <ul>
+                                    <li>PreCondition, used for things cannot be controlled within
+                                        the call flow itself</li>
+                                </ul>
+                            <li>DTMF/Speech</li>
+                                <ul>
+                                    <li>If 'NoneConfirm' is True, from node is MPC,
+                                        then the valid confirmation input will ignore this edge</li>
+                                </ul>
+                            <li>Connector</li>
+                                <ul>
+                                    <li>No actions upon connector edge</li>
                                 </ul>
                         </ul>
-                    <li>PreCondition</li>
+                    <li>Data Gap view</li>
                         <ul>
-                            <li>PreCondition, used for things cannot be controlled within
-                                the call flow itself</li>
+                            <li>If end node is Prompt</li>
+                                <ul>
+                                    <li>The edge can be routed, the color of edge is normal</li>
+                                        <ul>
+                                            <li>Menu Prompt includes: NoInput & recover, NoInput 3 times fail,
+                                                NoMatch & recover, NoMatch 3 times fail, No Input or No Match 3 times Fail</li>
+                                            <li>Menu Prompt With Confirmation has additional:
+                                                Confirmation No Input recover, Confirm No Match & Recover,
+                                                Confirm No Input 3 Times Fail, Confirm No Match 3 Times Fail,
+                                                Confirm No Input or No Match 3 Times Fail</li>
+                                        </ul>
+                                    <li>The edge cannot be routed, the color of edge is red</li>
+                                </ul>
+                            <li>If end node is not Prompt</li>
+                                <ul>
+                                    <li>The color of edge is normal</li>
+                                </ul>
                         </ul>
-                    <li>DTMF/Speech</li>
-                        <ul>
-                            <li>If 'NoneConfirm' is True, from node is MPC,
-                                then the valid confirmation input will ignore this edge</li>
-                        </ul>
-                    <li>Connector</li>
                 </ul>
             <li>TestCases Generation</li>
                 <ul>
