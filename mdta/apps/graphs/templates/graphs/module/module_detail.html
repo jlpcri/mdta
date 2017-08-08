@@ -24,6 +24,11 @@
         .ui-autocomplete{
             z-index: 1050;
         }
+        #module_graph_cy {
+            width: auto;
+            height: 800px;
+            border: 1px solid lightgray;
+        }
     </style>
 {% endblock%}
 
@@ -53,6 +58,9 @@
                                 </ul>
                         </div>
                     </div>
+                </div>
+                <div class="row">
+                    <div id="module_graph_cy" style="margin-top: 10px;"></div>
                 </div>
                 <div class="row">
                     <div id="node_in_module" style="margin-top: 10px;"></div>
@@ -461,9 +469,12 @@
 {% endblock %}
 
 {% block footer %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.1.4/cytoscape.js"> </script>
     <script>
         var nodes = new vis.DataSet({{ network_nodes|safe }}),
+            cy_data_nodes = {{ network_nodes|safe }},
             edges = new vis.DataSet({{ network_edges|safe }}),
+            cy_data_edges = {{ network_edges|safe }},
             node_names_autocomplete = {{node_names_autocomplete|safe}},
             data_edge_keys_autocomplete = {{ data_edge_keys_autocomplete|safe }},
             menu_prompt_outputs_keys_autocomplete = {{ menu_prompt_outputs_keys_autocomplete|safe }},
@@ -476,5 +487,7 @@
         {% include 'graphs/node_edge_properties.js' %}
         {% include 'graphs/project/node_edge.js' %}
         {% include 'graphs/module/node_auto_edge_new.js' %}
+
+        {% include 'graphs/module/module_draw_graph.js' %}
     </script>
 {% endblock %}

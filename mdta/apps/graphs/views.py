@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ValidationError
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new, check_edge_in_set,\
@@ -15,7 +15,8 @@ from mdta.apps.users.views import user_is_staff, user_is_superuser
 from .models import NodeType, EdgeType, Node, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeAutoNewForm
 from mdta.apps.projects.forms import ModuleForm, UploadForm
-from mdta.apps.testcases.constant_names import NODE_START_NAME, LANGUAGE_DEFAULT_NAME, NODE_DATA_NAME, NODE_SET_VARIABLE
+from mdta.apps.testcases.constant_names import NODE_START_NAME, LANGUAGE_DEFAULT_NAME,\
+    NODE_DATA_NAME, NODE_SET_VARIABLE, NODE_POSITIONS_KEY, NODE_X_KEY, NODE_Y_KEY
 from mdta.apps.testcases.tasks import create_testcases_celery
 from mdta.apps.testcases.models import TestCaseResults
 
@@ -339,6 +340,7 @@ def project_module_detail(request, module_id):
     merged = {}
     edge_reference_sizes = []
 
+    inside_module_node_color = 'rgb(128, 191, 255)'
     outside_module_node_color = 'rgb(211, 211, 211)'
 
     for edge in module.edges_all:
@@ -404,10 +406,17 @@ def project_module_detail(request, module_id):
             else:
                 shape = 'box'
 
+            # get node position in current module
+            try:
+                positions = node.properties[NODE_POSITIONS_KEY][module_id]
+            except KeyError:
+                positions = None
             tmp = {
                 'id': node.id,
                 'label': node.name,
-                'shape': shape
+                'shape': shape,
+                'color': inside_module_node_color,
+                'positions': positions
             }
             if node.module != module:
                 if node_related_edges_invisible(node, module) and not all_edges:
@@ -912,3 +921,34 @@ def module_node_verbiage_edit(request):
             messages.success(request, 'Node is deleted.')
 
         return redirect('graphs:project_module_detail', node.module.id)
+
+
+def node_save_positions(request):
+    if request.method == 'POST':
+        module_id = request.POST.get('module_id')
+        positions = json.loads(request.POST.get('positions'))
+        # print(module_id)
+        for item in positions:
+            # print(item['node_id'], item['posx'], item['posy'])
+            node = get_object_or_404(Node, pk=item['node_id'])
+
+            if NODE_POSITIONS_KEY in node.properties:
+                if module_id in node.properties[NODE_POSITIONS_KEY]:
+                    node.properties[NODE_POSITIONS_KEY][module_id][NODE_X_KEY] = item[NODE_X_KEY]
+                    node.properties[NODE_POSITIONS_KEY][module_id][NODE_Y_KEY] = item[NODE_Y_KEY]
+                else:
+                    node.properties[NODE_POSITIONS_KEY][module_id] = {
+                        NODE_X_KEY: item[NODE_X_KEY],
+                        NODE_Y_KEY: item[NODE_Y_KEY]
+                    }
+            else:
+                node.properties[NODE_POSITIONS_KEY] = {
+                    module_id: {
+                        NODE_X_KEY: item[NODE_X_KEY],
+                        NODE_Y_KEY: item[NODE_Y_KEY]
+                    }
+                }
+
+            node.save()
+
+    return JsonResponse({'message': 'success'})

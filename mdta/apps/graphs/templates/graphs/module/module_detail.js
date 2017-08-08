@@ -183,7 +183,7 @@ function isJsonFormat(str){
 
 
 $(document).ready(function(){
-    draw_module_graph();
+    //draw_module_graph();
     autocomplete_nodename_and_edgekeys();
 });
 

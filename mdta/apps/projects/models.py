@@ -1,4 +1,4 @@
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, JSONField
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
@@ -175,6 +175,9 @@ class Module(models.Model):
     name = models.CharField(max_length=50, default='')
     project = models.ForeignKey(Project, null=True, blank=True)  # if null, then it's Test Header
     catalog = models.ManyToManyField(CatalogItem, blank=True)
+
+    # Property for the Module to store position to draw
+    properties = JSONField(null=True, blank=True)
 
     class Meta:
         ordering = ['name']
