@@ -20,6 +20,9 @@ EDGE_OUTPUTDATA_NAME = 'OutputData'
 EDGE_PRESS_NAME = 'Press'
 EDGE_SAY_NAME = 'Say'
 
+# Edge Invisible key name
+EDGE_TYPES_INVISIBLE_KEY = 'Invisible'
+
 # MenuPrompt property key name
 ON_FAIL_GO_TO_KEY = 'OnFailGoTo'
 NON_STANDARD_FAIL_KEY = 'NonStandardFail'
@@ -61,3 +64,5 @@ TR_EXPECTED = 'expected'
 NODE_POSITIONS_KEY = 'Positions'
 NODE_X_KEY = 'posx'
 NODE_Y_KEY = 'posy'
+NODE_X_INITIAL = 100
+NODE_Y_INITIAL = 100

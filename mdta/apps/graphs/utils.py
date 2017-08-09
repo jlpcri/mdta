@@ -1,15 +1,16 @@
 import ast
-from itertools import chain
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 
 from mdta.apps.graphs.models import NodeType, EdgeType
+from mdta.apps.testcases.constant_names import NODE_DATA_NAME as NODE_TYPES_WITH_DATA, NODE_SET_VARIABLE,\
+    EDGE_DATA_NAME, EDGE_PRECONDITION_NAME, EDGE_TYPES_INVISIBLE_KEY
 
 
-NODE_TYPES_WITH_DATA = ['DataQueries Database', 'DataQueries WebService']
-EDGE_TYPES_WITH_DATA = ['Data', 'PreCondition']
-EDGE_TYPES_INVISIBLE_KEY = 'Invisible'
+# NODE_TYPES_WITH_DATA = ['DataQueries Database', 'DataQueries WebService']
+EDGE_TYPES_WITH_DATA = [EDGE_DATA_NAME, EDGE_PRECONDITION_NAME]
+# EDGE_TYPES_INVISIBLE_KEY = 'Invisible'
 
 
 def node_or_edge_type_new(request, form):
@@ -153,7 +154,7 @@ def get_properties_for_node_or_edge(request, node_or_edge_type, auto_edge=None):
         if 'DataQueries' in node_or_edge_type.name:  # Node 'DataQueries Database' and 'DataQueries WebService'
             tmp_data = get_properties_from_multi_rows(request, node_or_edge_type, key_name)
             properties[node_or_edge_type.keys_data_name] = tmp_data
-        elif node_or_edge_type.name in ['Data', 'PreCondition'] and isinstance(node_or_edge_type, EdgeType) or node_or_edge_type.name == 'Set Variable':
+        elif node_or_edge_type.name in EDGE_TYPES_WITH_DATA and isinstance(node_or_edge_type, EdgeType) or node_or_edge_type.name == NODE_SET_VARIABLE:
             properties = get_properties_from_other_json(request, key_name + node_or_edge_type.subkeys_data_name, node_or_edge_type)
         else:
             for key in node_or_edge_type.subkeys:
@@ -166,7 +167,7 @@ def get_properties_for_node_or_edge(request, node_or_edge_type, auto_edge=None):
         if 'DataQueries' in node_or_edge_type.name:  # Node 'DataQueries Database' and 'DataQueries WebService'
             tmp_data = get_properties_from_multi_rows(request, node_or_edge_type)
             properties[node_or_edge_type.keys_data_name] = tmp_data
-        elif node_or_edge_type.name in ['Data', 'PreCondition'] and isinstance(node_or_edge_type, EdgeType) or node_or_edge_type.name == 'Set Variable':
+        elif node_or_edge_type.name in EDGE_TYPES_WITH_DATA and isinstance(node_or_edge_type, EdgeType) or node_or_edge_type.name == NODE_SET_VARIABLE:
             properties = get_properties_from_other_json(request, node_or_edge_type.subkeys_data_name, node_or_edge_type)
         else:
             for key in node_or_edge_type.subkeys:

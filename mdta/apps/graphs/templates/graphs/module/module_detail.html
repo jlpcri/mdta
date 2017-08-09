@@ -117,13 +117,13 @@
                                             <div class="row">
                                                 <div class="col-xs-12">
                                                     <button type="submit" name="node_save" class="btn btn-primary btn-sm param-save">Save</button>
-                                                    <button type="submit" name="node_delete" class="btn btn-danger btn-sm param-delete">Delete</button>
-{#                                                    <a href="#" data-toggle="modal"#}
-{#                                                       data-target="#nodeEdgeDeleteModal"#}
-{#                                                       data-module-id="{{ module.id }}"#}
-{#                                                       data-node-id="{{ item.id }}"#}
-{#                                                       data-node-name="{{ item.name }}"#}
-{#                                                       class="btn btn-danger btn-sm param-delete">Delete</a>#}
+{#                                                    <button type="submit" name="node_delete" class="btn btn-danger btn-sm param-delete">Delete</button>#}
+                                                    <a href="#" data-toggle="modal"
+                                                       data-target="#nodeEdgeDeleteModal"
+                                                       data-module-id="{{ module.id }}"
+                                                       data-node-id="{{ item.id }}"
+                                                       data-node-name="{{ item.name }}"
+                                                       class="btn btn-danger btn-sm param-delete">Delete</a>
                                                     <a href="#" data-toggle="modal"
                                                        data-target="#module-node-edge-new-modal"
                                                        data-from-node-id="{{ item.id }}"
@@ -188,6 +188,7 @@
                                                                     </div>
                                                                 {% endfor %}
 {#                                                            {% elif key == 'Default' and module.project %}#}
+                                                            {% elif key == 'Positions' %}
                                                             {% else %}
                                                                 <div class="row" style="margin-top: 5px;">
                                                                     <div class="col-xs-12">
@@ -337,13 +338,13 @@
                                             <div class="row">
                                                 <div class="col-xs-12">
                                                     <button type="submit" name="edge_save" class="btn btn-primary btn-sm param-save">Save</button>
-                                                    <button type="submit" name="edge_delete" class="btn btn-danger btn-sm param-delete">Delete</button>
-{#                                                    <a href="#" data-toggle="modal"#}
-{#                                                       data-target="#nodeEdgeDeleteModal"#}
-{#                                                       data-module-id="{{ module.id }}"#}
-{#                                                       data-edge-id="{{ item.id }}"#}
-{#                                                       data-edge-name="{{ item.from_node.name }} - {{ item.to_node.name }}"#}
-{#                                                       class="btn btn-danger btn-sm param-delete">Delete</a>#}
+{#                                                    <button type="submit" name="edge_delete" class="btn btn-danger btn-sm param-delete">Delete</button>#}
+                                                    <a href="#" data-toggle="modal"
+                                                       data-target="#nodeEdgeDeleteModal"
+                                                       data-module-id="{{ module.id }}"
+                                                       data-edge-id="{{ item.id }}"
+                                                       data-edge-name="{{ item.from_node.name }} - {{ item.to_node.name }}"
+                                                       class="btn btn-danger btn-sm param-delete">Delete</a>
                                                     <button type="reset" class="btn btn-default btn-sm">Reset</button>
                                                 </div>
                                             </div>

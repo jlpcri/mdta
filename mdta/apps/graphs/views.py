@@ -16,7 +16,8 @@ from .models import NodeType, EdgeType, Node, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeAutoNewForm
 from mdta.apps.projects.forms import ModuleForm, UploadForm
 from mdta.apps.testcases.constant_names import NODE_START_NAME, LANGUAGE_DEFAULT_NAME,\
-    NODE_DATA_NAME, NODE_SET_VARIABLE, NODE_POSITIONS_KEY, NODE_X_KEY, NODE_Y_KEY
+    NODE_DATA_NAME, NODE_SET_VARIABLE, NODE_POSITIONS_KEY,\
+    NODE_X_KEY, NODE_Y_KEY, NODE_X_INITIAL, NODE_Y_INITIAL
 from mdta.apps.testcases.tasks import create_testcases_celery
 from mdta.apps.testcases.models import TestCaseResults
 
@@ -560,6 +561,14 @@ def module_node_new(request, module_id):
 
             properties = get_properties_for_node_or_edge(request, node.type)
 
+            # set initial position of new node
+            properties[NODE_POSITIONS_KEY] = {
+                module_id: {
+                    NODE_X_KEY: NODE_X_INITIAL,
+                    NODE_Y_KEY: NODE_Y_INITIAL
+                }
+            }
+
             node.properties = properties
             node.save()
 
@@ -585,6 +594,14 @@ def module_node_new_node_edge(request):
             to_node = to_node_form.save(commit=False)
 
             to_node_properties = get_properties_for_node_or_edge(request, to_node.type, auto_edge=True)
+
+            # set initial position of new node
+            to_node_properties[NODE_POSITIONS_KEY] = {
+                from_node.module.id: {
+                    NODE_X_KEY: NODE_X_INITIAL,
+                    NODE_Y_KEY: NODE_Y_INITIAL
+                }
+            }
 
             to_node.properties = to_node_properties
             to_node.save()
@@ -640,7 +657,7 @@ def module_node_edit(request, node_id):
 
         if 'node_delete' in request.POST:
             node.delete()
-            messages.success(request, 'Node is deleted.')
+            # messages.success(request, 'Node is deleted.')
 
         return redirect('graphs:project_module_detail', node.module.id)
 
@@ -723,7 +740,7 @@ def module_edge_edit(request, edge_id):
 
         elif 'edge_delete' in request.POST:
             edge.delete()
-            messages.success(request, 'Edge is deleted.')
+            # messages.success(request, 'Edge is deleted.')
             return redirect('graphs:project_module_detail', edge.from_node.module.id)
 
         elif 'project_edge_save' in request.POST:
