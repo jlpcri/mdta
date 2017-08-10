@@ -2,8 +2,9 @@
  * Created by sliu on 8/9/17.
  */
 
-var cy_nodes = [],
+var cy_nodes_default = [],
     cy_edges = [],
+    image_default = image_url + 'blue-infrastructure-graphics_11435264594_o.png',
     cy_layout_options = '',
     cy_layout_flag = true;  // all modules have positions
 
@@ -18,10 +19,11 @@ $.each(cy_data_nodes, function(key, value){
         posx = value['positions']['posx'];
         posy = value['positions']['posy']
     }
-    cy_nodes.push({
+    cy_nodes_default.push({
         'data': {
             'id': value['id'],
-            'label': value['label']
+            'label': value['label'],
+            'image': image_default
         },
         'renderedPosition': {
             x: posx,
@@ -56,50 +58,60 @@ $.each(cy_data_edges, function(key, value){
     })
 });
 //console.log(cy_nodes, cy_edges)
-var cy = cytoscape({
-    container: $('#module_in_project_cy')[0],
-    elements: {
-        nodes: cy_nodes,
-        edges: cy_edges
-    },
-    style:[
-        {
-            selector: 'node',
-            style: {
-                'background-image': image_url + 'blue-infrastructure-graphics_11435264594_o.png',
-                'background-fit': 'contain',
-                'background-clip': 'node',
-                'label': 'data(label)',
-                'text-valign': 'bottom'
-            }
+
+var cy = create_cy_object(cy_nodes_default);
+
+function create_cy_object(cy_nodes) {
+    var obj = cytoscape({
+        container: $('#module_in_project_cy')[0],
+        elements: {
+            nodes: cy_nodes,
+            edges: cy_edges
         },
-        {
-            selector: 'edge',
-            style: {
-                'width': 1,
-                'line-color': '#00134d',
-                'curve-style': 'bezier',
-                'target-arrow-color': '#00134d',
-                'target-arrow-shape': 'triangle',
-                'label': 'data(label)'
+        style: [
+            {
+                selector: 'node',
+                style: {
+                    'background-image': 'data(image)',
+                    'background-fit': 'contain',
+                    'background-clip': 'node',
+                    'label': 'data(label)',
+                    'text-valign': 'bottom'
+                }
+            },
+            {
+                selector: 'edge',
+                style: {
+                    'width': 1,
+                    'line-color': '#00134d',
+                    'curve-style': 'bezier',
+                    'target-arrow-color': '#00134d',
+                    'target-arrow-shape': 'triangle',
+                    'label': 'data(label)'
+                }
+            },
+            {
+                selector: 'edge:selected',
+                style: {
+                    'width': 3
+                }
             }
-        },
-        {
-            selector: 'edge:selected',
-            style: {
-                'width': 3
-            }
-        }
-    ],
-    layout: cy_layout_options,
-    zoomingEnabled: true
-});
+        ],
+        layout: cy_layout_options,
+        zoomingEnabled: true
+    });
+
+    project_click_event(obj);
+
+    return obj;
+}
+
+project_view_options();
 
 $(window).bind('beforeunload', function () {
     savePositionToModule(cy);
 });
 
-cy_click_event(cy);
 
 function savePositionToModule(cy){
     var nodes = cy.nodes(),
@@ -124,7 +136,7 @@ function savePositionToModule(cy){
     })
 }
 
-function cy_click_event(cy){
+function project_click_event(cy){
     cy.on('tap', 'node', function(evt){
         var base_url = '',
             tmp = window.location.href.split('/'),
@@ -150,4 +162,65 @@ function cy_click_event(cy){
             $('a[href="#projectModules"]').click();
         }
     })
+}
+
+function project_view_options(){
+    $('.dropdown-toggle').dropdown();
+    $('#divNewNotifications li > a').click(function(){
+    if (this.text !== ' View Options ') {
+        if (this.text !== ' Failed Testcases ') {
+            $('#text').text($(this).html());
+        }
+    }
+    if (this.text === ' Default ') {
+        $("#default").change();
+    }
+    if (this.text === ' Data Gaps ') {
+        $("#data-gaps").change();
+    }
+    // if (this.text === ' Failed Testcases ') {
+    //     $("#failed-testcases").change();
+    // }
+    $('#divNewNotifications li').css('background-color', 'white');
+    });
+
+    var flag = false;
+    $('#data-gaps').change(function(){
+        var cy_nodes_gap = JSON.parse(JSON.stringify(cy_nodes_default));
+
+        $.each(cy_data_nodes, function(key, value){
+            if (!$.isEmptyObject(value.data)){
+                $.each(value.data, function(subk, subv){
+                    if (!$.isEmptyObject(subv.tcs_cannot_route)){
+                        //console.log(value.id, subv)
+                        $.each(cy_nodes_gap, function () {
+                            if (this.data.id == value.id){
+                                this.data.image = image_url + 'yellow-infrastructure-graphics_o.png'
+                                flag = true;
+                                return false
+                            }
+                        });
+
+                        if (flag){
+                            return false
+                        }
+                    }
+                })
+            } else {
+                $.each(cy_nodes_gap, function(){
+                    if (this.data.id == value.id){
+                        this.data.image = image_url + 'red-infrastructure-graphics_o.png'
+                    }
+                })
+            }
+        });
+
+        cy.elements().remove();
+        cy = create_cy_object(cy_nodes_gap);
+    });
+
+    $('#default').change(function(){
+        cy.elements().remove();
+        cy = create_cy_object(cy_nodes_default);
+    });
 }
