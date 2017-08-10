@@ -134,7 +134,7 @@ function draw_project_graph() {
 
 $(document).ready(function(){
     $('a[href="#projectModules"]').click();
-    draw_project_graph();
+    //draw_project_graph();
 });
 
 $('.list-group-item').click(function(){

@@ -61,7 +61,7 @@ $.each(cy_data_edges, function(key, value){
 });
 
 var cy = cytoscape({
-    container: $('#module_graph_cy')[0],
+    container: $('#node_in_module_cy')[0],
     elements: {
         nodes: cy_nodes,
         edges: cy_edges
@@ -201,9 +201,9 @@ function cy_double_click_event(cy){
     })
 }
 
-window.setInterval(function(){
-    savePositionToNode(cy);
-}, 5000 * 12 * 20);
+//window.setInterval(function(){
+//    savePositionToNode(cy);
+//}, 5000 * 12 * 20);
 
 $(window).bind('beforeunload', function(){
     savePositionToNode(cy);

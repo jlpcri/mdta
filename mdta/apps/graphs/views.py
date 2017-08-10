@@ -207,9 +207,14 @@ def project_detail(request, project_id):
         tc_keys.append(data)
 
     for m in project.modules:
+        try:
+            positions = m.properties[NODE_POSITIONS_KEY]
+        except TypeError:
+            positions = None
         network_nodes.append({
             'id': m.id,
             'label': m.name,
+            'positions': positions
         })
     for d, n in zip(network_nodes, tc_keys):
         d['data'] = n
@@ -941,31 +946,48 @@ def module_node_verbiage_edit(request):
 
 
 def node_save_positions(request):
+    save_type = request.GET.get('type', '')
+    positions = json.loads(request.POST.get('positions'))
     if request.method == 'POST':
-        module_id = request.POST.get('module_id')
-        positions = json.loads(request.POST.get('positions'))
-        # print(module_id)
-        for item in positions:
-            # print(item['node_id'], item['posx'], item['posy'])
-            node = get_object_or_404(Node, pk=item['node_id'])
+        if save_type == 'module':
+            for item in positions:
+                module = get_object_or_404(Module, pk=item['module_id'])
+                try:
+                    module.properties[NODE_POSITIONS_KEY][NODE_X_KEY] = item[NODE_X_KEY]
+                    module.properties[NODE_POSITIONS_KEY][NODE_Y_KEY] = item[NODE_Y_KEY]
+                except TypeError:
+                    module.properties = {
+                        NODE_POSITIONS_KEY: {
+                            NODE_X_KEY: item[NODE_X_KEY],
+                            NODE_Y_KEY: item[NODE_Y_KEY]
+                        }
+                    }
 
-            if NODE_POSITIONS_KEY in node.properties:
-                if module_id in node.properties[NODE_POSITIONS_KEY]:
-                    node.properties[NODE_POSITIONS_KEY][module_id][NODE_X_KEY] = item[NODE_X_KEY]
-                    node.properties[NODE_POSITIONS_KEY][module_id][NODE_Y_KEY] = item[NODE_Y_KEY]
+                module.save()
+        else:
+            module_id = request.POST.get('module_id')
+            # print(module_id)
+            for item in positions:
+                # print(item['node_id'], item['posx'], item['posy'])
+                node = get_object_or_404(Node, pk=item['node_id'])
+
+                if NODE_POSITIONS_KEY in node.properties:
+                    if module_id in node.properties[NODE_POSITIONS_KEY]:
+                        node.properties[NODE_POSITIONS_KEY][module_id][NODE_X_KEY] = item[NODE_X_KEY]
+                        node.properties[NODE_POSITIONS_KEY][module_id][NODE_Y_KEY] = item[NODE_Y_KEY]
+                    else:
+                        node.properties[NODE_POSITIONS_KEY][module_id] = {
+                            NODE_X_KEY: item[NODE_X_KEY],
+                            NODE_Y_KEY: item[NODE_Y_KEY]
+                        }
                 else:
-                    node.properties[NODE_POSITIONS_KEY][module_id] = {
-                        NODE_X_KEY: item[NODE_X_KEY],
-                        NODE_Y_KEY: item[NODE_Y_KEY]
+                    node.properties[NODE_POSITIONS_KEY] = {
+                        module_id: {
+                            NODE_X_KEY: item[NODE_X_KEY],
+                            NODE_Y_KEY: item[NODE_Y_KEY]
+                        }
                     }
-            else:
-                node.properties[NODE_POSITIONS_KEY] = {
-                    module_id: {
-                        NODE_X_KEY: item[NODE_X_KEY],
-                        NODE_Y_KEY: item[NODE_Y_KEY]
-                    }
-                }
 
-            node.save()
+                node.save()
 
     return JsonResponse({'message': 'success'})
