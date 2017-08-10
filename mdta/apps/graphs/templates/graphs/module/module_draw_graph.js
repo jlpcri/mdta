@@ -65,7 +65,7 @@ $.each(cy_data_edges, function(key, value){
 var cy = create_cy_object(cy_edges_default);
 
 function create_cy_object(cy_edges) {
-    return cytoscape({
+    var obj = cytoscape({
         container: $('#node_in_module_cy')[0],
         elements: {
             nodes: cy_nodes,
@@ -130,10 +130,12 @@ function create_cy_object(cy_edges) {
         zoomingEnabled: true,
         boxSelectionEnabled: true
     });
+    module_click_event(obj);
+    module_double_click_event(obj);
+
+    return obj;
 }
 
-module_click_event(cy);
-module_double_click_event(cy);
 module_view_options();
 
 function module_click_event(cy){
