@@ -33,13 +33,13 @@ $.each(cy_data_nodes, function(key, value){
 if (cy_layout_flag){
     cy_layout_options = {
         name: 'preset',
-        fit: false,
+        fit: true,
         padding: 30
     }
 } else {
     cy_layout_options = {
         name: 'breadthfirst',
-        fit: false,
+        fit: true,
         directed: true,
         padding: 30
     }
@@ -68,7 +68,7 @@ var cy = cytoscape({
             style: {
                 'background-image': image_url + 'blue-infrastructure-graphics_11435264594_o.png',
                 'background-fit': 'contain',
-                'background-color': '#FFFFFF',
+                'background-clip': 'node',
                 'label': 'data(label)',
                 'text-valign': 'bottom'
             }
@@ -92,7 +92,7 @@ var cy = cytoscape({
         }
     ],
     layout: cy_layout_options,
-    zoomingEnabled: false
+    zoomingEnabled: true
 });
 
 $(window).bind('beforeunload', function () {

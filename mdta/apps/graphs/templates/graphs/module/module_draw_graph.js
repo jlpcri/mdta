@@ -2,7 +2,8 @@
  * Created by sliu on 8/3/17.
  */
 var cy_nodes = [],
-    cy_edges = [],
+    //cy_edges = [],
+    cy_edges_default = [],
     cy_layout_options = '',
     cy_layout_flag = true;  // all nodes have position
 
@@ -51,86 +52,91 @@ if (cy_layout_flag){
 
 $.each(cy_data_edges, function(key, value){
     //console.log(value),
-    cy_edges.push({
+    cy_edges_default.push({
         'data': {
             'id': value['id'],
             'source': value['from'],
-            'target': value['to']
+            'target': value['to'],
+            'color': '#00134d'
         }
     })
 });
 
-var cy = cytoscape({
-    container: $('#node_in_module_cy')[0],
-    elements: {
-        nodes: cy_nodes,
-        edges: cy_edges
-    },
-    style: [
-        {
-            selector: 'node',
-            style: {
-                'background-color': 'data(color)',
-                'label': 'data(label)',
-            }
-        },
-        {
-            selector: 'node[shape="box"]',
-            style: {
-                'text-valign': 'center',
-                'width': '110%',
-                'shape': 'roundrectangle'
-            }
-        },
-        {
-            selector: 'node[shape="star"]',
-            style: {
-                'width': '40%',
-                'height': '40%',
-                'shape': 'star'
-            }
-        },
-        {
-            selector: 'node[shape="ellipse"]',
-            style: {
-                //'font-family': 'Gill Sans Extrabold, sans-serif',
-                'width': '110%',
-                'shape': 'ellipse'
-            }
-        },
-        {
-            selector: 'edge',
-            style: {
-                'width': 1,
-                'line-color': '#00134d',
-                'curve-style': 'bezier',
-                'target-arrow-color': '#00134d',
-                'target-arrow-shape': 'triangle'
-            }
-        },
-        {
-            selector: 'node:selected',
-            style: {
-                'background-color': '#ccd9ff'
-            }
-        },
-        {
-            selector: 'edge:selected',
-            style: {
-                'width': 3
-            }
-        }
-    ],
-    layout: cy_layout_options,
-    zoomingEnabled: true,
-    boxSelectionEnabled: true
-});
+var cy = create_cy_object(cy_edges_default);
 
-cy_click_event(cy);
-cy_double_click_event(cy);
-view_options();
+function create_cy_object(cy_edges) {
+    return cytoscape({
+        container: $('#node_in_module_cy')[0],
+        elements: {
+            nodes: cy_nodes,
+            edges: cy_edges
+        },
+        style: [
+            {
+                selector: 'node',
+                style: {
+                    'background-color': 'data(color)',
+                    'label': 'data(label)'
+                }
+            },
+            {
+                selector: 'node[shape="box"]',
+                style: {
+                    'text-valign': 'center',
+                    'width': '110%',
+                    'shape': 'roundrectangle'
+                }
+            },
+            {
+                selector: 'node[shape="star"]',
+                style: {
+                    'width': '40%',
+                    'height': '40%',
+                    'shape': 'star'
+                }
+            },
+            {
+                selector: 'node[shape="ellipse"]',
+                style: {
+                    //'font-family': 'Gill Sans Extrabold, sans-serif',
+                    'width': '110%',
+                    'shape': 'ellipse'
+                }
+            },
+            {
+                selector: 'edge',
+                style: {
+                    'width': 1,
+                    'line-color': 'data(color)',
+                    'curve-style': 'bezier',
+                    'target-arrow-color': '#00134d',
+                    'target-arrow-shape': 'triangle'
+                }
+            },
+            {
+                selector: 'node:selected',
+                style: {
+                    'background-color': '#ccd9ff'
+                }
+            },
+            {
+                selector: 'edge:selected',
+                style: {
+                    'width': 3
+                }
+            }
+        ],
+        layout: cy_layout_options,
+        zoomingEnabled: true,
+        boxSelectionEnabled: true
+    });
+}
 
-function cy_click_event(cy){
+module_click_event(cy);
+module_double_click_event(cy);
+module_view_options();
+
+function module_click_event(cy){
     cy.on('tap', 'node', function(evt){
         var node = evt.target;
         $.getJSON("{% url 'graphs:get_module_id_from_node_id'%}?node_id={0}".format(node.id())).done(function(data){
@@ -160,7 +166,7 @@ function cy_click_event(cy){
     });
 }
 
-function cy_double_click_event(cy){
+function module_double_click_event(cy){
     var tappedBefore,
         tappedTimeout;
 
@@ -243,7 +249,7 @@ function get_current_module_id(){
     return url[url.length - 2];
 }
 
-function view_options(){
+function module_view_options(){
     $('.dropdown-toggle').dropdown();
     $('#divNewNotifications li > a').click(function(){
     if (this.text !== ' View Options ') {
@@ -264,31 +270,24 @@ function view_options(){
     });
 
     $('#data-gaps').change(function(){
-        var n = JSON.stringify("{{ network_edges|escapejs }}");
-        var edge = JSON.parse(n);
-        $.each(JSON.parse(edge), function(idx, obj) {
-            console.log(obj)
-            if (!$.isEmptyObject(obj.tcs_cannot_route)) {
-                var route = obj.tcs_cannot_route;
-                var id = obj.id;
-                for (var i = 0; i < route.length; ++i) {
-                    for (var ind in route[i]) {
-                        edges.update([{id: id, color: '#FF3333'}]);
+        var cy_edges_gap = JSON.parse(JSON.stringify(cy_edges_default));
+        $.each(cy_data_edges, function(key, value){
+            if (!$.isEmptyObject(value.tcs_cannot_route)){
+                $.each(cy_edges_gap, function(){
+                    if (this.data.id == value.id){
+                        this.data.color = '#FF3333';
+                        return false
                     }
-                }
-            }
-            else {
-                $('a[href="#moduleNodeEdgeEmpty"]').click();
+                })
             }
         });
+
+        cy.elements().remove();
+        cy = create_cy_object(cy_edges_gap);
     });
 
     $('#default').change(function(){
-        var n = JSON.stringify("{{ network_edges|escapejs }}");
-        var edge = JSON.parse(n);
-        $.each(JSON.parse(edge), function(idx, obj) {
-            var id = obj.id;
-            edges.update([{id: id, color: '#000'}]);
-        });
+        cy.elements().remove();
+        cy = create_cy_object(cy_edges_default);
     });
 }

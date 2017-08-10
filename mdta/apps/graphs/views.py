@@ -315,7 +315,14 @@ def project_module_new(request, project_id):
     elif request.method == 'POST':
         form = ModuleForm(request.POST)
         if form.is_valid():
-            module = form.save()
+            module = form.save(commit=False)
+            module.properties = {
+                NODE_POSITIONS_KEY: {
+                    NODE_X_KEY: NODE_X_INITIAL,
+                    NODE_Y_KEY: NODE_Y_INITIAL
+                }
+            }
+            module.save()
             messages.success(request, 'Module \'{0}\' is added to \'{1}\''.format(module.name, module.project.name))
         else:
             print(form.errors)
