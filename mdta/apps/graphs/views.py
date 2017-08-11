@@ -7,7 +7,8 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new, check_edge_in_set,\
-    get_properties_for_node_or_edge, EDGE_TYPES_INVISIBLE_KEY, node_related_edges_invisible, self_reference_edge_node_in_set
+    get_properties_for_node_or_edge, EDGE_TYPES_INVISIBLE_KEY,\
+    node_related_edges_invisible, self_reference_edge_node_in_set, get_positions_for_node
 from mdta.apps.projects.models import Project, Module, Language
 from mdta.apps.graphs import helpers
 from mdta.apps.projects.utils import context_project_dashboard
@@ -658,6 +659,8 @@ def module_node_edit(request, node_id):
 
             properties = get_properties_for_node_or_edge(request, node_type)
 
+            properties[NODE_POSITIONS_KEY] = get_positions_for_node(request, node)
+
             try:
                 node.name = node_name
                 node.type = node_type
@@ -912,6 +915,7 @@ def module_node_verbiage_edit(request):
             node_type = get_object_or_404(NodeType, pk=node_type_id)
 
             properties = get_properties_for_node_or_edge(request, node_type)
+            properties[NODE_POSITIONS_KEY] = get_positions_for_node(request, node)
             # print(request.POST)
 
             language_name = ''

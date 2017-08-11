@@ -1,11 +1,13 @@
 import ast
+import json
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 
 from mdta.apps.graphs.models import NodeType, EdgeType
 from mdta.apps.testcases.constant_names import NODE_DATA_NAME as NODE_TYPES_WITH_DATA, NODE_SET_VARIABLE,\
-    EDGE_DATA_NAME, EDGE_PRECONDITION_NAME, EDGE_TYPES_INVISIBLE_KEY
+    EDGE_DATA_NAME, EDGE_PRECONDITION_NAME, EDGE_TYPES_INVISIBLE_KEY, NODE_POSITIONS_KEY, NODE_X_KEY, NODE_Y_KEY, \
+    NODE_X_INITIAL, NODE_Y_INITIAL
 
 
 # NODE_TYPES_WITH_DATA = ['DataQueries Database', 'DataQueries WebService']
@@ -302,3 +304,31 @@ def self_reference_edge_node_in_set(edge, network_edges, edge_reference_sizes):
     }
 
     return data
+
+
+def get_positions_for_node(request, node):
+    positions_new = request.POST.get(NODE_POSITIONS_KEY, '')
+    if positions_new:
+        positions_new = json.loads(positions_new)
+        if NODE_POSITIONS_KEY in node.properties:
+            positions_old = node.properties[NODE_POSITIONS_KEY]
+            for item in positions_old:
+                if item == positions_new['module_id']:
+                    positions_old[item][NODE_X_KEY] = positions_new['positions']['x']
+                    positions_old[item][NODE_Y_KEY] = positions_new['positions']['y']
+        else:
+            positions_old = {
+                positions_new['module_id']: {
+                    NODE_X_KEY: positions_new['positions']['x'],
+                    NODE_Y_KEY: positions_new['positions']['y']
+                }
+            }
+    else:
+        positions_old = {
+            node.module.id: {
+                NODE_X_KEY: NODE_X_INITIAL,
+                NODE_Y_KEY: NODE_Y_INITIAL
+            }
+        }
+
+    return positions_old

@@ -139,10 +139,12 @@ function create_cy_object(cy_edges) {
 module_view_options();
 
 function module_click_event(cy){
-    cy.on('tap', 'node', function(evt){
-        var node = evt.target;
+    cy.on('tap, drag', 'node', function(evt){
+        var node = evt.target,
+            current_module_id = get_current_module_id();;
+
         $.getJSON("{% url 'graphs:get_module_id_from_node_id'%}?node_id={0}".format(node.id())).done(function(data){
-            var current_module_id = get_current_module_id();
+            //var current_module_id = get_current_module_id();
 
             if (data['module_id'] == current_module_id){
                 $('#select_node_id').val(node.id())
@@ -150,6 +152,11 @@ function module_click_event(cy){
                 $('#select_node_id').val('-1')
             }
         });
+        //console.log(node.position())
+        $('input[name="Positions"]').val(JSON.stringify({
+            'module_id': current_module_id,
+            'positions':node.position()
+        }));
         $('a[href="#moduleNodeEdit"]').click();
         $('a[href="#node-{0}"]'.format(node.id())).click();
     });
@@ -209,13 +216,13 @@ function module_double_click_event(cy){
     })
 }
 
-//window.setInterval(function(){
-//    savePositionToNode(cy);
-//}, 5000 * 12 * 20);
-
-$(window).bind('beforeunload', function(){
+window.setInterval(function(){
     savePositionToNode(cy);
-});
+}, 5000);
+
+//$(window).bind('beforeunload', function(){
+//    savePositionToNode(cy);
+//});
 
 function savePositionToNode(cy){
     var nodes = cy.nodes(),

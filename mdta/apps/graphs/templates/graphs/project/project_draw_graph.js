@@ -108,9 +108,13 @@ function create_cy_object(cy_nodes) {
 
 project_view_options();
 
-$(window).bind('beforeunload', function () {
+window.setInterval(function(){
     savePositionToModule(cy);
-});
+}, 5000);
+
+//$(window).bind('beforeunload', function () {
+//    savePositionToModule(cy);
+//});
 
 
 function savePositionToModule(cy){
