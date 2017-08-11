@@ -93,6 +93,7 @@ class Node(models.Model):
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
+    playback = models.BooleanField(default=False)
 
     # Property for the Node, Keys are from NodeType
     properties = JSONField(null=True, blank=True)

@@ -597,13 +597,17 @@ def module_node_edit(request, node_id):
         if 'node_save' in request.POST:
             node_name = request.POST.get('moduleNodeEditName', '')
             node_type_id = request.POST.get('moduleNodeEditType', '')
+            playback = request.POST.get('moduleNodeEditPlayback', '')
             node_type = get_object_or_404(NodeType, pk=node_type_id)
+
 
             properties = get_properties_for_node_or_edge(request, node_type)
 
             try:
                 node.name = node_name
                 node.type = node_type
+                node.playback = playback
+                messages.success(request,str(playback))
                 node.properties = properties
                 node.save()
                 # messages.success(request, 'Node is saved.')
