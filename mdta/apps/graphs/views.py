@@ -531,6 +531,7 @@ def module_node_new(request, module_id):
             node = form.save(commit=False)
 
             properties = get_properties_for_node_or_edge(request, node.type)
+            print(properties)
 
             node.properties = properties
             node.save()
@@ -597,7 +598,7 @@ def module_node_edit(request, node_id):
         if 'node_save' in request.POST:
             node_name = request.POST.get('moduleNodeEditName', '')
             node_type_id = request.POST.get('moduleNodeEditType', '')
-            playback = request.POST.get('moduleNodeEditPlayback', '')
+            playback = True if request.POST.get('moduleNodeEditPlayback', '') == 'on' else False
             node_type = get_object_or_404(NodeType, pk=node_type_id)
 
 
@@ -607,7 +608,7 @@ def module_node_edit(request, node_id):
                 node.name = node_name
                 node.type = node_type
                 node.playback = playback
-                messages.success(request,str(playback))
+                messages.success(request,str(node.playback))
                 node.properties = properties
                 node.save()
                 # messages.success(request, 'Node is saved.')
