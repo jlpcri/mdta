@@ -346,6 +346,7 @@ function open_prompts_modal(node, node_id){
         language_key = languages[0]['name']
     }
 
+    node_keys.push('Positions');
     properties_contents = get_properties_contents(node_keys, properties, node_id, node_in);
     verbiage_contents = get_verbiage_contents(type_name, node['languages'], node['v_keys'], verbiage, language_key);
 
@@ -422,7 +423,8 @@ function node_property_js_load(){
 function get_properties_contents(node_keys, properties, node_id, node_in){
     var tmp_index = 0,
         object_length = 0,
-        properties_contents = '';
+        properties_contents = '',
+        positions = '';
 
     $.each(node_keys, function(index, k){
         if (k == 'InputData'){
@@ -482,7 +484,11 @@ function get_properties_contents(node_keys, properties, node_id, node_in){
             }
             properties_contents += '></div>';
             properties_contents += '</div>';
-        }else {
+        } else if (k == 'Positions'){
+            positions = $('#module-node-edit-properties input[name="Positions"]').val();
+            properties_contents += '<input name=\'{0}\' value=\'{1}\' hidden>'.format(k, positions);
+        }
+        else {
             if (!((k == 'Default') && (node_in == 'module'))) {
                 properties_contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
                 properties_contents += '<div class=\'col-xs-4\'><label>{0}:</label></div>'.format(k);

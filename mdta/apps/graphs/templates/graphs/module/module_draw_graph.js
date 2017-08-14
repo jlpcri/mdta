@@ -218,7 +218,7 @@ function module_double_click_event(cy){
 
 window.setInterval(function(){
     savePositionToNode(cy);
-}, 5000);
+}, 500000);
 
 //$(window).bind('beforeunload', function(){
 //    savePositionToNode(cy);
