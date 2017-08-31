@@ -4,6 +4,7 @@ NODE_DATA_NAME = ['DataQueries Database', 'DataQueries WebService']
 NODE_MP_NAME = ['Menu Prompt', 'Menu Prompt with Confirmation']
 NODE_PLAY_PROMPT_NAME = 'Play Prompt'
 NODE_SET_VARIABLE = 'Set Variable'
+NODE_LANGUAGE_SELECT =  'Language Select'
 
 # Node DataQueries inputs
 NODE_DATA_INPUTS = 'Inputs'
@@ -23,6 +24,7 @@ EDGE_SAY_NAME = 'Say'
 # MenuPrompt property key name
 ON_FAIL_GO_TO_KEY = 'OnFailGoTo'
 NON_STANDARD_FAIL_KEY = 'NonStandardFail'
+PLAY_BACK = 'Playback'
 MP_OUTPUTS = 'Outputs'
 MP_DEFAULT = 'Default'
 MP_NC = 'NoneConfirm'

@@ -112,6 +112,7 @@ def push_testcases_to_testrail_celery(self, project_id):
 
     except AttributeError:
         testrail_contents = {
+            #'error': 'No TestRail config'
             'error': 'No TestRail config'
         }
 

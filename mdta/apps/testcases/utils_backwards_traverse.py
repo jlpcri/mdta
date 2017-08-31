@@ -26,7 +26,7 @@ def path_traverse_backwards(path, th_path=None, language=None):
     result_found_all = []
 
     # sibling_edges_key_in_th_menuprompt = []
-
+### Temporary Mark to continue code analysis.....
     for index, step in enumerate(path):
         if index < len(path) - 1:
             if isinstance(step, Node):
@@ -403,6 +403,20 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None, language=
                     'content': content,
                     'expected': get_verbiage_from_prompt_node(node, language, MPC_VER)
                 })
+
+### check if node has Play back property
+    if node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME, NODE_LANGUAGE_SELECT]:
+        flag = False
+
+        try:
+            if node.properties[PLAY_BACK] == 'on':
+                flag = True
+        except KeyError:
+            pass
+
+        if flag:
+            # then do some thing here to tell some one to record the HAT script
+            print(flag)
 
 
 def node_start(node):
