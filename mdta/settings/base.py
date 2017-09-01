@@ -108,6 +108,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.static',
+                'ws4redis.context_processors.default',
+
                 'mdta.apps.core.views.get_active_top_link',
             ],
         },
@@ -177,8 +180,3 @@ from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {
     messages.ERROR: 'danger'
 }
-
-# Add django session to store Project/Module level location of graph
-SESSION_ENGINE = 'redis_sessions.session'
-SESSION_REDIS_PREFIX = 'mdta'
-SESSION_REDIS_UNIX_DOMAIN_SOCKET_PATH = '/var/run/redis/redis.sock'

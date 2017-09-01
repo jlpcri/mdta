@@ -161,6 +161,19 @@ function module_click_event(cy){
         $('a[href="#node-{0}"]'.format(node.id())).click();
     });
 
+    cy.on('free', 'node', function (evt) {
+        var node = evt.target,
+            current_module_id = get_current_module_id();
+
+        // console.log(node.position())
+        var data = {
+            'module_id': current_module_id,
+            'node_id': node.id(),
+            'position': node.position()
+        };
+        sendMessage(JSON.stringify(data))
+    });
+
     cy.on('tap', 'edge', function(evt){
         var edge = evt.target;
         $('a[href="#moduleEdgeEdit"]').click();
@@ -216,9 +229,9 @@ function module_double_click_event(cy){
     })
 }
 
-window.setInterval(function(){
-    savePositionToNode(cy);
-}, 5000);
+// window.setInterval(function(){
+//     savePositionToNode(cy);
+// }, 5000);
 
 //$(window).bind('beforeunload', function(){
 //    savePositionToNode(cy);
