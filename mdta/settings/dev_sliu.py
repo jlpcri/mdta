@@ -4,7 +4,9 @@ from mdta.settings.base import *
 DEBUG = True
 INSTALLED_APPS += [
     'debug_toolbar',
-    'ws4redis'
+
+    # WebSocket needed packages
+    'channels'
 ]
 MIDDLEWARE_CLASSES += ['debug_toolbar.middleware.DebugToolbarMiddleware', ]
 INTERNAL_IPS = ['127.0.0.1', '10.6.20.58', '10.27.170.241']
@@ -56,16 +58,12 @@ DB_DOCKER = {
 DATABASES = DB_6437
 
 
-# Add django session to store Project/Module level location of graph
-SESSION_ENGINE = 'redis_sessions.session'
-SESSION_REDIS_PREFIX = 'session'
-SESSION_REDIS_UNIX_DOMAIN_SOCKET_PATH = '/var/run/redis/redis.sock'
-
-WEBSOCKET_URL = '/ws/'
-WS4REDIS_CONNECTION = {
-    'unix_socket_path': '/var/run/redis/redis.sock',
-    'db': 5
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'asgi_redis.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('localhost', 6379)],
+        },
+        'ROUTING': 'mdta.ws_routing.channel_routing',
+    },
 }
-WS4REDIS_EXPIRE = 7200
-WS4REDIS_PREFIX = 'ws'
-WSGI_APPLICATION = 'ws4redis.django_runserver.application'

@@ -1,15 +1,17 @@
-var ws_uri = (window.location.protocol === 'https:') ? "wss://" : "ws://" + window.location.host + '/ws/';
+var ws_uri = (window.location.protocol === 'https:') ? "wss://" : "ws://" + window.location.host + '/chat/';
 var current_module_id = get_current_module_id();
 
 var ws4redis = WS4Redis({
     // uri: '{{ WEBSOCKET_URI }}foobar?subscribe-broadcast&publish-broadcast&echo',
-    uri:'{0}module?subscribe-{1}&publish-{1}&echo'.format(ws_uri, 'broadcast'),
+    // uri:'{0}module?subscribe-{1}&publish-{1}&echo'.format(ws_uri, 'broadcast'),
+    uri: ws_uri,
     connecting: on_connecting,
     connected: on_connected,
     receive_message: receiveMessage,
     disconnected: on_disconnected,
-    // heartbeat_msg: '{{ WS4REDIS_HEARTBEAT }}'
+    // heartbeat_msg: '{{ WS4REDIS_HEARTBEAT }}'clear
 });
+
 
 // attach this function to an event handler on your site
 function sendMessage(msg) {
@@ -39,3 +41,4 @@ function receiveMessage(msg) {
         console.log(msg);
     }
 }
+

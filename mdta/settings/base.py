@@ -109,7 +109,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.static',
-                'ws4redis.context_processors.default',
 
                 'mdta.apps.core.views.get_active_top_link',
             ],
