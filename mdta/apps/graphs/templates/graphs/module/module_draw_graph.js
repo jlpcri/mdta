@@ -1,8 +1,7 @@
 /**
  * Created by sliu on 8/3/17.
  */
-var cy_nodes = [],
-    //cy_edges = [],
+var cy_nodes_default = [],
     cy_edges_default = [],
     cy_layout_options = '',
     cy_layout_flag = true;  // all nodes have position
@@ -22,7 +21,7 @@ $.each(cy_data_nodes, function(key, value){
         posy = value['positions']['posy']
     }
 
-    cy_nodes.push({
+    cy_nodes_default.push({
         'data': {
             'id': value['id'],
             'label': value['label'],
@@ -62,9 +61,9 @@ $.each(cy_data_edges, function(key, value){
     })
 });
 
-var cy = create_cy_object(cy_edges_default);
+var cy = create_cy_object(cy_nodes_default, cy_edges_default);
 
-function create_cy_object(cy_edges) {
+function create_cy_object(cy_nodes, cy_edges) {
     var obj = cytoscape({
         container: $('#node_in_module_cy')[0],
         elements: {
@@ -167,7 +166,7 @@ function module_click_event(cy){
 
         // console.log(node.position())
         var data = {
-            'module_id': current_module_id,
+            // 'module_id': current_module_id,
             'node_id': node.id(),
             'position': node.position()
         };
@@ -229,9 +228,9 @@ function module_double_click_event(cy){
     })
 }
 
-// window.setInterval(function(){
-//     savePositionToNode(cy);
-// }, 5000);
+window.setInterval(function(){
+    savePositionToNode(cy);
+}, 5000);
 
 //$(window).bind('beforeunload', function(){
 //    savePositionToNode(cy);
@@ -305,11 +304,11 @@ function module_view_options(){
         });
 
         cy.elements().remove();
-        cy = create_cy_object(cy_edges_gap);
+        cy = create_cy_object(cy_nodes_default, cy_edges_gap);
     });
 
     $('#default').change(function(){
         cy.elements().remove();
-        cy = create_cy_object(cy_edges_default);
+        cy = create_cy_object(cy_nodes_default, cy_edges_default);
     });
 }
