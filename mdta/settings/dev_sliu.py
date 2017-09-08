@@ -4,9 +4,6 @@ from mdta.settings.base import *
 DEBUG = True
 INSTALLED_APPS += [
     'debug_toolbar',
-
-    # WebSocket needed packages
-    # 'channels'
 ]
 MIDDLEWARE_CLASSES += ['debug_toolbar.middleware.DebugToolbarMiddleware', ]
 INTERNAL_IPS = ['127.0.0.1', '10.6.20.58', '10.27.170.241']

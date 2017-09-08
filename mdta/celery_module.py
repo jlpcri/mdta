@@ -11,6 +11,8 @@ elif socket.gethostname() == "mohan-HP-Compaq-6005-Pro-SFF-PC":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mdta.settings.dev_mohan")
 elif socket.gethostname() == 'qaci01':
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mdta.settings.qaci01')
+elif socket.gethostname() == 'sigma':
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mdta.settings.sigma')
 else:
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mdta.settings.base')
 

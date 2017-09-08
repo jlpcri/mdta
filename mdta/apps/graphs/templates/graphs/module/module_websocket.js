@@ -1,6 +1,6 @@
 var current_module_id = get_current_module_id(),
     connected_msg = 'MDTA WebSocket connected.';
-var ws_uri = (window.location.protocol === 'https:') ? "wss://" : "ws://" + window.location.host + '/module_{0}/'.format(current_module_id);
+var ws_uri = (window.location.protocol === 'https:') ? "wss://" : "ws://" + window.location.host + '/mdta/module_{0}/'.format(current_module_id);
 
 
 var ws4redis = WS4Redis({
