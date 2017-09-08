@@ -108,8 +108,9 @@ class TestRailCase(TestRailORM):
     def generate_hat_script(self):
         if not self.script:
             self.script = HATScript()
+            print(self.script)
         for step in self.custom_steps_separated:
-
+            print("Content and expectations :", step)
             self._content_routing(step['content'])
             self._expected_routing(step['expected'])
         self.script.end_of_call()
@@ -119,6 +120,7 @@ class TestRailCase(TestRailORM):
             return
         action = step.split(' ')[0].upper()
         action = action.replace(":", "")
+        print("formatted content :", action)
         action_map = {'DNIS': self.script.start_of_call,
                       'DIAL': self.script.start_of_call,
                       'DIALEDNUMBER': self.script.start_of_call,
@@ -190,9 +192,9 @@ class AutomationScript(object):
 class HATScript(AutomationScript):
 
     def __init__(self, apn='', body='', dialed_number='', csvfile='',
-                 holly_server='', sonus_server='10.27.138.136',
+                 holly_server='linux6351', sonus_server='10.27.138.136',
                  hatit_server='',
-                 remote_server='qaci01.wic.west.com', remote_user='wicqacip', remote_password='LogFiles'):
+                 remote_server='led00098.wic.west.com:8080', remote_user='wicqacip', remote_password='LogFiles'):
 
         self.csvfile = csvfile
         self.hatscript = ''
@@ -226,15 +228,24 @@ class HATScript(AutomationScript):
         """Uses Frank's HAT User Interface to initate a HAT test"""
         jsonList = []
         browser = requests.session()
+        print("started frank's API")
         qaci = browser.get('http://{0}/hatit'.format(self.remote_server))
+        print("Qaci :", qaci)
+        self.hatit_server = 'http://{0}/hatit'.format(self.remote_server)
+        print(self.remote_server)
         print(self.hatit_server)
         data = {'apn': self.apn,
                 'browser': self.holly_server,
                 'port': '5060'}
-        hat_script_template = "STARTCALL\nREPORT %id%\n%everything%\nENDCALL"
+        report_val = "simple voice recognition test. ScanSoft 3.2.1"
+        hat_script_template = "STARTCALL\nREPORT {0}\n{1}\nENDCALL".format(report_val, self.body)
+        print ("hatscript: ", hat_script_template)
         path = base.TMP_DIR
-        response = browser.post("{0}".format(self.hatit_server) + "api/csv_req/", data=data,
-                                 files={'csvfile': open(os.path.join(path, self.csvfile)), 'hatscript': io.StringIO(hat_script_template)})
+        print("path : ", path)
+        self.csvfile = 'tmp.csv'
+        response = browser.post("{0}".format(self.hatit_server) + "api/static_req/", data=data,
+                                 files={'hatscript': io.StringIO(hat_script_template)})
+        print(response)
         jsonList.append(response.json())
         for data in jsonList:
             self.runID = data['runid']
@@ -276,6 +287,8 @@ class HATScript(AutomationScript):
 
         script_file = NamedTemporaryFile(mode='w', delete=False)
         script_file.write(self.body)
+        print(self.body)
+
         script_file.close()
         moveable_script_name = script_file.name + '_'
 
@@ -302,6 +315,7 @@ class HATScript(AutomationScript):
         client.set_missing_host_key_policy(AutoAddPolicy())
         client.load_system_host_keys()
         client.connect(self.remote_server, username=self.remote_user, password=self.remote_password)
+        print(self.filename)
         command = "grep {0} /var/mdta/report/CallReport.log".format(self.filename)
         for i in range(15):
             print("Attempt {0}".format(i))

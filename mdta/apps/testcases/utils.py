@@ -101,7 +101,7 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
     :return:
     """
     th_paths = get_paths_from_test_header(th_module)
-    print(th_paths)
+    #print(th_paths)
 
     data = []
     if th_paths:
@@ -184,7 +184,7 @@ def routing_path_to_edge(edge, shortest_set=None):
         data.append(edge)
         data.append(edge.to_node)
 
-    print(data)
+    #print(data)
     return data
 
 
@@ -200,7 +200,7 @@ def routing_path_to_node(node, shortest_set=None):
     if check_node_connect_to_start_node(node):
         path = backwards_search(node, visited_nodes, shortest_set)
 
-    print(path)
+    #print(path)
     return path
 
 
@@ -264,7 +264,7 @@ def backwards_search(node, visited_nodes, shortest_set=None):
                 path.append(edge)
                 path.append(node)
 
-    print('path: ',  path)
+    #print('path: ',  path)
     return path
 
 

@@ -34,7 +34,7 @@ def execute_test(request, mdta_project_id):
     case.generate_hat_script()
     case.script.remote_user = 'wicqacip'
     case.script.remote_password = 'LogFiles'
-    result = case.script.remote_hat_execute()
+    result = case.script.hatit_execute()
     return JsonResponse(result)
 
 

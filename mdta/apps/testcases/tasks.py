@@ -51,6 +51,7 @@ def create_testcases_celery(self, project_id):
         except (ValueError, ValidationError) as e:
             print(str(e))
     msg = push_testcases_to_testrail_celery(project.id)
+    print(msg)
 
     return msg
 
@@ -112,7 +113,6 @@ def push_testcases_to_testrail_celery(self, project_id):
 
     except AttributeError:
         testrail_contents = {
-            #'error': 'No TestRail config'
             'error': 'No TestRail config'
         }
 
@@ -120,5 +120,6 @@ def push_testcases_to_testrail_celery(self, project_id):
         testrail_contents = {
             'error': e
         }
+    print(testrail_contents)
     return testrail_contents
 

@@ -24,10 +24,11 @@ def path_traverse_backwards(path, th_path=None, language=None):
     path.reverse()
 
     result_found_all = []
-
+    #print("Path:", path)
     # sibling_edges_key_in_th_menuprompt = []
 ### Temporary Mark to continue code analysis.....
     for index, step in enumerate(path):
+        #print("step:", step)
         if index < len(path) - 1:
             if isinstance(step, Node):
                 if step.type.name not in NODE_DATA_NAME:
@@ -162,6 +163,7 @@ def path_traverse_backwards(path, th_path=None, language=None):
             'pre_conditions': pre_conditions,
             'tc_steps': tcs,
         }
+    #print("Data: ",data)
     return data
 
 
@@ -382,6 +384,7 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None, language=
     elif node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME, NODE_SET_VARIABLE]:
         add_step(node_prompt(node, preceding_edge, language=language), tcs)
 
+
     if node.type.name == NODE_MP_NAME[1] and following_edge:
         flag = True
         try:
@@ -405,7 +408,7 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None, language=
                 })
 
 ### check if node has Play back property
-    if node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME, NODE_LANGUAGE_SELECT]:
+    if node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME, NODE_LANGUAGE_SELECT]and following_edge:
         flag = False
 
         try:
@@ -413,11 +416,9 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None, language=
                 flag = True
         except KeyError:
             pass
+        tcs[len(tcs)-1][PLAY_BACK] = flag
 
-        if flag:
-            # then do some thing here to tell some one to record the HAT script
-            print(flag)
-
+    print(tcs)
 
 def node_start(node):
     return {
@@ -454,7 +455,7 @@ def get_item_properties(item):
             data += key + ': ' + item.properties[key] + ', '
         except (KeyError, TypeError):
             data += key
-
+    #print("get_item_properties:", data)
     return data
 
 
