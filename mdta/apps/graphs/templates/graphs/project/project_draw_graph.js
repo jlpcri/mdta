@@ -3,7 +3,7 @@
  */
 
 var cy_nodes_default = [],
-    cy_edges = [],
+    cy_edges_default = [],
     image_default = image_url + 'blue-infrastructure-graphics_11435264594_o.png',
     cy_layout_options = '',
     cy_layout_flag = true;  // all modules have positions
@@ -48,7 +48,7 @@ if (cy_layout_flag){
 }
 
 $.each(cy_data_edges, function(key, value){
-    cy_edges.push({
+    cy_edges_default.push({
         'data': {
             'id': value['id'],
             'source': value['from'],
@@ -57,11 +57,11 @@ $.each(cy_data_edges, function(key, value){
         }
     })
 });
-//console.log(cy_nodes, cy_edges)
+//console.log(cy_nodes, cy_edges_default)
 
-var cy = create_cy_object(cy_nodes_default);
+var cy = create_cy_object(cy_nodes_default, cy_edges_default);
 
-function create_cy_object(cy_nodes) {
+function create_cy_object(cy_nodes, cy_edges) {
     var obj = cytoscape({
         container: $('#module_in_project_cy')[0],
         elements: {
@@ -151,6 +151,15 @@ function project_click_event(cy){
         window.location.href = base_url + 'project_module_detail/' + module.id();
     });
 
+    cy.on('free', 'node', function (evt) {
+        var node = evt.target;
+        var data = {
+            'node_id': node.id(),
+            'position': node.position()
+        };
+        sendMessage(JSON.stringify(data))
+    });
+
     cy.on('tap', 'edge', function(evt){
         var edge = evt.target;
 
@@ -220,11 +229,11 @@ function project_view_options(){
         });
 
         cy.elements().remove();
-        cy = create_cy_object(cy_nodes_gap);
+        cy = create_cy_object(cy_nodes_gap, cy_edges_default);
     });
 
     $('#default').change(function(){
         cy.elements().remove();
-        cy = create_cy_object(cy_nodes_default);
+        cy = create_cy_object(cy_nodes_default, cy_edges_default);
     });
 }

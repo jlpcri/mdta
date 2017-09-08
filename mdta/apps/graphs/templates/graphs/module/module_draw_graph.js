@@ -161,12 +161,10 @@ function module_click_event(cy){
     });
 
     cy.on('free', 'node', function (evt) {
-        var node = evt.target,
-            current_module_id = get_current_module_id();
+        var node = evt.target;
 
         // console.log(node.position())
         var data = {
-            // 'module_id': current_module_id,
             'node_id': node.id(),
             'position': node.position()
         };

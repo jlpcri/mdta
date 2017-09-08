@@ -1,11 +1,26 @@
-var current_module_id = get_current_module_id(),
-    connected_msg = 'MDTA WebSocket connected.';
-var ws_uri = (window.location.protocol === 'https:') ? "wss://" : "ws://" + window.location.host + '/mdta/module_{0}/'.format(current_module_id);
+var connected_msg = 'MDTA WebSocket connected.';
 
+function get_ws_uri(){
+    var current_url = '',
+        room_id = '',
+        room_name = '',
+        ws_uri = '';
+
+    current_url = window.location.href.split('/');
+    room_id = current_url[current_url.length - 2];
+    if (current_url[current_url.length - 3].indexOf('module') >= 0){
+        room_name = 'module';
+    } else {
+        room_name = 'project';
+    }
+    ws_uri = (window.location.protocol === 'https:') ? "wss://" : "ws://" + window.location.host + '/mdta/{0}_{1}/'.format(room_name, room_id);
+
+    return ws_uri;
+}
+
+var ws_uri = get_ws_uri();
 
 var ws4redis = WS4Redis({
-    // uri: '{{ WEBSOCKET_URI }}foobar?subscribe-broadcast&publish-broadcast&echo',
-    // uri:'{0}module?subscribe-{1}&publish-{1}&echo'.format(ws_uri, 'broadcast'),
     uri: ws_uri,
     connecting: on_connecting,
     connected: on_connected,
