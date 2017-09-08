@@ -58,7 +58,22 @@ function receiveMessage(msg) {
 }
 
 function reDrawGraph(node) {
-    var cy_nodes = cy_nodes_default;
+    var cy_nodes = cy_nodes_default,
+        cy_edges = cy_edges_default,
+        view_option = $('#text').text();
+
+    console.log(view_option)
+    if (view_option == ' Data Gaps ') {
+        if (typeof cy_nodes_gap !== 'undefined') {
+            console.log('Project', cy_nodes_gap)
+            cy_nodes = cy_nodes_gap
+        } else if (typeof cy_edges_gap !== 'undefined') {
+            console.log('Module', cy_edges_gap)
+            cy_edges = cy_edges_gap
+        }
+    }
+
+    // var cy_nodes = cy_nodes_default;
     node = JSON.parse(node);
 
     $.each(cy_nodes, function () {
@@ -69,5 +84,5 @@ function reDrawGraph(node) {
     });
 
     cy.elements().remove();
-    cy = create_cy_object(cy_nodes, cy_edges_default);
+    cy = create_cy_object(cy_nodes, cy_edges);
 }

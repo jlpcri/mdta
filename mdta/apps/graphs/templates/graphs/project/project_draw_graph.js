@@ -3,6 +3,7 @@
  */
 
 var cy_nodes_default = [],
+    cy_nodes_gap = [],
     cy_edges_default = [],
     image_default = image_url + 'blue-infrastructure-graphics_11435264594_o.png',
     cy_layout_options = '',
@@ -197,36 +198,40 @@ function project_view_options(){
     $('#divNewNotifications li').css('background-color', 'white');
     });
 
-    var flag = false;
+    // var flag = false;
     $('#data-gaps').change(function(){
-        var cy_nodes_gap = JSON.parse(JSON.stringify(cy_nodes_default));
+        var flag = false;
 
-        $.each(cy_data_nodes, function(key, value){
-            if (!$.isEmptyObject(value.data)){
-                $.each(value.data, function(subk, subv){
-                    if (!$.isEmptyObject(subv.tcs_cannot_route)){
-                        //console.log(value.id, subv)
-                        $.each(cy_nodes_gap, function () {
-                            if (this.data.id == value.id){
-                                this.data.image = image_url + 'yellow-infrastructure-graphics_o.png'
-                                flag = true;
+        if (cy_nodes_gap.length === 0) {
+            cy_nodes_gap = JSON.parse(JSON.stringify(cy_nodes_default));
+
+            $.each(cy_data_nodes, function (key, value) {
+                if (!$.isEmptyObject(value.data)) {
+                    $.each(value.data, function (subk, subv) {
+                        if (!$.isEmptyObject(subv.tcs_cannot_route)) {
+                            //console.log(value.id, subv)
+                            $.each(cy_nodes_gap, function () {
+                                if (this.data.id == value.id) {
+                                    this.data.image = image_url + 'yellow-infrastructure-graphics_o.png'
+                                    flag = true;
+                                    return false
+                                }
+                            });
+
+                            if (flag) {
                                 return false
                             }
-                        });
-
-                        if (flag){
-                            return false
                         }
-                    }
-                })
-            } else {
-                $.each(cy_nodes_gap, function(){
-                    if (this.data.id == value.id){
-                        this.data.image = image_url + 'red-infrastructure-graphics_o.png'
-                    }
-                })
-            }
-        });
+                    })
+                } else {
+                    $.each(cy_nodes_gap, function () {
+                        if (this.data.id == value.id) {
+                            this.data.image = image_url + 'red-infrastructure-graphics_o.png'
+                        }
+                    })
+                }
+            });
+        }
 
         cy.elements().remove();
         cy = create_cy_object(cy_nodes_gap, cy_edges_default);

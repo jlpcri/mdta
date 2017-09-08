@@ -3,6 +3,7 @@
  */
 var cy_nodes_default = [],
     cy_edges_default = [],
+    cy_edges_gap = [],
     cy_layout_options = '',
     cy_layout_flag = true;  // all nodes have position
 
@@ -289,17 +290,19 @@ function module_view_options(){
     });
 
     $('#data-gaps').change(function(){
-        var cy_edges_gap = JSON.parse(JSON.stringify(cy_edges_default));
-        $.each(cy_data_edges, function(key, value){
-            if (!$.isEmptyObject(value.tcs_cannot_route)){
-                $.each(cy_edges_gap, function(){
-                    if (this.data.id == value.id){
-                        this.data.color = '#FF3333';
-                        return false
-                    }
-                })
-            }
-        });
+        if (cy_edges_gap.length === 0) {
+            cy_edges_gap = JSON.parse(JSON.stringify(cy_edges_default));
+            $.each(cy_data_edges, function (key, value) {
+                if (!$.isEmptyObject(value.tcs_cannot_route)) {
+                    $.each(cy_edges_gap, function () {
+                        if (this.data.id == value.id) {
+                            this.data.color = '#FF3333';
+                            return false
+                        }
+                    })
+                }
+            });
+        }
 
         cy.elements().remove();
         cy = create_cy_object(cy_nodes_default, cy_edges_gap);
