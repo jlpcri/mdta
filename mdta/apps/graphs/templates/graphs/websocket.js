@@ -36,11 +36,11 @@ function sendMessage(msg) {
 }
 
 function on_connecting() {
-    console.log('Websocket is connecting...');
+    // console.log('Websocket is connecting...');
 }
 
 function on_connected() {
-    ws4redis.send_message(connected_msg);
+    // ws4redis.send_message(connected_msg);
 }
 
 function on_disconnected(evt) {
@@ -60,15 +60,15 @@ function receiveMessage(msg) {
 function reDrawGraph(node) {
     var cy_nodes = cy_nodes_default,
         cy_edges = cy_edges_default,
-        view_option = $('#text').text();
+        view_option = $('#text').text().trim();
 
-    console.log(view_option)
-    if (view_option == ' Data Gaps ') {
+    // console.log(view_option)
+    if (view_option === 'Data Gaps') {
         if (typeof cy_nodes_gap !== 'undefined') {
-            console.log('Project', cy_nodes_gap)
+            // console.log('Project', cy_nodes_gap)
             cy_nodes = cy_nodes_gap
         } else if (typeof cy_edges_gap !== 'undefined') {
-            console.log('Module', cy_edges_gap)
+            // console.log('Module', cy_edges_gap)
             cy_edges = cy_edges_gap
         }
     }

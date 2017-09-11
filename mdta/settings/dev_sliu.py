@@ -54,13 +54,3 @@ DB_DOCKER = {
 
 DATABASES = DB_6437
 
-
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'asgi_redis.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [('localhost', 6379)],
-        },
-        'ROUTING': 'mdta.ws_routing.channel_routing',
-    },
-}
