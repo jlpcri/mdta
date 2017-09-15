@@ -437,6 +437,8 @@ def get_item_properties(item):
     data = ''
     for key in item.properties:
         try:
+            if key == NODE_POSITIONS_KEY:
+                continue
             data += key + ': ' + item.properties[key] + ', '
         except (KeyError, TypeError):
             data += key
