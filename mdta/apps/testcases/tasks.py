@@ -74,11 +74,13 @@ def push_testcases_to_testrail_celery(self, project_id):
         testrail_contents = client.send_get('get_project/' + project.testrail.project_id)
 
         tr_suites = client.send_get('get_suites/' + project.testrail.project_id)
+
         testcases = project.testcaseresults_set.latest('updated').results
 
         # Find or Create TestSuites in TestRail
         try:
             tr_suite = (suite for suite in tr_suites if suite['name'] == project.version).__next__()
+
         except StopIteration as e:
             print('Suite: ', e)
             tr_suite = add_testsuite_to_project(client,
@@ -120,6 +122,6 @@ def push_testcases_to_testrail_celery(self, project_id):
         testrail_contents = {
             'error': e
         }
-    print(testrail_contents)
+
     return testrail_contents
 

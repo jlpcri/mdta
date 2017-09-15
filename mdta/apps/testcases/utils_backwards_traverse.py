@@ -158,12 +158,17 @@ def path_traverse_backwards(path, th_path=None, language=None):
             'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + ': ' + tcs_cannot_route_msg
         }
     else:
+        for tc in tcs:
+            if PLAY_BACK in tc :
+                tc[TR_CONTENT] += PLAY_BACK+str(tc[PLAY_BACK])
+                del tc[PLAY_BACK]
+
         tcs.reverse()
         data = {
             'pre_conditions': pre_conditions,
             'tc_steps': tcs,
         }
-    #print("Data: ",data)
+
     return data
 
 
@@ -408,7 +413,7 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None, language=
                 })
 
 ### check if node has Play back property
-    if node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME, NODE_LANGUAGE_SELECT]and following_edge:
+    if node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME, NODE_LANGUAGE_SELECT]:
         flag = False
 
         try:
@@ -417,8 +422,7 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None, language=
         except KeyError:
             pass
         tcs[len(tcs)-1][PLAY_BACK] = flag
-
-    print(tcs)
+    #print(tcs)
 
 def node_start(node):
     return {

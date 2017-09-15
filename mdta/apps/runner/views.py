@@ -11,6 +11,7 @@ from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bul
 from mdta.apps.runner.models import TestRun, AutomatedTestCase, TestServers
 from mdta.apps.runner.tasks import poll_result_loop
 
+from mdta.apps.testcases.testrail import APIClient
 
 def display_project_suites(request, project_id):
     p = Project.objects.get(id=project_id)

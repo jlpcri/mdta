@@ -168,7 +168,7 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                         if edge.to_node.type.name == NODE_MP_NAME[1]:
                             negative_testcase_generation(data, path_data, title, NEGATIVE_CONFIRM_TESTS_LIST, edge, language=language)
                             rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
-
+    #print(data)
     return data
 
 
@@ -429,7 +429,6 @@ def add_section_to_testsuite(client, project_id, suite_id, section_name):
         'suite_id': suite_id,
         'name': section_name
     }
-
     section = client.send_post('add_section/' + project_id, data)
 
     return str(section['id'])
