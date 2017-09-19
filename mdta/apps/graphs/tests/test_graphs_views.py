@@ -1,22 +1,22 @@
+from itertools import chain
 from django.contrib.auth.models import User
 from django.test import TestCase, Client
 from django.core.urlresolvers import reverse
+
 from mdta.apps.users.models import HumanResource
-from django.shortcuts import render, redirect, get_object_or_404
 from mdta.apps.projects.models import Project
-from mdta.apps.graphs.utils import EDGE_TYPES_INVISIBLE_KEY
+
 
 class GraphsViewTest(TestCase):
-
     def setUp(self):
         self.client = Client()
         user_account = {
-        'username': 'UserAccount',
-        'password': 'UserPassword'
+            'username': 'UserAccount',
+            'password': 'UserPassword'
         }
         self.user = User.objects.create_user(
-        username=user_account['username'],
-        password=user_account['password']
+            username=user_account['username'],
+            password=user_account['password']
         )
 
         self.project = Project.objects.create(
@@ -24,10 +24,9 @@ class GraphsViewTest(TestCase):
         )
 
         self.hr = HumanResource.objects.create(
-        user=self.user,
-        project = self.project
+            user=self.user,
+            project=self.project
         )
-
 
     def test_home_without_fake_user_details(self):
         self.client.login(username= 'username', password='password')
@@ -38,20 +37,21 @@ class GraphsViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_projects_for_selection(self):
-        self.client.login(username= 'UserAccount', password='UserPassword')
+        self.client.login(username='UserAccount', password='UserPassword')
         response = self.client.get(reverse('graphs:projects_for_selection'))
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(self.project in response.context['projects'])
+        projects = list(chain.from_iterable(response.context['projects']))
+        self.assertTrue(self.project in projects)
 
     def test_to_project_detail(self):
-        self.client.login(username= 'UserAccount', password='UserPassword')
+        self.client.login(username='UserAccount', password='UserPassword')
         response = self.client.get('/mdta/graphs/project_detail/'+str(self.hr.project.id)+'/')
         self.assertEqual(response.status_code, 200)
         self.assertTrue(self.project, response.context['project'])
 
     def test_graphs_with_login(self):
         self.client.login(username='UserAccount', password='UserPassword')
-        response = self.client.get('/mdta/graphs/')
+        response = self.client.get('/mdta/graphs/', follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(self.project in response.context['projects'])
 

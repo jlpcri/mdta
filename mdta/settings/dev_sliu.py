@@ -10,7 +10,7 @@ MIDDLEWARE_CLASSES += ['debug_toolbar.middleware.DebugToolbarMiddleware', ]
 INTERNAL_IPS = ['127.0.0.1', '10.6.20.58', '10.27.170.241']
 
 if socket.gethostname() == 'OM1960L1':
-    INSTALLED_APPS.remove('channels')
+    CHANNEL_LAYERS['default']['CONFIG']['hosts'] = [('10.6.20.91', 6379)]
 
 DB_QACI01 = {
     'default': {

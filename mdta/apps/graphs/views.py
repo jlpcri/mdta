@@ -49,7 +49,7 @@ def projects_for_selection(request):
     elif len(tmp1) < len(tmp2):
         tmp1.append('')
 
-    projects = zip(tmp1, tmp2)
+    projects = list(zip(tmp1, tmp2))
     # for p in projects:
     #     print(p)
     context = {
