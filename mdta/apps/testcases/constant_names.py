@@ -54,6 +54,7 @@ TESTCASE_NOT_ROUTE_MESSAGE = 'This edge cannot be routed'
 NEGATIVE_TESTS_LIST = ['NIR', 'NMR', 'NIF', 'NMF', 'NINMF']
 NEGATIVE_CONFIRM_TESTS_LIST = ['CNIR', 'CNMR', 'CNIF', 'CNMF', 'CNINMF']
 
+
 # TestRail tcs key name
 TR_CONTENT = 'content'
 TR_EXPECTED = 'expected'

@@ -106,26 +106,46 @@ class TestRailCase(TestRailORM):
         else:
             return self.__dict__['custom_steps_separated']
 
+    def get_title(self):
+        if 'title' not in self.__dict__.keys():
+            return self.title
+        else:
+            title = self.__dict__['title']
+            for k,v in {"'":'', ' ':'_'}.items():
+                title = title.replace(k,v)
+            return title
+
     def generate_hat_script(self):
         if not self.script:
             self.script = HATScript()
         previous_step_playback = False
+        print(self.custom_steps_separated)
         for index, step in enumerate(self.custom_steps_separated):
+
             if PLAY_BACK in step[TR_CONTENT]:
                 step[TR_CONTENT], present_step_playback = step[TR_CONTENT].split(PLAY_BACK)
                 present_step_playback = True if present_step_playback == 'True' else False
             else:
                 present_step_playback = False
-            if present_step_playback and not(previous_step_playback):
-                playback_switch = True
-            elif not(present_step_playback):
-                playback_switch = False
-            self._content_routing(step[TR_CONTENT], playback_switch)
-            self._expected_routing(step[TR_EXPECTED], playback_switch, previous_step_playback)
+
+            playback_switch = True if (present_step_playback and not(previous_step_playback)) else False
+
+            if (playback_switch):
+                self.script.body += '\nSTARTRECORDING {0} \n'.format(self.get_title()+'.wav')
+            if(not(playback_switch) and previous_step_playback and not(present_step_playback)):
+                self.script.body += 'ENDRECORDING \n\n'
+
+            self._content_routing(step[TR_CONTENT])
+            self._expected_routing(step[TR_EXPECTED])
+
+            if present_step_playback and index == len(self.custom_steps_separated) - 1:
+                self.script.body += 'ENDRECORDING \n\n'
+
             previous_step_playback = present_step_playback
+
         self.script.end_of_call()
 
-    def _content_routing(self, step, playback_switch):
+    def _content_routing(self, step):
         if not step:
             return
         action = step.split(' ')[0].upper()
@@ -138,17 +158,15 @@ class TestRailCase(TestRailORM):
                       'WAIT': self.script.no_input,
                        }
         try:
-            action_map[action](step, playback_switch)
+            action_map[action](step)
         except KeyError:
             pass
 
-    def _expected_routing(self, step, playback_switch, previous_step_playback):
+    def _expected_routing(self, step):
         if not step:
             return
         # The following should be moved to HATScript, but because there is no real branching at this point yet,
         # I'm leaving it as-is for now.
-        if(not(playback_switch) and previous_step_playback):
-            self.script.body += 'ENDRECORDING \n'
         prompt = step.split(':')[0]
         self.script.body += 'EXPECT prompt URI=audio/' + prompt + '.wav\n'
 
@@ -203,9 +221,9 @@ class AutomationScript(object):
 
 class HATScript(AutomationScript):
 
-    def __init__(self, apn='', body='', dialed_number='', csvfile='',
-                 holly_server='linux6351.wic.west.com', sonus_server='10.27.138.136',
-                 hatit_server='',
+    def __init__(self, apn='4061702', body='', dialed_number='', csvfile='',
+                 holly_server='', sonus_server='10.27.138.136',
+                 hatit_server='linux6351.wic.west.com:8080',
                  remote_server='led00098.wic.west.com:8080', remote_user='wicqacip', remote_password='LogFiles'):
 
         self.csvfile = csvfile
@@ -241,26 +259,43 @@ class HATScript(AutomationScript):
         jsonList = []
         browser = requests.session()
         print("started frank's API")
-        qaci = browser.get('http://{0}/hatit'.format(self.remote_server))
+        qaci = browser.get('http://{0}/hatit'.format(self.hatit_server))
 
         data = {'apn': self.apn,
                 'browser': self.holly_server,
                 'port': '5060'}
 
-        report_val = "simple voice recognition test. ScanSoft 3.2.1"
-        hat_script_template = "STARTCALL\nREPORT {0}\n{1}\nENDCALL".format(report_val, self.body)
+        for key in data:
+            print(data[key])
 
-        print ("hatscript: \n", hat_script_template)
+        report_val = "simple voice recognition test. ScanSoft 3.2.1"
+        hat_script_template = "STARTCALL\nREPORT %id%\n%everything%\nENDCALL"
+
         path = base.TMP_DIR
-        print("path : ", path)
         self.csvfile = 'tmp.csv'
-        response = browser.post("{0}".format(self.hatit_server) + "api/static_req/", data=data,
-                                 files={'hatscript': io.StringIO(hat_script_template)})
-        print(response)
+        with open(self.csvfile, 'w') as csvfile:
+            fieldnames = ['id', 'everything']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames, lineterminator='\n')
+            writer.writeheader()
+            writer.writerow({'id': report_val , 'everything': self.body})
+
+        #hat_script_template = "STARTCALL\nREPORT {0}\n{1}\nENDCALL".format(report_val, self.body)
+        #print ("hatscript: \n", hat_script_template)
+
+        response = browser.post("http://{0}/hatit/".format(self.hatit_server) + "api/csv_req/", data=data,
+                                files={'csvfile':  open(os.path.join(path, self.csvfile)), 'hatscript': io.StringIO(hat_script_template)})
+
+        #response = browser.post("http://{0}/hatit/".format(self.hatit_server) + "api/csv_req/", data=data,
+        #                        files={'hatscript': io.StringIO(hat_script_template)})
+
+        print('response : {0}, response.json: {1}'.format(response, response.json()))
         jsonList.append(response.json())
-        for data in jsonList:
-            self.runID = data['runid']
-        result = browser.get("{0}".format(self.hatit_server) + "api/check_run/?runid={0}".format(self.runID))
+        try:
+            for data in jsonList:
+                self.runID = data['runid']
+        except KeyError:
+            print('HAT Error: {0}')
+        result = browser.get("http://{0}/hatit/".format(self.hatit_server) + "api/check_run/?runid={0}".format(self.runID))
         browser.close()
         return result
 
@@ -297,6 +332,7 @@ class HATScript(AutomationScript):
         file_client = SFTPClient.from_transport(transport)
 
         script_file = NamedTemporaryFile(mode='w', delete=False)
+        print(self.body)
         script_file.write(self.body)
         script_file.close()
         moveable_script_name = script_file.name + '_'
@@ -378,7 +414,7 @@ class HATScript(AutomationScript):
             return True
         return False
 
-    def start_of_call(self, step, playback_switch =None):
+    def start_of_call(self, step):
         print("start_of_call: {0}".format(step))
         if step[:3].upper() == 'APN':
             self.apn = step[4:].strip()
@@ -394,16 +430,12 @@ class HATScript(AutomationScript):
                     'transfer_start transfer_end vxml_event vxml_trace warning\n' + \
                     'EXPECT call_start\n'
 
-    def dtmf_step(self, step, playback_switch):
+    def dtmf_step(self, step):
         self.body += 'EXPECT recognition_start\nPAUSE 1\nDTMF ' + step[6:] + '\n'
-        if (playback_switch):
-            self.body += 'STARTRECORDING {0} \n'.format('filename')
 
 
-    def no_input(self, step, playback_switch):
+    def no_input(self, step):
         self.body += 'EXPECT recognition_end\n'
-        if (playback_switch):
-            self.body += 'STARTRECORDING {0} \n'.format('filename')
 
 
     def end_of_call(self):
