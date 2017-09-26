@@ -15,3 +15,4 @@ DATABASES = {
         'PORT': '5433',
     }
 }
+

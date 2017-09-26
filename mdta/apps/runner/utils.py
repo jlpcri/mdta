@@ -258,44 +258,25 @@ class HATScript(AutomationScript):
         """Uses Frank's HAT User Interface to initate a HAT test"""
         jsonList = []
         browser = requests.session()
-        print("started frank's API")
         qaci = browser.get('http://{0}/hatit'.format(self.hatit_server))
 
         data = {'apn': self.apn,
                 'browser': self.holly_server,
                 'port': '5060'}
 
-        for key in data:
-            print(data[key])
-
         report_val = "simple voice recognition test. ScanSoft 3.2.1"
-        hat_script_template = "STARTCALL\nREPORT %id%\n%everything%\nENDCALL"
+        hat_script_template = "STARTCALL\nREPORT {0}\n{1}\nENDCALL".format(report_val,self.body)
 
-        path = base.TMP_DIR
-        self.csvfile = 'tmp.csv'
-        with open(self.csvfile, 'w') as csvfile:
-            fieldnames = ['id', 'everything']
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames, lineterminator='\n')
-            writer.writeheader()
-            writer.writerow({'id': report_val , 'everything': self.body})
-
-        #hat_script_template = "STARTCALL\nREPORT {0}\n{1}\nENDCALL".format(report_val, self.body)
-        #print ("hatscript: \n", hat_script_template)
-
-        response = browser.post("http://{0}/hatit/".format(self.hatit_server) + "api/csv_req/", data=data,
-                                files={'csvfile':  open(os.path.join(path, self.csvfile)), 'hatscript': io.StringIO(hat_script_template)})
-
-        #response = browser.post("http://{0}/hatit/".format(self.hatit_server) + "api/csv_req/", data=data,
-        #                        files={'hatscript': io.StringIO(hat_script_template)})
+        url = "http://{0}/hatit/api/static_req/".format(self.hatit_server)
+        payload = {'apn': '4061702', 'browser': 'linux5578'}
+        hatscript = {'hatscript': io.StringIO(hat_script_template)}
+        response = browser.post(url, data=payload, files=hatscript)
 
         print('response : {0}, response.json: {1}'.format(response, response.json()))
-        jsonList.append(response.json())
-        try:
-            for data in jsonList:
-                self.runID = data['runid']
-        except KeyError:
-            print('HAT Error: {0}')
+        self.runID = response.json()['runid']
+
         result = browser.get("http://{0}/hatit/".format(self.hatit_server) + "api/check_run/?runid={0}".format(self.runID))
+        print(result.json())
         browser.close()
         return result
 
@@ -417,7 +398,10 @@ class HATScript(AutomationScript):
     def start_of_call(self, step):
         print("start_of_call: {0}".format(step))
         if step[:3].upper() == 'APN':
+            print('APN::::', step)
             self.apn = step[4:].strip()
+            self.apn, self.holly_server = self.apn.split(', HollyBrowser: ')
+            self.holly_server =self.holly_server[:len(self.holly_server)-1]
         elif step[:4].upper() == 'DNIS':
             self.apn = step[5:].strip()
         elif step[:13].upper() == 'DIALEDNUMBER:':
