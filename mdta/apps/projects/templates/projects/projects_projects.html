@@ -7,7 +7,7 @@
                         <thead>
                             <tr>
                                 <th class="col-xs-1">Name</th>
-                                <th class="col-xs-1">Edit</th>
+                                <th class="col-xs-1">Edit | <a href="{% url 'projects:project_data_migrate' 0 %}?type=all" title="Migrate All Projects"><i class="fa fa-database fa-fw"></i></a></th>
                                 <th class="col-xs-1">Language</th>
                                 <th class="col-xs-1">Version(TestSuites)</th>
                                 <th class="col-xs-1">TestHeader</th>
@@ -21,7 +21,7 @@
                                     <td><a href="#project-{{ project.id }}" data-toggle="tab">{{ project.name }}</a></td>
                                     <td>
                                         <a href="{% url 'projects:project_edit' project.id %}"><i class="fa fa-edit fa-fw"></i></a>
-                                        {% if user.username == 'sliu' %}
+                                        {% if user.username in 'sliu, mambati'|slice:',' %}
                                             | <a href="{% url 'projects:project_data_migrate' project.id %}"><i class="fa fa-database fa-fw"></i></a>
                                         {% endif %}
                                     </td>

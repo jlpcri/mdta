@@ -343,7 +343,7 @@ def project_data_migrate(request, project_id):
     :param project_id:
     :return:
     """
-    if request.user.username != 'sliu':
+    if request.user.username not in ['sliu', 'mambati']:
         return redirect('intro')
 
     type_migrate = request.GET.get('type', '')
