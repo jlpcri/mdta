@@ -37,6 +37,7 @@
         <style>
             html, body, .container, .content {
                 height: 100%;
+                width: auto;
             }
             .container, .content {
                 position: relative;
@@ -132,10 +133,6 @@
 
     <body>
         <div class="content">
-            {% if user.is_authenticated %}
-                {% include 'core/main_menu.html' %}
-            {% endif %}
-
             <div class="wrapper">
                 <div class="proper-content">
                     {% if messages %}

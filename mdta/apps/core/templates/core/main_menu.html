@@ -104,16 +104,14 @@
                     </ul>
                 </li>
 
-                {% if user.is_staff %}
-                    <hr/>
-                    <li class="list-group-item dropdown"><a href="{% url 'projects:projects' %}"></i> Previous Projects</a></li>
-                    <li class="list-group-item dropdown"><a href="{% url 'graphs:graphs' %}">Previous Graphs</a> </li>
-                    <li class="list-group-item dropdown"><a href="{% url 'testcases:testcases' %}">Previous TCs</a> </li>
-                {% endif %}
                 {% if user.is_superuser %}
                     <hr/>
-                    <li class="list-group-item dropdown"><a href="{% url 'users:management' %}">User Management</a> </li>
-                    <li class="list-group-item dropdown"><a href="{% url 'admin:index' %}" target="_blank">Django Admin</a> </li>
+                    <li class="list-group-item dropdown" style="font-style: italic"><a href="{% url 'projects:projects' %}"></i> Previous Projects</a></li>
+                    <li class="list-group-item dropdown" style="font-style: italic"><a href="{% url 'graphs:graphs' %}">Previous Graphs</a> </li>
+                    <li class="list-group-item dropdown" style="font-style: italic"><a href="{% url 'testcases:testcases' %}">Previous TCs</a> </li>
+                    <hr/>
+                    <li class="list-group-item dropdown" style="font-style: italic"><a href="{% url 'users:management' %}">User Management</a> </li>
+                    <li class="list-group-item dropdown" style="font-style: italic"><a href="{% url 'admin:index' %}" target="_blank">Django Admin</a> </li>
                     <hr/>
                 {% endif %}
 
