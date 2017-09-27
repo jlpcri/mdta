@@ -190,7 +190,7 @@ def project_detail(request, project_id):
     network_nodes = []
     network_edges = []
     tc_keys = []
-    projects = Project.objects.filter(archive=False)
+    # projects = Project.objects.filter(archive=False)
     project = get_object_or_404(Project, pk=project_id)
     try:
         tests = project.testcaseresults_set.latest('updated').results
@@ -245,7 +245,7 @@ def project_detail(request, project_id):
             })
 
     context = {
-        'projects': projects,
+        # 'projects': projects,
         'project': project,
         'all_edges': all_edges,
         'draw_invisible_button': draw_invisible_button,

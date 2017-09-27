@@ -8,7 +8,7 @@
             left: 0px;
             top: 0px;
             overflow: hidden;
-{#            height: 100vh;#}
+            height: 100vh;
             -webkit-transition: all 0.5s ease;
             -moz-transition: all 0.5s ease;
             -o-transition: all 0.5s ease;
@@ -62,7 +62,7 @@
             padding-right: 5px;
         }
 
-        #switchProjectMenu {
+        #sideMainMenu {
            cursor:pointer;
         }
 
@@ -71,8 +71,8 @@
 
 {% block body %}
     <div class="row" role="navigation" style="margin-bottom: -20px">
-        <a id="switchProjectMenu" class="navbar-brand"><span
-            class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span> Switch Project</a>
+        <a id="sideMainMenu" class="navbar-brand">&nbsp;&nbsp;&nbsp;&nbsp;<span
+            class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span></a>
         <a class="navbar-brand"></a>
     </div>
     <div class="row">
@@ -83,25 +83,43 @@
             <div class="row">
                 <div class="col-xs-12" style="padding: 5px 15px 1px 15px">
                     <h4 style="padding-left: 0px; font-size: 19px; color: #666">
-                        Select Project <span
+                        Main Menu <span
                             class="sideBarCloseIcon glyphicon glyphicon-remove"
                             aria-hidden="true"></span>
                     </h4>
                 </div>
             </div>
             <hr style="margin: 5px -15px" />
-            <ul class="list-group">
-                {% for p in projects %}
-                    <li class="list-group-item">
-                        <a href="{% url 'graphs:project_detail' p.id %}">{{ p.name }}</a>
-                    </li>
-                {% endfor %}
-                {% if user.is_staff or user.is_superuser %}
+            <ul class="list-group navbar-collapse">
+                <li class="list-group-item dropdown"><a href="{% url 'home' %}"> Home</a></li>
+                <li class="list-group-item dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> Configurations</a>
+                    <ul class="dropdown-menu ">
+                        <li class="list-group-item dropdown"><a href="{% url 'projects:project_dashboard' %}">Project Dashboard</a> </li>
+                        {% if request.user.humanresource.project %}
+                            <li class="list-group-item dropdown"><a href="{% url 'graphs:projects_for_selection' %}">Switch Project</a> </li>
+                        {% endif %}
+                        <li class="list-group-item dropdown"><a href="{% url 'testcases:tcs_project' %}">TestCases</a> </li>
+                        <li class="list-group-item dropdown"><a href="{% url 'runner:dashboard' %}">TCs Execution</a> </li>
+                        <li class="list-group-item dropdown"><a href="#" data-toggle="modal" data-target="#module-import-modal">Import Prompts</a> </li>
+                    </ul>
+                </li>
+
+                {% if user.is_staff %}
                     <hr/>
-                    <li class="list-group-item">
-                        <a class="btn btn-default" href="{% url 'projects:project_new' %}">New Project</a>
-                    </li>
+                    <li class="list-group-item dropdown"><a href="{% url 'projects:projects' %}"></i> Previous Projects</a></li>
+                    <li class="list-group-item dropdown"><a href="{% url 'graphs:graphs' %}">Previous Graphs</a> </li>
+                    <li class="list-group-item dropdown"><a href="{% url 'testcases:testcases' %}">Previous TCs</a> </li>
                 {% endif %}
+                {% if user.is_superuser %}
+                    <hr/>
+                    <li class="list-group-item dropdown"><a href="{% url 'users:management' %}">User Management</a> </li>
+                    <li class="list-group-item dropdown"><a href="{% url 'admin:index' %}" target="_blank">Django Admin</a> </li>
+                    <hr/>
+                {% endif %}
+
+                <li class="list-group-item dropdown"><a href="{% url 'intro' %}"> Introduction</a></li>
+                <li class="list-group-item"><a href="{% url 'help:help' %}"> Help</a></li>
+                <li class="list-group-item"><a href="{% url 'users:sign_out' %}"> Sign Out</a></li>
             </ul>
         </div>
     </div>
@@ -109,7 +127,7 @@
 
 {% block footer %}
     <script>
-        $("#switchProjectMenu, .backdrop, .sideBarCloseIcon").click(function() {
+        $("#sideMainMenu, .backdrop, .sideBarCloseIcon").click(function() {
             $("#mySideBar").toggleClass("sidebar-nav-toggled");
             $(".backdrop").toggle();
         });
