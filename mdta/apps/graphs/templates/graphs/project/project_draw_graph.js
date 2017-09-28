@@ -151,9 +151,14 @@ function project_context_menu(cy){
                 tooltipText: 'Rename Module',
                 selector: 'node',
                 onClickFunction: function (event) {
-                    var target = event.target;
-                    console.log('Rename Module: ', target.id())
-                    },
+                    var target = event.target.data(),
+                        module_edit = $('#module-edit-modal');
+
+                    module_edit.find('input[name="editModuleId"]').val(target['id']);
+                    module_edit.find('input[name="editModuleName"]').val(target['label']);
+                    module_edit.find('.modal-title').html('Module Edit/Delete');
+                    module_edit.modal('show')
+                },
                 hasTrailingDivider: true
             },
             /*

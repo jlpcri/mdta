@@ -2,14 +2,14 @@
  * Created by sliu on 6/7/16.
  */
 
-$('.editModule').on('show.bs.modal', function(e){
-    var module_id = $(e.relatedTarget).data('module-id'),
-        module_name = $(e.relatedTarget).data('module-name');
-
-    $(e.currentTarget).find('input[name="editModuleId"]').val(module_id);
-    $(e.currentTarget).find('input[name="editModuleName"]').val(module_name);
-    $('.editModule .modal-title').html('Module Edit/Delete');
-});
+// $('.editModule').on('show.bs.modal', function(e){
+//     var module_id = $(e.relatedTarget).data('module-id'),
+//         module_name = $(e.relatedTarget).data('module-name');
+//
+//     $(e.currentTarget).find('input[name="editModuleId"]').val(module_id);
+//     $(e.currentTarget).find('input[name="editModuleName"]').val(module_name);
+//     $('.editModule .modal-title').html('Module Edit/Delete');
+// });
 
 $('.editModule form').on('submit', function(){
     var module_name = $('#editModuleName').val();
