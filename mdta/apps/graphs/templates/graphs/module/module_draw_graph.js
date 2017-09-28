@@ -130,13 +130,48 @@ function create_cy_object(cy_nodes, cy_edges) {
         userZoomingEnabled: false,
         boxSelectionEnabled: true
     });
+
+    module_context_menu(obj);
     module_click_event(obj);
-    // module_double_click_event(obj);
 
     return obj;
 }
 
 module_view_options();
+
+function module_context_menu(cy){
+    cy.contextMenus({
+        menuItems: [
+            {
+                id: 'Verbiages',
+                content: 'Verbiages',
+                tooltipText: 'Prompt Verbiages',
+                selector: 'node',
+                onClickFunction: function (event) {
+                    var node = event.target;
+                    // console.log('Verbiages: ', node.id());
+
+                    $.getJSON("{% url 'graphs:get_module_id_from_node_id' %}?node_id={0}".format(node.id())).done(function(data){
+                        var base_url = '',
+                            tmp = window.location.href.split('/'),
+                            current_module_id = tmp[tmp.length - 2];
+
+                        for (var i = 0; i < tmp.length - 2; i++) {
+                            base_url += tmp[i] + '/'
+                        }
+                        if(!(data['module_id'] == current_module_id)){
+                            window.location.href = base_url + data['module_id'];
+                            $('body').css('cursor', 'progress');
+                        } else {
+                            open_prompts_modal(data['node_data'], node.id());
+                        }
+                    })
+                },
+                hasTrailingDivider: true
+            }
+        ]
+    });
+}
 
 function module_click_event(cy){
     cy.on('tap, drag', 'node', function(evt){
@@ -184,26 +219,6 @@ function module_click_event(cy){
             $('a[href="#moduleNodeEdgeEmpty"]').click();
         }
     });
-
-    cy.on('cxttapend', 'node', function (event) {
-        var node = event.target;
-
-        $.getJSON("{% url 'graphs:get_module_id_from_node_id' %}?node_id={0}".format(node.id())).done(function(data){
-            var base_url = '',
-                tmp = window.location.href.split('/'),
-                current_module_id = tmp[tmp.length - 2];
-
-            for (var i = 0; i < tmp.length - 2; i++) {
-                base_url += tmp[i] + '/'
-            }
-            if(!(data['module_id'] == current_module_id)){
-                window.location.href = base_url + data['module_id'];
-                $('body').css('cursor', 'progress');
-            } else {
-                open_prompts_modal(data['node_data'], node.id());
-            }
-        })
-    })
 }
 
 function module_double_click_event(cy){

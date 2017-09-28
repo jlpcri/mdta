@@ -102,6 +102,7 @@ function create_cy_object(cy_nodes, cy_edges) {
         userZoomingEnabled: false
     });
 
+    project_context_menu(obj);
     project_click_event(obj);
 
     return obj;
@@ -141,6 +142,48 @@ function savePositionToModule(cy){
     })
 }
 
+function project_context_menu(cy){
+    cy.contextMenus({
+        menuItems: [
+            {
+                id: 'rename',
+                content: 'Rename',
+                tooltipText: 'Rename Module',
+                selector: 'node',
+                onClickFunction: function (event) {
+                    var target = event.target;
+                    console.log('Rename Module: ', target.id())
+                    },
+                hasTrailingDivider: true
+            },
+            /*
+            {
+                id: 'remove',
+                content: 'Remove',
+                tooltipText: 'Remove Module',
+                selector: 'node',
+                onClickFunction: function (event) {
+                    var target = event.target || event.cyTarget;
+                    console.log('Remove module', target.id())
+                    },
+                hasTrailingDivider: true
+            },
+
+            {
+                id: 'add-node',
+                content: 'New Module',
+                tooltipText: 'Add New Module',
+                coreAsWell: true,
+                onClickFunction: function (event) {
+                    var target = event.target;
+                    console.log('Add module', target)
+                }
+            }
+            */
+        ]
+    });
+}
+
 function project_click_event(cy){
     cy.on('tap', 'node', function(evt){
         var base_url = '',
@@ -177,10 +220,12 @@ function project_click_event(cy){
         }
     });
 
-    cy.on('cxttapend', function (evt) {
-        var module = evt.target;
-        console.log('Popup Module Detail', window.screen.availHeight)
-    })
+    // cy.on('cxttapend', 'node', function (evt) {
+    //     var module = evt.target;
+    //     console.log('Popup Module Detail', window.screen.availHeight)
+    // })
+
+
 }
 
 function project_view_options(){
