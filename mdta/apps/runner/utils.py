@@ -95,7 +95,7 @@ class TestRailSuite(TestRailORM):
 class TestRailCase(TestRailORM):
     def __init__(self, instance, api_return, parent=None):
         super(TestRailCase, self).__init__(instance, api_return, parent)
-        self.script = None
+        self.script = HATScript()
 
 
     @property
@@ -119,7 +119,6 @@ class TestRailCase(TestRailORM):
         if not self.script:
             self.script = HATScript()
         previous_step_playback = False
-        print(self.custom_steps_separated)
         for index, step in enumerate(self.custom_steps_separated):
 
             if PLAY_BACK in step[TR_CONTENT]:
@@ -258,27 +257,25 @@ class HATScript(AutomationScript):
         """Uses Frank's HAT User Interface to initate a HAT test"""
         jsonList = []
         browser = requests.session()
-        qaci = browser.get('http://{0}/hatit'.format(self.hatit_server))
-
+        qaci = browser.get('http://{0}/hatit'.format(self.remote_server))
+        print(self.hatit_server)
+        if not self.holly_server:
+            self.holly_server = 'linux5578'
         data = {'apn': self.apn,
                 'browser': self.holly_server,
                 'port': '5060'}
-
-        report_val = "simple voice recognition test. ScanSoft 3.2.1"
-        hat_script_template = "STARTCALL\nREPORT {0}\n{1}\nENDCALL".format(report_val,self.body)
-
-        url = "http://{0}/hatit/api/static_req/".format(self.hatit_server)
-        payload = {'apn': '4061702', 'browser': 'linux5578'}
-        hatscript = {'hatscript': io.StringIO(hat_script_template)}
-        response = browser.post(url, data=payload, files=hatscript)
-
-        print('response : {0}, response.json: {1}'.format(response, response.json()))
-        self.runID = response.json()['runid']
-
-        result = browser.get("http://{0}/hatit/".format(self.hatit_server) + "api/check_run/?runid={0}".format(self.runID))
-        print(result.json())
+        hat_script_template = "STARTCALL\nREPORT %id%\n%everything%\nENDCALL"
+        path = base.TMP_DIR
+        response = browser.post("{0}".format(self.hatit_server) + "api/csv_req/", data=data,
+                                 files={'csvfile': open(os.path.join(path, self.csvfile)), 'hatscript': io.StringIO(hat_script_template)})
+        jsonList.append(response.json())
+        print (jsonList)
+        for data in jsonList:
+            self.runID = data['runid']
+        result = browser.get("{0}".format(self.hatit_server) + "api/check_run/?runid={0}".format(self.runID))
         browser.close()
         return result
+
 
     def local_hat_execute(self):
         """
@@ -313,7 +310,7 @@ class HATScript(AutomationScript):
         file_client = SFTPClient.from_transport(transport)
 
         script_file = NamedTemporaryFile(mode='w', delete=False)
-        print(self.body)
+        #print(self.body)
         script_file.write(self.body)
         script_file.close()
         moveable_script_name = script_file.name + '_'
@@ -396,12 +393,13 @@ class HATScript(AutomationScript):
         return False
 
     def start_of_call(self, step):
-        print("start_of_call: {0}".format(step))
+        #print("start_of_call: {0}".format(step))
         if step[:3].upper() == 'APN':
-            print('APN::::', step)
+            #print('APN::::', step)
             self.apn = step[4:].strip()
             self.apn, self.holly_server = self.apn.split(', HollyBrowser: ')
-            self.holly_server =self.holly_server[:len(self.holly_server)-1]
+            if self.holly_server:
+                self.holly_server =self.holly_server[:len(self.holly_server)-1]
         elif step[:4].upper() == 'DNIS':
             self.apn = step[5:].strip()
         elif step[:13].upper() == 'DIALEDNUMBER:':
@@ -481,10 +479,6 @@ def bulk_hatit_file_generator(case_list):
 
 
     return csv_filename
-
-
-
-
 
 
 

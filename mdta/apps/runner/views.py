@@ -28,15 +28,58 @@ def display_testrail_steps(request, mdta_project_id):
     return JsonResponse({'steps': case.custom_steps_separated})
 
 
-def execute_test(request, mdta_project_id):
+##Old code that is not using Frank's API, commented.
+'''def execute_test(request, mdta_project_id):
     p = Project.objects.get(id=mdta_project_id)
     tri = p.testrail.instance
     case = get_testrail_steps(tri, request.GET['case_id'])
-    case.generate_hat_script()
-    case.script.remote_user = 'wicqacip'
+    case.generate_hat_script()case.script.remote_user = 'wicqacip'
     case.script.remote_password = 'LogFiles'
-    result = case.script.hatit_execute()
+    result = case.script.remote_hat_execute()
     return JsonResponse(result)
+'''
+
+## Fix to single run testcase execution, need to work on showing the content to the user.
+def execute_test(request, mdta_project_id):
+    p = Project.objects.get(id=mdta_project_id)
+    tri = p.testrail.instance
+    trp = get_testrail_project(tri, p.testrail.project_id)
+    print(trp)
+    suites = trp.get_suites()
+    for suit in suites:
+        if suit.name == p.version:
+            test_suite = suit
+            break
+    testrail_project_id = p.testrail.project_id
+    testrail_run = test_suite.open_test_run()
+    case = get_testrail_steps(tri, request.GET['case_id'])
+    #case.generate_hat_script()
+    #case.script.remote_user = 'wicqacip'
+    #case.script.remote_password = 'LogFiles'
+    case.script.csvfile = bulk_hatit_file_generator([case])
+    case.script.hatit_server = "http://"+case.script.hatit_server+"/hatit/"
+    testserver = case.script.hatit_server
+    print(case.script.apn)
+    print(case.script.holly_server)
+    print(case.script.hatit_server)
+    print(case.script.csvfile)
+
+    hollytrace_url = TestServers.objects.values_list('hollytrace_url', flat=True).get(server=testserver)
+    result = case.script.hatit_execute()
+
+    return JsonResponse(result.json())
+    '''mdta_test_run = TestRun.objects.create(hat_run_id=json.loads(result.text)['runid'],
+                                               hat_server=TestServers.objects.get(server=testserver),
+                                               testrail_project_id=testrail_project_id,
+                                               testrail_suite_id=test_suite.id,
+                                               testrail_test_run=testrail_run.id, project=p)
+    poll_result_loop.delay(mdta_test_run.pk)
+    AutomatedTestCase.objects.create(test_run=mdta_test_run, testrail_case_id=case.id, case_title=case.title, case_script=case.script.body)
+
+    return JsonResponse({'run': mdta_test_run.pk, 'holly': case.script.holly_server, 'tr_p_id': testrail_project_id, 'tr_host': tri.host,
+                             'hollytrace_url': hollytrace_url, 'cases': [{'testrail_case_id': c.testrail_case_id, 'status': c.status,
+                                                                          'title': c.case_title, 'script': c.case_script} for c in mdta_test_run.automatedtestcase_set.all()]})
+    '''
 
 
 def run_test_suite(request):
