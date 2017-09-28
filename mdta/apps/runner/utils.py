@@ -371,7 +371,7 @@ class HATScript(AutomationScript):
             self.dialed_number = step[5:].strip()
         assert (len(self.body) == 0)
         self.body = 'IGNORE answer asr_session document_dump document_transition fetch grammar_activation license ' + \
-                    'log note prompt recognition_start recognition_end redux severe sip_session system_response ' + \
+                    'log note prompt recognition_start nuance recognition_end redux severe sip_session system_response ' + \
                     'transfer_start transfer_end vxml_event vxml_trace warning\n' + \
                     'EXPECT call_start\n'
 
