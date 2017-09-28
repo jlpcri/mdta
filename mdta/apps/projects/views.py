@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+import socket
 
 from mdta.apps.projects.utils import context_project_dashboard, context_projects, check_testheader_duplicate
 from mdta.apps.users.views import user_is_staff, user_is_superuser
@@ -106,8 +107,14 @@ def project_edit(request, project_id):
         return render(request, 'projects/project_edit.html', context)
     elif request.method == 'POST':
         form = ProjectForm(request.POST, instance=project)
+        # print(request.POST)
         try:
-            project = form.save()
+            if 'project_edit' in request.POST:
+                project = form.save()
+            elif socket.gethostname() == 'sliu-OptiPlex-GX520' and 'project_delete' in request.POST:
+                project.humanresource_set.clear()
+                project.save()
+                project.delete()
             return redirect('projects:projects')
         except ValueError as e:
             messages.error(request, str(e))
@@ -336,7 +343,7 @@ def project_data_migrate(request, project_id):
     :param project_id:
     :return:
     """
-    if request.user.username != 'sliu':
+    if request.user.username not in ['sliu', 'mambati']:
         return redirect('intro')
 
     type_migrate = request.GET.get('type', '')

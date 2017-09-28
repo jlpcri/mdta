@@ -7,14 +7,208 @@
         <H4>MDTA Manual</H4>
         <ul>
             <li>Projects</li>
-            <li>Modules</li>
-            <li>Nodes</li>
-            <li>Edges</li>
+                <ul>
+                    <li>Name, identical in MDTA</li>
+                    <li>Test Header</li>
+                        <ul>
+                            <li>Testcase path: StartOfCall, Testheader, rest of path</li>
+                            <li>Project may have no test header</li>
+                        </ul>
+                    <li>Version</li>
+                        <ul>
+                            <li>Related to the sections of project in TestRail </li>
+                        </ul>
+                    <li>Testrail, configuration connect to Testrail</li>
+                    <li>Archive</li>
+                        <ul>If True, the project will be archived</ul>
+                    <li>Catalog, service catalog</li>
+                    <li>Lead/Members</li>
+                </ul>
             <li>Working Project</li>
+                <ul>
+                    <li>Which project current user is working on</li>
+                    <li>User has only one working project</li>
+                </ul>
             <li>Project Dashboard</li>
+                <ul>
+                    <li>Project configuration </li>
+                    <li>Test header update</li>
+                    <li>Testrail configuration</li>
+                    <li>NodeType/EdgeType configuration</li>
+                    <li>Language configuration</li>
+                </ul>
+            <li>Modules</li>
+                <ul>
+                    <li>New Node modal draggable</li>
+                    <li>New Edge modal draggable</li>
+                    <li>Different scenarios before New Edge</li>
+                        <ul>
+                            <li>The from node of new edge is current node if select a node which is in current module</li>
+                            <li>The from node of new edge is default - first node of current module</li>
+                                <ul>
+                                    <li>If select a node which is not in current module</li>
+                                    <li>If select an edge</li>
+                                    <li>If select nothing</li>
+                                </ul>
+                        </ul>
+                </ul>
+            <li>Nodes</li>
+                <ul>
+                    <li>Data API</li>
+                        <ul>
+                            <li>DataQueries Database</li>
+                            <li>DataQueries WebService</li>
+                        </ul>
+                    <li>Set Variable</li>
+                        <ul>
+                            <li>Used for state changes that happen every time at a particular place in IVR</li>
+                        </ul>
+                    <li>Prompts</li>
+                        <ul>
+                            <li>Play Prompt</li>
+                            <li>Menu Prompt</li>
+                            <li>Menu Prompt With Confirmation</li>
+                        </ul>
+                    <li>Start/End</li>
+                        <ul>
+                            <li>Start, used for call flow starts</li>
+                                <ul>
+                                    <li>APN & HollyBrowser used to handle multiple running environments for testcases execution.</li>
+                                </ul>
+                            <li>TestHeader Start, only exists in test header</li>
+                            <li>TestHeader End, only exists in test header</li>
+                        </ul>
+                    <li>Language Select</li>
+                        <ul>
+                            <li>English</li>
+                            <li>Spanish</li>
+                        </ul>
+                    <li>Transfer</li>
+                        <ul>
+                            <li>Transfer to 'TransferNumber'</li>
+                            <li>MP/MPC negative testcases fail. Defined in property 'OnFailGoTo'</li>
+                        </ul>
+                </ul>
+            <li>Edges</li>
+                <ul>
+                    <li>If property 'Invisible' of edge is True (Default is False),
+                        then the edge will not be drawn in the graph.</li>
+                    <li>Types</li>
+                        <ul>
+                            <li>DataEdge has value: {'key': 'value'}, search order followed by:</li>
+                                <ul>
+                                    <li>If 'key' is in Testheader MP/MPC and 'key' = node['outputs']</li>
+                                    <li>If from node of edge is MP/MPC node and 'key' = node['outputs']</li>
+                                    <li>If 'key' is found in SetVariable node: {'key_setVariable': '...'} and 'key' = 'key_setVariable'</li>
+                                    <li>If {'key': 'value'} is found in DataQueries node 'Outputs'</li>
+                                        <ul>
+                                            <li>Matched 'Inputs' of DataQueries node - {'key_inputs': 'value_inputs'}
+                                            where 'key_inputs' is defined in MP/MPC node property 'outputs'</li>
+                                        </ul>
+                                </ul>
+                            <li>PreCondition</li>
+                                <ul>
+                                    <li>PreCondition, used for things cannot be controlled within
+                                        the call flow itself</li>
+                                </ul>
+                            <li>DTMF/Speech</li>
+                                <ul>
+                                    <li>If 'NoneConfirm' is True, from node is MPC,
+                                        then the valid confirmation input will ignore this edge</li>
+                                </ul>
+                            <li>Connector</li>
+                                <ul>
+                                    <li>No actions upon connector edge</li>
+                                </ul>
+                        </ul>
+                    <li>Data Gap view</li>
+                        <ul>
+                            <li>If end node is Prompt</li>
+                                <ul>
+                                    <li>The edge can be routed, the color of edge is normal</li>
+                                        <ul>
+                                            <li>Menu Prompt includes: NoInput & recover, NoInput 3 times fail,
+                                                NoMatch & recover, NoMatch 3 times fail, No Input or No Match 3 times Fail</li>
+                                            <li>Menu Prompt With Confirmation has additional:
+                                                Confirmation No Input recover, Confirm No Match & Recover,
+                                                Confirm No Input 3 Times Fail, Confirm No Match 3 Times Fail,
+                                                Confirm No Input or No Match 3 Times Fail</li>
+                                        </ul>
+                                    <li>The edge cannot be routed, the color of edge is red</li>
+                                </ul>
+                            <li>If end node is not Prompt</li>
+                                <ul>
+                                    <li>The color of edge is normal</li>
+                                </ul>
+                        </ul>
+                </ul>
             <li>TestCases Generation</li>
+                <ul>
+                    <li>TestCases generated based on edges, which end node is
+                        one of PlayPrompt, MenuPrompt, MenuPromptWithConfirmation.</li>
+                    <li>Fields of node </li>
+                        <ul>
+                            <li>'Default', default value if MDTA cannot find valid value from DataQueries node through valid key</li>
+                            <li>'NonStandardFail'</li>
+                                <ul>
+                                    <li>'False', default value</li>
+                                        <ul>
+                                            <li>MenuPrompt/MenuPromptWithConfirmation negative testcases</li>
+                                                <ol>
+                                                    <li>No Input & Recover</li>
+                                                    <li>No Input 3 times Fail</li>
+                                                    <li>No Match & Recover</li>
+                                                    <li>No Match 3 times Fail</li>
+                                                    <li>No Input or No Match 3 times Fail</li>
+                                                </ol>
+                                            <li>MenuPromptWithConfirmation confirmation negative testcases</li>
+                                                <ol>
+                                                    <li>Confirm No Input & Recover</li>
+                                                    <li>Confirm No Match & Recover</li>
+                                                    <li>Confirm No Input 3 Times Fail</li>
+                                                    <li>Confirm No Match 3 Times Fail</li>
+                                                    <li>Confirm No Input or No Match 3 Times Fail</li>
+                                                </ol>
+                                        </ul>
+                                    <li>'True', MDTA will not generate negative TCs</li>
+                                </ul>
+                            <li>'OnFailGoTo'</li>
+                                <ul>
+                                    <li>Node name, autocomplete </li>
+                                    <li>When negative tcs fail, it'll route to this node</li>
+                                    <li>If empty, negative fail tc cannot be routed</li>
+                                </ul>
+                            <li>'Outputs'</li>
+                                <ul>
+                                    <li>Key which MDTA uses to search from DataQueries node</li>
+                                    <li>Autocomplete, fetched from DataQueries node 'Inputs'</li>
+                                    <li>If MDTA cannot find the valid value, it'll use field 'Default'</li>
+                                </ul>
+                            <li>'TextToSpeech'</li>
+                                <ul>
+                                    <li>'False', default value, play '.wav' in HAT script</li>
+                                    <li>'True', add tag '[TTS]' to testcase for HAT script</li>
+                                </ul>
+                        </ul>
+                </ul>
             <li>TestCases Storage</li>
+                <ul>
+                    <li>When user click button 'Publish' under tab 'TestCases',
+                    MDTA will generate test cases of porject and pushed to Testrail</li>
+                    <li>If user updates 'version' of project, the old section(old version) of project in Testrail
+                    will not be removed.</li>
+                </ul>
             <li>TestCases Execution</li>
+                <ul>
+                    <li>When user click button 'Execute' under tab 'TestCases',
+                    MDTA will fetch testcases from Testrail</li>
+                    <li>Translate testcases to HAT script, execute HAT script</li>
+                    <li>Return execution results from Holly</li>
+                </ul>
+            <li>Other Information</li>
+                <ul>
+                    <li><a href="https://wiki.west.com/display/MDTA/Model-Driven+Test+Automation+Home">User Stories</a></li>
+                </ul>
         </ul>
     </div>
 {% endblock %}

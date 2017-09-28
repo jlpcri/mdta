@@ -147,11 +147,12 @@
             var previouse_disabled = button_publish.is('.disabled');
 
             $.getJSON('{% url 'testcases:check_celery_task_state' %}', function(data){
+                //console.log(data)
                 if (data.task_run === false){
                     if (previouse_disabled === true){
                         location.reload();
                     }
-                } else {
+                } else if (data.task_run === true) {
                     if (previouse_disabled === false) {
                         button_publish.addClass('disabled');
 {#                        setTimeout(check_edges_visited, 5000);#}
@@ -160,6 +161,10 @@
                     button_publish.addClass('disabled');
 {#                    setTimeout(check_edges_visited, 5000);#}
                     check_edges_visited();
+                } else{
+                    //celery worker is down
+                    button_publish.addClass('disabled');
+                    $(".progress").hide();
                 }
             })
         }

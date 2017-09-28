@@ -138,8 +138,12 @@ class TestRailCase(TestRailORM):
             return
         # The following should be moved to HATScript, but because there is no real branching at this point yet,
         # I'm leaving it as-is for now.
-        prompt = step.split(':')[0]
-        self.script.body += 'EXPECT prompt URI=audio/' + prompt + '.wav\n'
+        # 7/21/2017: read the above comment, put in a branch, still didn't move the code.
+        prompt = step.split(':')[0].strip()
+        if prompt == '[TTS]':
+            self.script.body += 'EXPECT prompt\n'
+        else:
+            self.script.body += 'EXPECT prompt URI=audio/' + prompt + '.wav\n'
 
 
 def get_testrail_steps(instance, case_id):

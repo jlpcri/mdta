@@ -23,6 +23,7 @@ EDGE_SAY_NAME = 'Say'
 # MenuPrompt property key name
 ON_FAIL_GO_TO_KEY = 'OnFailGoTo'
 NON_STANDARD_FAIL_KEY = 'NonStandardFail'
+TTS = 'TextToSpeech'
 MP_OUTPUTS = 'Outputs'
 MP_DEFAULT = 'Default'
 MP_NC = 'NoneConfirm'
@@ -47,7 +48,7 @@ LANGUAGE_DEFAULT_NAME = 'English'
 
 # Other constants
 CONSTRAINTS_TRUE_OR_FALSE = 'tof'
-TESTCASE_NOT_ROUTE_MESSAGE = 'This edge cannot be routed'
+TESTCASE_NOT_ROUTE_MESSAGE = 'This edge cannot be routed, no test case published. '
 
 NEGATIVE_TESTS_LIST = ['NIR', 'NMR', 'NIF', 'NMF', 'NINMF']
 NEGATIVE_CONFIRM_TESTS_LIST = ['CNIR', 'CNMR', 'CNIF', 'CNMF', 'CNINMF']

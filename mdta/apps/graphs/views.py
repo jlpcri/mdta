@@ -15,7 +15,7 @@ from mdta.apps.users.views import user_is_staff, user_is_superuser
 from .models import NodeType, EdgeType, Node, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeAutoNewForm
 from mdta.apps.projects.forms import ModuleForm, UploadForm
-from mdta.apps.testcases.constant_names import NODE_START_NAME, LANGUAGE_DEFAULT_NAME
+from mdta.apps.testcases.constant_names import NODE_START_NAME, LANGUAGE_DEFAULT_NAME, NODE_DATA_NAME, NODE_SET_VARIABLE
 from mdta.apps.testcases.tasks import create_testcases_celery
 from mdta.apps.testcases.models import TestCaseResults
 
@@ -31,7 +31,24 @@ def home(request):
 
 @login_required
 def projects_for_selection(request):
-    projects = Project.objects.all()
+    tmp1 = []
+    tmp2 = []
+
+    ps = Project.objects.filter(archive=False)
+    for idx, p in enumerate(ps):
+        if idx % 2 == 0:
+            tmp1.append(p)
+        else:
+            tmp2.append(p)
+
+    if len(tmp1) > len(tmp2):
+        tmp2.append('')
+    elif len(tmp1) < len(tmp2):
+        tmp1.append('')
+
+    projects = zip(tmp1, tmp2)
+    # for p in projects:
+    #     print(p)
     context = {
         'projects': projects
     }
@@ -47,7 +64,7 @@ def graphs(request):
     :return:
     """
     context = {
-        'projects': Project.objects.all(),
+        'projects': Project.objects.filter(archive=False),
         'test_headers': Module.objects.filter(project=None),
 
         'node_types': NodeType.objects.all(),
@@ -170,7 +187,7 @@ def project_detail(request, project_id):
     network_nodes = []
     network_edges = []
     tc_keys = []
-    projects = Project.objects.all()
+    projects = Project.objects.filter(archive=False)
     project = get_object_or_404(Project, pk=project_id)
     try:
         tests = project.testcaseresults_set.latest('updated').results
@@ -360,6 +377,8 @@ def project_module_detail(request, module_id):
             for item in data_keys:
                 e_id = item['id']
                 if 'tcs_cannot_route' in item:
+                    if 'gap_color' in item:
+                        continue
                     tcr = item['tcs_cannot_route']
                     edge_id.append({'id': e_id,
                                     'tcs_cannot_route': tcr})
@@ -380,7 +399,7 @@ def project_module_detail(request, module_id):
         for node in module.nodes_all:
             if node.type.name in NODE_START_NAME:
                 shape = 'star'
-            elif node.type.name in ['DataQueries Database', 'DataQueries WebService']:
+            elif node.type.name in NODE_DATA_NAME + [NODE_SET_VARIABLE]:
                 shape = 'ellipse'
             else:
                 shape = 'box'

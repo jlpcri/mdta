@@ -2,7 +2,9 @@
  * Created by sliu on 6/8/16.
  */
 
-
+$('#module-node-new-modal').draggable();
+$('#module-edge-new-modal').draggable();
+//$('.modal').draggable();
 
 /* Start Module Node Edit Code */
 $('.moduleNodeEditForm #moduleNodeEditType').on('change', function(e){
@@ -70,6 +72,45 @@ function check_node_properties_json(properties){
 }
 /* End Module Node Edit Code */
 
+/* Start Module Node Delete Code */
+$('.moduleNodeEdgeDelete').on('show.bs.modal', function(e){
+    var module_id = $(e.relatedTarget).data('module-id'),
+        node_id = $(e.relatedTarget).data('node-id'),
+        node_name = $(e.relatedTarget).data('node-name'),
+        edge_id = $(e.relatedTarget).data('edge-id'),
+        edge_name = $(e.relatedTarget).data('edge-name'),
+        modal_header = '',
+        post_url = '',
+        post_data = '';
+
+    if (typeof node_id != 'undefined'){
+        modal_header = 'Delete Node: {0}?'.format(node_name);
+        post_url = "{% url 'graphs:module_node_edit' 0 %}".replace('0', node_id);
+        post_data = {
+            'csrfmiddlewaretoken': '{{ csrf_token }}',
+            'node_delete': node_name
+        }
+    } else {
+        modal_header = 'Delete Edge: {0}?'.format(edge_name);
+        post_url = "{% url 'graphs:module_edge_edit' 0 %}".replace('0', edge_id);
+        post_data = {
+            'csrfmiddlewaretoken': '{{ csrf_token }}',
+            'edge_delete': edge_name
+        }
+    }
+
+    $('#myModalLabel').html(modal_header);
+    $('#node_edge_delete').click(function(){
+        $.ajax({
+            url: post_url,
+            type: 'POST',
+            data: post_data,
+            dataType: 'json',
+            success: window.location.href = '/mdta/graphs/project_module_detail/{0}'.format(module_id)
+        })
+    })
+});
+/* End Module Node Delete Code */
 
 /* Start Module Edge Edit Code */
 $('.moduleEdgeEditForm #moduleEdgeEditType').on('change', function(){
@@ -226,11 +267,29 @@ function draw_module_graph(){
         });
     });
 
+    $('#select_node_id').val('-1');
     network.on('click', function(params){
         //console.log(params.nodes)
+        $('#select_node_id').val('-1');
         if (!$.isEmptyObject(params.nodes)) {
+
+            $.getJSON("{% url 'graphs:get_module_id_from_node_id' %}?node_id={0}".format(params.nodes)).done(function(data){
+                //console.log(data);
+                var base_url = '',
+                    tmp = window.location.href.split('/'),
+                    current_module_id = tmp[tmp.length - 2];
+
+                for (var i = 0; i < tmp.length - 2; i++) {
+                    base_url += tmp[i] + '/'
+                }
+                if ( data['module_id'] == current_module_id){
+                    $('#select_node_id').val(params.nodes);
+                }
+            });
+
             $('a[href="#moduleNodeEdit"]').click();
             $('a[href="#node-{0}"]'.format(params.nodes)).click();
+
         } else if (!$.isEmptyObject(params.edges)) {
             $('a[href="#moduleEdgeEdit"]').click();
             $('a[href="#edge-{0}"]'.format(params.edges)).click();
@@ -427,7 +486,7 @@ function get_properties_contents(node_keys, properties, node_id, node_in){
             if (!((k == 'Default') && (node_in == 'module'))) {
                 properties_contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
                 properties_contents += '<div class=\'col-xs-4\'><label>{0}:</label></div>'.format(k);
-                if (k == 'NonStandardFail') {
+                if (toggle_style_key_list.indexOf(k) >= 0) {
                     properties_contents += '<div class=\'col-xs-8\'>';
                     if (properties[k] == 'on') {
                         properties_contents += '<input name=\'{0}\' type=\'checkbox\' checked class=\'myToggle\' data-on=\'True\' data-width=\'100\' data-onstyle=\'success\' data-off=\'False\' >'.format(k);
