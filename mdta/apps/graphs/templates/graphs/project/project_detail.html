@@ -1,4 +1,4 @@
-{% extends 'core/base_graphs.html' %}
+{% extends 'core/base.html' %}
 {% load staticfiles %}
 
 {% block title %} Project Detail {% endblock %}
@@ -7,7 +7,7 @@
     <style type="text/css">
         #module_in_project_cy {
             width: auto;
-            height: 800px;
+{#            height: auto;#}
         }
         .btn-file {
             position: relative;
@@ -36,7 +36,6 @@
     <div class="container">
         <div class="row">
             <div class="col-xs-1">
-                {% include 'core/main_menu.html' %}
             </div>
             <div class="col-xs-4">
                 <h4>Project: {{ project.name }}</h4>
@@ -64,6 +63,15 @@
 
 {% block footer %}
     <script>
+        if (window.screen.height > 1000) {
+            var graph_height = 800
+        } else {
+            graph_height = 600
+        }
+        $('#module_in_project_cy').css({
+            'height': graph_height
+        });
+
         var cy_data_nodes = {{ network_nodes|safe }},
             cy_data_edges = {{ network_edges|safe }},
             image_url = "{% static 'common/brand_icons/turnpost-png-graphics/' %}";

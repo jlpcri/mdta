@@ -99,7 +99,7 @@ function create_cy_object(cy_nodes, cy_edges) {
             }
         ],
         layout: cy_layout_options,
-        zoomingEnabled: true
+        userZoomingEnabled: false
     });
 
     project_click_event(obj);
@@ -175,6 +175,11 @@ function project_click_event(cy){
         if(evtTarget === cy){
             $('a[href="#projectModules"]').click();
         }
+    });
+
+    cy.on('cxttapend', function (evt) {
+        var module = evt.target;
+        console.log('Popup Module Detail', window.screen.availHeight)
     })
 }
 

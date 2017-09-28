@@ -127,11 +127,11 @@ function create_cy_object(cy_nodes, cy_edges) {
             }
         ],
         layout: cy_layout_options,
-        zoomingEnabled: true,
+        userZoomingEnabled: false,
         boxSelectionEnabled: true
     });
     module_click_event(obj);
-    module_double_click_event(obj);
+    // module_double_click_event(obj);
 
     return obj;
 }
@@ -161,7 +161,7 @@ function module_click_event(cy){
         $('a[href="#node-{0}"]'.format(node.id())).click();
     });
 
-    cy.on('free', 'node', function (evt) {
+    cy.on('tapend', 'node', function (evt) {
         var node = evt.target;
 
         // console.log(node.position())
@@ -184,6 +184,26 @@ function module_click_event(cy){
             $('a[href="#moduleNodeEdgeEmpty"]').click();
         }
     });
+
+    cy.on('cxttapend', 'node', function (event) {
+        var node = event.target;
+
+        $.getJSON("{% url 'graphs:get_module_id_from_node_id' %}?node_id={0}".format(node.id())).done(function(data){
+            var base_url = '',
+                tmp = window.location.href.split('/'),
+                current_module_id = tmp[tmp.length - 2];
+
+            for (var i = 0; i < tmp.length - 2; i++) {
+                base_url += tmp[i] + '/'
+            }
+            if(!(data['module_id'] == current_module_id)){
+                window.location.href = base_url + data['module_id'];
+                $('body').css('cursor', 'progress');
+            } else {
+                open_prompts_modal(data['node_data'], node.id());
+            }
+        })
+    })
 }
 
 function module_double_click_event(cy){
@@ -205,26 +225,6 @@ function module_double_click_event(cy){
             tappedBefore = tappedNow;
         }
     });
-
-    cy.on('doubleTap', 'node', function (event) {
-        var node = event.target;
-
-        $.getJSON("{% url 'graphs:get_module_id_from_node_id' %}?node_id={0}".format(node.id())).done(function(data){
-            var base_url = '',
-                tmp = window.location.href.split('/'),
-                current_module_id = tmp[tmp.length - 2];
-
-            for (var i = 0; i < tmp.length - 2; i++) {
-                base_url += tmp[i] + '/'
-            }
-            if(!(data['module_id'] == current_module_id)){
-                window.location.href = base_url + data['module_id'];
-                $('body').css('cursor', 'progress');
-            } else {
-                open_prompts_modal(data['node_data'], node.id());
-            }
-        })
-    })
 }
 
 window.setInterval(function(){

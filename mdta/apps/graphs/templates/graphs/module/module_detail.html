@@ -1,4 +1,4 @@
-{% extends 'core/base_graphs.html' %}
+{% extends 'core/base.html' %}
 {% load staticfiles %}
 {% load placeholder_extras %}
 
@@ -27,7 +27,6 @@
     <div class="container">
         <div class="row">
             <div class="col-xs-1">
-                {% include 'core/main_menu.html' %}
             </div>
             <div class="col-xs-4">
                 {% if module.project %}
@@ -61,6 +60,14 @@
 
 {% block footer %}
     <script>
+        if (window.screen.height > 1000) {
+            var graph_height = 800
+        } else {
+            graph_height = 600
+        }
+        $('#node_in_module_cy').css({
+            'height': graph_height
+        });
         var cy_data_nodes = {{ network_nodes|safe }},
             cy_data_edges = {{ network_edges|safe }},
 
