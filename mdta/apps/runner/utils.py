@@ -482,3 +482,16 @@ def bulk_hatit_file_generator(case_list):
 
 
 
+def temp_method_wait_untile_test_run_iscomplete(case, run_id):
+    complete = False
+    noerror = True
+    import time
+    browser = requests.session()
+    while ((not complete) and noerror):
+        time.sleep(2) # delay for 2 secs
+        result = browser.get("{0}".format(case.script.hatit_server) + "api/check_run/?runid={0}".format(run_id))
+        complete = result.json()['complete']
+        noerror = True if int(result.json()['error']) == 0 else False
+
+    browser.close()
+    return result

@@ -170,6 +170,7 @@ function updateFailureReason(title, failureReason) {
     reason_td.html(failureReason)
 }
 
+
 function populateSteps(){
     var case_id = this.getAttribute('data-case');
     var button = $(this);
@@ -190,17 +191,27 @@ function populateSteps(){
     });
     $.ajax('{% url "runner:run" project.id %}?case_id=' + case_id, {
         success: function(data, textStatus, jqXHR){
-            console.log(data.result);
+            console.log('result:',data);
+            console.log(data.calls);
+            console.log(data.script);
+            var callid = data.calls[0].callseq;
+            var callurl = "<a href=" + 'http://' + data.hollytrace_url + '/call/' + callid +" target='_blank'>" + callid + "</a>";
+
             button.siblings(".fa-spin").addClass("hidden");
-            var result_table = "<table class='table table-bordered'><tr><th>Result</th><td>" + data.result + "</td></tr>";
-            result_table += "<tr><th>Call ID</th><td>" + data.call_id + "</td></tr>";
-            result_table += "<tr><th>Fail Reason</th><td>" + data.reason + "</td></tr></table>";
+            var script = data.script.replace(/\n/g,'<br/>');
+            var popupControl = "<a href='#' onclick='myFunction()' data-toggle='popover' data-placement='bottom' data-content='"+script+"' title='HAT Script'>"+data.title+" </a>";
+
+            var result_table = "<table class='table table-bordered'><tr><th>Title</th><td>" + popupControl + "</td></tr>";
+            result_table += "<tr><th>Result</th><td>" + data.calls[0].status + "</td></tr>";
+            result_table += "<tr><th>Call ID</th><td>" + callurl + "</td></tr>";
+            result_table += "<tr><th>Holly</th><td>" + data.calls[0].uri + "</td></tr>";
+            result_table += "<tr><th>Fail Reason</th><td>" + data.calls[0].err_str + "</td></tr></table>";
             $("#result").html(result_table);
-            if(data.result === 'PASS') {
+            if(data.calls[0].status === 'PASS') {
                 button.siblings(".text-success").removeClass("hidden");
                 button.siblings(".text-danger").addClass("hidden");
             }
-            else if(data.result === 'FAIL') {
+            else if(data.calls[0].status === 'FAIL') {
                 console.log("Calling FAIL");
                 window.needit = button;
                 button.siblings(".text-danger").removeClass("hidden");
@@ -222,3 +233,4 @@ function populateSteps(){
     });
 
 }
+
