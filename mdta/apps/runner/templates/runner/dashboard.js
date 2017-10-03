@@ -200,11 +200,16 @@ function populateSteps(){
             button.siblings(".fa-spin").addClass("hidden");
             var script = data.script.replace(/\n/g,'<br/>');
             var popupControl = "<a href='#' onclick='myFunction()' data-toggle='popover' data-placement='bottom' data-content='"+script+"' title='HAT Script'>"+data.title+" </a>";
-
             var result_table = "<table class='table table-bordered'><tr><th>Title</th><td>" + popupControl + "</td></tr>";
             result_table += "<tr><th>Result</th><td>" + data.calls[0].status + "</td></tr>";
             result_table += "<tr><th>Call ID</th><td>" + callurl + "</td></tr>";
             result_table += "<tr><th>Holly</th><td>" + data.calls[0].uri + "</td></tr>";
+
+            if(data.record_present){
+            var rec = "<a href='"+data.recordings+'/'+data.title+".wav'> Download</a>";
+            result_table += "<tr><th>Recordings</th><td>" + rec + "</td></tr>";
+            }
+
             result_table += "<tr><th>Fail Reason</th><td>" + data.calls[0].err_str + "</td></tr></table>";
             $("#result").html(result_table);
             if(data.calls[0].status === 'PASS') {

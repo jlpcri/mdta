@@ -95,7 +95,8 @@ class TestRailSuite(TestRailORM):
 class TestRailCase(TestRailORM):
     def __init__(self, instance, api_return, parent=None):
         super(TestRailCase, self).__init__(instance, api_return, parent)
-        self.script = HATScript()
+        self.script = None
+        self.playback = False
 
 
     @property
@@ -119,23 +120,26 @@ class TestRailCase(TestRailORM):
         if not self.script:
             self.script = HATScript()
         previous_step_playback = False
+        print(self.custom_steps_separated)
         for index, step in enumerate(self.custom_steps_separated):
 
             if PLAY_BACK in step[TR_CONTENT]:
                 step[TR_CONTENT], present_step_playback = step[TR_CONTENT].split(PLAY_BACK)
                 present_step_playback = True if present_step_playback == 'True' else False
+                if present_step_playback:
+                    self.playback = True
             else:
                 present_step_playback = False
 
             playback_switch = True if (present_step_playback and not(previous_step_playback)) else False
 
             if (playback_switch):
-                self.script.body += '\nSTARTRECORDING {0} \n'.format(self.get_title()+'.wav')
+                self.script.body += '\nSTARTRECORDING {0} \n'.format('static_hat/recordings/'+self.get_title()+'.wav')
             if(not(playback_switch) and previous_step_playback and not(present_step_playback)):
                 self.script.body += 'ENDRECORDING \n\n'
 
             self._content_routing(step[TR_CONTENT])
-            self._expected_routing(step[TR_EXPECTED])
+            self._expected_routing(step[TR_EXPECTED], playback_switch)
 
             if present_step_playback and index == len(self.custom_steps_separated) - 1:
                 self.script.body += 'ENDRECORDING \n\n'
@@ -153,6 +157,7 @@ class TestRailCase(TestRailORM):
                       'DIAL': self.script.start_of_call,
                       'DIALEDNUMBER': self.script.start_of_call,
                       'APN': self.script.start_of_call,
+                      'HOLLYBROWSER': self.script.start_of_call,
                       'PRESS': self.script.dtmf_step,
                       'WAIT': self.script.no_input,
                        }
@@ -161,7 +166,7 @@ class TestRailCase(TestRailORM):
         except KeyError:
             pass
 
-    def _expected_routing(self, step):
+    def _expected_routing(self, step, playback_switch):
         if not step:
             return
         # The following should be moved to HATScript, but because there is no real branching at this point yet,
@@ -269,7 +274,6 @@ class HATScript(AutomationScript):
         response = browser.post("{0}".format(self.hatit_server) + "api/csv_req/", data=data,
                                  files={'csvfile': open(os.path.join(path, self.csvfile)), 'hatscript': io.StringIO(hat_script_template)})
         jsonList.append(response.json())
-        print (jsonList)
         for data in jsonList:
             self.runID = data['runid']
         result = browser.get("{0}".format(self.hatit_server) + "api/check_run/?runid={0}".format(self.runID))
@@ -393,13 +397,16 @@ class HATScript(AutomationScript):
         return False
 
     def start_of_call(self, step):
-        #print("start_of_call: {0}".format(step))
         if step[:3].upper() == 'APN':
-            #print('APN::::', step)
             self.apn = step[4:].strip()
             self.apn, self.holly_server = self.apn.split(', HollyBrowser: ')
             if self.holly_server:
                 self.holly_server =self.holly_server[:len(self.holly_server)-1]
+        elif step[:12].upper() == 'HOLLYBROWSER':
+            self.holly_server = step[13:].strip()
+            self.holly_server, self.apn = self.holly_server.split(', APN: ')
+            if self.apn:
+                self.apn =self.apn[:len(self.apn)-1]
         elif step[:4].upper() == 'DNIS':
             self.apn = step[5:].strip()
         elif step[:13].upper() == 'DIALEDNUMBER:':

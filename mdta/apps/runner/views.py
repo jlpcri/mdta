@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 
 from mdta.apps.projects.forms import TestRunnerForm
 from mdta.apps.projects.models import TestRailInstance, Project, TestRailConfiguration
-from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, bulk_hatit_file_generator, HATScript, temp_method_wait_untile_test_run_iscomplete
+from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, bulk_hatit_file_generator, HATScript, Is_recordings_exists, temp_method_wait_untile_test_run_iscomplete
 from mdta.apps.runner.models import TestRun, AutomatedTestCase, TestServers
 from mdta.apps.runner.tasks import poll_result_loop
 
@@ -39,64 +39,37 @@ def display_testrail_steps(request, mdta_project_id):
     return JsonResponse(result)
 '''
 
-## Fix to single run testcase execution, need to work on showing the content to the user.
+## Fix to single run testcase execution.
 def execute_test(request, mdta_project_id):
     p = Project.objects.get(id=mdta_project_id)
     tri = p.testrail.instance
-
     case = get_testrail_steps(tri, request.GET['case_id'])
     title = case.get_title()
     case.script.csvfile = bulk_hatit_file_generator([case])
+    domain = case.script.hatit_server
     case.script.hatit_server = "http://"+case.script.hatit_server+"/hatit/"
     testserver = case.script.hatit_server
-    print(case.script.apn)
-    print(case.script.holly_server)
-    print(case.script.hatit_server)
-    print(case.script.csvfile)
-
+    recordings = 'http://'+domain+'/static_hat/recordings'
     hollytrace_url = TestServers.objects.values_list('hollytrace_url', flat=True).get(server=testserver)
     result = case.script.hatit_execute()
     result_json = result.json()
     complete = result_json['complete']
     no_error = True if int(result_json['error']) == 0 else False
 
-    print(complete, no_error)
-
     if  (no_error and (not complete)):
         result = temp_method_wait_untile_test_run_iscomplete(case, result_json['runid'])
-        print(result.json())
+
     jobject = result.json()
     jobject['tr_host'] = tri.host
     jobject['hollytrace_url']= hollytrace_url
     jobject['title'] = title
     jobject['script'] = case.script.body
-    print(jobject['calls'][0]['options'])
+    jobject['record_present'] = case.playback
+    jobject['recordings'] = recordings
+
+    print (case.script.body)
 
     return JsonResponse(jobject)
-
-    '''trp = get_testrail_project(tri, p.testrail.project_id)
-    print(trp)
-    suites = trp.get_suites()
-    for suit in suites:
-        if suit.name == p.version:
-            test_suite = suit
-            break
-    testrail_project_id = p.testrail.project_id
-    testrail_run = test_suite.open_test_run()
-    '''
-    '''
-    mdta_test_run = TestRun.objects.create(hat_run_id=json.loads(result.text)['runid'],
-                                               hat_server=TestServers.objects.get(server=testserver),
-                                               testrail_project_id=testrail_project_id,
-                                               testrail_suite_id=test_suite.id,
-                                               testrail_test_run=testrail_run.id, project=p)
-    AutomatedTestCase.objects.create(test_run=mdta_test_run, testrail_case_id=case.id, case_title=case.title, case_script=case.script.body)
-    return JsonResponse(result.json())
-    return JsonResponse({'run': mdta_test_run.pk, 'holly': case.script.holly_server, 'tr_p_id': testrail_project_id, 'tr_host': tri.host,
-                             'hollytrace_url': hollytrace_url, 'cases': [{'testrail_case_id': c.testrail_case_id, 'status': c.status,
-                                                                          'title': c.case_title, 'script': c.case_script} for c in mdta_test_run.automatedtestcase_set.all()]})
-
-    '''
 
 def run_test_suite(request):
     """Probably dead code. Check and refactor."""
