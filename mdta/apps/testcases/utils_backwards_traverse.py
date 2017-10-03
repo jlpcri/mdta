@@ -379,7 +379,7 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None, language=
     """
     if node.type.name in [NODE_START_NAME[0], 'Transfer']:  # Start with Dial Number
         add_step(node_start(node), tcs)
-    elif node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME, NODE_SET_VARIABLE]:
+    elif node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME]:
         add_step(node_prompt(node, preceding_edge, language=language), tcs)
 
     if node.type.name == NODE_MP_NAME[1] and following_edge:
