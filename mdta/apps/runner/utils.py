@@ -143,7 +143,7 @@ class TestRailCase(TestRailORM):
         if prompt == '[TTS]':
             self.script.body += 'EXPECT prompt\n'
         else:
-            self.script.body += 'EXPECT prompt URI=audio/' + prompt + '.wav\n'
+            self.script.body += 'EXPECT prompt URI=.*/' + prompt + '.wav\n'
 
 
 def get_testrail_steps(instance, case_id):
