@@ -152,19 +152,30 @@ function module_context_menu(cy){
                     // console.log('Verbiages: ', node.id());
 
                     $.getJSON("{% url 'graphs:get_module_id_from_node_id' %}?node_id={0}".format(node.id())).done(function(data){
+                        open_prompts_modal(data['node_data'], node.id());
+                    })
+                },
+                hasTrailingDivider: true
+            },
+            {
+                id: 'Switch Module',
+                content: 'Switch Module',
+                tooltip: 'Switch to Module',
+                selector: 'node[color = "rgb(211, 211, 211)"]',
+                onClickFunction: function (event) {
+                    var node = event.target;
+                    // console.log('Verbiages: ', node.id());
+
+                    $.getJSON("{% url 'graphs:get_module_id_from_node_id' %}?node_id={0}".format(node.id())).done(function(data){
                         var base_url = '',
-                            tmp = window.location.href.split('/'),
-                            current_module_id = tmp[tmp.length - 2];
+                            tmp = window.location.href.split('/');
 
                         for (var i = 0; i < tmp.length - 2; i++) {
                             base_url += tmp[i] + '/'
                         }
-                        if(!(data['module_id'] == current_module_id)){
-                            window.location.href = base_url + data['module_id'];
-                            $('body').css('cursor', 'progress');
-                        } else {
-                            open_prompts_modal(data['node_data'], node.id());
-                        }
+                        window.location.href = base_url + data['module_id'];
+                        $('body').css('cursor', 'progress');
+
                     })
                 },
                 hasTrailingDivider: true

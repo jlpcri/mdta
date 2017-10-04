@@ -185,9 +185,9 @@ class Module(models.Model):
 
     def __str__(self):
         if self.project:
-            return '{0}: {1}'.format(self.project.name, self.name)
+            return '{0}: {1}'.format(self.name, self.project.name)
         else:
-            return '{0}: {1}'.format('TestHeader', self.name)
+            return '{0}: {1}'.format(self.name, 'TestHeader')
 
     @property
     def nodes(self):

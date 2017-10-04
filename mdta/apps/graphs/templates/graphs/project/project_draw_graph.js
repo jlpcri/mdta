@@ -173,18 +173,24 @@ function project_context_menu(cy){
                     },
                 hasTrailingDivider: true
             },
-
+            */
             {
-                id: 'add-node',
+                id: 'new-module',
                 content: 'New Module',
                 tooltipText: 'Add New Module',
                 coreAsWell: true,
                 onClickFunction: function (event) {
-                    var target = event.target;
-                    console.log('Add module', target)
+                    var pos = event.position,
+                        module_new = $('#module-new-modal');
+                    var position = {
+                            'posx': pos.x,
+                            'posy': pos.y
+                        };
+
+                    module_new.find('input[name="positions"]').val(JSON.stringify(position));
+                    module_new.modal('show')
                 }
             }
-            */
         ]
     });
 }

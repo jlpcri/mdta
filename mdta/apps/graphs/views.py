@@ -315,19 +315,20 @@ def project_module_new(request, project_id):
         return render(request, 'graphs/project/module_new.html', context)
     elif request.method == 'POST':
         form = ModuleForm(request.POST)
+        module_position = json.loads(request.POST.get('positions'))
         if form.is_valid():
             module = form.save(commit=False)
             module.properties = {
                 NODE_POSITIONS_KEY: {
-                    NODE_X_KEY: NODE_X_INITIAL,
-                    NODE_Y_KEY: NODE_Y_INITIAL
+                    NODE_X_KEY: module_position[NODE_X_KEY],
+                    NODE_Y_KEY: module_position[NODE_Y_KEY]
                 }
             }
             module.save()
             messages.success(request, 'Module \'{0}\' is added to \'{1}\''.format(module.name, module.project.name))
         else:
             print(form.errors)
-            messages.error(request, 'Errors found.')
+            messages.error(request, form.errors)
 
         return redirect('graphs:project_detail', project_id)
 
