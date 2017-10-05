@@ -6,6 +6,7 @@ var cy_nodes_default = [],
     cy_nodes_gap = [],
     cy_edges_default = [],
     image_default = image_url + 'blue-infrastructure-graphics_11435264594_o.png',
+    image_new = image_url + 'green-infrastructure-graphics_11435449795_o.png',
     cy_layout_options = '',
     cy_layout_flag = true;  // all modules have positions
 
@@ -36,7 +37,7 @@ $.each(cy_data_nodes, function(key, value){
 if (cy_layout_flag){
     cy_layout_options = {
         name: 'preset',
-        fit: true,
+        fit: false,
         padding: 30
     }
 } else {
@@ -63,6 +64,17 @@ $.each(cy_data_edges, function(key, value){
 var cy = create_cy_object(cy_nodes_default, cy_edges_default);
 
 function create_cy_object(cy_nodes, cy_edges) {
+    cy_nodes.push({
+        'data': {
+            'id': -1,
+            'label': 'New Module',
+            'image': image_new
+        },
+        'renderedPosition': {
+            x: 100,
+            y: graph_height
+        }
+    });
     var obj = cytoscape({
         container: $('#module_in_project_cy')[0],
         elements: {
@@ -78,6 +90,13 @@ function create_cy_object(cy_nodes, cy_edges) {
                     'background-clip': 'node',
                     'label': 'data(label)',
                     'text-valign': 'bottom'
+                }
+            },
+            {
+                selector: 'node[id < 0]',
+                style: {
+                    'text-valign': 'bottom',
+                    'font-size': '12'
                 }
             },
             {
@@ -102,6 +121,8 @@ function create_cy_object(cy_nodes, cy_edges) {
         userZoomingEnabled: false
     });
 
+    obj.fit('node');
+
     project_context_menu(obj);
     project_click_event(obj);
 
@@ -120,7 +141,7 @@ window.setInterval(function(){
 
 
 function savePositionToModule(cy){
-    var nodes = cy.nodes(),
+    var nodes = cy.elements('node[id > 0]'),
         positions = [];
 
     $.each(nodes, function(idx, node){
@@ -149,7 +170,7 @@ function project_context_menu(cy){
                 id: 'rename',
                 content: 'Rename',
                 tooltipText: 'Rename Module',
-                selector: 'node',
+                selector: 'node[id > 0]',
                 onClickFunction: function (event) {
                     var target = event.target.data(),
                         module_edit = $('#module-edit-modal');
@@ -180,23 +201,37 @@ function project_context_menu(cy){
                 tooltipText: 'Add New Module',
                 coreAsWell: true,
                 onClickFunction: function (event) {
-                    var pos = event.position,
-                        module_new = $('#module-new-modal');
-                    var position = {
-                            'posx': pos.x,
-                            'posy': pos.y
-                        };
-
-                    module_new.find('input[name="positions"]').val(JSON.stringify(position));
-                    module_new.modal('show')
+                    add_new_module(event.position);
                 }
             }
         ]
     });
 }
 
+function add_new_module(pos) {
+    var module_new = $('#module-new-modal');
+    var position = {
+            'posx': pos.x,
+            'posy': pos.y
+        };
+
+    module_new.find('input[name="positions"]').val(JSON.stringify(position));
+    module_new.modal('show');
+    module_new.bind('hidden.bs.modal', function () {
+        cy.elements().remove();
+        cy = create_cy_object(cy_nodes_default, cy_edges_default);
+
+    })
+}
+
+// $('#module-new-modal').bind('hidden.bs.modal', function () {
+//     console.log('New module cancel')
+// })
+
 function project_click_event(cy){
-    cy.on('tap', 'node', function(evt){
+    var tap_flag = false;
+
+    cy.on('tap', 'node[id > 0]', function(evt){
         var base_url = '',
             tmp = window.location.href.split('/'),
             module = evt.target;
@@ -206,13 +241,24 @@ function project_click_event(cy){
         window.location.href = base_url + 'project_module_detail/' + module.id();
     });
 
-    cy.on('free', 'node', function (evt) {
+    cy.on('free', 'node[id > 0]', function (evt) {
         var node = evt.target;
         var data = {
             'node_id': node.id(),
             'position': node.position()
         };
         sendMessage(JSON.stringify(data))
+    });
+
+    cy.on('tap', 'node[id < 0]', function (evt) {
+        tap_flag = true;
+    });
+
+    cy.on('free', 'node[id < 0]', function (evt) {
+        if (!tap_flag) {
+            add_new_module(evt.target.position())
+        }
+        tap_flag = false;
     });
 
     cy.on('tap', 'edge', function(evt){
