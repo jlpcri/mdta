@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 
 from mdta.apps.projects.forms import TestRunnerForm
 from mdta.apps.projects.models import TestRailInstance, Project, TestRailConfiguration
-from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, bulk_hatit_file_generator, HATScript, Is_recordings_exists, temp_method_wait_untile_test_run_iscomplete
+from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, bulk_hatit_file_generator, HATScript, temp_method_wait_untile_test_run_iscomplete
 from mdta.apps.runner.models import TestRun, AutomatedTestCase, TestServers
 from mdta.apps.runner.tasks import poll_result_loop
 
