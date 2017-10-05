@@ -106,3 +106,174 @@
         </form>
     </div>
 </div>
+
+<!-- Module Edit Modal -->
+<div class="modal fade edgesBetweenModules" id="edges-between-modules-modal">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Edges Between Modules</h4>
+            </div>
+            <div class="modal-body">
+                <div class="col-xs-12">
+                    <div class="row hidden">
+                        <ul class="nav nav-tabs">
+                            {% for item in edges_between_modules %}
+                                <li><a href="#project-edge-{{ item.id }}" data-toggle="tab">{{ item.id }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="tab-content">
+                        {% for item in edges_between_modules %}
+                            <div class="tab-pane" id="project-edge-{{ item.id }}">
+                                {% if item.edge_list %}
+                                    <div class="row edges-between-modules">
+                                        <h4>Edges List</h4>
+                                        <div class="list-group">
+                                            {% for edge in item.edge_list %}
+                                                <a href="#edge-between-modules-{{ edge.id }}" data-toggle="tab" class="list-group-item">{{ edge.edge_name }}</a>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    <div class="tab-content edges-between-modules-contents">
+                                        {% for edge in item.edge_list %}
+                                            <div class="tab-pane" id="edge-between-modules-{{ edge.id }}">
+                                                <div class="row">
+                                                    <div class="col-xs-6">
+                                                        <h4>Edge Detail</h4>
+                                                    </div>
+                                                    <div class="col-xs-6">
+                                                        <button class="btn btn-default back-to-edges-between-modules" value="project-edge-{{ item.id }}">Back</button>
+                                                    </div>
+                                                </div>
+
+                                                    <div class="row">
+                                                        <label for="projectEdgeEditFromNode">FromNode:</label>
+                                                        <input id="projectEdgeEditFromNode" class="form-control" value="{{ edge.from_node }}" readonly/>
+                                                    </div>
+                                                    <div class="row">
+                                                        <label for="projectEdgeEditToNode">ToNode:</label>
+                                                        <input id="projectEdgeEditToNode" class="form-control" value="{{ edge.to_node }}" readonly/>
+                                                    </div>
+                                                    <div class="row">
+                                                        <label for="projectEdgeEditPriority">Priority:</label>
+                                                        <input id="projectEdgeEditPriority" class="form-control" value="{{ edge.priority }}" readonly/>
+                                                    </div>
+                                                    <div class="row">
+                                                        <label for="projectEdgeEditType">Type:</label>
+                                                        <input id="projectEdgeEditType" class="form-control" value="{{ edge.type }}" readonly/>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-xs-12" >
+                                                            <div id="project-edge-edit-properties">
+                                                                {% for key, value in edge.properties.items %}
+                                                                    {% if key == 'OutputData' %}
+                                                                        {% for subkey, subvalue in edge.properties.OutputData.items %}
+                                                                            <div class="row" style="margin-top: 5px;">
+                                                                                <div class="col-xs-1"></div>
+                                                                                <div class="col-xs-11">
+                                                                                    <label>
+                                                                                        {% if subkey == 'Outputs' %}
+                                                                                            Follow If...
+                                                                                        {% else %}
+                                                                                            {{ subkey }}:
+                                                                                        {% endif %}
+                                                                                    </label>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="row">
+                                                                                <div class="col-xs-1"></div>
+                                                                                <div class="col-xs-11">
+                                                                                    <input class="form-control" name="{{ subkey }}_0" value="{{ subvalue }}" readonly/>
+                                                                                </div>
+                                                                            </div>
+                                                                        {% endfor %}
+                                                                    {% else %}
+                                                                        <div class="row" style="margin-top: 5px;">
+                                                                            <div class="col-xs-12">
+                                                                                <label>{{ key }}:</label>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row" style="margin-top: 5px;">
+                                                                            <div class="col-xs-12">
+                                                                                <input class="form-control" name="{{ key }}" value="{{ value }}" readonly/>
+                                                                            </div>
+                                                                        </div>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <h4>Edge Detail</h4>
+
+                                        <div class="row">
+                                            <label for="projectEdgeEditFromNode">FromNode:</label>
+                                            <input id="projectEdgeEditFromNode" class="form-control" value="{{ item.from_node }}" readonly/>
+                                        </div>
+                                        <div class="row">
+                                            <label for="projectEdgeEditToNode">ToNode:</label>
+                                            <input id="projectEdgeEditToNode" class="form-control" value="{{ item.to_node }}" readonly/>
+                                        </div>
+                                        <div class="row">
+                                            <label for="projectEdgeEditPriority">Priority:</label>
+                                            <input id="projectEdgeEditPriority" class="form-control" value="{{ item.priority }}" readonly/>
+                                        </div>
+                                        <div class="row">
+                                            <label for="projectEdgeEditType">Type:</label>
+                                            <input id="projectEdgeEditType" class="form-control" value="{{ item.type }}" readonly/>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-12" >
+                                                <div id="project-edge-edit-properties">
+                                                    {% for key, value in item.properties.items %}
+                                                        {% if key == 'OutputData' %}
+                                                            {% for subkey, subvalue in item.properties.OutputData.items %}
+                                                                <div class="row" style="margin-top: 5px;">
+                                                                    <div class="col-xs-1"></div>
+                                                                    <div class="col-xs-11">
+                                                                        <label>
+                                                                            {% if subkey == 'Outputs' %}
+                                                                                Follow If...
+                                                                            {% else %}
+                                                                                {{ subkey }}:
+                                                                            {% endif %}
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-xs-1"></div>
+                                                                    <div class="col-xs-11">
+                                                                        <input class="form-control" name="{{ subkey }}_0" value="{{ subvalue }}" readonly/>
+                                                                    </div>
+                                                                </div>
+                                                            {% endfor %}
+                                                        {% else %}
+                                                            <div class="row" style="margin-top: 5px;">
+                                                                <div class="col-xs-12">
+                                                                    <label>{{ key }}:</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row" style="margin-top: 5px;">
+                                                                <div class="col-xs-12">
+                                                                    <input class="form-control" name="{{ key }}" value="{{ value }}" readonly/>
+                                                                </div>
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

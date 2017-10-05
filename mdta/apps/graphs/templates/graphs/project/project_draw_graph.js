@@ -264,6 +264,7 @@ function project_click_event(cy){
     cy.on('tap', 'edge', function(evt){
         var edge = evt.target;
 
+        $('#edges-between-modules-modal').modal('show')
         $('a[href="#projectEdges"]').click();
         $('a[href="#project-edge-{0}"]'.format(edge.id())).click();
         $('.edges-between-modules').show();
