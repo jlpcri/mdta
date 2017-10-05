@@ -191,7 +191,7 @@ function load_keys_from_type_contents_node_auto(item_id, location, type, call_fr
                 contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
                 contents += '<div class=\'col-xs-1\'></div>';
                 contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
-                if (keys[k] == 'NonStandardFail' || keys[k] == 'Playback'){
+                if (keys[k] == 'NonStandardFail' || keys[k] == 'Playback' || keys[k] == 'Monolingual'){
                     contents += '<div class=\'col-xs-8\'><input name=\'node_{0}\' type=\'checkbox\' data-toggle=\'toggle\' class=\'myToggle\' data-on=\'True\' data-width=\'100\' data-onstyle=\'success\' data-off=\'False\' style=\'width:80% align:left;\' /></div>'.format(keys[k]);
                 } else {
                     contents += '<div class=\'col-xs-8\'><input name=\'node_{0}\' style=\'width:80%\' placeholder=\'{1}\' /></div>'.format(keys[k], get_placeholder(keys[k]));

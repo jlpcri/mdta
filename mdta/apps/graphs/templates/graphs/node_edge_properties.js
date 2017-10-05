@@ -1,4 +1,4 @@
-var toggle_style_key_list = ['NonStandardFail', 'Invisible', 'NoneConfirm', 'Playback'];
+var toggle_style_key_list = ['NonStandardFail', 'Invisible', 'NoneConfirm', 'Playback', 'Monolingual'];
 
 function load_keys_from_type_contents(item_id, location, type, call_from_node_edit){
     $.getJSON("{% url 'graphs:get_keys_from_type' %}?id={0}&type={1}".format(item_id, type)).done(function(data){
