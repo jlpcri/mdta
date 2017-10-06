@@ -129,7 +129,7 @@
                             <div class="tab-pane" id="project-edge-{{ item.id }}">
                                 {% if item.edge_list %}
                                     <div class="row edges-between-modules">
-                                        <h4>Edges List</h4>
+                                        <h5 style="margin-top: -10px; margin-bottom: 30px;">Edges List</h5>
                                         <div class="list-group">
                                             {% for edge in item.edge_list %}
                                                 <a href="#edge-between-modules-{{ edge.id }}" data-toggle="tab" class="list-group-item">{{ edge.edge_name }}</a>
@@ -139,9 +139,9 @@
                                     <div class="tab-content edges-between-modules-contents">
                                         {% for edge in item.edge_list %}
                                             <div class="tab-pane" id="edge-between-modules-{{ edge.id }}">
-                                                <div class="row">
+                                                <div class="row" style="margin-top: -10px; margin-bottom: 30px;">
                                                     <div class="col-xs-6">
-                                                        <h4>Edge Detail</h4>
+                                                        <h5>Edge Detail</h5>
                                                     </div>
                                                     <div class="col-xs-6">
                                                         <button class="btn btn-default back-to-edges-between-modules" value="project-edge-{{ item.id }}">Back</button>
@@ -164,7 +164,7 @@
                                                         <label for="projectEdgeEditType">Type:</label>
                                                         <input id="projectEdgeEditType" class="form-control" value="{{ edge.type }}" readonly/>
                                                     </div>
-                                                    <div class="row">
+                                                    <div class="row" style="margin-bottom: 10px;">
                                                         <div class="col-xs-12" >
                                                             <div id="project-edge-edit-properties">
                                                                 {% for key, value in edge.properties.items %}
@@ -209,7 +209,7 @@
                                         {% endfor %}
                                     </div>
                                 {% else %}
-                                    <h4>Edge Detail</h4>
+                                    <h5 style="margin-top: -10px; margin-bottom: 30px;">Edge Detail</h5>
 
                                         <div class="row">
                                             <label for="projectEdgeEditFromNode">FromNode:</label>
@@ -227,7 +227,7 @@
                                             <label for="projectEdgeEditType">Type:</label>
                                             <input id="projectEdgeEditType" class="form-control" value="{{ item.type }}" readonly/>
                                         </div>
-                                        <div class="row">
+                                        <div class="row" style="margin-bottom: 10px;">
                                             <div class="col-xs-12" >
                                                 <div id="project-edge-edit-properties">
                                                     {% for key, value in item.properties.items %}
