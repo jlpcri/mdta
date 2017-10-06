@@ -143,7 +143,7 @@ function module_context_menu(cy){
     cy.contextMenus({
         menuItems: [
             {
-                id: 'Verbiages',
+                id: 'verbiages',
                 content: 'Verbiages',
                 tooltipText: 'Prompt Verbiages',
                 selector: 'node',
@@ -158,7 +158,7 @@ function module_context_menu(cy){
                 hasTrailingDivider: true
             },
             {
-                id: 'Switch Module',
+                id: 'switch-module',
                 content: 'Switch Module',
                 tooltip: 'Switch to Module',
                 selector: 'node[color = "rgb(211, 211, 211)"]',
@@ -179,13 +179,53 @@ function module_context_menu(cy){
                     })
                 },
                 hasTrailingDivider: true
+            },
+            {
+                id: 'remove',
+                content: 'Remove',
+                tooltipText: 'Remove Node',
+                selector: 'node',
+                onClickFunction: function (event) {
+                    var node = event.target;
+                    remove_node_from_module(node);
+                },
+                hasTrailingDivider: true
+            },
+            {
+                id: 'new-node',
+                content: 'New Node',
+                tooltipText: 'Add New Node',
+                coreAsWell: true,
+                onClickFunction: function (event) {
+                    add_new_node_to_module(event.position)
+                }
+            },
+            {
+                id: 'new-edge',
+                content: 'New Edge',
+                tooltipText: 'Add New Edge',
+                coreAsWell: true,
+                onClickFunction: function (event) {
+                    add_new_edge_to_module(event.position);
+                }
+            },
+            {
+                id: 'remove',
+                content: 'Remove',
+                tooltipText: 'Remove Edge',
+                selector: 'edge',
+                onClickFunction: function (event) {
+                    var edge = event.target;
+                    remove_edge_from_module(edge);
+                },
+                hasTrailingDivider: true
             }
         ]
     });
 }
 
 function module_click_event(cy){
-    cy.on('tap, drag', 'node', function(evt){
+    cy.on('tap', 'node', function(evt){
         var node = evt.target,
             current_module_id = get_current_module_id();;
 
@@ -203,8 +243,9 @@ function module_click_event(cy){
             'module_id': current_module_id,
             'positions':node.position()
         }));
-        $('a[href="#moduleNodeEdit"]').click();
+        // $('a[href="#moduleNodeEdit"]').click();
         $('a[href="#node-{0}"]'.format(node.id())).click();
+        $('#module-node-detail-modal').modal('show');
     });
 
     cy.on('tapend', 'node', function (evt) {
@@ -220,35 +261,15 @@ function module_click_event(cy){
 
     cy.on('tap', 'edge', function(evt){
         var edge = evt.target;
-        $('a[href="#moduleEdgeEdit"]').click();
+        // $('a[href="#moduleEdgeEdit"]').click();
         $('a[href="#edge-{0}"]'.format(edge.id())).click();
+        $('#module-edge-detail-modal').modal('show');
     });
 
     cy.on('tap', function(event){
         var evtTarget = event.target;
         if (evtTarget === cy){
             $('a[href="#moduleNodeEdgeEmpty"]').click();
-        }
-    });
-}
-
-function module_double_click_event(cy){
-    var tappedBefore,
-        tappedTimeout;
-
-    cy.on('tap', function(event){
-        var tappedNow = event.target;
-        if (tappedTimeout && tappedBefore){
-            clearTimeout(tappedTimeout);
-        }
-        if (tappedBefore === tappedNow){
-            tappedNow.trigger('doubleTap');
-            tappedBefore = null;
-        } else {
-            tappedTimeout = setTimeout(function(){
-                tappedBefore = null;
-            }, 300);
-            tappedBefore = tappedNow;
         }
     });
 }
@@ -338,4 +359,22 @@ function module_view_options(){
         cy.elements().remove();
         cy = create_cy_object(cy_nodes_default, cy_edges_default);
     });
+}
+
+function add_new_node_to_module(pos) {
+    // console.log('New Node', pos)
+    $('#module-node-new-modal').modal('show')
+}
+
+function add_new_edge_to_module(pos) {
+    // console.log('New Edge', pos)
+    $('#module-edge-new-modal').modal('show')
+}
+
+function remove_node_from_module(node) {
+    console.log('Remove Node', node.data().id)
+}
+
+function remove_edge_from_module(edge) {
+    console.log('Remove Edge', edge.data().id)
 }
