@@ -377,6 +377,7 @@ def project_module_detail(request, module_id):
             'id': edge.id,
             'to': edge.to_node.id,
             'from': edge.from_node.id,
+            'name': edge.from_node.name + ' - ' + edge.to_node.name,
             'selfReferenceSize': self_reference_size
         })
 

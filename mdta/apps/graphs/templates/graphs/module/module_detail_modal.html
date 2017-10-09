@@ -170,7 +170,7 @@
     </div>
 </div>
 
-<!-- Node Edit Modal -->
+<!-- Node Verbiage Edit Modal -->
 <div class="modal fade moduleNodeEdit" id="module-node-edit-modal">
     <div class="modal-dialog">
         <form action="{% url 'graphs:module_node_verbiage_edit' %}" method="post">
@@ -260,6 +260,11 @@
             </div>
             <div class="modal-body">
                 <p>Warning! This Action cannot be undone.</p>
+                <input name="nodeEdgeDeleteModuleId" value="" hidden />
+                <input name="nodeEdgeDeleteNodeId" value="" hidden />
+                <input name="nodeEdgeDeleteNodeName" value="" hidden />
+                <input name="nodeEdgeDeleteEdgeId" value="" hidden />
+                <input name="nodeEdgeDeleteEdgeName" value="" hidden />
             </div>
             <div class="modal-footer">
                 <form method="post" action="">
@@ -291,19 +296,6 @@
                 <div class="tab-content">
                     {% for item in module.nodes_all %}
                         <div class="tab-pane" id="node-{{ item.id }}">
-                            <div class="row">
-                                <div class="col-xs-6"></div>
-                                <div class="col-xs-6" style="position: relative; bottom: 0;">
-                                    {% if draw_invisible_button %}
-                                        {% if all_edges %}
-                                            <a href="{% url 'graphs:project_module_detail' module.id %}" class="btn btn-default">DrawVisible</a>
-                                        {% else %}
-                                            <a href="{% url 'graphs:project_module_detail' module.id %}?all_edges=true" class="btn btn-default">DrawAll</a>
-                                        {% endif %}
-                                    {% endif %}
-                                </div>
-                            </div>
-
                             <div class="row" style="margin-bottom: 10px;">
                                 <div class="col-xs-12">
                                     {% if item.module != module %}
@@ -316,7 +308,7 @@
 
                             <form method="post" action="{% url 'graphs:module_node_edit' item.id %}" class="moduleNodeEditForm">
                                 <div class="row">
-                                    <div class="col-xs-12">
+                                    <div class="col-xs-8">
                                         <button type="submit" name="node_save" class="btn btn-primary btn-sm param-save">Save</button>
                                         <a href="#" data-toggle="modal" data-dismiss="modal"
                                            data-target="#nodeEdgeDeleteModal"
@@ -329,6 +321,15 @@
                                            data-from-node-id="{{ item.id }}"
                                            data-module-id="{{ module.id }}"
                                            class="btn btn-primary btn-sm" >NewNode</a>
+                                    </div>
+                                    <div class="col-xs-4" style="position: relative; bottom: 0;">
+                                        {% if draw_invisible_button %}
+                                            {% if all_edges %}
+                                                <a href="{% url 'graphs:project_module_detail' module.id %}" class="btn btn-default btn-sm">DrawVisible</a>
+                                            {% else %}
+                                                <a href="{% url 'graphs:project_module_detail' module.id %}?all_edges=true" class="btn btn-default btn-sm">DrawAll</a>
+                                            {% endif %}
+                                        {% endif %}
                                     </div>
                                 </div>
                                 <div class="row" style="margin-top: 5px;">
@@ -532,21 +533,9 @@
                 <div class="tab-content">
                     {% for item in module.edges_all %}
                         <div class="tab-pane" id="edge-{{ item.id }}">
-                            <div class="row" style="margin-bottom: 10px;">
-                                <div class="col-xs-6"></div>
-                                <div class="col-xs-6" style="position: relative; bottom: 0;">
-                                    {% if draw_invisible_button %}
-                                        {% if all_edges %}
-                                            <a href="{% url 'graphs:project_module_detail' module.id %}" class="btn btn-default">DrawVisible</a>
-                                        {% else %}
-                                            <a href="{% url 'graphs:project_module_detail' module.id %}?all_edges=true" class="btn btn-default">DrawAll</a>
-                                        {% endif %}
-                                    {% endif %}
-                                </div>
-                            </div>
                             <form method="post" action="{% url 'graphs:module_edge_edit' item.id %}" class="moduleEdgeEditForm">
                                 <div class="row">
-                                    <div class="col-xs-12">
+                                    <div class="col-xs-8">
                                         <button type="submit" name="edge_save" class="btn btn-primary btn-sm param-save">Save</button>
                                         <a href="#" data-toggle="modal" data-dismiss="modal"
                                            data-target="#nodeEdgeDeleteModal"
@@ -556,6 +545,15 @@
                                            class="btn btn-danger btn-sm param-delete">Delete</a>
                                         <button type="reset" class="btn btn-default btn-sm">Reset</button>
                                     </div>
+                                    <div class="col-xs-4" style="position: relative; bottom: 0;">
+                                    {% if draw_invisible_button %}
+                                        {% if all_edges %}
+                                            <a href="{% url 'graphs:project_module_detail' module.id %}" class="btn btn-default btn-sm">DrawVisible</a>
+                                        {% else %}
+                                            <a href="{% url 'graphs:project_module_detail' module.id %}?all_edges=true" class="btn btn-default btn-sm">DrawAll</a>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-xs-12">

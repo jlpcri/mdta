@@ -57,6 +57,7 @@ $.each(cy_data_edges, function(key, value){
             'id': value['id'],
             'source': value['from'],
             'target': value['to'],
+            'name': value['name'],
             'color': '#00134d'
         }
     })
@@ -181,8 +182,8 @@ function module_context_menu(cy){
                 hasTrailingDivider: true
             },
             {
-                id: 'remove',
-                content: 'Remove',
+                id: 'remove-node',
+                content: 'Remove Node',
                 tooltipText: 'Remove Node',
                 selector: 'node',
                 onClickFunction: function (event) {
@@ -210,8 +211,8 @@ function module_context_menu(cy){
                 }
             },
             {
-                id: 'remove',
-                content: 'Remove',
+                id: 'remove-edge',
+                content: 'Remove Edge',
                 tooltipText: 'Remove Edge',
                 selector: 'edge',
                 onClickFunction: function (event) {
@@ -372,9 +373,27 @@ function add_new_edge_to_module(pos) {
 }
 
 function remove_node_from_module(node) {
-    console.log('Remove Node', node.data().id)
+    // console.log('Remove Node', node.data())
+    var deleteModal = $('#nodeEdgeDeleteModal');
+
+    deleteModal.find('input[name="nodeEdgeDeleteModuleId"]').val(get_current_module_id());
+    deleteModal.find('input[name="nodeEdgeDeleteNodeId"]').val(node.data().id);
+    deleteModal.find('input[name="nodeEdgeDeleteNodeName"]').val(node.data().label);
+    deleteModal.find('input[name="nodeEdgeDeleteEdgeId"]').val('');
+    deleteModal.find('input[name="nodeEdgeDeleteEdgeName"]').val('');
+
+    deleteModal.modal('show')
 }
 
 function remove_edge_from_module(edge) {
-    console.log('Remove Edge', edge.data().id)
+    // console.log('Rem?ove Edge', edge.data())
+    var deleteModal = $('#nodeEdgeDeleteModal');
+
+    deleteModal.find('input[name="nodeEdgeDeleteModuleId"]').val(get_current_module_id());
+    deleteModal.find('input[name="nodeEdgeDeleteNodeId"]').val('');
+    deleteModal.find('input[name="nodeEdgeDeleteNodeName"]').val('');
+    deleteModal.find('input[name="nodeEdgeDeleteEdgeId"]').val(edge.data().id);
+    deleteModal.find('input[name="nodeEdgeDeleteEdgeName"]').val(edge.data().name);
+
+    deleteModal.modal('show')
 }

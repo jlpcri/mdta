@@ -74,6 +74,7 @@ function check_node_properties_json(properties){
 
 /* Start Module Node Delete Code */
 $('.moduleNodeEdgeDelete').on('show.bs.modal', function(e){
+    // console.log($('input[name="nodeEdgeDeleteModuleId"]').val())
     var module_id = $(e.relatedTarget).data('module-id'),
         node_id = $(e.relatedTarget).data('node-id'),
         node_name = $(e.relatedTarget).data('node-name'),
@@ -83,19 +84,44 @@ $('.moduleNodeEdgeDelete').on('show.bs.modal', function(e){
         post_url = '',
         post_data = '';
 
-    if (typeof node_id != 'undefined'){
-        modal_header = 'Delete Node: {0}?'.format(node_name);
-        post_url = "{% url 'graphs:module_node_edit' 0 %}".replace('0', node_id);
-        post_data = {
-            'csrfmiddlewaretoken': '{{ csrf_token }}',
-            'node_delete': node_name
+    if ((typeof node_id == 'undefined') && (typeof edge_id == 'undefined')) {
+        module_id = $('input[name="nodeEdgeDeleteModuleId"]').val();
+        node_id = $('input[name="nodeEdgeDeleteNodeId"]').val();
+        node_name = $('input[name="nodeEdgeDeleteNodeName"]').val();
+        edge_id = $('input[name="nodeEdgeDeleteEdgeId"]').val();
+        edge_name = $('input[name="nodeEdgeDeleteEdgeName"]').val();
+
+        if (node_id != ''){
+            modal_header = 'Delete Node: {0}?'.format(node_name);
+            post_url = "{% url 'graphs:module_node_edit' 0 %}".replace('0', node_id);
+            post_data = {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'node_delete': node_name
+            }
+        } else if (edge_id != '') {
+            modal_header = 'Delete Edge: {0}?'.format(edge_name);
+            post_url = "{% url 'graphs:module_edge_edit' 0 %}".replace('0', edge_id);
+            post_data = {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'edge_delete': edge_name
+            }
         }
+
     } else {
-        modal_header = 'Delete Edge: {0}?'.format(edge_name);
-        post_url = "{% url 'graphs:module_edge_edit' 0 %}".replace('0', edge_id);
-        post_data = {
-            'csrfmiddlewaretoken': '{{ csrf_token }}',
-            'edge_delete': edge_name
+        if (typeof node_id != 'undefined') {
+            modal_header = 'Delete Node: {0}?'.format(node_name);
+            post_url = "{% url 'graphs:module_node_edit' 0 %}".replace('0', node_id);
+            post_data = {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'node_delete': node_name
+            }
+        } else if (typeof edge_id != 'undefined') {
+            modal_header = 'Delete Edge: {0}?'.format(edge_name);
+            post_url = "{% url 'graphs:module_edge_edit' 0 %}".replace('0', edge_id);
+            post_data = {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'edge_delete': edge_name
+            }
         }
     }
 
