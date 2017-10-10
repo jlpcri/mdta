@@ -26,7 +26,7 @@ $.each(cy_data_nodes, function(key, value){
         'data': {
             'id': value['id'],
             'label': value['label'],
-            'shape': value['shape'],
+            'image': image_url + 'mdta-shapes/' + value['image'] + '.png',
             'color': value['color']
         },
         'renderedPosition': {
@@ -76,32 +76,14 @@ function create_cy_object(cy_nodes, cy_edges) {
             {
                 selector: 'node',
                 style: {
+                    'background-image': 'data(image)',
                     'background-color': 'data(color)',
-                    'label': 'data(label)'
-                }
-            },
-            {
-                selector: 'node[shape="box"]',
-                style: {
-                    'text-valign': 'center',
-                    'width': '110%',
-                    'shape': 'roundrectangle'
-                }
-            },
-            {
-                selector: 'node[shape="star"]',
-                style: {
-                    'width': '40%',
-                    'height': '40%',
-                    'shape': 'star'
-                }
-            },
-            {
-                selector: 'node[shape="ellipse"]',
-                style: {
-                    //'font-family': 'Gill Sans Extrabold, sans-serif',
-                    'width': '110%',
-                    'shape': 'ellipse'
+                    'background-fit': 'contain',
+                    'shape': 'rectangle',
+                    'height': '30px',
+                    'width': '75px',
+                    'label': 'data(label)',
+                    'text-valign': 'bottom'
                 }
             },
             {
@@ -128,7 +110,7 @@ function create_cy_object(cy_nodes, cy_edges) {
             }
         ],
         layout: cy_layout_options,
-        userZoomingEnabled: false,
+        userZoomingEnabled: true,
         boxSelectionEnabled: true
     });
 

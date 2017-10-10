@@ -1,5 +1,4 @@
 import json
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ValidationError
@@ -7,8 +6,8 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new, check_edge_in_set,\
-    get_properties_for_node_or_edge, EDGE_TYPES_INVISIBLE_KEY,\
-    node_related_edges_invisible, self_reference_edge_node_in_set, get_positions_for_node
+    get_properties_for_node_or_edge, node_related_edges_invisible, self_reference_edge_node_in_set,\
+    get_positions_for_node
 from mdta.apps.projects.models import Project, Module, Language
 from mdta.apps.graphs import helpers
 from mdta.apps.projects.utils import context_project_dashboard
@@ -16,9 +15,7 @@ from mdta.apps.users.views import user_is_staff, user_is_superuser
 from .models import NodeType, EdgeType, Node, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeAutoNewForm
 from mdta.apps.projects.forms import ModuleForm, UploadForm
-from mdta.apps.testcases.constant_names import NODE_START_NAME, LANGUAGE_DEFAULT_NAME,\
-    NODE_DATA_NAME, NODE_SET_VARIABLE, NODE_POSITIONS_KEY,\
-    NODE_X_KEY, NODE_Y_KEY, NODE_X_INITIAL, NODE_Y_INITIAL
+from mdta.apps.testcases.constant_names import *
 from mdta.apps.testcases.tasks import create_testcases_celery
 from mdta.apps.testcases.models import TestCaseResults
 
@@ -413,72 +410,27 @@ def project_module_detail(request, module_id):
 
     # print(network_edges)
 
-    if request.user.username != 'test':
-        for node in module.nodes_all:
-            if node.type.name in NODE_START_NAME:
-                shape = 'star'
-            elif node.type.name in NODE_DATA_NAME + [NODE_SET_VARIABLE]:
-                shape = 'ellipse'
-            else:
-                shape = 'box'
+    for node in module.nodes_all:
+        image = NODE_IMAGE[node.type.name]
 
-            # get node position in current module
-            try:
-                positions = node.properties[NODE_POSITIONS_KEY][module_id]
-            except KeyError:
-                positions = None
-            tmp = {
-                'id': node.id,
-                'label': node.name,
-                'shape': shape,
-                'color': inside_module_node_color,
-                'positions': positions
-            }
-            if node.module != module:
-                if node_related_edges_invisible(node, module) and not all_edges:
-                    continue
-                tmp['color'] = outside_module_node_color
+        # get node position in current module
+        try:
+            positions = node.properties[NODE_POSITIONS_KEY][module_id]
+        except KeyError:
+            positions = None
+        tmp = {
+            'id': node.id,
+            'label': node.name,
+            'image': image,
+            'color': inside_module_node_color,
+            'positions': positions
+        }
+        if node.module != module:
+            if node_related_edges_invisible(node, module) and not all_edges:
+                continue
+            tmp['color'] = outside_module_node_color
 
-            network_nodes.append(tmp)
-
-    else:
-        # try use custom icon for nodes
-        image_url = settings.STATIC_URL + 'common/brand_icons/turnpost-png-graphics/'
-        for node in module.nodes_all:
-            if node.type.name in NODE_START_NAME:
-                tmp = {
-                    'id': node.id,
-                    'label': node.name,
-                    'shape': 'star'
-                }
-            else:
-                tmp = {
-                    'id': node.id,
-                    'label': node.name,
-                    'shape': 'image',
-                }
-
-                if node.type.name == 'DataQueries Database':
-                    tmp['image'] = image_url + 'mdta_database.png'
-                elif node.type.name == 'DataQueries WebService':
-                    tmp['image'] = image_url + 'mdta_api_web_service.png'
-                elif node.type.name == 'Play Prompt':
-                    tmp['image'] = image_url + 'mdta_play_prompt.png'
-                elif node.type.name == 'Menu Prompt':
-                    tmp['image'] = image_url + 'mdta_menu_prompt.png'
-                elif node.type.name == 'Menu Prompt with Confirmation':
-                    tmp['image'] = image_url + 'mdta_menu_prompt_with_confirm.png'
-                elif node.type.name == 'TestHeader End':
-                    tmp['image'] = image_url + 'mdta_west_male.png'
-                else:
-                    tmp['image'] = image_url + 'mdta_west_female.png'
-
-            if node.module != module:
-                if node_related_edges_invisible(node, module) and not all_edges:
-                    continue
-                tmp['shadow'] = 'true'
-
-            network_nodes.append(tmp)
+        network_nodes.append(tmp)
 
     node_form_type_default = get_object_or_404(NodeType, name='Play Prompt')
     node_new_form = NodeNewForm(module_id=module.id, initial={'type': node_form_type_default.id})

@@ -71,6 +71,7 @@
         });
         var cy_data_nodes = {{ network_nodes|safe }},
             cy_data_edges = {{ network_edges|safe }},
+            image_url = "{% static 'common/brand_icons/turnpost-png-graphics/' %}",
 
             node_names_autocomplete = {{node_names_autocomplete|safe}},
             data_edge_keys_autocomplete = {{ data_edge_keys_autocomplete|safe }},
