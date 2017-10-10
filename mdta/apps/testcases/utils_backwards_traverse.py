@@ -163,6 +163,13 @@ def path_traverse_backwards(path, th_path=None, language=None):
                 tc[TR_CONTENT] += PLAY_BACK+str(tc[PLAY_BACK])
                 del tc[PLAY_BACK]
 
+            if MONOLINGUAL in tc:
+                if tc[MONOLINGUAL]:
+                    tc[TR_EXPECTED] = '**'+tc[TR_EXPECTED]
+                del tc[MONOLINGUAL]
+
+        print(tcs)
+
         tcs.reverse()
         data = {
             'pre_conditions': pre_conditions,
@@ -412,8 +419,23 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None, language=
                     'expected': get_verbiage_from_prompt_node(node, language, MPC_VER)
                 })
 
-### check if node has Play back property
+### check if node has Play back and Monolingual property
     if node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME, NODE_LANGUAGE_SELECT]:
+        #monolingual property
+        if node.type.name is NODE_LANGUAGE_SELECT:
+            tcs[len(tcs)-1][MONOLINGUAL] = True
+            print (tcs)
+        else:
+            flag = False
+            try:
+                if node.properties[MONOLINGUAL] == 'on':
+                    flag = True
+            except KeyError:
+                pass
+            tcs[len(tcs)-1][MONOLINGUAL] = flag
+
+
+        #playback property
         flag = False
 
         try:
@@ -422,6 +444,8 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None, language=
         except KeyError:
             pass
         tcs[len(tcs)-1][PLAY_BACK] = flag
+
+
     #print(tcs)
 
 def node_start(node):

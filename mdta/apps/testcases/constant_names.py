@@ -28,6 +28,7 @@ PLAY_BACK = 'Playback'
 MP_OUTPUTS = 'Outputs'
 MP_DEFAULT = 'Default'
 MP_NC = 'NoneConfirm'
+MONOLINGUAL = 'Monolingual'
 
 # MenuPrompt verbiage key name
 MP_VER = 'InitialPrompt'

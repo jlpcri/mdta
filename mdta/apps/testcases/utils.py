@@ -42,6 +42,7 @@ def create_routing_test_suite(project=None, modules=None):
         # start = time.time()
         data = create_routing_test_suite_module(project.modules, language, shortest_set)
         # print(project.name, time.time() - start)
+
     elif modules:
         if modules[0].project.language:
             language = modules[0].project.language.name
