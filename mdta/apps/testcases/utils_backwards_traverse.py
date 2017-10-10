@@ -419,10 +419,10 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None, language=
                     'expected': get_verbiage_from_prompt_node(node, language, MPC_VER)
                 })
 
-### check if node has Play back and Monolingual property
+    #   check if node has Play back and Monolingual property
     if node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME, NODE_LANGUAGE_SELECT]:
-        #monolingual property
-        if node.type.name is NODE_LANGUAGE_SELECT:
+        #   monolingual property
+        if node.type.name == NODE_LANGUAGE_SELECT:
             tcs[len(tcs)-1][MONOLINGUAL] = True
             print (tcs)
         else:
@@ -435,7 +435,7 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None, language=
             tcs[len(tcs)-1][MONOLINGUAL] = flag
 
 
-        #playback property
+        #   playback property
         flag = False
 
         try:
