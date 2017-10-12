@@ -63,6 +63,7 @@ def create_routing_test_suite_module(modules, language, shortest_set):
     :return:
     """
     test_suites = []
+    data = []
 
     if len(modules) > 0 and modules[0].project.test_header:
         th_module = modules[0].project.test_header
@@ -106,15 +107,48 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
     """
     th_paths = get_paths_from_test_header(th_module)
     #print(th_paths)
-
     data = []
-    if th_paths:
-        for th_path in th_paths:
+
+    for language in language:
+
+        if th_paths:
+            for th_path in th_paths:
+                for edge in edges:
+                    path = routing_path_to_edge(edge, shortest_set)
+
+                    if path:
+                        path_data = path_traverse_backwards(path, th_path=th_path, language=language)
+                        if 'tcs_cannot_route' in path_data.keys():
+                            data.append({
+                                'tcs_cannot_route': path_data['tcs_cannot_route'],
+                                'id': edge.id,
+                                'title': 'Route from \'' +
+                                         edge.from_node.name +
+                                         '\' to \'' +
+                                         edge.to_node.name + '\''
+                            })
+                        else:
+                            title = 'Route from \'' + edge.from_node.name +\
+                                        '\' to \'' + edge.to_node.name + '\''
+                            data.append({
+                                    'pre_conditions': path_data['pre_conditions'],
+                                    'tc_steps': path_data['tc_steps'],
+                                    'id': edge.id,
+                                    'title': title+' ('+language+')'
+                                })
+
+                            if edge.to_node.type.name in NODE_MP_NAME:
+                                negative_testcase_generation(data, path_data, title, NEGATIVE_TESTS_LIST, edge, language=language)
+                                if edge.to_node.type.name == NODE_MP_NAME[1]:
+                                    negative_testcase_generation(data, path_data, title, NEGATIVE_CONFIRM_TESTS_LIST, edge, language=language)
+                                    rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
+
+        else:
             for edge in edges:
                 path = routing_path_to_edge(edge, shortest_set)
 
                 if path:
-                    path_data = path_traverse_backwards(path, th_path=th_path, language=language)
+                    path_data = path_traverse_backwards(path, language=language)
                     if 'tcs_cannot_route' in path_data.keys():
                         data.append({
                             'tcs_cannot_route': path_data['tcs_cannot_route'],
@@ -124,14 +158,16 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                                      '\' to \'' +
                                      edge.to_node.name + '\''
                         })
+                        # print(edge.id)
                     else:
                         title = 'Route from \'' + edge.from_node.name +\
-                                    '\' to \'' + edge.to_node.name + '\''
+                                        '\' to \'' + edge.to_node.name + '\''
+                        # edge_id = edge.id,
                         data.append({
                                 'pre_conditions': path_data['pre_conditions'],
                                 'tc_steps': path_data['tc_steps'],
                                 'id': edge.id,
-                                'title': title,
+                                'title': title+' ('+language+')'
                             })
 
                         if edge.to_node.type.name in NODE_MP_NAME:
@@ -139,39 +175,6 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                             if edge.to_node.type.name == NODE_MP_NAME[1]:
                                 negative_testcase_generation(data, path_data, title, NEGATIVE_CONFIRM_TESTS_LIST, edge, language=language)
                                 rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
-
-    else:
-        for edge in edges:
-            path = routing_path_to_edge(edge, shortest_set)
-
-            if path:
-                path_data = path_traverse_backwards(path, language=language)
-                if 'tcs_cannot_route' in path_data.keys():
-                    data.append({
-                        'tcs_cannot_route': path_data['tcs_cannot_route'],
-                        'id': edge.id,
-                        'title': 'Route from \'' +
-                                 edge.from_node.name +
-                                 '\' to \'' +
-                                 edge.to_node.name + '\''
-                    })
-                    # print(edge.id)
-                else:
-                    title = 'Route from \'' + edge.from_node.name +\
-                                    '\' to \'' + edge.to_node.name + '\''
-                    # edge_id = edge.id,
-                    data.append({
-                            'pre_conditions': path_data['pre_conditions'],
-                            'tc_steps': path_data['tc_steps'],
-                            'id': edge.id,
-                            'title': title
-                        })
-
-                    if edge.to_node.type.name in NODE_MP_NAME:
-                        negative_testcase_generation(data, path_data, title, NEGATIVE_TESTS_LIST, edge, language=language)
-                        if edge.to_node.type.name == NODE_MP_NAME[1]:
-                            negative_testcase_generation(data, path_data, title, NEGATIVE_CONFIRM_TESTS_LIST, edge, language=language)
-                            rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
     #print(data)
     return data
 

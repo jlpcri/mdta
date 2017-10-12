@@ -16,144 +16,142 @@ def path_traverse_backwards(path, th_path=None, language=None):
     # match_constraint_found = False
     tcs_cannot_route_flag = False
 
-    for language in language:
+    if th_path:
+        th_menu_prompt_outputs_keys = get_menu_prompt_outputs_key(path=None, index_start=None, th_path=th_path)
+    else:
+        th_menu_prompt_outputs_keys = []
 
-        if th_path:
-            th_menu_prompt_outputs_keys = get_menu_prompt_outputs_key(path=None, index_start=None, th_path=th_path)
-        else:
-            th_menu_prompt_outputs_keys = []
+    path.reverse()
 
-        path.reverse()
+    result_found_all = []
+    #print("Path:", path)
+    # sibling_edges_key_in_th_menuprompt = []
+### Temporary Mark to continue code analysis.....
+    for index, step in enumerate(path):
+        #print("step:", step)
+        if index < len(path) - 1:
+            if isinstance(step, Node):
+                if step.type.name not in NODE_DATA_NAME:
+                    if index - 1 > 0:
+                        traverse_node(step,
+                                      tcs,
+                                      preceding_edge=path[index + 1],
+                                      following_edge=path[index - 1],
+                                      language=language
+                                      )
+                    else:
+                        traverse_node(step,
+                                      tcs,
+                                      preceding_edge=path[index + 1],
+                                      language=language
+                                      )
+            elif isinstance(step, Edge):
+                if step.type.name == EDGE_DATA_NAME:
+                    if step.from_node.leaving_edges.count() > 1:
+                        if non_data_edge_has_higher_priority(step):
+                            tcs_cannot_route_flag = True
+                            tcs_cannot_route_msg = 'Non Data/PreCondition Edge has higher priority.'
+                            break
 
-        result_found_all = []
-        #print("Path:", path)
-        # sibling_edges_key_in_th_menuprompt = []
-    ### Temporary Mark to continue code analysis.....
-        for index, step in enumerate(path):
-            #print("step:", step)
-            if index < len(path) - 1:
-                if isinstance(step, Node):
-                    if step.type.name not in NODE_DATA_NAME:
-                        if index - 1 > 0:
-                            traverse_node(step,
-                                          tcs,
-                                          preceding_edge=path[index + 1],
-                                          following_edge=path[index - 1],
-                                          language=language
-                                          )
-                        else:
-                            traverse_node(step,
-                                          tcs,
-                                          preceding_edge=path[index + 1],
-                                          language=language
-                                          )
-                elif isinstance(step, Edge):
-                    if step.type.name == EDGE_DATA_NAME:
-                        if step.from_node.leaving_edges.count() > 1:
-                            if non_data_edge_has_higher_priority(step):
+                    if th_path and edge_property_key_in_th_menuprompt(step, th_path):
+                        result_found = step.properties[step.type.keys_data_name][step.type.subkeys_data_name]
+                        menu_prompt_outputs_keys = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())
+                    elif edge_property_key_in_from_menuprompt(step):
+                        result_found = step.properties[step.type.keys_data_name][step.type.subkeys_data_name]
+                        menu_prompt_outputs_keys = [step.from_node.properties[MP_OUTPUTS]]
+                    elif edge_property_match_set_variable(index, step, path):
+                        result_found = step.properties[step.type.keys_data_name][step.type.subkeys_data_name]
+                        menu_prompt_outputs_keys = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())
+                    else:
+                        constraints += assert_current_edge_constraint(step)
+                        constraints += assert_high_priority_edges_negative(step)
+
+                        result_found = get_data_node_result(step, constraints, index=index, path=path)
+                        menu_prompt_outputs_keys = get_menu_prompt_outputs_key(path, index, th_path=None)
+                    if result_found:
+                        result_found_all.append(result_found)
+                        constraints = []
+
+                        # menu_prompt_outputs_keys = get_menu_prompt_outputs_key(path, index, th_path=None)
+                        # print('r: ', result_found, step.to_node.name)
+                        # print('s: ', menu_prompt_outputs_keys)
+
+                        if menu_prompt_outputs_keys:
+                            # update next step content as found result from Data Node
+                            test_success = update_tcs_next_step_content(tcs=tcs,
+                                                                        result_found=result_found,
+                                                                        menu_prompt_outputs_keys=menu_prompt_outputs_keys)
+                            if not test_success['Success']:
                                 tcs_cannot_route_flag = True
-                                tcs_cannot_route_msg = 'Non Data/PreCondition Edge has higher priority.'
-                                break
-
-                        if th_path and edge_property_key_in_th_menuprompt(step, th_path):
-                            result_found = step.properties[step.type.keys_data_name][step.type.subkeys_data_name]
-                            menu_prompt_outputs_keys = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())
-                        elif edge_property_key_in_from_menuprompt(step):
-                            result_found = step.properties[step.type.keys_data_name][step.type.subkeys_data_name]
-                            menu_prompt_outputs_keys = [step.from_node.properties[MP_OUTPUTS]]
-                        elif edge_property_match_set_variable(index, step, path):
-                            result_found = step.properties[step.type.keys_data_name][step.type.subkeys_data_name]
-                            menu_prompt_outputs_keys = list(step.properties[step.type.keys_data_name][step.type.subkeys_data_name].keys())
-                        else:
-                            constraints += assert_current_edge_constraint(step)
-                            constraints += assert_high_priority_edges_negative(step)
-
-                            result_found = get_data_node_result(step, constraints, index=index, path=path)
-                            menu_prompt_outputs_keys = get_menu_prompt_outputs_key(path, index, th_path=None)
-                        if result_found:
-                            result_found_all.append(result_found)
-                            constraints = []
-
-                            # menu_prompt_outputs_keys = get_menu_prompt_outputs_key(path, index, th_path=None)
-                            # print('r: ', result_found, step.to_node.name)
-                            # print('s: ', menu_prompt_outputs_keys)
-
-                            if menu_prompt_outputs_keys:
-                                # update next step content as found result from Data Node
-                                test_success = update_tcs_next_step_content(tcs=tcs,
-                                                                            result_found=result_found,
-                                                                            menu_prompt_outputs_keys=menu_prompt_outputs_keys)
-                                if not test_success['Success']:
-                                    tcs_cannot_route_flag = True
-                                    tcs_cannot_route_msg = 'MenuPrompt/MenuPromptWC property \'Outputs\' incorrect'
-                            else:
-                                tcs_cannot_route_flag = True
-                                tcs_cannot_route_msg = 'MenuPrompt/MenuPromptWC property \'Outputs\' not found'
+                                tcs_cannot_route_msg = 'MenuPrompt/MenuPromptWC property \'Outputs\' incorrect'
                         else:
                             tcs_cannot_route_flag = True
-                            tcs_cannot_route_msg = 'No match result found in DataQueries or SetVarialbe'
-                            if not th_menu_prompt_outputs_keys:
+                            tcs_cannot_route_msg = 'MenuPrompt/MenuPromptWC property \'Outputs\' not found'
+                    else:
+                        tcs_cannot_route_flag = True
+                        tcs_cannot_route_msg = 'No match result found in DataQueries or SetVarialbe'
+                        if not th_menu_prompt_outputs_keys:
+                            break
+
+                elif step.from_node.leaving_edges.count() > 1:
+                    for edge in step.from_node.leaving_edges.exclude(id=step.id):
+                        if th_path and edge.type.name == EDGE_DATA_NAME:
+                            current_edges_key_in_th_menuprompt = edge_property_key_in_th_menuprompt(edge, th_path)
+                            if current_edges_key_in_th_menuprompt and edge.priority < step.priority:
+                                # sibling_edges_key_in_th_menuprompt.append(current_edges_key_in_th_menuprompt)
+                                # print(edge.properties[edge.type.keys_data_name][edge.type.subkeys_data_name])
                                 break
 
-                    elif step.from_node.leaving_edges.count() > 1:
-                        for edge in step.from_node.leaving_edges.exclude(id=step.id):
-                            if th_path and edge.type.name == EDGE_DATA_NAME:
-                                current_edges_key_in_th_menuprompt = edge_property_key_in_th_menuprompt(edge, th_path)
-                                if current_edges_key_in_th_menuprompt and edge.priority < step.priority:
-                                    # sibling_edges_key_in_th_menuprompt.append(current_edges_key_in_th_menuprompt)
-                                    # print(edge.properties[edge.type.keys_data_name][edge.type.subkeys_data_name])
-                                    break
-
-                    pre_condition = assert_precondition(step)
-                    if pre_condition and pre_condition not in pre_conditions:
-                        pre_conditions += pre_condition
+                pre_condition = assert_precondition(step)
+                if pre_condition and pre_condition not in pre_conditions:
+                    pre_conditions += pre_condition
+        else:
+            if len(result_found_all) > 0:
+                result_keys = list(set().union(*(d.keys() for d in result_found_all)))
             else:
-                if len(result_found_all) > 0:
-                    result_keys = list(set().union(*(d.keys() for d in result_found_all)))
-                else:
-                    result_keys = None
-                # print('th: ', result_found_all, result_keys)
-                if th_path:
-                    # th_path.reverse()
-                    for th_index, th_step in enumerate(th_path[::-1]):
-                        if th_index < len(th_path) - 1:
-                            if isinstance(th_step, Node):
-                                if th_step.type.name in NODE_MP_NAME:
-                                    th_key = th_step.properties[MP_OUTPUTS]
-                                    if result_keys and th_key:
-                                        if th_key in result_keys:
-                                            th_key_idx = next((i for i, x in enumerate(result_found_all) if th_key in x), None)
-                                            result = result_found_all[th_key_idx]
-                                            # print(result)
-                                            # Then this test case can be routed
-                                            tcs_cannot_route_flag = False
-                                        else:
-                                            result = {th_key: th_step.properties[MP_DEFAULT]}
+                result_keys = None
+            # print('th: ', result_found_all, result_keys)
+            if th_path:
+                # th_path.reverse()
+                for th_index, th_step in enumerate(th_path[::-1]):
+                    if th_index < len(th_path) - 1:
+                        if isinstance(th_step, Node):
+                            if th_step.type.name in NODE_MP_NAME:
+                                th_key = th_step.properties[MP_OUTPUTS]
+                                if result_keys and th_key:
+                                    if th_key in result_keys:
+                                        th_key_idx = next((i for i, x in enumerate(result_found_all) if th_key in x), None)
+                                        result = result_found_all[th_key_idx]
+                                        # print(result)
+                                        # Then this test case can be routed
+                                        tcs_cannot_route_flag = False
+                                    else:
+                                        result = {th_key: th_step.properties[MP_DEFAULT]}
+                                    update_tcs_next_step_content(tcs=tcs,
+                                                                 result_found=result,
+                                                                 test_header=True)
+                                else:
+                                    if th_step.properties[MP_DEFAULT]:
+                                        result = {th_key: th_step.properties[MP_DEFAULT]}
                                         update_tcs_next_step_content(tcs=tcs,
                                                                      result_found=result,
                                                                      test_header=True)
                                     else:
-                                        if th_step.properties[MP_DEFAULT]:
-                                            result = {th_key: th_step.properties[MP_DEFAULT]}
-                                            update_tcs_next_step_content(tcs=tcs,
-                                                                         result_found=result,
-                                                                         test_header=True)
-                                        else:
-                                            tcs_cannot_route_flag = True
-                                            tcs_cannot_route_msg = 'TestHeader Node \'{0}: Default\' empty'.format(th_step.name)
+                                        tcs_cannot_route_flag = True
+                                        tcs_cannot_route_msg = 'TestHeader Node \'{0}: Default\' empty'.format(th_step.name)
 
-                                traverse_node(th_step, tcs, th_path[::-1][th_index + 1], language=language)
-                        else:
-                            if isinstance(th_step, Node):
-                                traverse_node(th_step, tcs, language=language)
-
-                    # traverse Start Node
-                    if th_path[2].type.name in NODE_MP_NAME:
-                        tcs[-1][TR_CONTENT] = get_item_properties(step)
+                            traverse_node(th_step, tcs, th_path[::-1][th_index + 1], language=language)
                     else:
-                        traverse_node(step, tcs, language=language)
+                        if isinstance(th_step, Node):
+                            traverse_node(th_step, tcs, language=language)
+
+                # traverse Start Node
+                if th_path[2].type.name in NODE_MP_NAME:
+                    tcs[-1][TR_CONTENT] = get_item_properties(step)
                 else:
                     traverse_node(step, tcs, language=language)
+            else:
+                traverse_node(step, tcs, language=language)
 
     if tcs_cannot_route_flag:
         data = {
