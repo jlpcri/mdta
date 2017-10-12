@@ -123,6 +123,8 @@ function create_cy_object(cy_nodes, cy_edges) {
 
     obj.fit('node');
 
+    // project_draw_fixed_eles(obj);
+
     project_context_menu(obj);
     project_click_event(obj);
 
@@ -346,4 +348,32 @@ function project_view_options(){
         cy.elements().remove();
         cy = create_cy_object(cy_nodes_default, cy_edges_default);
     });
+}
+
+function project_draw_fixed_eles(obj) {
+    var bottomLayer = obj.cyCanvas({
+            zIndex: -1
+        }),
+        canvas = bottomLayer.getCanvas(),
+        ctx = canvas.getContext('2d');
+
+    obj.on('render cyCanvas.resize', function (evt) {
+
+        bottomLayer.resetTransform(ctx);
+        ctx.save();
+        ctx.font = "24px Helvetica";
+        ctx.fillStyle = "red";
+        ctx.fillText("This text is fixed", 200, graph_height);
+
+        // ctx.drawImage(image_new, 100, graph_height)
+
+
+
+        ctx.restore()
+
+
+
+
+    })
+
 }
