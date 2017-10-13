@@ -56,3 +56,10 @@ NEGATIVE_CONFIRM_TESTS_LIST = ['CNIR', 'CNMR', 'CNIF', 'CNMF', 'CNINMF']
 # TestRail tcs key name
 TR_CONTENT = 'content'
 TR_EXPECTED = 'expected'
+
+# Node Positions name
+NODE_POSITIONS_KEY = 'Positions'
+NODE_X_KEY = 'posx'
+NODE_Y_KEY = 'posy'
+NODE_X_INITIAL = 100
+NODE_Y_INITIAL = 100
