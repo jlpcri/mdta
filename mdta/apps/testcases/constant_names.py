@@ -29,6 +29,7 @@ MP_OUTPUTS = 'Outputs'
 MP_DEFAULT = 'Default'
 MP_NC = 'NoneConfirm'
 MONOLINGUAL = 'Monolingual'
+DEFAULT_PATH = '**'
 
 # MenuPrompt verbiage key name
 MP_VER = 'InitialPrompt'

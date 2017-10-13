@@ -107,6 +107,21 @@ class TestRailCase(TestRailORM):
         else:
             return self.__dict__['custom_steps_separated']
 
+    @property
+    def custom_default_audio_path(self):
+        if "custom_default_audio_path" not in self.__dict__.keys():
+            return self.custom_default_audio_path
+        else:
+            return self.__dict__['custom_default_audio_path']
+
+    @property
+    def custom_call_language_audio_path(self):
+        if "custom_call_language_audio_path" not in self.__dict__.keys():
+            return self.custom_call_language_audio_path
+        else:
+            return self.__dict__['custom_call_language_audio_path']
+
+
     def get_title(self):
         if 'title' not in self.__dict__.keys():
             return self.title
@@ -120,7 +135,7 @@ class TestRailCase(TestRailORM):
         if not self.script:
             self.script = HATScript()
         previous_step_playback = False
-        print(self.custom_steps_separated)
+
         for index, step in enumerate(self.custom_steps_separated):
 
             if PLAY_BACK in step[TR_CONTENT]:
@@ -172,8 +187,17 @@ class TestRailCase(TestRailORM):
         # The following should be moved to HATScript, but because there is no real branching at this point yet,
         # I'm leaving it as-is for now.
         prompt = step.split(':')[0]
-        self.script.body += 'EXPECT prompt URI=audio/' + prompt + '.wav\n'
+        if prompt[:2] == DEFAULT_PATH:
+            path = self.custom_default_audio_path
+            prompt = prompt[2:]
+        else:
+            path = self.custom_call_language_audio_path
 
+        if path[len(path)-1] == '/':
+            path = path[:len(path)-1]
+
+        #self.script.body += 'EXPECT prompt URI=audio/' + prompt + '.wav\n'
+        self.script.body += 'EXPECT prompt URI='+path+'/' + prompt + '.wav\n'
 
 
 def get_testrail_steps(instance, case_id):
