@@ -92,23 +92,26 @@ class Project(models.Model):
     """
     Entry of each project which will be represented to Model Driven Graph
     """
-    name = models.CharField(max_length=50, unique=True, default='')
+    name = models.CharField(max_length=50, unique=True, default='', help_text='A Memorable Word or Phrase')
     test_header = models.ForeignKey('Module', null=True, blank=True,
-                                    related_name='test_header', on_delete=models.SET_NULL)
+                                    related_name='test_header', on_delete=models.SET_NULL,
+                                    help_text='Part of Test Environment')
 
     language = models.ForeignKey(Language, blank=True, null=True,
                                  related_name='project_language',
                                  on_delete=models.SET_NULL)
 
-    version = models.TextField()  # relate to TestRail-TestSuites
+    version = models.TextField(help_text='Sections of TestRail-Project')  # relate to TestRail-TestSuites
     testrail = models.ForeignKey(TestRailConfiguration,
                                  models.SET_NULL,
                                  blank=True,
-                                 null=True,)
+                                 null=True,
+                                 help_text='Configuration connects to TestRail')
     catalog = models.ManyToManyField(CatalogItem, blank=True)
 
     lead = models.ForeignKey(HumanResource, related_name='project_lead', null=True, blank=True)
-    members = models.ManyToManyField(HumanResource, related_name='project_members', blank=True)
+    members = models.ManyToManyField(HumanResource, related_name='project_members', blank=True,
+                                     help_text='People work on current project')
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
@@ -172,7 +175,7 @@ class Module(models.Model):
     """
     Modules per project
     """
-    name = models.CharField(max_length=50, default='')
+    name = models.CharField(max_length=50, default='', help_text='A Memorable Word or Phrase')
     project = models.ForeignKey(Project, null=True, blank=True)  # if null, then it's Test Header
     catalog = models.ManyToManyField(CatalogItem, blank=True)
 

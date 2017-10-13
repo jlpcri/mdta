@@ -80,3 +80,4 @@ function set_catalog_selection_value(project_id, module_id, location){
     }
 }
 
+$('[data-toggle="tooltip"]').tooltip()
