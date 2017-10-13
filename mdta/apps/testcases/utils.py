@@ -1,6 +1,6 @@
 import collections
 from django.http import JsonResponse
-
+import re
 from mdta.apps.graphs.models import Node, Edge
 from mdta.apps.projects.models import Project, TestRailConfiguration, Language
 from mdta.apps.testcases.testrail import APIClient, APIError
@@ -51,9 +51,15 @@ def get_languages(project=None):
     else:
         language = [LANGUAGE_DEFAULT_NAME]
 
-    print (language)
-
     return language
+
+def get_project_language_rootpath(project = None, language = None):
+    languages = Language.objects.filter(project=project)
+    for lang in languages:
+        if lang.name ==  language:
+            return lang.root_path
+
+    return Language.objects.filter(name=LANGUAGE_DEFAULT_NAME).root_path
 
 
 def create_routing_test_suite_module(modules, language, shortest_set):
@@ -125,16 +131,16 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                                 'title': 'Route from \'' +
                                          edge.from_node.name +
                                          '\' to \'' +
-                                         edge.to_node.name + '\''
+                                         edge.to_node.name + '\''+' ('+language+')'
                             })
                         else:
                             title = 'Route from \'' + edge.from_node.name +\
-                                        '\' to \'' + edge.to_node.name + '\''
+                                        '\' to \'' + edge.to_node.name + '\''+' ('+language+')'
                             data.append({
                                     'pre_conditions': path_data['pre_conditions'],
                                     'tc_steps': path_data['tc_steps'],
                                     'id': edge.id,
-                                    'title': title+' ('+language+')'
+                                    'title': title
                                 })
 
                             if edge.to_node.type.name in NODE_MP_NAME:
@@ -156,18 +162,18 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                             'title': 'Route from \'' +
                                      edge.from_node.name +
                                      '\' to \'' +
-                                     edge.to_node.name + '\''
+                                     edge.to_node.name + '\''+' ('+language+')'
                         })
                         # print(edge.id)
                     else:
                         title = 'Route from \'' + edge.from_node.name +\
-                                        '\' to \'' + edge.to_node.name + '\''
+                                        '\' to \'' + edge.to_node.name + '\''+' ('+language+')'
                         # edge_id = edge.id,
                         data.append({
                                 'pre_conditions': path_data['pre_conditions'],
                                 'tc_steps': path_data['tc_steps'],
                                 'id': edge.id,
-                                'title': title+' ('+language+')'
+                                'title': title
                             })
 
                         if edge.to_node.type.name in NODE_MP_NAME:
@@ -450,17 +456,20 @@ def remove_section_from_testsuite(client, section_id):
     """
     client.send_post('delete_section/' + section_id, None)
 
-
-def add_testcase_to_section(client, section_id, data):
+def add_testcase_to_section(client, section_id, data, project = None):
     """
     Add Testcases to TestRail.Project.TestSuites.Section
     :param client:
     :param section_id: Section Id == MDTA.project.module
     :param data: TestCases
     :return:
+
     """
     try:
         for each_tc in data:
+            test_language = re.findall('\((.*?)\)', each_tc['title'])[0]
+            custom_default_audio_path = project.language.root_path
+            custom_call_language_audio_path =  get_project_language_rootpath(project, test_language)
             if 'tcs_cannot_route' not in each_tc.keys():
                 custom_preconds = ''
                 for pre_cond in each_tc['pre_conditions']:
@@ -469,9 +478,11 @@ def add_testcase_to_section(client, section_id, data):
                 tc_data = {
                     'title': each_tc['title'],
                     'custom_preconds': custom_preconds,
-                    'custom_steps_seperated': each_tc['tc_steps']
+                    'custom_steps_seperated': each_tc['tc_steps'],
+                    'custom_default_audio_path': custom_default_audio_path,
+                    'custom_call_language_audio_path': custom_call_language_audio_path
                 }
-                client.send_post('add_case/' + section_id, tc_data)
+                print(client.send_post('add_case/' + section_id, tc_data))
     except APIError as e:
         print('Add TestCase to Section error: ', e)
 

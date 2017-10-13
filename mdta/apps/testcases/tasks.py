@@ -102,16 +102,14 @@ def push_testcases_to_testrail_celery(self, project_id):
                                                       project.testrail.project_id,
                                                       tr_suite['id'],
                                                       item['module'])
-
-                add_testcase_to_section(client, section_id, item['data'])
-
+                add_testcase_to_section(client, section_id, item['data'], project)
             except StopIteration as e:
                 print('Section: ', e)
                 section_id = add_section_to_testsuite(client,
                                                       project.testrail.project_id,
                                                       tr_suite['id'],
                                                       item['module'])
-                add_testcase_to_section(client, section_id, item['data'])
+                add_testcase_to_section(client, section_id, item['data'], project)
 
     except AttributeError:
         testrail_contents = {
