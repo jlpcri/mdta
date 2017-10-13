@@ -16,13 +16,13 @@
                 </div>
             </div>
 
-            <div class="row" style="margin-top: 50px;">
+            <div class="row pull-right" style="margin-top: 50px;">
                 <div class="col-xs-12">
-                    <input id="project_edit" class="btn btn-primary" type="submit" value="Save Project" name="project_edit">
                     <input type="button" value="Cancel" class="btn btn-default" onclick="history.back(); return false;">
                     {% if request.user.username == 'sliu' %}
                         <input id="project_delete" value="Delete Project" class="btn btn-danger" type="submit" name="project_delete">
                     {% endif %}
+                    <input id="project_edit" class="btn btn-primary" type="submit" value="Save Project" name="project_edit">
                 </div>
             </div>
 

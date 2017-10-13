@@ -27,8 +27,8 @@
                     <input type="hidden" name="property_data_index" value="">
                 </div>
                 <div class="modal-footer">
-                    <input id="project_node_new" class="btn btn-primary" type="submit" value="New Node">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input id="project_node_new" class="btn btn-primary" type="submit" value="New Node">
                 </div>
             </div>
         </form>
@@ -118,8 +118,8 @@
                     {% csrf_token %}
                 </div>
                 <div class="modal-footer">
-                    <input id="project_edge_new" class="btn btn-primary" type="submit" value="New Edge">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input id="project_edge_new" class="btn btn-primary" type="submit" value="New Edge">
                 </div>
             </div>
         </form>
@@ -239,11 +239,11 @@
                     <input type="hidden" name="property_data_index" value="">
                 </div>
                 <div class="modal-footer">
-                    <input id="node_save" name="node_save" class="btn btn-primary" type="submit" value="Save">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     {% if request.user.username == 'sliu' %}
                         <button id="node_delete" name="node_delete" class="btn btn-danger" type="submit">Delete</button>
                     {% endif %}
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input id="node_save" name="node_save" class="btn btn-primary" type="submit" value="Save">
                 </div>
             </div>
         </form>
@@ -309,18 +309,18 @@
                             <form method="post" action="{% url 'graphs:module_node_edit' item.id %}" class="moduleNodeEditForm">
                                 <div class="row">
                                     <div class="col-xs-8">
-                                        <button type="submit" name="node_save" class="btn btn-primary btn-sm param-save">Save</button>
+                                        <a href="#" data-toggle="modal"  data-dismiss="modal"
+                                           data-target="#module-node-edge-new-modal"
+                                           data-from-node-id="{{ item.id }}"
+                                           data-module-id="{{ module.id }}"
+                                           class="btn btn-primary btn-sm" >NewNode</a>
                                         <a href="#" data-toggle="modal" data-dismiss="modal"
                                            data-target="#nodeEdgeDeleteModal"
                                            data-module-id="{{ module.id }}"
                                            data-node-id="{{ item.id }}"
                                            data-node-name="{{ item.name }}"
                                            class="btn btn-danger btn-sm param-delete">Delete</a>
-                                        <a href="#" data-toggle="modal"  data-dismiss="modal"
-                                           data-target="#module-node-edge-new-modal"
-                                           data-from-node-id="{{ item.id }}"
-                                           data-module-id="{{ module.id }}"
-                                           class="btn btn-primary btn-sm" >NewNode</a>
+                                        <button type="submit" name="node_save" class="btn btn-primary btn-sm param-save">Save</button>
                                     </div>
                                     <div class="col-xs-4" style="position: relative; bottom: 0;">
                                         {% if draw_invisible_button %}
@@ -536,14 +536,14 @@
                             <form method="post" action="{% url 'graphs:module_edge_edit' item.id %}" class="moduleEdgeEditForm">
                                 <div class="row">
                                     <div class="col-xs-8">
-                                        <button type="submit" name="edge_save" class="btn btn-primary btn-sm param-save">Save</button>
+                                        <button type="reset" class="btn btn-default btn-sm">Reset</button>
                                         <a href="#" data-toggle="modal" data-dismiss="modal"
                                            data-target="#nodeEdgeDeleteModal"
                                            data-module-id="{{ module.id }}"
                                            data-edge-id="{{ item.id }}"
                                            data-edge-name="{{ item.from_node.name }} - {{ item.to_node.name }}"
                                            class="btn btn-danger btn-sm param-delete">Delete</a>
-                                        <button type="reset" class="btn btn-default btn-sm">Reset</button>
+                                        <button type="submit" name="edge_save" class="btn btn-primary btn-sm param-save">Save</button>
                                     </div>
                                     <div class="col-xs-4" style="position: relative; bottom: 0;">
                                     {% if draw_invisible_button %}
