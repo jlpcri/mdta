@@ -72,7 +72,7 @@ function create_cy_object(cy_nodes, cy_edges) {
         },
         'renderedPosition': {
             x: 100,
-            y: graph_height
+            y: graph_height - 30
         }
     });
     var obj = cytoscape({
@@ -118,10 +118,10 @@ function create_cy_object(cy_nodes, cy_edges) {
             }
         ],
         layout: cy_layout_options,
-        userZoomingEnabled: false
+        userZoomingEnabled: true
     });
 
-    obj.fit('node');
+    // obj.fit('node');
 
     // project_draw_fixed_eles(obj);
 

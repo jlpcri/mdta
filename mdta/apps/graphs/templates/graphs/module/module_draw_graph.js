@@ -39,7 +39,7 @@ $.each(cy_data_nodes, function(key, value){
 if (cy_layout_flag){
     cy_layout_options = {
         name: 'preset',
-        fit: true
+        fit: false
     }
 } else {
     cy_layout_options = {
@@ -66,6 +66,8 @@ $.each(cy_data_edges, function(key, value){
 var cy = create_cy_object(cy_nodes_default, cy_edges_default);
 
 function create_cy_object(cy_nodes, cy_edges) {
+    add_new_nodes_shape_to_graph(cy_nodes);
+
     var obj = cytoscape({
         container: $('#node_in_module_cy')[0],
         elements: {
@@ -83,7 +85,9 @@ function create_cy_object(cy_nodes, cy_edges) {
                     'height': '30px',
                     'width': '75px',
                     'label': 'data(label)',
-                    'text-valign': 'bottom'
+                    'text-valign': 'bottom',
+                    // 'text-wrap': 'ellipsis',
+                    // 'text-max-width': '75px'
                 }
             },
             {
@@ -266,7 +270,7 @@ window.setInterval(function(){
 //});
 
 function savePositionToNode(cy){
-    var nodes = cy.nodes(),
+    var nodes = cy.elements('node[id > 0]'),
         positions = [],
         module_id = get_current_module_id();
 
@@ -378,4 +382,41 @@ function remove_edge_from_module(edge) {
     deleteModal.find('input[name="nodeEdgeDeleteEdgeName"]').val(edge.data().name);
 
     deleteModal.modal('show')
+}
+
+function add_new_nodes_shape_to_graph(nodes) {
+    var pos_x_initial = 80,
+        idx = 0;
+
+    var obj = {
+        'Start': 'start',
+
+        'Play Prompt': 'say_',
+        'Menu Prompt': 'prompt_',
+        'Menu Prompt WC': 'prompt_with_confirm_',
+
+        'Database': 'database',
+        'Set Variable': 'set_variable',
+
+        'Decision Check': 'decision_check',
+        'Language Select': 'language_select',
+        'Transfer': 'transfer'
+    };
+    $.each(obj, function (key, value) {
+        idx = idx + 1;
+        nodes.push({
+            'data': {
+                'id': idx * -1,
+                'label': key,
+                'image': image_url +'mdta-shapes/{0}.png'.format(value),
+                'color': 'white'
+            },
+            'renderedPosition': {
+                x: pos_x_initial + idx * 100,
+                y: graph_height - 30
+            }
+        })
+    });
+
+    return nodes;
 }
