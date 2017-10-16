@@ -523,6 +523,8 @@ def module_node_new(request, module_id):
     """
     if request.method == 'POST':
         form = NodeNewForm(request.POST)
+        node_position = json.loads(request.POST.get('positions'))
+
         if form.is_valid():
             node = form.save(commit=False)
 
@@ -531,15 +533,15 @@ def module_node_new(request, module_id):
             # set initial position of new node
             properties[NODE_POSITIONS_KEY] = {
                 module_id: {
-                    NODE_X_KEY: NODE_X_INITIAL,
-                    NODE_Y_KEY: NODE_Y_INITIAL
+                    NODE_X_KEY: node_position[NODE_X_KEY],
+                    NODE_Y_KEY: node_position[NODE_Y_KEY]
                 }
             }
 
             node.properties = properties
             node.save()
 
-            messages.success(request, 'Node is Added')
+            # messages.success(request, 'Node is Added')
         else:
             # print(form.errors)
             messages.error(request, form.errors)

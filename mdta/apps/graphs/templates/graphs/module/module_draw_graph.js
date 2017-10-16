@@ -133,7 +133,7 @@ function module_context_menu(cy){
                 id: 'verbiages',
                 content: 'Verbiages',
                 tooltipText: 'Prompt Verbiages',
-                selector: 'node',
+                selector: 'node[id > 0]',
                 onClickFunction: function (event) {
                     var node = event.target;
                     // console.log('Verbiages: ', node.id());
@@ -171,7 +171,7 @@ function module_context_menu(cy){
                 id: 'remove-node',
                 content: 'Remove Node',
                 tooltipText: 'Remove Node',
-                selector: 'node',
+                selector: 'node[id > 0]',
                 onClickFunction: function (event) {
                     var node = event.target;
                     remove_node_from_module(node);
@@ -212,7 +212,9 @@ function module_context_menu(cy){
 }
 
 function module_click_event(cy){
-    cy.on('tap', 'node', function(evt){
+    var tap_flag = false;
+
+    cy.on('tap', 'node[id > 0]', function(evt){
         var node = evt.target,
             current_module_id = get_current_module_id();;
 
@@ -235,7 +237,7 @@ function module_click_event(cy){
         $('#module-node-detail-modal').modal('show');
     });
 
-    cy.on('tapend', 'node', function (evt) {
+    cy.on('tapend', 'node[id > 0]', function (evt) {
         var node = evt.target;
 
         // console.log(node.position())
@@ -244,6 +246,19 @@ function module_click_event(cy){
             'position': node.position()
         };
         sendMessage(JSON.stringify(data))
+    });
+
+    cy.on('tap', 'node[id < 0]', function (evt) {
+        tap_flag = true;
+    });
+
+    cy.on('free', 'node[id < 0]', function (evt) {
+        var node_type_id = evt.target.id() * -1;
+
+        if (!tap_flag) {
+            add_new_node_to_module(evt.target.position(), node_type_id)
+        }
+        tap_flag = false;
     });
 
     cy.on('tap', 'edge', function(evt){
@@ -264,10 +279,6 @@ function module_click_event(cy){
 window.setInterval(function(){
     savePositionToNode(cy);
 }, 5000);
-
-//$(window).bind('beforeunload', function(){
-//    savePositionToNode(cy);
-//});
 
 function savePositionToNode(cy){
     var nodes = cy.elements('node[id > 0]'),
@@ -348,9 +359,33 @@ function module_view_options(){
     });
 }
 
-function add_new_node_to_module(pos) {
-    // console.log('New Node', pos)
-    $('#module-node-new-modal').modal('show')
+function add_new_node_to_module(pos, node_type_id) {
+    // console.log(node_type_id)
+    var node_new_modal = $('#module-node-new-modal'),
+        positions = {
+            'posx': pos.x,
+            'posy': pos.y
+        },
+        options = node_new_modal.find('select[name="type"] option').clone();
+
+    if (typeof node_type_id !== 'undefined'){
+        var opts = options.filter(function (t) {
+            return parseInt(this.value) === parseInt(node_type_id);
+        });
+        node_new_modal.find('select[name="type"]').html(opts);
+
+        node_new_modal.find('select[name="type"]').val(node_type_id);
+        var location = node_new_modal.find('#project-node-new-properties');
+        load_keys_from_type_contents(node_type_id, location, 'node')
+    }
+
+    node_new_modal.find('input[name="positions"]').val(JSON.stringify(positions));
+    node_new_modal.modal('show');
+    node_new_modal.bind('hidden.bs.modal', function () {
+        node_new_modal.find('select[name="type"]').html(options);
+        cy.elements().remove();
+        cy = create_cy_object(cy_nodes_default, cy_edges_default)
+    })
 }
 
 function add_new_edge_to_module(pos) {
@@ -372,7 +407,7 @@ function remove_node_from_module(node) {
 }
 
 function remove_edge_from_module(edge) {
-    // console.log('Rem?ove Edge', edge.data())
+    // console.log('Remove Edge', edge.data())
     var deleteModal = $('#nodeEdgeDeleteModal');
 
     deleteModal.find('input[name="nodeEdgeDeleteModuleId"]').val(get_current_module_id());
@@ -385,34 +420,65 @@ function remove_edge_from_module(edge) {
 }
 
 function add_new_nodes_shape_to_graph(nodes) {
-    var pos_x_initial = 80,
-        idx = 0;
+    var pos_x_initial = 20;
 
-    var obj = {
-        'Start': 'start',
+    var obj = [
+        {
+            'node_type': 'Start',
+            'node_image': 'start',
+            'node_id': '-1'
+        },
+        {
+            'node_type': 'PP',
+            'node_image': 'say_',
+            'node_id': '-2'
+        },
+        {
+            'node_type': 'MP',
+            'node_image': 'prompt_',
+            'node_id': '-3'
+        },
+        {
+            'node_type': 'MPC',
+            'node_image': 'prompt_with_confirm_',
+            'node_id': '-4'
+        },
+        {
+            'node_type': 'DataQueries Database',
+            'node_image': 'database',
+            'node_id': '-6'
+        },
+        {
+            'node_type': 'Transfer',
+            'node_image': 'transfer',
+            'node_id': '-10'
+        },
+        {
+            'node_type': 'LS',
+            'node_image': 'language_select',
+            'node_id': '-13'
+        },
+        {
+            'node_type': 'SV',
+            'node_image': 'set_variable',
+            'node_id': '-14'
+        },
+        {
+            'node_type': 'DC',
+            'node_image': 'decision_check',
+            'node_id': '-15'
+        }
+    ];
 
-        'Play Prompt': 'say_',
-        'Menu Prompt': 'prompt_',
-        'Menu Prompt WC': 'prompt_with_confirm_',
-
-        'Database': 'database',
-        'Set Variable': 'set_variable',
-
-        'Decision Check': 'decision_check',
-        'Language Select': 'language_select',
-        'Transfer': 'transfer'
-    };
-    $.each(obj, function (key, value) {
-        idx = idx + 1;
+    $.each(obj, function (idx, item) {
         nodes.push({
             'data': {
-                'id': idx * -1,
-                'label': key,
-                'image': image_url +'mdta-shapes/{0}.png'.format(value),
+                'id': item['node_id'],
+                'image': image_url +'mdta-shapes/{0}.png'.format(item['node_image']),
                 'color': 'white'
             },
             'renderedPosition': {
-                x: pos_x_initial + idx * 100,
+                x: pos_x_initial + idx * 80,
                 y: graph_height - 30
             }
         })

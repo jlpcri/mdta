@@ -67,7 +67,7 @@ function create_cy_object(cy_nodes, cy_edges) {
     cy_nodes.push({
         'data': {
             'id': -1,
-            'label': 'New Module',
+            // 'label': 'New Module',
             'image': image_new
         },
         'renderedPosition': {
@@ -121,8 +121,6 @@ function create_cy_object(cy_nodes, cy_edges) {
         userZoomingEnabled: true
     });
 
-    // obj.fit('node');
-
     // project_draw_fixed_eles(obj);
 
     project_context_menu(obj);
@@ -136,11 +134,6 @@ project_view_options();
 window.setInterval(function(){
     savePositionToModule(cy);
 }, 5000);
-
-//$(window).bind('beforeunload', function () {
-//    savePositionToModule(cy);
-//});
-
 
 function savePositionToModule(cy){
     var nodes = cy.elements('node[id > 0]'),
@@ -225,10 +218,6 @@ function add_new_module(pos) {
 
     })
 }
-
-// $('#module-new-modal').bind('hidden.bs.modal', function () {
-//     console.log('New module cancel')
-// })
 
 function project_click_event(cy){
     var tap_flag = false;
@@ -366,14 +355,6 @@ function project_draw_fixed_eles(obj) {
         ctx.fillText("This text is fixed", 200, graph_height);
 
         // ctx.drawImage(image_new, 100, graph_height)
-
-
-
         ctx.restore()
-
-
-
-
     })
-
 }
