@@ -28,7 +28,7 @@ def display_testrail_steps(request, mdta_project_id):
     return JsonResponse({'steps': case.custom_steps_separated})
 
 
-##Old code that is not using Frank's API, commented.
+##Old code that is not using Frank's API.
 '''def execute_test(request, mdta_project_id):
     p = Project.objects.get(id=mdta_project_id)
     tri = p.testrail.instance
@@ -66,8 +66,6 @@ def execute_test(request, mdta_project_id):
     jobject['script'] = case.script.body
     jobject['record_present'] = case.playback
     jobject['recordings'] = recordings
-
-    print (case.script.body)
 
     return JsonResponse(jobject)
 

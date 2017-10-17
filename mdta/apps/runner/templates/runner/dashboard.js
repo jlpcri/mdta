@@ -206,7 +206,8 @@ function populateSteps(){
             result_table += "<tr><th>Holly</th><td>" + data.calls[0].uri + "</td></tr>";
 
             if(data.record_present){
-            var rec = "<a href='"+data.recordings+'/'+data.title+".wav'> Download</a>";
+            //var rec = "<a href='"+data.recordings+'/'+data.title+".wav'> Download</a>";
+            var rec = "<audio controls preload='none'> <source src='"+data.recordings+"/"+data.title+".wav' type = 'audio/wav'> </audio>";
             result_table += "<tr><th>Recordings</th><td>" + rec + "</td></tr>";
             }
 
