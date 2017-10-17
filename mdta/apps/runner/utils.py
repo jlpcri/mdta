@@ -107,21 +107,6 @@ class TestRailCase(TestRailORM):
         else:
             return self.__dict__['custom_steps_separated']
 
-    @property
-    def custom_default_audio_path(self):
-        if "custom_default_audio_path" not in self.__dict__.keys():
-            return self.custom_default_audio_path
-        else:
-            return self.__dict__['custom_default_audio_path']
-
-    @property
-    def custom_call_language_audio_path(self):
-        if "custom_call_language_audio_path" not in self.__dict__.keys():
-            return self.custom_call_language_audio_path
-        else:
-            return self.__dict__['custom_call_language_audio_path']
-
-
     def get_title(self):
         if 'title' not in self.__dict__.keys():
             return self.title
