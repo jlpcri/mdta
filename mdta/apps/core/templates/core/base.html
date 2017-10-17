@@ -11,8 +11,10 @@
 {#        <link rel="shortcut icon" href="http://www.west.com/wp-content/themes/cornerstone-master/images/west_favicon.png" />#}
 
         <!-- Load Jquery Source -->
+        <link rel="stylesheet" type="text/css" href="{% static 'common/cytoscape/extensions/cytoscape-qtip/jquery.qtip.min.css' %}">
         <script src="{% static 'scorecard/jquery/jquery-1.12.0.js' %}"></script>
         <script src="{% static 'scorecard/jquery/jquery-ui-1.11.4/jquery-ui.js' %}"></script>
+        <script src="{% static 'common/cytoscape/extensions/cytoscape-qtip/jquery.qtip.min.js' %}"></script>
         <link href="{% static 'scorecard/jquery/jquery-ui-themes-1.11.4/themes/smoothness/jquery-ui.css' %}" rel="stylesheet">
 
 
@@ -193,6 +195,7 @@
         <script src="{% static 'common/cytoscape/3.1.4/cytoscape.js' %}"></script>
         <script src="{% static 'common/cytoscape/extensions/cytoscape-context-menu/cytoscape-context-menus.js' %}"></script>
         <script src="{% static 'common/cytoscape/extensions/cytoscape-canvas/cytoscape-canvas.js' %}"></script>
+        <script src="{% static 'common/cytoscape/extensions/cytoscape-qtip/cytoscape-qtip.js' %}"></script>
         <script src="{% static 'mdta/ws4redis.js' %}"></script>
 
         <script>

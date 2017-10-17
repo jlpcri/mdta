@@ -76,7 +76,7 @@ function create_cy_object(cy_nodes, cy_edges) {
         },
         style: [
             {
-                selector: 'node',
+                selector: 'node[id > 0]',
                 style: {
                     'background-image': 'data(image)',
                     'background-color': 'data(color)',
@@ -91,6 +91,21 @@ function create_cy_object(cy_nodes, cy_edges) {
                 }
             },
             {
+                selector: 'node[id < 0]',
+                style: {
+                    'background-image': 'data(image)',
+                    'background-color': 'data(color)',
+                    'background-fit': 'contain',
+                    'shape': 'rectangle',
+                    'height': '30px',
+                    'width': '75px',
+                    // 'label': 'data(label)',
+                    // 'text-valign': 'bottom',
+                    // 'text-wrap': 'ellipsis',
+                    // 'text-max-width': '75px'
+                }
+            },
+            {
                 selector: 'edge',
                 style: {
                     'width': 1,
@@ -98,12 +113,6 @@ function create_cy_object(cy_nodes, cy_edges) {
                     'curve-style': 'bezier',
                     'target-arrow-color': '#00134d',
                     'target-arrow-shape': 'triangle'
-                }
-            },
-            {
-                selector: 'node:selected',
-                style: {
-                    'background-color': '#ccd9ff'
                 }
             },
             {
@@ -120,14 +129,15 @@ function create_cy_object(cy_nodes, cy_edges) {
 
     module_context_menu(obj);
     module_click_event(obj);
+    module_qtip_event(obj);
 
     return obj;
 }
 
 module_view_options();
 
-function module_context_menu(cy){
-    cy.contextMenus({
+function module_context_menu(obj){
+    obj.contextMenus({
         menuItems: [
             {
                 id: 'verbiages',
@@ -211,10 +221,10 @@ function module_context_menu(cy){
     });
 }
 
-function module_click_event(cy){
+function module_click_event(obj){
     var tap_flag = false;
 
-    cy.on('tap', 'node[id > 0]', function(evt){
+    obj.on('tap', 'node[id > 0]', function(evt){
         var node = evt.target,
             current_module_id = get_current_module_id();;
 
@@ -237,7 +247,7 @@ function module_click_event(cy){
         $('#module-node-detail-modal').modal('show');
     });
 
-    cy.on('tapend', 'node[id > 0]', function (evt) {
+    obj.on('tapend', 'node[id > 0]', function (evt) {
         var node = evt.target;
 
         // console.log(node.position())
@@ -248,11 +258,11 @@ function module_click_event(cy){
         sendMessage(JSON.stringify(data))
     });
 
-    cy.on('tap', 'node[id < 0]', function (evt) {
+    obj.on('tap', 'node[id < 0]', function (evt) {
         tap_flag = true;
     });
 
-    cy.on('free', 'node[id < 0]', function (evt) {
+    obj.on('free', 'node[id < 0]', function (evt) {
         var node_type_id = evt.target.id() * -1;
 
         if (!tap_flag) {
@@ -261,14 +271,14 @@ function module_click_event(cy){
         tap_flag = false;
     });
 
-    cy.on('tap', 'edge', function(evt){
+    obj.on('tap', 'edge', function(evt){
         var edge = evt.target;
         // $('a[href="#moduleEdgeEdit"]').click();
         $('a[href="#edge-{0}"]'.format(edge.id())).click();
         $('#module-edge-detail-modal').modal('show');
     });
 
-    cy.on('tap', function(event){
+    obj.on('tap', function(event){
         var evtTarget = event.target;
         if (evtTarget === cy){
             $('a[href="#moduleNodeEdgeEmpty"]').click();
@@ -280,8 +290,8 @@ window.setInterval(function(){
     savePositionToNode(cy);
 }, 5000);
 
-function savePositionToNode(cy){
-    var nodes = cy.elements('node[id > 0]'),
+function savePositionToNode(obj){
+    var nodes = obj.elements('node[id > 0]'),
         positions = [],
         module_id = get_current_module_id();
 
@@ -429,22 +439,22 @@ function add_new_nodes_shape_to_graph(nodes) {
             'node_id': '-1'
         },
         {
-            'node_type': 'PP',
+            'node_type': 'PlayPrompt',
             'node_image': 'say_',
             'node_id': '-2'
         },
         {
-            'node_type': 'MP',
+            'node_type': 'MenuPrompt',
             'node_image': 'prompt_',
             'node_id': '-3'
         },
         {
-            'node_type': 'MPC',
+            'node_type': 'MenuPromptConfirm',
             'node_image': 'prompt_with_confirm_',
             'node_id': '-4'
         },
         {
-            'node_type': 'DataQueries Database',
+            'node_type': 'DataQueriesDatabase',
             'node_image': 'database',
             'node_id': '-6'
         },
@@ -454,17 +464,17 @@ function add_new_nodes_shape_to_graph(nodes) {
             'node_id': '-10'
         },
         {
-            'node_type': 'LS',
+            'node_type': 'LanguageSelect',
             'node_image': 'language_select',
             'node_id': '-13'
         },
         {
-            'node_type': 'SV',
+            'node_type': 'SetVariable',
             'node_image': 'set_variable',
             'node_id': '-14'
         },
         {
-            'node_type': 'DC',
+            'node_type': 'DecisionCheck',
             'node_image': 'decision_check',
             'node_id': '-15'
         }
@@ -474,6 +484,7 @@ function add_new_nodes_shape_to_graph(nodes) {
         nodes.push({
             'data': {
                 'id': item['node_id'],
+                'label': item['node_type'],
                 'image': image_url +'mdta-shapes/{0}.png'.format(item['node_image']),
                 'color': 'white'
             },
@@ -485,4 +496,21 @@ function add_new_nodes_shape_to_graph(nodes) {
     });
 
     return nodes;
+}
+
+function module_qtip_event(obj) {
+    obj.elements('node[id < 0]').qtip({
+        content: function(){ return 'Drag to Add New ' + this.data().label + ' Node' },
+        position: {
+            my: 'top center',
+            at: 'bottom center'
+        },
+        style: {
+            classes: 'qtip-bootstrap',
+            tip: {
+                width: 16,
+                height: 8
+            }
+        }
+    })
 }
