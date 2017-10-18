@@ -449,7 +449,7 @@ function remove_edge_from_module(edge) {
 }
 
 function add_new_nodes_shape_to_graph(nodes) {
-    var pos_x_initial = 20;
+    var pos_x_initial = 100;
 
     var obj = [
         {
