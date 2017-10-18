@@ -69,13 +69,16 @@ $('.moduleNodeEdgeNew').on('show.bs.modal', function(e){
         edge_type_id = $('.moduleNodeEdgeNew #id_edge-type').find('option:selected').val(),
         edge_location = '#module-node-edge-new-edge-properties',
         from_node_id = $(e.relatedTarget).data('from-node-id'),
-        module_id = $(e.relatedTarget).data('module-id');
+        module_id = $(e.relatedTarget).data('module-id'),
+        open_from = $(e.relatedTarget).data('open-from');
 
-    $(e.currentTarget).find('input[name="from_node_id"]').val(from_node_id);
-    $(e.currentTarget).find('select[name="module"]').val(module_id);
+    if (typeof open_from !== 'undefined') {
+        $(e.currentTarget).find('input[name="from_node_id"]').val(from_node_id);
+        $(e.currentTarget).find('select[name="module"]').val(module_id);
 
-    load_keys_from_type_contents_node_auto(node_type_id, node_location, 'node');
-    load_keys_from_type_contents_edge_auto(edge_type_id, edge_location, 'edge');
+        load_keys_from_type_contents_node_auto(node_type_id, node_location, 'node');
+        load_keys_from_type_contents_edge_auto(edge_type_id, edge_location, 'edge');
+    }
 });
 
 $('.moduleNodeEdgeNew #id_type').on('change', function(){

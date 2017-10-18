@@ -125,6 +125,7 @@ function create_cy_object(cy_nodes, cy_edges) {
 
     project_context_menu(obj);
     project_click_event(obj);
+    project_qtip_event(obj);
 
     return obj;
 }
@@ -356,5 +357,22 @@ function project_draw_fixed_eles(obj) {
 
         // ctx.drawImage(image_new, 100, graph_height)
         ctx.restore()
+    })
+}
+
+function project_qtip_event(obj) {
+    obj.elements('node[id < 0]').qtip({
+        content: function(){ return 'Drag to Add New Module' },
+        position: {
+            my: 'top center',
+            at: 'bottom center'
+        },
+        style: {
+            classes: 'qtip-bootstrap',
+            tip: {
+                width: 16,
+                height: 8
+            }
+        }
     })
 }

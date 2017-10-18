@@ -178,6 +178,16 @@ function module_context_menu(obj){
                 hasTrailingDivider: true
             },
             {
+                id: 'new-node-edge',
+                content: 'New Node&Edge',
+                tooltipText: 'Auto New Node&Edge',
+                selector: 'node[id > 0]',
+                coreAsWell: true,
+                onClickFunction: function (event) {
+                    add_new_node_and_edge_to_module(event)
+                }
+            },
+            {
                 id: 'remove-node',
                 content: 'Remove Node',
                 tooltipText: 'Remove Node',
@@ -378,6 +388,7 @@ function add_new_node_to_module(pos, node_type_id) {
         },
         options = node_new_modal.find('select[name="type"] option').clone();
 
+    // Add new node from drag&drop
     if (typeof node_type_id !== 'undefined'){
         var opts = options.filter(function (t) {
             return parseInt(this.value) === parseInt(node_type_id);
@@ -401,6 +412,14 @@ function add_new_node_to_module(pos, node_type_id) {
 function add_new_edge_to_module(pos) {
     // console.log('New Edge', pos)
     $('#module-edge-new-modal').modal('show')
+}
+
+function add_new_node_and_edge_to_module(evt) {
+    var newNodeEdgeModal = $('#module-node-edge-new-modal'),
+        from_node_id = evt.target.id();
+
+    newNodeEdgeModal.find('input[name="from_node_id"]').val(from_node_id);
+    newNodeEdgeModal.modal('show')
 }
 
 function remove_node_from_module(node) {
