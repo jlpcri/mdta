@@ -237,7 +237,8 @@ function project_click_event(cy){
         var node = evt.target;
         var data = {
             'node_id': node.id(),
-            'position': node.position()
+            'position': node.position(),
+            'node_data': node.data()
         };
         sendMessage(JSON.stringify(data))
     });

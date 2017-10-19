@@ -75,13 +75,20 @@ function reDrawGraph(node) {
 
     // var cy_nodes = cy_nodes_default;
     node = JSON.parse(node);
-
-    $.each(cy_nodes, function () {
-        if (this.data.id === node.node_id){
-            this.renderedPosition = node.position;
-            return false
-        }
-    });
+    var module_nodes = cy_nodes.map(function (t) { return t.data.id });
+    if (module_nodes.indexOf(node.node_id) >= 0) {
+        $.each(cy_nodes, function () {
+            if (this.data.id === node.node_id) {
+                this.renderedPosition = node.position;
+                return false
+            }
+        });
+    } else {
+        cy_nodes.push({
+            'data': node.node_data,
+            'renderedPosition': node.position
+        });
+    }
 
     cy.elements().remove();
     cy = create_cy_object(cy_nodes, cy_edges);

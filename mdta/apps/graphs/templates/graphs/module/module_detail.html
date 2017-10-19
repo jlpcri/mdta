@@ -64,7 +64,8 @@
         $('#node_in_module_cy').css({
             'height': graph_height
         });
-        var cy_data_nodes = {{ network_nodes|safe }},
+        var is_testheader = '{{ module.project }}',
+            cy_data_nodes = {{ network_nodes|safe }},
             cy_data_edges = {{ network_edges|safe }},
             image_url = "{% static 'common/brand_icons/turnpost-png-graphics/' %}",
 

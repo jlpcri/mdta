@@ -1,17 +1,26 @@
 /**
  * Created by sliu on 5/18/16.
  */
+
 // Calculate cytoscape graph height
-var graph_height = 0,
-    screen_avail_height = window.screen.availHeight;
-if (screen_avail_height >= 999) {
-    graph_height = 800
-} else if (screen_avail_height >= 900){
-    graph_height = 680
-} else if (screen_avail_height > 850){
-    graph_height = 650
-} else {
-    graph_height = 500
+var graph_height = calculate_graph_height();
+function calculate_graph_height() {
+    var graph_height = 0,
+        screen_avail_height = window.screen.availHeight;
+    switch (true) {
+        case (screen_avail_height >= 999):
+            graph_height = 800;
+            break;
+        case (screen_avail_height >= 900):
+            graph_height = 680;
+            break;
+        case (screen_avail_height > 850):
+            graph_height = 650;
+            break;
+        default:
+            graph_height = 500;
+    }
+    return graph_height;
 }
 
 // String format custom method
