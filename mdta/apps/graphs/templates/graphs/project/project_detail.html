@@ -4,14 +4,10 @@
 {% block title %} Project Detail {% endblock %}
 
 {% block extrahead %}
-    <script type="text/javascript" src="{% static 'common/visjs/4.16.1/vis-network.min.js' %}"></script>
-    <link type="text/css" href="{% static 'common/visjs/4.16.1/vis.css' %}">
-
     <style type="text/css">
-        #module_in_project {
+        #module_in_project_cy {
             width: auto;
-            height: auto;
-            border: 1px solid lightgray;
+{#            height: auto;#}
         }
         .btn-file {
             position: relative;
@@ -37,277 +33,28 @@
 {% endblock%}
 
 {% block body %}
-    {% include 'graphs/project/project_sidebar.html' %}
-
     <div class="container">
         <div class="row">
-            <div class="col-xs-9">
-                <div class="row">
-                    <div class="col-xs-4">
-                        <h4>Project: {{ project.name }}</h4>
-                    </div>
-                    <div class="col-xs-8 text-right">
-                        <a href="#" data-toggle="modal" data-target="#module-import-modal" class="btn btn-default">Import</a>
-                        <a href="#" data-toggle="modal" data-target="#module-new-modal" class="btn btn-default">New Module</a>
-                        <a href="{% url 'testcases:tcs_project' %}" class="btn btn-default">Start Test</a>
-                        <div class="btn-group" data-toggle="buttons">
-                                <label class="btn btn-default dropdown-toggle drop-button" data-toggle="dropdown">
-                                    <span id="text"> View Options </span><span class="caret"></span>
-                                </label>
-                                <ul class="dropdown-menu" id="divNewNotifications">
-                                    <li><a class="dropdown-item" id="default"> Default </a></li>
-                                    <li><a class="dropdown-item" id="data-gaps"> Data Gaps </a></li>
-                                    <li class="disabled"><a class="dropdown-item" id="failed-testcases"> Failed Testcases </a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                <div class="row">
-                    <div id="module_in_project" style="margin-top: 10px;"></div>
-                </div>
+            <div class="col-xs-1">
             </div>
-            <div class="col-xs-3">
-                <div class="row hidden">
-                    <ul class="nav nav-tabs">
-                        <li><a href="#projectModules" originalState="#projectModules" data-toggle="tab">ProjectModules</a> </li>
-                        <li><a href="#projectEdges" data-toggle="tab">ProjectEdges</a> </li>
+            <div class="col-xs-4">
+                <h4>Project: {{ project.name }}</h4>
+            </div>
+            <div class="col-xs-7 text-right">
+                <div class="btn-group" data-toggle="buttons">
+                    <label class="btn btn-default dropdown-toggle drop-button" data-toggle="dropdown">
+                        <span id="text"> View Options </span><span class="caret"></span>
+                    </label>
+                    <ul class="dropdown-menu" id="divNewNotifications">
+                        <li><a class="dropdown-item" id="default"> Default </a></li>
+                        <li><a class="dropdown-item" id="data-gaps"> Data Gaps </a></li>
+                        <li class="disabled"><a class="dropdown-item" id="failed-testcases"> Failed Testcases </a></li>
                     </ul>
                 </div>
-                <div class="tab-content">
-                    <div class="tab-pane" id="projectModules">
-                        <div class="col-xs-6"><h4>Modules: {{ project.modules_count }}</h4></div>
-                        <div class="col-xs-6" style="position: relative; bottom: 0;">
-                            {% if draw_invisible_button %}
-                                {% if all_edges %}
-                                    <a href="{% url 'graphs:project_detail' project.id %}" class="btn btn-default">DrawVisible</a>
-                                {% else %}
-                                    <a href="{% url 'graphs:project_detail' project.id %}?all_edges=true" class="btn btn-default">DrawAll</a>
-                                {% endif %}
-                            {% endif %}
-                        </div>
-
-                        <table class="table table-hover table-condensed">
-                            <thead>
-                                <tr>
-                                    <th class="col-xs-9">Name</th>
-                                    <th class="col-xs-3"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for item in project.modules %}
-                                    <tr>
-                                        <td><a href="{% url 'graphs:project_module_detail' item.id %}">{{ item.name }}</a></td>
-                                        <td>
-                                            <a href="#module-edit-modal" data-toggle="modal" class="btn btn-primary btn-xs"
-                                                data-module-id="{{ item.id }}"
-                                                data-module-name="{{ item.name }}"
-                                                ><i class="fa fa-edit"></i> </a>
-                                        </td>
-                                    <tr></tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="tab-pane" id="projectEdges">
-                        <div class="col-xs-12">
-                            <div class="row hidden">
-                                <ul class="nav nav-tabs">
-                                    {% for item in edges_between_modules %}
-                                        <li><a href="#project-edge-{{ item.id }}" data-toggle="tab">{{ item.id }}</a></li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                            <div class="tab-content">
-                                {% for item in edges_between_modules %}
-                                    <div class="tab-pane" id="project-edge-{{ item.id }}">
-                                        {% if item.edge_list %}
-                                            <div class="row edges-between-modules">
-                                                <h4>Edges List</h4>
-                                                <div class="list-group">
-                                                    {% for edge in item.edge_list %}
-                                                        <a href="#edge-between-modules-{{ edge.id }}" data-toggle="tab" class="list-group-item">{{ edge.edge_name }}</a>
-                                                    {% endfor %}
-                                                </div>
-                                            </div>
-                                            <div class="tab-content edges-between-modules-contents">
-                                                {% for edge in item.edge_list %}
-                                                    <div class="tab-pane" id="edge-between-modules-{{ edge.id }}">
-                                                        <div class="row">
-                                                            <div class="col-xs-6">
-                                                                <h4>Edge Detail</h4>
-                                                            </div>
-                                                            <div class="col-xs-6">
-                                                                <button class="btn btn-default back-to-edges-between-modules" value="project-edge-{{ item.id }}">Back</button>
-                                                            </div>
-                                                        </div>
-
-{#                                                        <form method="post" action="{% url 'graphs:module_edge_edit' edge.id %}" class="projectEdgeEditForm">#}
-                                                            <div class="row">
-                                                                <label for="projectEdgeEditFromNode">FromNode:</label>
-                                                                <input id="projectEdgeEditFromNode" class="form-control" value="{{ edge.from_node }}" readonly/>
-                                                            </div>
-                                                            <div class="row">
-                                                                <label for="projectEdgeEditToNode">ToNode:</label>
-                                                                <input id="projectEdgeEditToNode" class="form-control" value="{{ edge.to_node }}" readonly/>
-                                                            </div>
-                                                            <div class="row">
-                                                                <label for="projectEdgeEditPriority">Priority:</label>
-                                                                <input id="projectEdgeEditPriority" class="form-control" value="{{ edge.priority }}" readonly/>
-                                                            </div>
-                                                            <div class="row">
-                                                                <label for="projectEdgeEditType">Type:</label>
-                                                                <input id="projectEdgeEditType" class="form-control" value="{{ edge.type }}" readonly/>
-                                                            </div>
-                                                            <div class="row">
-                                                                <div class="col-xs-12" >
-                                                                    <div id="project-edge-edit-properties">
-                                                                        {% for key, value in edge.properties.items %}
-                                                                            {% if key == 'OutputData' %}
-                                                                                {% for subkey, subvalue in edge.properties.OutputData.items %}
-                                                                                    <div class="row" style="margin-top: 5px;">
-                                                                                        <div class="col-xs-1"></div>
-                                                                                        <div class="col-xs-11">
-                                                                                            <label>
-                                                                                                {% if subkey == 'Outputs' %}
-                                                                                                    Follow If...
-                                                                                                {% else %}
-                                                                                                    {{ subkey }}:
-                                                                                                {% endif %}
-                                                                                            </label>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div class="row">
-                                                                                        <div class="col-xs-1"></div>
-                                                                                        <div class="col-xs-11">
-                                                                                            <input class="form-control" name="{{ subkey }}_0" value="{{ subvalue }}" readonly/>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                {% endfor %}
-                                                                            {% else %}
-                                                                                <div class="row" style="margin-top: 5px;">
-                                                                                    <div class="col-xs-12">
-                                                                                        <label>{{ key }}:</label>
-                                                                                    </div>
-                                                                                </div>
-                                                                                <div class="row" style="margin-top: 5px;">
-                                                                                    <div class="col-xs-12">
-                                                                                        <input class="form-control" name="{{ key }}" value="{{ value }}" readonly/>
-                                                                                    </div>
-                                                                                </div>
-                                                                            {% endif %}
-                                                                        {% endfor %}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-{#                                                            <br>#}
-{#                                                            <div class="row">#}
-{#                                                                <div class="col-xs-10">#}
-{#                                                                    <div id="projectEdgeEditErrMessage">&nbsp;</div>#}
-{#                                                                </div>#}
-{#                                                            </div>#}
-{#                                                            <br>#}
-{#                                                            {% csrf_token %}#}
-{#                                                            <div class="row">#}
-{#                                                                <div class="col-xs-12">#}
-{#                                                                    <button type="submit" name="project_edge_save" class="btn btn-primary param-save">Save</button>#}
-{#                                                                    <button type="submit" name="project_edge_delete" class="btn btn-danger param-delete">Delete</button>#}
-{#                                                                    <button type="reset" class="btn btn-default">Reset</button>#}
-{#                                                                </div>#}
-{#                                                            </div>#}
-{#                                                        </form>#}
-                                                    </div>
-                                                {% endfor %}
-                                            </div>
-
-                                        {% else %}
-                                            <h4>Edge Detail</h4>
-{#                                            <form method="post" action="{% url 'graphs:module_edge_edit' item.id %}" class="projectEdgeEditForm">#}
-
-                                                <div class="row">
-                                                    <label for="projectEdgeEditFromNode">FromNode:</label>
-                                                    <input id="projectEdgeEditFromNode" class="form-control" value="{{ item.from_node }}" readonly/>
-                                                </div>
-                                                <div class="row">
-                                                    <label for="projectEdgeEditToNode">ToNode:</label>
-                                                    <input id="projectEdgeEditToNode" class="form-control" value="{{ item.to_node }}" readonly/>
-                                                </div>
-                                                <div class="row">
-                                                    <label for="projectEdgeEditPriority">Priority:</label>
-                                                    <input id="projectEdgeEditPriority" class="form-control" value="{{ item.priority }}" readonly/>
-                                                </div>
-                                                <div class="row">
-                                                    <label for="projectEdgeEditType">Type:</label>
-                                                    <input id="projectEdgeEditType" class="form-control" value="{{ item.type }}" readonly/>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-xs-12" >
-                                                        <div id="project-edge-edit-properties">
-                                                            {% for key, value in item.properties.items %}
-                                                                {% if key == 'OutputData' %}
-                                                                    {% for subkey, subvalue in item.properties.OutputData.items %}
-                                                                        <div class="row" style="margin-top: 5px;">
-                                                                            <div class="col-xs-1"></div>
-                                                                            <div class="col-xs-11">
-                                                                                <label>
-                                                                                    {% if subkey == 'Outputs' %}
-                                                                                        Follow If...
-                                                                                    {% else %}
-                                                                                        {{ subkey }}:
-                                                                                    {% endif %}
-                                                                                </label>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="row">
-                                                                            <div class="col-xs-1"></div>
-                                                                            <div class="col-xs-11">
-                                                                                <input class="form-control" name="{{ subkey }}_0" value="{{ subvalue }}" readonly/>
-                                                                            </div>
-                                                                        </div>
-                                                                    {% endfor %}
-                                                                {% else %}
-                                                                    <div class="row" style="margin-top: 5px;">
-                                                                        <div class="col-xs-12">
-                                                                            <label>{{ key }}:</label>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row" style="margin-top: 5px;">
-                                                                        <div class="col-xs-12">
-                                                                            <input class="form-control" name="{{ key }}" value="{{ value }}" readonly/>
-                                                                        </div>
-                                                                    </div>
-                                                                {% endif %}
-                                                            {% endfor %}
-                                                        </div>
-                                                    </div>
-                                                </div>
-{#                                                <br>#}
-{#                                                <div class="row">#}
-{#                                                    <div class="col-xs-10">#}
-{#                                                        <div id="projectEdgeEditErrMessage">&nbsp;</div>#}
-{#                                                    </div>#}
-{#                                                </div>#}
-{#                                                <br>#}
-{#                                                {% csrf_token %}#}
-{#                                                <div class="row">#}
-{#                                                    <div class="col-xs-12">#}
-{#                                                        <button type="submit" name="project_edge_save" class="btn btn-primary param-save">Save</button>#}
-{#                                                        <button type="submit" name="project_edge_delete" class="btn btn-danger param-delete">Delete</button>#}
-{#                                                        <button type="reset" class="btn btn-default">Reset</button>#}
-{#                                                    </div>#}
-{#                                                </div>#}
-{##}
-{#                                            </form>#}
-                                        {% endif %}
-                                    </div>
-                                {% endfor %}
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
             </div>
+        </div>
+        <div class="row">
+            <div id="module_in_project_cy" style="margin-top: 10px;"></div>
         </div>
 
         {% include 'graphs/project/project_detail_modal.html' %}
@@ -316,10 +63,24 @@
 
 {% block footer %}
     <script>
-        var nodes = new vis.DataSet({{ network_nodes|safe }});
-        var edges = new vis.DataSet({{ network_edges|safe }});
-        var image_url = "{% static 'common/brand_icons/turnpost-png-graphics/' %}";
+        var graph_height = 0;
+        if (window.screen.height > 1000) {
+            graph_height = 800
+        } else {
+            graph_height = 600
+        }
+        $('#module_in_project_cy').css({
+            'height': graph_height
+        });
+
+        var cy_data_nodes = {{ network_nodes|safe }},
+            cy_data_edges = {{ network_edges|safe }},
+            image_url = "{% static 'common/brand_icons/turnpost-png-graphics/' %}";
+
         {% include 'graphs/project/project_detail.js' %}
         {% include 'graphs/node_edge_properties.js' %}
+
+        {% include 'graphs/project/project_draw_graph.js' %}
+        {% include 'graphs/websocket.js' %}
     </script>
 {% endblock %}

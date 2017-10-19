@@ -3,11 +3,11 @@ import os
 import socket
 import sys
 
+from mdta.asgi import get_django_settings_module
+
 if __name__ == "__main__":
-    if socket.gethostname() == 'alpha':
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mdta.settings.dev_heyden")
-    else:
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mdta.settings.base")
+    settings_name = get_django_settings_module(socket.gethostname())
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_name)
 
     from django.core.management import execute_from_command_line
 

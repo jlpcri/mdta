@@ -74,6 +74,7 @@ function check_node_properties_json(properties){
 
 /* Start Module Node Delete Code */
 $('.moduleNodeEdgeDelete').on('show.bs.modal', function(e){
+    // console.log($('input[name="nodeEdgeDeleteModuleId"]').val())
     var module_id = $(e.relatedTarget).data('module-id'),
         node_id = $(e.relatedTarget).data('node-id'),
         node_name = $(e.relatedTarget).data('node-name'),
@@ -83,19 +84,44 @@ $('.moduleNodeEdgeDelete').on('show.bs.modal', function(e){
         post_url = '',
         post_data = '';
 
-    if (typeof node_id != 'undefined'){
-        modal_header = 'Delete Node: {0}?'.format(node_name);
-        post_url = "{% url 'graphs:module_node_edit' 0 %}".replace('0', node_id);
-        post_data = {
-            'csrfmiddlewaretoken': '{{ csrf_token }}',
-            'node_delete': node_name
+    if ((typeof node_id == 'undefined') && (typeof edge_id == 'undefined')) {
+        module_id = $('input[name="nodeEdgeDeleteModuleId"]').val();
+        node_id = $('input[name="nodeEdgeDeleteNodeId"]').val();
+        node_name = $('input[name="nodeEdgeDeleteNodeName"]').val();
+        edge_id = $('input[name="nodeEdgeDeleteEdgeId"]').val();
+        edge_name = $('input[name="nodeEdgeDeleteEdgeName"]').val();
+
+        if (node_id != ''){
+            modal_header = 'Delete Node: {0}?'.format(node_name);
+            post_url = "{% url 'graphs:module_node_edit' 0 %}".replace('0', node_id);
+            post_data = {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'node_delete': node_name
+            }
+        } else if (edge_id != '') {
+            modal_header = 'Delete Edge: {0}?'.format(edge_name);
+            post_url = "{% url 'graphs:module_edge_edit' 0 %}".replace('0', edge_id);
+            post_data = {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'edge_delete': edge_name
+            }
         }
+
     } else {
-        modal_header = 'Delete Edge: {0}?'.format(edge_name);
-        post_url = "{% url 'graphs:module_edge_edit' 0 %}".replace('0', edge_id);
-        post_data = {
-            'csrfmiddlewaretoken': '{{ csrf_token }}',
-            'edge_delete': edge_name
+        if (typeof node_id != 'undefined') {
+            modal_header = 'Delete Node: {0}?'.format(node_name);
+            post_url = "{% url 'graphs:module_node_edit' 0 %}".replace('0', node_id);
+            post_data = {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'node_delete': node_name
+            }
+        } else if (typeof edge_id != 'undefined') {
+            modal_header = 'Delete Edge: {0}?'.format(edge_name);
+            post_url = "{% url 'graphs:module_edge_edit' 0 %}".replace('0', edge_id);
+            post_data = {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'edge_delete': edge_name
+            }
         }
     }
 
@@ -183,7 +209,7 @@ function isJsonFormat(str){
 
 
 $(document).ready(function(){
-    draw_module_graph();
+    //draw_module_graph();
     autocomplete_nodename_and_edgekeys();
 });
 
@@ -346,6 +372,7 @@ function open_prompts_modal(node, node_id){
         language_key = languages[0]['name']
     }
 
+    node_keys.push('Positions');
     properties_contents = get_properties_contents(node_keys, properties, node_id, node_in);
     verbiage_contents = get_verbiage_contents(type_name, node['languages'], node['v_keys'], verbiage, language_key);
 
@@ -422,7 +449,8 @@ function node_property_js_load(){
 function get_properties_contents(node_keys, properties, node_id, node_in){
     var tmp_index = 0,
         object_length = 0,
-        properties_contents = '';
+        properties_contents = '',
+        positions = '';
 
     $.each(node_keys, function(index, k){
         if (k == 'InputData'){
@@ -482,7 +510,11 @@ function get_properties_contents(node_keys, properties, node_id, node_in){
             }
             properties_contents += '></div>';
             properties_contents += '</div>';
-        }else {
+        } else if (k == 'Positions'){
+            positions = $('#module-node-edit-properties input[name="Positions"]').val();
+            properties_contents += '<input name=\'{0}\' value=\'{1}\' hidden>'.format(k, positions);
+        }
+        else {
             if (!((k == 'Default') && (node_in == 'module'))) {
                 properties_contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
                 properties_contents += '<div class=\'col-xs-4\'><label>{0}:</label></div>'.format(k);

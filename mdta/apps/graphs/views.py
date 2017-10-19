@@ -1,13 +1,13 @@
 import json
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import ValidationError
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
 from mdta.apps.graphs.utils import node_or_edge_type_edit, node_or_edge_type_new, check_edge_in_set,\
-    get_properties_for_node_or_edge, EDGE_TYPES_INVISIBLE_KEY, node_related_edges_invisible, self_reference_edge_node_in_set
+    get_properties_for_node_or_edge, node_related_edges_invisible, self_reference_edge_node_in_set,\
+    get_positions_for_node
 from mdta.apps.projects.models import Project, Module, Language
 from mdta.apps.graphs import helpers
 from mdta.apps.projects.utils import context_project_dashboard
@@ -15,7 +15,7 @@ from mdta.apps.users.views import user_is_staff, user_is_superuser
 from .models import NodeType, EdgeType, Node, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeAutoNewForm
 from mdta.apps.projects.forms import ModuleForm, UploadForm
-from mdta.apps.testcases.constant_names import NODE_START_NAME, LANGUAGE_DEFAULT_NAME, NODE_DATA_NAME, NODE_SET_VARIABLE
+from mdta.apps.testcases.constant_names import *
 from mdta.apps.testcases.tasks import create_testcases_celery
 from mdta.apps.testcases.models import TestCaseResults
 
@@ -46,7 +46,7 @@ def projects_for_selection(request):
     elif len(tmp1) < len(tmp2):
         tmp1.append('')
 
-    projects = zip(tmp1, tmp2)
+    projects = list(zip(tmp1, tmp2))
     # for p in projects:
     #     print(p)
     context = {
@@ -187,7 +187,7 @@ def project_detail(request, project_id):
     network_nodes = []
     network_edges = []
     tc_keys = []
-    projects = Project.objects.filter(archive=False)
+    # projects = Project.objects.filter(archive=False)
     project = get_object_or_404(Project, pk=project_id)
     try:
         tests = project.testcaseresults_set.latest('updated').results
@@ -205,9 +205,14 @@ def project_detail(request, project_id):
         tc_keys.append(data)
 
     for m in project.modules:
+        try:
+            positions = m.properties[NODE_POSITIONS_KEY]
+        except TypeError:
+            positions = None
         network_nodes.append({
             'id': m.id,
             'label': m.name,
+            'positions': positions
         })
     for d, n in zip(network_nodes, tc_keys):
         d['data'] = n
@@ -237,7 +242,7 @@ def project_detail(request, project_id):
             })
 
     context = {
-        'projects': projects,
+        # 'projects': projects,
         'project': project,
         'all_edges': all_edges,
         'draw_invisible_button': draw_invisible_button,
@@ -307,12 +312,20 @@ def project_module_new(request, project_id):
         return render(request, 'graphs/project/module_new.html', context)
     elif request.method == 'POST':
         form = ModuleForm(request.POST)
+        module_position = json.loads(request.POST.get('positions'))
         if form.is_valid():
-            module = form.save()
+            module = form.save(commit=False)
+            module.properties = {
+                NODE_POSITIONS_KEY: {
+                    NODE_X_KEY: module_position[NODE_X_KEY],
+                    NODE_Y_KEY: module_position[NODE_Y_KEY]
+                }
+            }
+            module.save()
             messages.success(request, 'Module \'{0}\' is added to \'{1}\''.format(module.name, module.project.name))
         else:
             print(form.errors)
-            messages.error(request, 'Errors found.')
+            messages.error(request, form.errors)
 
         return redirect('graphs:project_detail', project_id)
 
@@ -339,6 +352,7 @@ def project_module_detail(request, module_id):
     merged = {}
     edge_reference_sizes = []
 
+    inside_module_node_color = 'rgb(128, 191, 255)'
     outside_module_node_color = 'rgb(211, 211, 211)'
 
     for edge in module.edges_all:
@@ -360,6 +374,7 @@ def project_module_detail(request, module_id):
             'id': edge.id,
             'to': edge.to_node.id,
             'from': edge.from_node.id,
+            'name': edge.from_node.name + ' - ' + edge.to_node.name,
             'selfReferenceSize': self_reference_size
         })
 
@@ -395,65 +410,27 @@ def project_module_detail(request, module_id):
 
     # print(network_edges)
 
-    if request.user.username != 'test':
-        for node in module.nodes_all:
-            if node.type.name in NODE_START_NAME:
-                shape = 'star'
-            elif node.type.name in NODE_DATA_NAME + [NODE_SET_VARIABLE]:
-                shape = 'ellipse'
-            else:
-                shape = 'box'
+    for node in module.nodes_all:
+        image = NODE_IMAGE[node.type.name]
 
-            tmp = {
-                'id': node.id,
-                'label': node.name,
-                'shape': shape
-            }
-            if node.module != module:
-                if node_related_edges_invisible(node, module) and not all_edges:
-                    continue
-                tmp['color'] = outside_module_node_color
+        # get node position in current module
+        try:
+            positions = node.properties[NODE_POSITIONS_KEY][module_id]
+        except KeyError:
+            positions = None
+        tmp = {
+            'id': node.id,
+            'label': node.name,
+            'image': image,
+            'color': inside_module_node_color,
+            'positions': positions
+        }
+        if node.module != module:
+            if node_related_edges_invisible(node, module) and not all_edges:
+                continue
+            tmp['color'] = outside_module_node_color
 
-            network_nodes.append(tmp)
-
-    else:
-        # try use custom icon for nodes
-        image_url = settings.STATIC_URL + 'common/brand_icons/turnpost-png-graphics/'
-        for node in module.nodes_all:
-            if node.type.name in NODE_START_NAME:
-                tmp = {
-                    'id': node.id,
-                    'label': node.name,
-                    'shape': 'star'
-                }
-            else:
-                tmp = {
-                    'id': node.id,
-                    'label': node.name,
-                    'shape': 'image',
-                }
-
-                if node.type.name == 'DataQueries Database':
-                    tmp['image'] = image_url + 'mdta_database.png'
-                elif node.type.name == 'DataQueries WebService':
-                    tmp['image'] = image_url + 'mdta_api_web_service.png'
-                elif node.type.name == 'Play Prompt':
-                    tmp['image'] = image_url + 'mdta_play_prompt.png'
-                elif node.type.name == 'Menu Prompt':
-                    tmp['image'] = image_url + 'mdta_menu_prompt.png'
-                elif node.type.name == 'Menu Prompt with Confirmation':
-                    tmp['image'] = image_url + 'mdta_menu_prompt_with_confirm.png'
-                elif node.type.name == 'TestHeader End':
-                    tmp['image'] = image_url + 'mdta_west_male.png'
-                else:
-                    tmp['image'] = image_url + 'mdta_west_female.png'
-
-            if node.module != module:
-                if node_related_edges_invisible(node, module) and not all_edges:
-                    continue
-                tmp['shadow'] = 'true'
-
-            network_nodes.append(tmp)
+        network_nodes.append(tmp)
 
     node_form_type_default = get_object_or_404(NodeType, name='Play Prompt')
     node_new_form = NodeNewForm(module_id=module.id, initial={'type': node_form_type_default.id})
@@ -546,15 +523,25 @@ def module_node_new(request, module_id):
     """
     if request.method == 'POST':
         form = NodeNewForm(request.POST)
+        node_position = json.loads(request.POST.get('positions'))
+
         if form.is_valid():
             node = form.save(commit=False)
 
             properties = get_properties_for_node_or_edge(request, node.type)
 
+            # set initial position of new node
+            properties[NODE_POSITIONS_KEY] = {
+                module_id: {
+                    NODE_X_KEY: node_position[NODE_X_KEY],
+                    NODE_Y_KEY: node_position[NODE_Y_KEY]
+                }
+            }
+
             node.properties = properties
             node.save()
 
-            messages.success(request, 'Node is Added')
+            # messages.success(request, 'Node is Added')
         else:
             # print(form.errors)
             messages.error(request, form.errors)
@@ -576,6 +563,14 @@ def module_node_new_node_edge(request):
             to_node = to_node_form.save(commit=False)
 
             to_node_properties = get_properties_for_node_or_edge(request, to_node.type, auto_edge=True)
+
+            # set initial position of new node
+            to_node_properties[NODE_POSITIONS_KEY] = {
+                from_node.module.id: {
+                    NODE_X_KEY: NODE_X_INITIAL,
+                    NODE_Y_KEY: NODE_Y_INITIAL
+                }
+            }
 
             to_node.properties = to_node_properties
             to_node.save()
@@ -620,6 +615,8 @@ def module_node_edit(request, node_id):
 
             properties = get_properties_for_node_or_edge(request, node_type)
 
+            properties[NODE_POSITIONS_KEY] = get_positions_for_node(request, node)
+
             try:
                 node.name = node_name
                 node.type = node_type
@@ -631,7 +628,7 @@ def module_node_edit(request, node_id):
 
         if 'node_delete' in request.POST:
             node.delete()
-            messages.success(request, 'Node is deleted.')
+            # messages.success(request, 'Node is deleted.')
 
         return redirect('graphs:project_module_detail', node.module.id)
 
@@ -714,7 +711,7 @@ def module_edge_edit(request, edge_id):
 
         elif 'edge_delete' in request.POST:
             edge.delete()
-            messages.success(request, 'Edge is deleted.')
+            # messages.success(request, 'Edge is deleted.')
             return redirect('graphs:project_module_detail', edge.from_node.module.id)
 
         elif 'project_edge_save' in request.POST:
@@ -874,6 +871,7 @@ def module_node_verbiage_edit(request):
             node_type = get_object_or_404(NodeType, pk=node_type_id)
 
             properties = get_properties_for_node_or_edge(request, node_type)
+            properties[NODE_POSITIONS_KEY] = get_positions_for_node(request, node)
             # print(request.POST)
 
             language_name = ''
@@ -912,3 +910,51 @@ def module_node_verbiage_edit(request):
             messages.success(request, 'Node is deleted.')
 
         return redirect('graphs:project_module_detail', node.module.id)
+
+
+def node_save_positions(request):
+    save_type = request.GET.get('type', '')
+    positions = json.loads(request.POST.get('positions'))
+    if request.method == 'POST':
+        if save_type == 'module':
+            for item in positions:
+                module = get_object_or_404(Module, pk=item['module_id'])
+                try:
+                    module.properties[NODE_POSITIONS_KEY][NODE_X_KEY] = item[NODE_X_KEY]
+                    module.properties[NODE_POSITIONS_KEY][NODE_Y_KEY] = item[NODE_Y_KEY]
+                except TypeError:
+                    module.properties = {
+                        NODE_POSITIONS_KEY: {
+                            NODE_X_KEY: item[NODE_X_KEY],
+                            NODE_Y_KEY: item[NODE_Y_KEY]
+                        }
+                    }
+
+                module.save()
+        else:
+            module_id = request.POST.get('module_id')
+            # print(module_id)
+            for item in positions:
+                # print(item['node_id'], item['posx'], item['posy'])
+                node = get_object_or_404(Node, pk=item['node_id'])
+
+                if NODE_POSITIONS_KEY in node.properties:
+                    if module_id in node.properties[NODE_POSITIONS_KEY]:
+                        node.properties[NODE_POSITIONS_KEY][module_id][NODE_X_KEY] = item[NODE_X_KEY]
+                        node.properties[NODE_POSITIONS_KEY][module_id][NODE_Y_KEY] = item[NODE_Y_KEY]
+                    else:
+                        node.properties[NODE_POSITIONS_KEY][module_id] = {
+                            NODE_X_KEY: item[NODE_X_KEY],
+                            NODE_Y_KEY: item[NODE_Y_KEY]
+                        }
+                else:
+                    node.properties[NODE_POSITIONS_KEY] = {
+                        module_id: {
+                            NODE_X_KEY: item[NODE_X_KEY],
+                            NODE_Y_KEY: item[NODE_Y_KEY]
+                        }
+                    }
+
+                node.save()
+
+    return JsonResponse({'message': 'success'})
