@@ -1,4 +1,4 @@
-
+import socket
 from mdta.settings.base import *
 
 DEBUG = True
@@ -9,7 +9,9 @@ BROKER_URL = 'amqp://guest:guest@localhost:5672//'
 INSTALLED_APPS += ['debug_toolbar', ]
 MIDDLEWARE_CLASSES += ['debug_toolbar.middleware.DebugToolbarMiddleware', ]
 INTERNAL_IPS = ['127.0.0.1', '10.6.20.97', '10.6.20.60']
-# TEST_RUNNER = 'celery.contrib.test_runner.run_tests'
+
+if socket.gethostname() == 'OM1006L1':
+    CHANNEL_LAYERS['default']['CONFIG']['hosts'] = [('10.6.20.97', 6379)]
 
 QACI = {
     'default': {
