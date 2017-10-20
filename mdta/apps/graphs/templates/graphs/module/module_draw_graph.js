@@ -31,6 +31,7 @@ $.each(cy_data_nodes, function(key, value){
     cy_nodes_default.push({
         'data': {
             'id': value['id'],
+            'module_id': value['module_id'],
             'label': value['label'],
             'image': image,
             'color': value['color']
@@ -72,7 +73,8 @@ $.each(cy_data_edges, function(key, value){
 var cy = create_cy_object(cy_nodes_default, cy_edges_default);
 
 function create_cy_object(cy_nodes, cy_edges) {
-    var module_type = '';
+    var module_type = '',
+        edgehandles_color = 'blue';
 
     if (is_testheader === 'None'){
         module_type = 'testheader';
@@ -134,7 +136,41 @@ function create_cy_object(cy_nodes, cy_edges) {
                 style: {
                     'width': 3
                 }
+            },
+
+            // Style for edgehandles
+            {
+                selector: '.edgehandles-hover',
+                css: {
+                    'background-color': edgehandles_color
+                }
+            },
+
+            {
+                selector: '.edgehandles-source',
+                css: {
+                    'border-width': 2,
+                    'border-color': edgehandles_color
+                }
+            },
+
+            {
+                selector: '.edgehandles-target',
+                css: {
+                    'border-width': 2,
+                    'border-color': edgehandles_color
+                }
+            },
+
+            {
+                selector: '.edgehandles-preview, .edgehandles-ghost-edge',
+                css: {
+                    'line-color': edgehandles_color,
+                    'target-arrow-color': edgehandles_color,
+                    'source-arrow-color': edgehandles_color
+                }
             }
+
         ],
         layout: cy_layout_options,
         userZoomingEnabled: true,
@@ -144,6 +180,7 @@ function create_cy_object(cy_nodes, cy_edges) {
     module_context_menu(obj);
     module_click_event(obj);
     module_qtip_event(obj);
+    module_edgehandles_event(obj);
 
     return obj;
 }
@@ -227,7 +264,7 @@ function module_context_menu(obj){
                 tooltipText: 'Add New Edge',
                 coreAsWell: true,
                 onClickFunction: function (event) {
-                    add_new_edge_to_module(event.position);
+                    add_new_edge_to_module();
                 }
             },
             {
@@ -293,19 +330,12 @@ function module_click_event(obj){
     });
 
     obj.on('free', 'node[id < 0]', function (evt) {
-        if (evt.target.id() < -1000){
-            if (!tap_flag) {
-                add_new_edge_to_module()
-            }
-            tap_flag = false;
-        } else {
-            var node_type_id = evt.target.id() * -1;
+        var node_type_id = evt.target.id() * -1;
 
-            if (!tap_flag) {
-                add_new_node_to_module(evt.target.position(), node_type_id)
-            }
-            tap_flag = false;
+        if (!tap_flag) {
+            add_new_node_to_module(evt.target.position(), node_type_id)
         }
+        tap_flag = false;
     });
 
     obj.on('tap', 'edge', function(evt){
@@ -436,11 +466,39 @@ function add_new_node_to_module(pos, node_type_id) {
     })
 }
 
-function add_new_edge_to_module(pos) {
-    var edge_new_modal = $('#module-edge-new-modal');
+function add_new_edge_to_module(fromId, fromModuleId, toId, toModuleId) {
+    var edge_new_modal = $('#module-edge-new-modal'),
+        current_module_id = get_current_module_id(),
+        location = '';
 
-    edge_new_modal.modal('show');
+    if (typeof fromId === 'undefined') {
+        edge_new_modal.modal('show');
+    } else {
+        if (fromModuleId !== current_module_id) {
+            location = '#project-edge-new-from-node';
+            edge_new_modal.find('#project-edge-new-from-module').val(fromModuleId);
+            load_nodes_from_module(fromModuleId, location);
+        }
+        if (toModuleId !== current_module_id) {
+            location = '#project-edge-new-to-node';
+            edge_new_modal.find('#project-edge-new-to-module').val(toModuleId);
+            load_nodes_from_module(toModuleId, location);
+        }
+        edge_new_modal.find('#project-edge-new-from-node').val(fromId);
+        edge_new_modal.find('#project-edge-new-to-node').val(toId);
+        edge_new_modal.modal('show');
+    }
     edge_new_modal.bind('hidden.bs.modal', function () {
+        if (fromModuleId !== current_module_id) {
+            location = '#project-edge-new-from-node';
+            edge_new_modal.find('#project-edge-new-from-module').val(current_module_id);
+            load_nodes_from_module(current_module_id, location);
+        }
+        if (toModuleId !== current_module_id) {
+            location = '#project-edge-new-to-node';
+            edge_new_modal.find('#project-edge-new-to-module').val(current_module_id);
+            load_nodes_from_module(current_module_id, location);
+        }
         cy.elements().remove();
         cy = create_cy_object(cy_nodes_default, cy_edges_default)
     })
@@ -539,12 +597,6 @@ function add_new_icons_shape_to_graph(nodes, th) {
                 'node_label': 'Decision',
                 'node_image': 'decision_check',
                 'node_id': '-15'
-            },
-            {
-                'node_type': 'Edge',
-                'node_label': 'Edge',
-                'node_image': 'solid_edge',
-                'node_id': '-1001'
             }
         ];
     } else {
@@ -616,4 +668,22 @@ function module_qtip_event(obj) {
             }
         }
     })
+}
+
+function module_edgehandles_event(obj) {
+    var options = {
+        toggleOffOnLeave: true,
+        handleNodes: "node[id > 0]",
+        handleSize: 10,
+        edgeType: function () {
+            return 'flat';
+        },
+        complete: function (sourceNode, targetNode, addedEntities) {
+            // console.log(sourceNode.data().module_id, targetNode.data().module_id)
+            add_new_edge_to_module(sourceNode.id(), sourceNode.data().module_id, targetNode.id(), targetNode.data().module_id)
+        }
+    };
+
+    obj.edgehandles(options);
+    obj.edgehandles('drawoff')
 }
