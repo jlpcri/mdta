@@ -288,6 +288,16 @@ class Module(models.Model):
 
         return data
 
+    @property
+    def start_module(self):
+        flag = False
+        for node in self.nodes:
+            if node.type.name == NODE_START_NAME[0]:
+                flag = True
+                break
+
+        return flag
+
 
 class ProjectVariable(models.Model):
     """

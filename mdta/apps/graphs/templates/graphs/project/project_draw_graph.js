@@ -6,13 +6,16 @@ var cy_nodes_default = [],
     cy_nodes_gap = [],
     cy_edges_default = [],
     image_default = image_url + 'blue-infrastructure-graphics_11435264594_o.png',
+    image_start = image_url + 'west-ivr-graphic_11435724503_o.png',
     image_new = image_url + 'green-infrastructure-graphics_11435449795_o.png',
     cy_layout_options = '',
     cy_layout_flag = true;  // all modules have positions
 
 $.each(cy_data_nodes, function(key, value){
     var posx = 0,
-        posy = 0;
+        posy = 0,
+        image = '';
+
     if (!value['positions']){
         if (cy_layout_flag){
             cy_layout_flag = false
@@ -21,11 +24,17 @@ $.each(cy_data_nodes, function(key, value){
         posx = value['positions']['posx'];
         posy = value['positions']['posy']
     }
+    if (value['start_module'] === true) {
+        image = image_start
+    } else {
+        image = image_default
+    }
+
     cy_nodes_default.push({
         'data': {
             'id': value['id'],
             'label': value['label'],
-            'image': image_default
+            'image': image
         },
         'renderedPosition': {
             x: posx,
@@ -88,6 +97,9 @@ function create_cy_object(cy_nodes, cy_edges) {
                     'background-image': 'data(image)',
                     'background-fit': 'contain',
                     'background-clip': 'node',
+                    // 'shape': 'rectangle',
+                    // 'height': '40px',
+                    // 'width': '40px',
                     'label': 'data(label)',
                     'text-valign': 'bottom'
                 }

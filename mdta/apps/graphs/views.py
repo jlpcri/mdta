@@ -212,7 +212,8 @@ def project_detail(request, project_id):
         network_nodes.append({
             'id': m.id,
             'label': m.name,
-            'positions': positions
+            'positions': positions,
+            'start_module': m.start_module
         })
     for d, n in zip(network_nodes, tc_keys):
         d['data'] = n
