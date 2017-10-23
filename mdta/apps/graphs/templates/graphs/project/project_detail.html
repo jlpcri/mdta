@@ -33,7 +33,7 @@
 {% endblock%}
 
 {% block body %}
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
             <div class="col-xs-1">
             </div>
@@ -63,12 +63,6 @@
 
 {% block footer %}
     <script>
-        var graph_height = 0;
-        if (window.screen.height > 1000) {
-            graph_height = 800
-        } else {
-            graph_height = 600
-        }
         $('#module_in_project_cy').css({
             'height': graph_height
         });

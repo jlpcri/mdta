@@ -420,6 +420,7 @@ def project_module_detail(request, module_id):
             positions = None
         tmp = {
             'id': node.id,
+            'module_id': node.module.id,
             'label': node.name,
             'image': image,
             'color': inside_module_node_color,
@@ -663,7 +664,7 @@ def module_edge_new(request, module_id):
                 to_node=edge_to_node,
                 properties=properties
             )
-            messages.success(request, 'Edge is added.')
+            # messages.success(request, 'Edge is added.')
         except (ValueError, ValidationError) as e:
             messages.error(request, str(e))
 

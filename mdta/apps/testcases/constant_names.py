@@ -78,9 +78,9 @@ NODE_IMAGE = {
     NODE_START_NAME[1]: 'test_header_start',
     NODE_TH_END_NAME: 'test_header_end',
 
-    NODE_PLAY_PROMPT_NAME: 'say_',
-    NODE_MP_NAME[0]: 'prompt_',
-    NODE_MP_NAME[1]: 'prompt_with_confirm_',
+    NODE_PLAY_PROMPT_NAME: 'say',
+    NODE_MP_NAME[0]: 'prompt',
+    NODE_MP_NAME[1]: 'prompt_with_confirm',
 
     NODE_DATA_NAME[0]: 'database',
     NODE_DATA_NAME[1]: 'database',

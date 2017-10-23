@@ -8,6 +8,8 @@
     <link href="{% static 'common/bootstrap-toggle/2.2.0/css/bootstrap-toggle.min.css' %}" rel="stylesheet">
     <script src="{% static 'common/bootstrap-toggle/2.2.0/js/bootstrap-toggle.min.js' %}"></script>
 
+    <script src="{% static 'common/cytoscape/extensions/cytoscape-edgehandles/lodash.js' %}"></script>
+
     <style type="text/css">
         .pre-scrollable {
             max-height: 1024px;
@@ -24,7 +26,7 @@
 {% endblock%}
 
 {% block body %}
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
             <div class="col-xs-1">
             </div>
@@ -63,15 +65,11 @@
 
 {% block footer %}
     <script>
-        if (window.screen.height > 1000) {
-            var graph_height = 800
-        } else {
-            graph_height = 600
-        }
         $('#node_in_module_cy').css({
             'height': graph_height
         });
-        var cy_data_nodes = {{ network_nodes|safe }},
+        var is_testheader = '{{ module.project }}',
+            cy_data_nodes = {{ network_nodes|safe }},
             cy_data_edges = {{ network_edges|safe }},
             image_url = "{% static 'common/brand_icons/turnpost-png-graphics/' %}",
 
