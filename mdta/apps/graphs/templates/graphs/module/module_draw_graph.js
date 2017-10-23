@@ -46,14 +46,14 @@ $.each(cy_data_nodes, function(key, value){
 if (cy_layout_flag){
     cy_layout_options = {
         name: 'preset',
-        fit: false
+        fit: true,
     }
 } else {
     cy_layout_options = {
         name: 'breadthfirst',
         fit: true,
         directed: true,
-        padding: 30
+        // padding: 30
     }
 }
 
@@ -174,6 +174,8 @@ function create_cy_object(cy_nodes, cy_edges) {
         ],
         layout: cy_layout_options,
         userZoomingEnabled: true,
+        minZoom: .5,
+        maxZoom: 2,
         boxSelectionEnabled: true
     });
 

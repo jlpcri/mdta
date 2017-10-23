@@ -54,7 +54,9 @@
         <div class="row">
             <div id="node_in_module_cy" style="margin-top: 10px;"></div>
         </div>
+       <div class="row"></div>
     </div>
+
 
     {% include 'graphs/module/module_detail_modal.html' %}
 
@@ -62,9 +64,9 @@
 
 {% block footer %}
     <script>
-        $('#node_in_module_cy').css({
-            'height': graph_height
-        });
+{#        $('#node_in_module_cy').css({#}
+{#            'height': graph_height#}
+{#        });#}
         var is_testheader = '{{ module.project }}',
             cy_data_nodes = {{ network_nodes|safe }},
             cy_data_edges = {{ network_edges|safe }},
