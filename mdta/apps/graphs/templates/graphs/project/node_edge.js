@@ -117,11 +117,15 @@ $(document).ready(function(){
 });
 
 
-function load_nodes_from_module(module_id, location){
+function load_nodes_from_module(module_id, location, node_id){
     $.getJSON("{% url 'graphs:get_nodes_from_module' %}?module_id={0}".format(module_id)).done(function(data){
         var option = '';
         $.each(data, function(k, v){
-            option += '<option value={0}>{1}</option>'.format(v['id'], v['name']);
+            if (v['id'] == node_id){
+                option += '<option value={0} selected>{1}</option>'.format(v['id'], v['name']);
+            } else {
+                option += '<option value={0}>{1}</option>'.format(v['id'], v['name']);
+            }
         });
         $(location).empty().append(option);
     });

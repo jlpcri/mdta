@@ -474,18 +474,21 @@ function add_new_edge_to_module(fromId, fromModuleId, toId, toModuleId) {
     if (typeof fromId === 'undefined') {
         edge_new_modal.modal('show');
     } else {
-        if (fromModuleId !== current_module_id) {
-            location = '#project-edge-new-from-node';
-            edge_new_modal.find('#project-edge-new-from-module').val(fromModuleId);
-            load_nodes_from_module(fromModuleId, location);
+        if (fromModuleId === toModuleId === current_module_id){
+            edge_new_modal.find('#project-edge-new-from-node').val(fromId);
+            edge_new_modal.find('#project-edge-new-to-node').val(toId);
+        } else {
+            if (fromModuleId !== current_module_id) {
+                location = '#project-edge-new-from-node';
+                edge_new_modal.find('#project-edge-new-from-module').val(fromModuleId);
+                load_nodes_from_module(fromModuleId, location, fromId);
+            }
+            if (toModuleId !== current_module_id) {
+                location = '#project-edge-new-to-node';
+                edge_new_modal.find('#project-edge-new-to-module').val(toModuleId);
+                load_nodes_from_module(toModuleId, location, toId);
+            }
         }
-        if (toModuleId !== current_module_id) {
-            location = '#project-edge-new-to-node';
-            edge_new_modal.find('#project-edge-new-to-module').val(toModuleId);
-            load_nodes_from_module(toModuleId, location);
-        }
-        edge_new_modal.find('#project-edge-new-from-node').val(fromId);
-        edge_new_modal.find('#project-edge-new-to-node').val(toId);
         edge_new_modal.modal('show');
     }
     edge_new_modal.bind('hidden.bs.modal', function () {
