@@ -144,9 +144,21 @@ function create_cy_object(cy_nodes, cy_edges) {
 
 project_view_options();
 
-window.setInterval(function(){
-    savePositionToModule(cy);
-}, 5000);
+// window.setInterval(function(){
+//     savePositionToModule(cy);
+// }, 5000);
+var save_modules_location = window.setInterval("savePositionToModule(cy)", 5000);
+
+if ('{{ project.testrail }}' === 'None') {
+    var is_project_has_testrail = window.setInterval("check_project_has_testrail()", 5000 * 60 * 60);  // 1 hour 5000 * 60 * 60
+} else {
+    window.clearInterval(is_project_has_testrail);
+}
+if ('{{ project.test_header }}' === 'None'){
+    var is_project_has_testheader = window.setInterval("check_project_has_testheader()", 5000 * 60 * 60 * 2); // 2 hours 5000 * 60 * 60 * 2
+} else {
+    window.clearInterval(is_project_has_testheader);
+}
 
 function savePositionToModule(cy){
     var nodes = cy.elements('node[id > 0]'),
@@ -386,6 +398,24 @@ function project_qtip_event(obj) {
                 width: 16,
                 height: 8
             }
+        }
+    })
+}
+
+function check_project_has_testheader() {
+    // console.log('testheader', project_id)
+    $.getJSON("{% url 'graphs:check_object_has_tr_th' %}?choice={0}&project_id={1}".format('testheader', project_id)).done(function (data) {
+        if (data['message'].length > 0) {
+            $('#notifyTestHeaderModal').modal('show');
+        }
+    })
+}
+
+function check_project_has_testrail() {
+    // console.log('testrail', project_id)
+    $.getJSON("{% url 'graphs:check_object_has_tr_th' %}?choice={0}&project_id={1}".format('testrail', project_id)).done(function (data) {
+        if (data['message'].length > 0) {
+            $('#notifyTestRailModal').modal('show');
         }
     })
 }
