@@ -14,31 +14,31 @@ class ProjectForm(ModelForm):
         self.fields['test_header'].label_from_instance = lambda obj: "%s" % obj.name
         self.fields['testrail'].label_from_instance = lambda obj: "%s" % obj.project_name
         # self.fields['catalog'].queryset = CatalogItem.objects.select_related('parent').all()
-        for field_name in ['lead', 'members']:
+        for field_name in ['lead']:
             self.fields[field_name].queryset = HumanResource.objects.select_related('user').all().exclude(user__username='admin')
             self.fields[field_name].label_from_instance = lambda obj: "%s %s" % (obj.user.first_name, obj.user.last_name)
 
-        for field in self.fields:
-            if field == 'archive':
-                continue
-            help_text = self.fields[field].help_text
-            self.fields[field].help_text = None
-            if help_text != '':
-                self.fields[field].widget.attrs.update({
-                    'class': 'form-control',
-                    'data-toggle': 'tooltip',
-                    'data-placement': 'top',
-                    'title': help_text
-                })
-            else:
-                self.fields[field].widget.attrs.update({
-                    'class': 'form-control',
-                })
+        # for field in self.fields:
+        #     if field == 'archive':
+        #         continue
+        #     help_text = self.fields[field].help_text
+        #     self.fields[field].help_text = None
+        #     if help_text != '':
+        #         self.fields[field].widget.attrs.update({
+        #             'class': 'form-control',
+        #             'data-toggle': 'tooltip',
+        #             'data-placement': 'top',
+        #             'title': help_text
+        #         })
+        #     else:
+        #         self.fields[field].widget.attrs.update({
+        #             'class': 'form-control',
+        #         })
 
     class Meta:
         model = Project
-        fields = ['name', 'test_header', 'version', 'testrail', 'lead', 'members', 'archive']
-        exclude = ['created', 'updated']
+        fields = ['name', 'test_header', 'version', 'testrail', 'lead']
+        exclude = ['created', 'updated', 'members']
         widgets = {
             'name': forms.TextInput(),
             'test_header': forms.Select(),
@@ -123,9 +123,20 @@ class ProjectConfigForm(ModelForm):
         self.fields['testrail'].label_from_instance = lambda obj: "%s" % obj.project_name
         self.fields['language'].label_from_instance = lambda obj: "%s" % obj.name
 
+        for field in self.fields:
+            if field == 'archive':
+                continue
+            help_text = self.fields[field].help_text
+            self.fields[field].help_text = None
+            if help_text != '':
+                self.fields[field].widget.attrs.update(
+                    {'class': 'form-control', 'data-toggle': 'tooltip', 'data-placement': 'top', 'title': help_text})
+            else:
+                self.fields[field].widget.attrs.update({'class': 'form-control', })
+
     class Meta:
         model = Project
-        fields = ['name', 'test_header', 'testrail', 'language', 'version']
+        fields = ['name', 'test_header', 'testrail', 'language', 'version', 'archive']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control',
                                            'readonly': True}),
