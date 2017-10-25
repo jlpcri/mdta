@@ -46,7 +46,7 @@ $.each(cy_data_nodes, function(key, value){
 if (cy_layout_flag){
     cy_layout_options = {
         name: 'preset',
-        fit: true,
+        fit: true
     }
 } else {
     cy_layout_options = {
