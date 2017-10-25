@@ -212,7 +212,8 @@ def project_detail(request, project_id):
         network_nodes.append({
             'id': m.id,
             'label': m.name,
-            'positions': positions
+            'positions': positions,
+            'start_module': m.start_module
         })
     for d, n in zip(network_nodes, tc_keys):
         d['data'] = n
@@ -959,3 +960,34 @@ def node_save_positions(request):
                 node.save()
 
     return JsonResponse({'message': 'success'})
+
+
+def check_object_has_tr_th(request):
+    """
+    Check Project/Module has TestRail or TestHeader FK
+    :param request:
+    :return:
+    """
+    msg = ''
+    choice = request.GET.get('choice', '')
+    project_id = request.GET.get('project_id', '')
+    module_id = request.GET.get('module_id', '')
+
+    if project_id:
+        project = get_object_or_404(Project, pk=project_id)
+    elif module_id:
+        module = get_object_or_404(Module, pk=module_id)
+        project = module.project
+    else:
+        project = None
+
+    if project:
+        if choice == 'testheader' and not project.test_header:
+            msg = 'No TestHeader'
+        elif choice == 'testrail' and not project.testrail:
+            msg = 'No TestRail'
+
+    data = {
+        'message': msg
+    }
+    return HttpResponse(json.dumps(data), content_type='application/json')

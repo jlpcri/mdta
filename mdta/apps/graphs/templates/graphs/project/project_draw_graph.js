@@ -6,13 +6,16 @@ var cy_nodes_default = [],
     cy_nodes_gap = [],
     cy_edges_default = [],
     image_default = image_url + 'blue-infrastructure-graphics_11435264594_o.png',
+    image_start = image_url + 'west-ivr-graphic_11435724503_o.png',
     image_new = image_url + 'green-infrastructure-graphics_11435449795_o.png',
     cy_layout_options = '',
     cy_layout_flag = true;  // all modules have positions
 
 $.each(cy_data_nodes, function(key, value){
     var posx = 0,
-        posy = 0;
+        posy = 0,
+        image = '';
+
     if (!value['positions']){
         if (cy_layout_flag){
             cy_layout_flag = false
@@ -21,11 +24,17 @@ $.each(cy_data_nodes, function(key, value){
         posx = value['positions']['posx'];
         posy = value['positions']['posy']
     }
+    if (value['start_module'] === true) {
+        image = image_start
+    } else {
+        image = image_default
+    }
+
     cy_nodes_default.push({
         'data': {
             'id': value['id'],
             'label': value['label'],
-            'image': image_default
+            'image': image
         },
         'renderedPosition': {
             x: posx,
@@ -88,6 +97,9 @@ function create_cy_object(cy_nodes, cy_edges) {
                     'background-image': 'data(image)',
                     'background-fit': 'contain',
                     'background-clip': 'node',
+                    // 'shape': 'rectangle',
+                    // 'height': '40px',
+                    // 'width': '40px',
                     'label': 'data(label)',
                     'text-valign': 'bottom'
                 }
@@ -132,9 +144,21 @@ function create_cy_object(cy_nodes, cy_edges) {
 
 project_view_options();
 
-window.setInterval(function(){
-    savePositionToModule(cy);
-}, 5000);
+// window.setInterval(function(){
+//     savePositionToModule(cy);
+// }, 5000);
+var save_modules_location = window.setInterval("savePositionToModule(cy)", 5000);
+
+if ('{{ project.testrail }}' === 'None') {
+    var is_project_has_testrail = window.setInterval("check_project_has_testrail()", 5000 * 60 * 60);  // 1 hour 5000 * 60 * 60
+} else {
+    window.clearInterval(is_project_has_testrail);
+}
+if ('{{ project.test_header }}' === 'None'){
+    var is_project_has_testheader = window.setInterval("check_project_has_testheader()", 5000 * 60 * 60 * 2); // 2 hours 5000 * 60 * 60 * 2
+} else {
+    window.clearInterval(is_project_has_testheader);
+}
 
 function savePositionToModule(cy){
     var nodes = cy.elements('node[id > 0]'),
@@ -374,6 +398,24 @@ function project_qtip_event(obj) {
                 width: 16,
                 height: 8
             }
+        }
+    })
+}
+
+function check_project_has_testheader() {
+    // console.log('testheader', project_id)
+    $.getJSON("{% url 'graphs:check_object_has_tr_th' %}?choice={0}&project_id={1}".format('testheader', project_id)).done(function (data) {
+        if (data['message'].length > 0) {
+            $('#notifyTestHeaderModal').modal('show');
+        }
+    })
+}
+
+function check_project_has_testrail() {
+    // console.log('testrail', project_id)
+    $.getJSON("{% url 'graphs:check_object_has_tr_th' %}?choice={0}&project_id={1}".format('testrail', project_id)).done(function (data) {
+        if (data['message'].length > 0) {
+            $('#notifyTestRailModal').modal('show');
         }
     })
 }

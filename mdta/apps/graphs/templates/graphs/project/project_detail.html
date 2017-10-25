@@ -58,6 +58,7 @@
         </div>
 
         {% include 'graphs/project/project_detail_modal.html' %}
+        {% include 'graphs/project/notifications_modal.html' %}
     </div>
 {% endblock %}
 
@@ -67,7 +68,8 @@
             'height': graph_height
         });
 
-        var cy_data_nodes = {{ network_nodes|safe }},
+        var project_id = {{ project.id }},
+            cy_data_nodes = {{ network_nodes|safe }},
             cy_data_edges = {{ network_edges|safe }},
             image_url = "{% static 'common/brand_icons/turnpost-png-graphics/' %}";
 

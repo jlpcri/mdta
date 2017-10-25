@@ -359,6 +359,20 @@ window.setInterval(function(){
     savePositionToNode(cy);
 }, 5000);
 
+var save_nodes_location = window.setInterval("savePositionToNode(cy)", 5000);
+if (is_testheader !== 'None'){
+    if ('{{module.project.testrail}}' === 'None'){
+        var is_module_has_testrail = window.setInterval("check_module_has_testrail()", 5000 * 60 * 60);
+    } else {
+        window.clearInterval(is_module_has_testrail);
+    }
+    if ('{{module.project.test_header}}' === 'None'){
+        var is_module_has_testheader = window.setInterval("check_module_has_testheader()", 5000 * 60 * 60 * 2);
+    } else {
+        window.clearInterval(is_module_has_testheader);
+    }
+}
+
 function savePositionToNode(obj){
     var nodes = obj.elements('node[id > 0]'),
         positions = [],
@@ -691,4 +705,22 @@ function module_edgehandles_event(obj) {
 
     obj.edgehandles(options);
     obj.edgehandles('drawoff')
+}
+
+function check_module_has_testheader() {
+    // console.log('testheader', project_id)
+    $.getJSON("{% url 'graphs:check_object_has_tr_th' %}?choice={0}&module_id={1}".format('testheader', get_current_module_id())).done(function (data) {
+        if (data['message'].length > 0) {
+            $('#notifyTestHeaderModal').modal('show');
+        }
+    })
+}
+
+function check_module_has_testrail() {
+    // console.log('testrail', project_id)
+    $.getJSON("{% url 'graphs:check_object_has_tr_th' %}?choice={0}&module_id={1}".format('testrail', get_current_module_id())).done(function (data) {
+        if (data['message'].length > 0) {
+            $('#notifyTestRailModal').modal('show');
+        }
+    })
 }
