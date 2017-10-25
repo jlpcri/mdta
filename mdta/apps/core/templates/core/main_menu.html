@@ -1,69 +1,142 @@
 {% block extrahead %}
     <style type="text/css">
-        .sidebar-nav {
-            margin-left: -250px;
+        p {
+            font-size: 1.5em;
+            font-weight: 500;
+            line-height: 1.7em;
+            color: #999;
+        }
+
+        a, a:hover, a:focus {
+            color: inherit;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        /* ---------------------------------------------------
+                        SIDEBAR STYLE
+        ----------------------------------------------------- */
+
+        #sidebar {
             width: 250px;
-            z-index: 10001;
-            position: absolute;
-            left: 0px;
-            top: 0px;
-            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: -250px;
             height: 100vh;
-            -webkit-transition: all 0.5s ease;
-            -moz-transition: all 0.5s ease;
-            -o-transition: all 0.5s ease;
-            transition: all 0.5s ease;
-            background-color: #fafafa;
-            border-right: 1px solid #ccc;
+            z-index: 10001;
+            background: #afc0d1;
+            color: #fff;
+            transition: all 0.3s;
+            overflow-y: scroll;
+            box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.2);
         }
 
-        .sidebar-nav-toggled {
-            margin-left: 0px;
+        #sidebar.active {
+            left: 0;
         }
 
-        .sideBarCloseIcon {
-            float: right;
+        #sidebarCollapse {
             cursor: pointer;
         }
 
-        .backdrop {
-            height: 100vh;
-            width: 100%;
-            z-index: 10000;
+        #dismiss {
+            width: 35px;
+            height: 35px;
+            line-height: 35px;
+            text-align: center;
+            background: #d1d1d1;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            -webkit-transition: all 0.3s;
+            -o-transition: all 0.3s;
+            transition: all 0.3s;
+        }
+
+        #dismiss:hover {
+            background: #fff;
+            color: #d1d1d1;
+        }
+
+        .overlay {
             position: fixed;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            opacity: 0.2;
+            z-index: 10000;
             top: 0;
             left: 0;
             display: none;
-            background-color: #000;
-            opacity: 0.2;
             -webkit-transition: all 0.5s ease;
             -moz-transition: all 0.5s ease;
             -o-transition: all 0.5s ease;
             transition: all 0.5s ease;
         }
 
-        .sidebar-nav .list-group-item {
-            background-color: transparent;
-            border: 0px;
-            cursor:pointer;
+        #sidebar .sidebar-header {
+            padding: 20px;
+            background: #d1d1d1;
         }
 
-        .sidebar-nav .list-group {
-            margin-left: -15px;
-            margin-right: -15px;
+        #sidebar ul.components {
+            padding: 20px 0;
         }
 
-        .sidebar-nav .list-group hr {
-            margin-top: 0px;
-            margin-bottom: 0px;
+        #sidebar ul p {
+            color: #fff;
+            padding: 10px;
         }
 
-        .list-group-item-icon {
-            padding-right: 5px;
+        #sidebar ul li a {
+            padding: 10px;
+            font-size: 1.1em;
+            display: block;
         }
 
-        #sideMainMenu {
-           cursor:pointer;
+        #sidebar ul li a:hover {
+            color: #7386D5;
+            background: #fff;
+        }
+
+        #sidebar ul li.active > a, a[aria-expanded="true"] {
+            color: #fff;
+            background: #d1d1d1;
+        }
+
+        a[data-toggle="collapse"] {
+            position: relative;
+        }
+
+        a[aria-expanded="false"]::before, a[aria-expanded="true"]::before {
+            content: '\e259';
+            display: block;
+            position: absolute;
+            right: 20px;
+            font-size: 0.6em;
+        }
+
+        a[aria-expanded="true"]::before {
+            content: '\e260';
+        }
+
+        ul ul a {
+            font-size: 0.9em !important;
+            padding-left: 30px !important;
+            background: #d1d1d1;
+        }
+
+        ul.CTAs {
+            padding: 20px;
+        }
+
+        ul.CTAs a {
+            text-align: center;
+            font-size: 0.9em !important;
+            display: block;
+            border-radius: 5px;
+            margin-bottom: 5px;
         }
 
     </style>
@@ -71,64 +144,83 @@
 
 {% block body %}
     <div class="row" role="navigation" style="margin-bottom: -20px">
-        <a id="sideMainMenu" class="navbar-brand">&nbsp;&nbsp;&nbsp;&nbsp;<span
-            class="glyphicon glyphicon-menu-hamburger" aria-hidden="true"></span></a>
-        <a class="navbar-brand"></a>
+        <a id="sidebarCollapse" class="navbar-brand">
+            <i style="font-size:1.75em; color:black; margin-top:.3em; margin-left:.5em;" class="glyphicon glyphicon-menu-hamburger"
+               aria-hidden="true"></i>
+        </a>
+       <a class="navbar-brand"></a>
     </div>
-    <div class="row">
-        <div class="backdrop"></div>
-    </div>
-    <div class="row">
-        <div id="mySideBar" class="sidebar-nav container-fluid" aria-label="...">
-            <div class="row">
-                <div class="col-xs-12" style="padding: 5px 15px 1px 15px">
-                    <h4 style="padding-left: 0px; font-size: 19px; color: #666">
-                        Main Menu <span
-                            class="sideBarCloseIcon glyphicon glyphicon-remove"
-                            aria-hidden="true"></span>
-                    </h4>
-                </div>
-            </div>
-            <hr style="margin: 5px -15px" />
-            <ul class="list-group navbar-collapse">
-                <li class="list-group-item dropdown"><a href="{% url 'home' %}"> Home</a></li>
-                <li class="list-group-item dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"> Configurations</a>
-                    <ul class="dropdown-menu ">
-                        <li class="list-group-item dropdown"><a href="{% url 'projects:project_dashboard' %}">Project Dashboard</a> </li>
-                        {% if request.user.humanresource.project %}
-                            <li class="list-group-item dropdown"><a href="{% url 'graphs:projects_for_selection' %}">Switch Project</a> </li>
-                        {% endif %}
-                        <li class="list-group-item dropdown"><a href="{% url 'projects:project_new' %}">Add New Project</a> </li>
-                        <li class="list-group-item dropdown"><a href="{% url 'testcases:tcs_project' %}">TestCases</a> </li>
-                        <li class="list-group-item dropdown"><a href="{% url 'runner:dashboard' %}">TCs Execution</a> </li>
-                        <li class="list-group-item dropdown"><a href="#" data-toggle="modal" data-target="#module-import-modal">Import Prompts</a> </li>
-                    </ul>
-                </li>
-
-                {% if user.is_superuser %}
-                    <hr/>
-                    <li class="list-group-item dropdown" style="font-style: italic"><a href="{% url 'projects:projects' %}"></i> Previous Projects</a></li>
-                    <li class="list-group-item dropdown" style="font-style: italic"><a href="{% url 'graphs:graphs' %}">Previous Graphs</a> </li>
-                    <li class="list-group-item dropdown" style="font-style: italic"><a href="{% url 'testcases:testcases' %}">Previous TCs</a> </li>
-                    <hr/>
-                    <li class="list-group-item dropdown" style="font-style: italic"><a href="{% url 'users:management' %}">User Management</a> </li>
-                    <li class="list-group-item dropdown" style="font-style: italic"><a href="{% url 'admin:index' %}" target="_blank">Django Admin</a> </li>
-                    <hr/>
-                {% endif %}
-
-                <li class="list-group-item dropdown"><a href="{% url 'intro' %}"> Introduction</a></li>
-                <li class="list-group-item"><a href="{% url 'help:help' %}"> Help</a></li>
-                <li class="list-group-item"><a href="{% url 'users:sign_out' %}"> Sign Out</a></li>
-            </ul>
+        <div class="row">
+            <div class="overlay"></div>
         </div>
-    </div>
+
+     <div id="sidebar">
+                <div id="dismiss">
+                    <i class="sideBarCloseIcon glyphicon glyphicon-remove" aria-hidden="true"></i>
+                </div>
+                <div class="sidebar-header">
+                    <h3>MDTA</h3>
+                </div>
+                <ul class="list-unstyled components">
+{#                    <p>Main Menu</p>#}
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li>
+                        <a href="#projectSubmenu" data-toggle="collapse" aria-expanded="false">Project Configurations</a>
+                        <ul class="collapse list-unstyled" id="projectSubmenu">
+                            <li><a href="{% url 'projects:project_dashboard' %}">Project Dashboard</a>
+                            {% if request.user.humanresource.project %}
+                                <li><a href="{% url 'graphs:projects_for_selection' %}">Switch Project</a></li>
+                            {% endif %}
+                            <li><a href="{% url 'projects:project_new' %}">Add New Project</a></li>
+                            <li><a href="{% url 'testcases:tcs_project' %}">TestCases</a></li>
+                            <li><a href="{% url 'runner:dashboard' %}">TCs Execution</a></li>
+                            <li><a href="#" data-toggle="modal" data-target="#module-import-modal">Import Prompts</a></li>
+                        </ul>
+                    </li>
+                    {% if user.is_superuser %}
+                        <li>
+                            <a href="#mdtaSubmenu" data-toggle="collapse" aria-expanded="false">MDTA Configurations</a>
+                            <ul class="collapse list-unstyled" id="mdtaSubmenu">
+                                <li><a href="{% url 'projects:projects' %}"></i> Previous Projects</a></li>
+                                <li><a href="{% url 'graphs:graphs' %}">Previous Graphs</a></li>
+                                <li><a href="{% url 'testcases:testcases' %}">Previous TCs</a></li>
+                            </ul>
+                        </li>
+                       <li>
+                           <a href="#adminSubmenu" data-toggle="collapse" aria-expanded="false">Admin Configurations</a>
+                           <ul class="collapse list-unstyled" id="adminSubmenu">
+                               <li><a href="{% url 'users:management' %}">User Management</a></li>
+                               <li><a href="{% url 'admin:index' %}" target="_blank">Django Admin</a></li>
+                           </ul>
+                        </li>
+                    {% endif %}
+                    <li><a href="{% url 'intro' %}"> Introduction</a></li>
+                    <li><a href="{% url 'help:help' %}"> Help</a></li>
+                    <li><a href="{% url 'users:sign_out' %}"> Sign Out</a></li>
+                </ul>
+     </div>
 {% endblock %}
 
 {% block footer %}
     <script>
-        $("#sideMainMenu, .backdrop, .sideBarCloseIcon").click(function() {
-            $("#mySideBar").toggleClass("sidebar-nav-toggled");
-            $(".backdrop").toggle();
+        $(document).ready(function () {
+            $("#sidebar").niceScroll({
+                cursorcolor: '#53619d',
+                cursorwidth: 4,
+                cursorborder: 'none'
+            });
+
+            $('#dismiss, .overlay').on('click', function () {
+                $('#sidebar').removeClass('active');
+                $('.overlay').fadeOut();
+            });
+
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').addClass('active');
+                $('.overlay').fadeIn();
+                $('.collapse.in').toggleClass('in');
+                $('a[aria-expanded=true]').attr('aria-expanded', 'false');
+            });
         });
     </script>
 {% endblock %}

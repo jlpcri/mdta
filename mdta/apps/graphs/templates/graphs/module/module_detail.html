@@ -11,13 +11,13 @@
     <script src="{% static 'common/cytoscape/extensions/cytoscape-edgehandles/lodash.js' %}"></script>
 
     <style type="text/css">
-        .pre-scrollable {
-            max-height: 1024px;
-            overflow-y: auto;
-        }
-        .ui-autocomplete{
-            z-index: 1050;
-        }
+{#        .pre-scrollable {#}
+{#            max-height: 1024px;#}
+{#            overflow-y: auto;#}
+{#        }#}
+{#        .ui-autocomplete{#}
+{#            z-index: 1050;#}
+{#        }#}
         #node_in_module_cy {
             width: auto;
             height: 800px;
@@ -64,9 +64,9 @@
 
 {% block footer %}
     <script>
-{#        $('#node_in_module_cy').css({#}
-{#            'height': graph_height#}
-{#        });#}
+        $('#node_in_module_cy').css({
+            'height': graph_height
+        });
         var is_testheader = '{{ module.project }}',
             cy_data_nodes = {{ network_nodes|safe }},
             cy_data_edges = {{ network_edges|safe }},

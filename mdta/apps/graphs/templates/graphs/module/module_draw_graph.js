@@ -53,7 +53,7 @@ if (cy_layout_flag){
         name: 'breadthfirst',
         fit: true,
         directed: true,
-        // padding: 30
+        padding: 30
     }
 }
 
@@ -175,7 +175,7 @@ function create_cy_object(cy_nodes, cy_edges) {
         layout: cy_layout_options,
         userZoomingEnabled: true,
         minZoom: .5,
-        maxZoom: 2,
+        maxZoom: 1.5,
         boxSelectionEnabled: true
     });
 

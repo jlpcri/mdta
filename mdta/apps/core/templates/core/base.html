@@ -31,6 +31,9 @@
         <link href="{% static 'common/bootstrap-daterangepicker/2.1.17/daterangepicker.css' %}" rel="stylesheet">
         <script src="{% static 'common/bootstrap-daterangepicker/2.1.17/daterangepicker.js' %}"></script>
 
+        <!-- jQuery Nicescroll CDN -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.nicescroll/3.6.8-fix/jquery.nicescroll.min.js"></script>
+
         <!-- Load Cytoscape Context Menu CSS-->
         <link href="{% static 'common/cytoscape/extensions/cytoscape-context-menu/cytoscape-context-menus.css' %}" rel="stylesheet" type="text/css"/>
 
@@ -66,18 +69,18 @@
                 height: 30px;
                 margin-right: 15px;
             }
-            .navbar-dropdown-menu {
-                width: 100%;
-            }
             .drop-button {
                 width: 11em;
+            }
+            .dropdown-menu > li > a:hover {
+                background-color: #ececec;
+                color: #000;
             }
             .r-rect {
                 text-align: center;
                 background-color: #F0F0F0;
                 background-size: cover;
                 background-repeat: no-repeat;
-            {#            	width: 340px;#}
                 margin: auto;
                 border-radius: 9px;
                 -moz-border-radius: 9px;
@@ -85,7 +88,6 @@
                 border: solid black 2px;
                 padding: 3px;
             }
-
             .cdiv {
                width: 100%;
                text-align: center;
