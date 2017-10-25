@@ -14,8 +14,8 @@ $.each(cy_data_nodes, function(key, value){
         image = image_url + 'mdta-shapes/' + value['image'] + '.png';
 
     if (!value['positions']){
-        posx = key * 100;
-        posy = key * 100;
+        posx = key * 50;
+        posy = key * 50;
         if (cy_layout_flag) {
             cy_layout_flag = false;
         }
@@ -73,15 +73,14 @@ $.each(cy_data_edges, function(key, value){
 var cy = create_cy_object(cy_nodes_default, cy_edges_default);
 
 function create_cy_object(cy_nodes, cy_edges) {
-    var module_type = '',
-        edgehandles_color = 'blue';
+    var edgehandles_color = 'blue';
 
-    if (is_testheader === 'None'){
-        module_type = 'testheader';
-    } else {
-        module_type = 'module'
-    }
-    add_new_icons_shape_to_graph(cy_nodes, module_type);
+    // if (is_testheader === 'None'){
+    //     module_type = 'testheader';
+    // } else {
+    //     module_type = 'module'
+    // }
+    // add_new_icons_shape_to_graph(cy_nodes, module_type);
 
     var obj = cytoscape({
         container: $('#node_in_module_cy')[0],
@@ -105,22 +104,22 @@ function create_cy_object(cy_nodes, cy_edges) {
                     // 'text-max-width': '75px'
                 }
             },
-            {
-                selector: 'node[id < 0]',
-                style: {
-                    'background-image': 'data(image)',
-                    // 'background-color': 'data(color)',
-                    'background-fit': 'contain',
-                    'shape': 'rectangle',
-                    'height': '30px',
-                    'width': '30px',
-                    'label': 'data(label)',
-                    'text-valign': 'bottom',
-                    'font-size': '10'
-                    // 'text-wrap': 'ellipsis',
-                    // 'text-max-width': '75px'
-                }
-            },
+            // {
+            //     selector: 'node[id < 0]',
+            //     style: {
+            //         'background-image': 'data(image)',
+            //         // 'background-color': 'data(color)',
+            //         'background-fit': 'contain',
+            //         'shape': 'rectangle',
+            //         'height': '30px',
+            //         'width': '30px',
+            //         'label': 'data(label)',
+            //         'text-valign': 'bottom',
+            //         'font-size': '10'
+            //         // 'text-wrap': 'ellipsis',
+            //         // 'text-max-width': '75px'
+            //     }
+            // },
             {
                 selector: 'edge',
                 style: {
@@ -145,7 +144,6 @@ function create_cy_object(cy_nodes, cy_edges) {
                     'background-color': edgehandles_color
                 }
             },
-
             {
                 selector: '.edgehandles-source',
                 css: {
@@ -153,7 +151,6 @@ function create_cy_object(cy_nodes, cy_edges) {
                     'border-color': edgehandles_color
                 }
             },
-
             {
                 selector: '.edgehandles-target',
                 css: {
@@ -161,7 +158,6 @@ function create_cy_object(cy_nodes, cy_edges) {
                     'border-color': edgehandles_color
                 }
             },
-
             {
                 selector: '.edgehandles-preview, .edgehandles-ghost-edge',
                 css: {
@@ -181,7 +177,7 @@ function create_cy_object(cy_nodes, cy_edges) {
 
     module_context_menu(obj);
     module_click_event(obj);
-    module_qtip_event(obj);
+    // module_qtip_event(obj);
     module_edgehandles_event(obj);
 
     return obj;
@@ -235,7 +231,6 @@ function module_context_menu(obj){
                 content: 'New Node&Edge',
                 tooltipText: 'Auto New Node&Edge',
                 selector: 'node[id > 0]',
-                coreAsWell: true,
                 onClickFunction: function (event) {
                     add_new_node_and_edge_to_module(event)
                 }
@@ -327,18 +322,18 @@ function module_click_event(obj){
         sendMessage(JSON.stringify(data))
     });
 
-    obj.on('tap', 'node[id < 0]', function (evt) {
-        tap_flag = true;
-    });
-
-    obj.on('free', 'node[id < 0]', function (evt) {
-        var node_type_id = evt.target.id() * -1;
-
-        if (!tap_flag) {
-            add_new_node_to_module(evt.target.position(), node_type_id)
-        }
-        tap_flag = false;
-    });
+    // obj.on('tap', 'node[id < 0]', function (evt) {
+    //     tap_flag = true;
+    // });
+    //
+    // obj.on('free', 'node[id < 0]', function (evt) {
+    //     var node_type_id = evt.target.id() * -1;
+    //
+    //     if (!tap_flag) {
+    //         add_new_node_to_module(evt.target.position(), node_type_id)
+    //     }
+    //     tap_flag = false;
+    // });
 
     obj.on('tap', 'edge', function(evt){
         var edge = evt.target;
@@ -355,10 +350,6 @@ function module_click_event(obj){
     });
 }
 
-window.setInterval(function(){
-    savePositionToNode(cy);
-}, 5000);
-
 var save_nodes_location = window.setInterval("savePositionToNode(cy)", 5000);
 if (is_testheader !== 'None'){
     if ('{{module.project.testrail}}' === 'None'){
@@ -374,7 +365,7 @@ if (is_testheader !== 'None'){
 }
 
 function savePositionToNode(obj){
-    var nodes = obj.elements('node[id > 0]'),
+    var nodes = obj.elements('node'),
         positions = [],
         module_id = get_current_module_id();
 
@@ -475,11 +466,11 @@ function add_new_node_to_module(pos, node_type_id) {
 
     node_new_modal.find('input[name="positions"]').val(JSON.stringify(positions));
     node_new_modal.modal('show');
-    node_new_modal.bind('hidden.bs.modal', function () {
-        node_new_modal.find('select[name="type"]').html(options);
-        cy.elements().remove();
-        cy = create_cy_object(cy_nodes_default, cy_edges_default)
-    })
+    // node_new_modal.bind('hidden.bs.modal', function () {
+    //     node_new_modal.find('select[name="type"]').html(options);
+    //     cy.elements().remove();
+    //     cy = create_cy_object(cy_nodes_default, cy_edges_default)
+    // })
 }
 
 function add_new_edge_to_module(fromId, fromModuleId, toId, toModuleId) {

@@ -73,17 +73,17 @@ $.each(cy_data_edges, function(key, value){
 var cy = create_cy_object(cy_nodes_default, cy_edges_default);
 
 function create_cy_object(cy_nodes, cy_edges) {
-    cy_nodes.push({
-        'data': {
-            'id': -1,
-            // 'label': 'New Module',
-            'image': image_new
-        },
-        'renderedPosition': {
-            x: 100,
-            y: graph_height - 30
-        }
-    });
+    // cy_nodes.push({
+    //     'data': {
+    //         'id': -1,
+    //         // 'label': 'New Module',
+    //         'image': image_new
+    //     },
+    //     'renderedPosition': {
+    //         x: 100,
+    //         y: graph_height - 30
+    //     }
+    // });
     var obj = cytoscape({
         container: $('#module_in_project_cy')[0],
         elements: {
@@ -104,13 +104,13 @@ function create_cy_object(cy_nodes, cy_edges) {
                     'text-valign': 'bottom'
                 }
             },
-            {
-                selector: 'node[id < 0]',
-                style: {
-                    'text-valign': 'bottom',
-                    'font-size': '12'
-                }
-            },
+            // {
+            //     selector: 'node[id < 0]',
+            //     style: {
+            //         'text-valign': 'bottom',
+            //         'font-size': '12'
+            //     }
+            // },
             {
                 selector: 'edge',
                 style: {
@@ -137,16 +137,13 @@ function create_cy_object(cy_nodes, cy_edges) {
 
     project_context_menu(obj);
     project_click_event(obj);
-    project_qtip_event(obj);
+    // project_qtip_event(obj);
 
     return obj;
 }
 
 project_view_options();
 
-// window.setInterval(function(){
-//     savePositionToModule(cy);
-// }, 5000);
 var save_modules_location = window.setInterval("savePositionToModule(cy)", 5000);
 
 if ('{{ project.testrail }}' === 'None') {
@@ -161,7 +158,7 @@ if ('{{ project.test_header }}' === 'None'){
 }
 
 function savePositionToModule(cy){
-    var nodes = cy.elements('node[id > 0]'),
+    var nodes = cy.elements('node'),
         positions = [];
 
     $.each(nodes, function(idx, node){
@@ -237,15 +234,15 @@ function add_new_module(pos) {
 
     module_new.find('input[name="positions"]').val(JSON.stringify(position));
     module_new.modal('show');
-    module_new.bind('hidden.bs.modal', function () {
-        cy.elements().remove();
-        cy = create_cy_object(cy_nodes_default, cy_edges_default);
-
-    })
+    // module_new.bind('hidden.bs.modal', function () {
+    //     cy.elements().remove();
+    //     cy = create_cy_object(cy_nodes_default, cy_edges_default);
+    //
+    // })
 }
 
 function project_click_event(cy){
-    var tap_flag = false;
+    // var tap_flag = false;
 
     cy.on('tap', 'node[id > 0]', function(evt){
         var base_url = '',
@@ -267,16 +264,16 @@ function project_click_event(cy){
         sendMessage(JSON.stringify(data))
     });
 
-    cy.on('tap', 'node[id < 0]', function (evt) {
-        tap_flag = true;
-    });
-
-    cy.on('free', 'node[id < 0]', function (evt) {
-        if (!tap_flag) {
-            add_new_module(evt.target.position())
-        }
-        tap_flag = false;
-    });
+    // cy.on('tap', 'node[id < 0]', function (evt) {
+    //     tap_flag = true;
+    // });
+    //
+    // cy.on('free', 'node[id < 0]', function (evt) {
+    //     if (!tap_flag) {
+    //         add_new_module(evt.target.position())
+    //     }
+    //     tap_flag = false;
+    // });
 
     cy.on('tap', 'edge', function(evt){
         var edge = evt.target;
