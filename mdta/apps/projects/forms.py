@@ -18,22 +18,22 @@ class ProjectForm(ModelForm):
             self.fields[field_name].queryset = HumanResource.objects.select_related('user').all().exclude(user__username='admin')
             self.fields[field_name].label_from_instance = lambda obj: "%s %s" % (obj.user.first_name, obj.user.last_name)
 
-        # for field in self.fields:
-        #     if field == 'archive':
-        #         continue
-        #     help_text = self.fields[field].help_text
-        #     self.fields[field].help_text = None
-        #     if help_text != '':
-        #         self.fields[field].widget.attrs.update({
-        #             'class': 'form-control',
-        #             'data-toggle': 'tooltip',
-        #             'data-placement': 'top',
-        #             'title': help_text
-        #         })
-        #     else:
-        #         self.fields[field].widget.attrs.update({
-        #             'class': 'form-control',
-        #         })
+        for field in self.fields:
+            if field == 'archive':
+                continue
+            help_text = self.fields[field].help_text
+            self.fields[field].help_text = None
+            if help_text != '':
+                self.fields[field].widget.attrs.update({
+                    'class': 'form-control',
+                    'data-toggle': 'tooltip',
+                    'data-placement': 'top',
+                    'title': help_text
+                })
+            else:
+                self.fields[field].widget.attrs.update({
+                    'class': 'form-control',
+                })
 
     class Meta:
         model = Project
@@ -129,10 +129,16 @@ class ProjectConfigForm(ModelForm):
             help_text = self.fields[field].help_text
             self.fields[field].help_text = None
             if help_text != '':
-                self.fields[field].widget.attrs.update(
-                    {'class': 'form-control', 'data-toggle': 'tooltip', 'data-placement': 'top', 'title': help_text})
+                self.fields[field].widget.attrs.update({
+                    'class': 'form-control',
+                    'data-toggle': 'tooltip',
+                    'data-placement': 'top',
+                    'title': help_text
+                })
             else:
-                self.fields[field].widget.attrs.update({'class': 'form-control', })
+                self.fields[field].widget.attrs.update({
+                    'class': 'form-control',
+                })
 
     class Meta:
         model = Project

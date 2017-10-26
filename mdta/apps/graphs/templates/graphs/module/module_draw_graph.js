@@ -53,7 +53,7 @@ if (cy_layout_flag){
         name: 'breadthfirst',
         fit: true,
         directed: true,
-        padding: 30
+        padding: 10
     }
 }
 
@@ -96,8 +96,8 @@ function create_cy_object(cy_nodes, cy_edges) {
                     // 'background-color': 'data(color)',
                     'background-fit': 'contain',
                     'shape': 'rectangle',
-                    'height': '40px',
-                    'width': '40px',
+                    'height': '30px',
+                    'width': '30px',
                     'label': 'data(label)',
                     'text-valign': 'bottom',
                     // 'text-wrap': 'ellipsis',
@@ -171,7 +171,7 @@ function create_cy_object(cy_nodes, cy_edges) {
         layout: cy_layout_options,
         userZoomingEnabled: true,
         minZoom: .5,
-        maxZoom: 1.5,
+        maxZoom: 2,
         boxSelectionEnabled: true
     });
 

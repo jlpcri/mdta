@@ -46,15 +46,17 @@ $.each(cy_data_nodes, function(key, value){
 if (cy_layout_flag){
     cy_layout_options = {
         name: 'preset',
-        fit: false,
-        padding: 30
+        fit: true,
+        padding: 10
+
     }
 } else {
     cy_layout_options = {
         name: 'breadthfirst',
         fit: true,
         directed: true,
-        padding: 30
+        padding: 10
+
     }
 }
 
@@ -97,9 +99,10 @@ function create_cy_object(cy_nodes, cy_edges) {
                     'background-image': 'data(image)',
                     'background-fit': 'contain',
                     'background-clip': 'node',
-                    // 'shape': 'rectangle',
-                    // 'height': '40px',
-                    // 'width': '40px',
+                    'background-color': 'white',
+                    'shape': 'rectangle',
+                    'height': '30px',
+                    'width': '30px',
                     'label': 'data(label)',
                     'text-valign': 'bottom'
                 }
@@ -130,6 +133,8 @@ function create_cy_object(cy_nodes, cy_edges) {
             }
         ],
         layout: cy_layout_options,
+        minZoom: .5,
+        maxZoom: 2,
         userZoomingEnabled: true
     });
 
