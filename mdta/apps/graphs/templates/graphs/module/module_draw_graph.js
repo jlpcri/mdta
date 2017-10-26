@@ -43,22 +43,7 @@ $.each(cy_data_nodes, function(key, value){
     })
 });
 
-if (cy_layout_flag){
-    cy_layout_options = {
-        name: 'preset',
-        fit: true
-    }
-} else {
-    cy_layout_options = {
-        name: 'breadthfirst',
-        fit: true,
-        directed: true,
-        padding: 10
-    }
-}
-
 $.each(cy_data_edges, function(key, value){
-    //console.log(value),
     cy_edges_default.push({
         'data': {
             'id': value['id'],
@@ -69,6 +54,33 @@ $.each(cy_data_edges, function(key, value){
         }
     })
 });
+
+var cy_edges_length = cy_edges_default.length;
+console.log(cy_edges_length);
+
+if (cy_layout_flag){
+    cy_layout_options = {
+        name: 'preset',
+        fit: true,
+        padding: 10
+
+    }
+
+} else if (!cy_layout_flag && cy_edges_length === 0) {
+     cy_layout_options = {
+        name: 'circle',
+        fit: true,
+        padding: 10
+    }
+
+} else {
+    cy_layout_options = {
+        name: 'breadthfirst',
+        fit: true,
+        directed: true,
+        padding: 10
+    }
+}
 
 var cy = create_cy_object(cy_nodes_default, cy_edges_default);
 
