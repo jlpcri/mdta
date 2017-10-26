@@ -99,7 +99,8 @@ class Project(models.Model):
 
     language = models.ForeignKey(Language, blank=True, null=True,
                                  related_name='project_language',
-                                 on_delete=models.SET_NULL)
+                                 on_delete=models.SET_NULL,
+                                 help_text='Selected Language under test')
 
     version = models.TextField(help_text='Sections of TestRail-Project')  # relate to TestRail-TestSuites
     testrail = models.ForeignKey(TestRailConfiguration,

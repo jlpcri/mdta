@@ -50,7 +50,7 @@ if (cy_layout_flag){
     }
 } else {
     cy_layout_options = {
-        name: 'breadthfirst',
+        name: 'grid',
         fit: true,
         directed: true,
         padding: 30
@@ -363,7 +363,7 @@ if (is_testheader !== 'None'){
 }
 
 function savePositionToNode(obj){
-    var nodes = obj.elements('node'),
+    var nodes = obj.elements('node[id > 0]'),
         positions = [],
         module_id = get_current_module_id();
 

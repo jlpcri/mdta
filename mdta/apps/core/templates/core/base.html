@@ -158,6 +158,7 @@
         <div class="content">
             {% if user.is_authenticated %}
                 {% include 'core/main_menu.html' %}
+                {% include 'core/module_import_modal.html' %}
             {% endif %}
 
             <div class="wrapper">

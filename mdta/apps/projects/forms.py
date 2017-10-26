@@ -123,16 +123,30 @@ class ProjectConfigForm(ModelForm):
         self.fields['testrail'].label_from_instance = lambda obj: "%s" % obj.project_name
         self.fields['language'].label_from_instance = lambda obj: "%s" % obj.name
 
+        for field in self.fields:
+            help_text = self.fields[field].help_text
+            self.fields[field].help_text = None
+            if help_text != '':
+                self.fields[field].widget.attrs.update({
+                    'class': 'form-control',
+                    'data-toggle': 'tooltip',
+                    'data-placement': 'top',
+                    'title': help_text
+                })
+            else:
+                self.fields[field].widget.attrs.update({
+                    'class': 'form-control',
+                })
+
     class Meta:
         model = Project
         fields = ['name', 'test_header', 'testrail', 'language', 'version']
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control',
-                                           'readonly': True}),
-            'test_header': forms.Select(attrs={'class': 'form-control'}),
-            'testrail': forms.Select(attrs={'class': 'form-control'}),
-            'language': forms.Select(attrs={'class': 'form-control'}),
-            'version': forms.TextInput(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={'readonly': True}),
+            'test_header': forms.Select(),
+            'testrail': forms.Select(),
+            'language': forms.Select(),
+            'version': forms.TextInput(),
         }
 
 

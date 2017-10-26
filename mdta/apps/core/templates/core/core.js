@@ -42,4 +42,18 @@ function showErrMsg(location, msg){
     $(location).html('Error: ' + msg);
 }
 
+//Three steps for project imports modules from prompt lists excel
+$('#module-import-modal-1').on('show.bs.modal', function () {
+    $("#mySideBar").toggleClass("sidebar-nav-toggled");
+    $(".backdrop").toggle();
+});
+
+$('#module_import_step_1').click(function () {
+    $('#module-import-modal-2').modal('show')
+});
+
+$('#module_import_step_2').click(function () {
+    $('#module-import-modal-3').modal('show')
+});
+
 

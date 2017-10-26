@@ -112,8 +112,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.static',
-
-                'mdta.apps.core.views.get_active_top_link',
             ],
         },
     },

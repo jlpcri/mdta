@@ -1,0 +1,97 @@
+<!-- Module Import Modal Step 1 -->
+<div class="modal fade moduleImport" id="module-import-modal-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                <div class="row">
+                    <div class="col-xs-6">
+                        <h4 class="modal-title">Project Module Import Opt</h4>
+                    </div>
+                </div>
+            </div>
+        <div class="form-group">
+            <div class="modal-body">
+                <p>By uploading a prompt list, we can save you time by automatically
+                    creating most of the audio prompts. We strongly encourage your
+                    to use this this process.</p>
+                <p>Would you like to begin the import now?</p>
+            </div>
+        </div>
+            <div class="modal-footer">
+                <a href="{% url 'help:help' %}" class="pull-left">Help</a>
+                <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                <button id="module_import_step_1" type="button" class="btn btn-default" data-dismiss="modal">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Module Import Modal Step 2 -->
+<div class="modal fade moduleImport" id="module-import-modal-2">
+    <div class="modal-dialog">
+        <form action="{% url 'projects:language_new' %}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <h4 class="modal-title">Project Modules Import Language Set</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    {{ language_new_form }}
+                    <br>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div id="newLanguageErrMessage">&nbsp;</div>
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button id="module_import_step_2" type="button" class="btn btn-default" data-dismiss="modal">Import Modules</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Module Import Modal Step 3 -->
+<div class="modal fade moduleImport" id="module-import-modal-3">
+    <div class="modal-dialog">
+        <form action="{% url 'graphs:project_module_import' user.humanresource.project.id %}" method="post" enctype="multipart/form-data">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4 class="modal-title">Module Import</h4>
+                        </div>
+                    </div>
+                </div>
+            <div class="form-group">
+                <div class="modal-body">
+                    {% csrf_token %}
+                        <label class="control-label">Upload Prompt List .xlsx File</label>
+                        <div class="input-group">
+                            <span class="input-group-btn">
+                                <span class="btn btn-file">
+                                    <i class="fa fa-folder-open fa-fw"></i>{{ module_import_form.file }}
+                                    <input type="file" style="display: none;">
+                                </span>
+                            </span>
+                            <input type="text" id="filenames" class="form-control" readonly>
+                        </div>
+                    </div>
+                 </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input id="module_import" class="btn btn-primary" type="submit" value="Import">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
