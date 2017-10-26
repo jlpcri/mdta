@@ -136,12 +136,14 @@ class TestRailCase(TestRailORM):
             if (playback_switch):
                 self.script.body += '\nSTARTRECORDING {0} \n'.format('static_hat/recordings/'+self.get_title()+'.wav')
             if(not(playback_switch) and previous_step_playback and not(present_step_playback)):
+                self.script.body += 'PAUSE 10 \n'
                 self.script.body += 'ENDRECORDING \n\n'
 
             self._content_routing(step[TR_CONTENT])
             self._expected_routing(step[TR_EXPECTED], playback_switch)
 
             if present_step_playback and index == len(self.custom_steps_separated) - 1:
+                self.script.body += 'PAUSE 10 \n'
                 self.script.body += 'ENDRECORDING \n\n'
 
             previous_step_playback = present_step_playback
@@ -178,11 +180,13 @@ class TestRailCase(TestRailORM):
         else:
             path = self.custom_call_language_audio_path
 
-        if path[len(path)-1] == '/':
+        if path and path[len(path)-1] == '/':
             path = path[:len(path)-1]
+            self.script.body += 'EXPECT prompt URI='+path+'/' + prompt + '.wav\n'
+        else:
+            self.script.body += 'EXPECT prompt URI=audio/' + prompt + '.wav\n'
 
-        #self.script.body += 'EXPECT prompt URI=audio/' + prompt + '.wav\n'
-        self.script.body += 'EXPECT prompt URI='+path+'/' + prompt + '.wav\n'
+
 
 
 def get_testrail_steps(instance, case_id):
@@ -430,6 +434,7 @@ class HATScript(AutomationScript):
 
     def dtmf_step(self, step):
         self.body += 'EXPECT recognition_start\nPAUSE 1\nDTMF ' + step[6:] + '\n'
+
 
 
     def no_input(self, step):

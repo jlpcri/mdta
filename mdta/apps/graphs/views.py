@@ -18,7 +18,8 @@ from mdta.apps.projects.forms import ModuleForm, UploadForm
 from mdta.apps.testcases.constant_names import NODE_START_NAME, LANGUAGE_DEFAULT_NAME
 from mdta.apps.testcases.tasks import create_testcases_celery
 from mdta.apps.testcases.models import TestCaseResults
-
+from mdta.apps.testcases.utils import get_languages
+from mdta.apps.testcases.constant_names import NODE_LANGUAGE_SELECT, LANGUAGE
 
 @login_required
 def home(request):
@@ -313,6 +314,11 @@ def project_module_detail(request, module_id):
 
     module = get_object_or_404(Module, pk=module_id)
 
+    # create Language Json
+    language_hashmap ={}
+    languages = get_languages(module.project)
+    language_hashmap = {language:'*' for language in languages if language not in language_hashmap}
+
     # [temporary, removed after migration]:: synchronize Node properties and NodeType Keys
     for node in module.nodes_all:
         prompts=node.type.keys
@@ -320,6 +326,19 @@ def project_module_detail(request, module_id):
             if prompt not in node.properties:
                 node.properties[prompt] = ''
                 node.save()
+
+        # Add languages in JSON format for Language select node.
+        if node.type.name == NODE_LANGUAGE_SELECT:
+            print(node.properties[LANGUAGE])
+            node.properties[LANGUAGE] = eval(str(node.properties[LANGUAGE]))
+            temp = {}
+            for key in language_hashmap:
+                if key not in node.properties[LANGUAGE]:
+                    temp[key] = language_hashmap[key]
+                else:
+                    temp[key] = node.properties[LANGUAGE][key]
+            node.properties[LANGUAGE] = temp
+
 
     # for module level graph
     network_edges = []

@@ -1,4 +1,7 @@
-from django.test import TestCase
+from django.test import TestCase, Client
+from django.contrib.auth.models import User
+from mdta.apps.users.models import HumanResource
+from django.core.urlresolvers import reverse
 
 from mdta.apps.projects.models import TestRailInstance, TestRailConfiguration, CatalogItem, Project, Module
 

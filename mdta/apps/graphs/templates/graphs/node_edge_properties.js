@@ -6,6 +6,7 @@ function load_keys_from_type_contents(item_id, location, type, call_from_node_ed
             subkeys = data['subkeys'],
             rowCounter = 0,
             contents = '';
+            console.log(keys);
         $.each(keys, function(k, v){
             if ((keys[k].indexOf('Data') >= 0) ) {
                 //contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';

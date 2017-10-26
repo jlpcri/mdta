@@ -160,12 +160,18 @@ def path_traverse_backwards(path, th_path=None, language=None):
     else:
         for tc in tcs:
             if PLAY_BACK in tc :
-                tc[TR_CONTENT] += PLAY_BACK+str(tc[PLAY_BACK])
+                try:
+                    tc[TR_CONTENT] += PLAY_BACK+str(tc[PLAY_BACK])
+                except KeyError:
+                    tc[TR_CONTENT] = PLAY_BACK+str(tc[PLAY_BACK])
                 del tc[PLAY_BACK]
 
             if MONOLINGUAL in tc:
                 if tc[MONOLINGUAL]:
-                    tc[TR_EXPECTED] = '**'+tc[TR_EXPECTED]
+                    try:
+                        tc[TR_EXPECTED] = DEFAULT_PATH+tc[TR_EXPECTED]
+                    except KeyError:
+                        tc[TR_EXPECTED] = DEFAULT_PATH
                 del tc[MONOLINGUAL]
 
         print(tcs)
@@ -393,8 +399,12 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None, language=
     """
     if node.type.name in [NODE_START_NAME[0], 'Transfer']:  # Start with Dial Number
         add_step(node_start(node), tcs)
-    elif node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME, NODE_SET_VARIABLE]:
-        add_step(node_prompt(node, preceding_edge, language=language), tcs)
+    elif node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME, NODE_SET_VARIABLE, NODE_LANGUAGE_SELECT]:
+        if node.type.name == NODE_LANGUAGE_SELECT:
+            match_constraint = eval(str(node.properties[LANGUAGE]))[language]
+            add_step(node_prompt(node, None, match_constraint, language=language), tcs)
+        else:
+            add_step(node_prompt(node, preceding_edge, language=language), tcs)
 
 
     if node.type.name == NODE_MP_NAME[1] and following_edge:
@@ -423,8 +433,9 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None, language=
     if node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME, NODE_LANGUAGE_SELECT]:
         #   monolingual property
         if node.type.name == NODE_LANGUAGE_SELECT:
+            if len(tcs) == 0:
+                tcs.append({})
             tcs[len(tcs)-1][MONOLINGUAL] = True
-            print (tcs)
         else:
             flag = False
             try:
@@ -433,7 +444,6 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None, language=
             except KeyError:
                 pass
             tcs[len(tcs)-1][MONOLINGUAL] = flag
-
 
         #   playback property
         flag = False

@@ -177,7 +177,7 @@ function populateSteps(){
     $("#testcase").html("");
     $("#result").html("");
     button.siblings(".fa-spin").removeClass("hidden");
-    $.ajax('{% url "runner:steps" project.id %}?case_id=' + case_id, {
+    /*$.ajax('{% url "runner:steps" project.id %}?case_id=' + case_id, {
         success: function(data, textStatus, jqXHR){
             var div = $("#testcase");
             var table_draw = '<table class="table table-bordered"><thead><tr><th class="col-md-4">Content</th><th class="col-md-8">Expected Result</th></tr></thead>';
@@ -188,7 +188,7 @@ function populateSteps(){
             table_draw += "</table>";
             div.html(table_draw)
         }
-    });
+    });*/
     $.ajax('{% url "runner:run" project.id %}?case_id=' + case_id, {
         success: function(data, textStatus, jqXHR){
             console.log('result:',data);
