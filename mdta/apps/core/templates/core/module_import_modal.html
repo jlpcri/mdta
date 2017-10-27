@@ -1,3 +1,28 @@
+{% block extrahead %}
+    <style type="text/css">
+        .btn-file {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid lightgray;
+        }
+        .btn-file input[type=file] {
+            position: absolute;
+            top: 0;
+            right: 0;
+            min-width: 100%;
+            min-height: 100%;
+            font-size: 100px;
+            text-align: right;
+            filter: alpha(opacity=0);
+            opacity: 0;
+            outline: none;
+            background: white;
+            cursor: inherit;
+            display: block;
+        }
+    </style>
+{% endblock%}
+
 <!-- Module Import Modal Step 1 -->
 <div class="modal fade moduleImport" id="module-import-modal-1">
     <div class="modal-dialog">
@@ -10,14 +35,14 @@
                     </div>
                 </div>
             </div>
-        <div class="form-group">
-            <div class="modal-body">
-                <p>By uploading a prompt list, we can save you time by automatically
-                    creating most of the audio prompts. We strongly encourage your
-                    to use this this process.</p>
-                <p>Would you like to begin the import now?</p>
+            <div class="form-group">
+                <div class="modal-body">
+                    <p>By uploading a prompt list, we can save you time by automatically
+                        creating most of the audio prompts. We strongly encourage your
+                        to use this this process.</p>
+                    <p>Would you like to begin the import now?</p>
+                </div>
             </div>
-        </div>
             <div class="modal-footer">
                 <a href="{% url 'help:help' %}" class="pull-left">Help</a>
                 <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
@@ -40,12 +65,20 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-body">
-                    {{ language_new_form }}
-                    <br>
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <div id="newLanguageErrMessage">&nbsp;</div>
+                <div class="form-group">
+                    <div class="modal-body">
+                        <p>Languages currently set in your project</p>
+                        <ul>
+                            {% for lan in user.humanresource.project.language_lists %}
+                                <li>{{ lan }}</li>
+                            {% endfor %}
+                        </ul>
+                        {{ language_new_form }}
+                        <br>
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div id="newLanguageErrMessage">&nbsp;</div>
+                            </div>
                         </div>
                     </div>
                     {% csrf_token %}
@@ -67,26 +100,35 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
                     <div class="row">
-                        <div class="col-xs-6">
-                            <h4 class="modal-title">Module Import</h4>
+                        <div class="col-xs-12">
+                            <h4 class="modal-title">Project Modules Import Promptlist</h4>
                         </div>
                     </div>
                 </div>
             <div class="form-group">
                 <div class="modal-body">
                     {% csrf_token %}
-                        <label class="control-label">Upload Prompt List .xlsx File</label>
-                        <div class="input-group">
-                            <span class="input-group-btn">
-                                <span class="btn btn-file">
-                                    <i class="fa fa-folder-open fa-fw"></i>{{ module_import_form.file }}
-                                    <input type="file" style="display: none;">
-                                </span>
+                    <p>Languages currently set in your project</p>
+                        <ul>
+                            {% for lan in user.humanresource.project.language_lists %}
+                                <li>{{ lan }}</li>
+                            {% endfor %}
+                        </ul>
+                    <label class="control-label">Upload Prompt List .xlsx File</label>
+                    <div class="input-group">
+                        <span class="input-group-btn">
+                            <span class="btn btn-file">
+                                <i class="fa fa-folder-open fa-fw"></i>{{ module_import_form.file }}
+                                <input type="file" style="display: none;">
                             </span>
-                            <input type="text" id="filenames" class="form-control" readonly>
-                        </div>
+                        </span>
+                        <input type="text" id="filenames" class="form-control" readonly>
                     </div>
-                 </div>
+                    <div class="input-group" style="padding-top: 20px;">
+                        <a href="{% url 'help:help' %}" class="pull-left">Help</a>
+                    </div>
+                </div>
+            </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     <input id="module_import" class="btn btn-primary" type="submit" value="Import">
@@ -95,3 +137,40 @@
         </form>
     </div>
 </div>
+
+{% block footer %}
+    <script>
+        //Three steps for project imports modules from prompt lists excel
+        $('#module-import-modal-1').on('show.bs.modal', function () {
+            $("#mySideBar").toggleClass("sidebar-nav-toggled");
+            $(".backdrop").toggle();
+        });
+
+        $('#module_import_step_1').click(function () {
+            $('#module-import-modal-2').modal('show')
+        });
+
+        $('#module_import_step_2').click(function () {
+            $('#module-import-modal-3').modal('show')
+        });
+
+        //File upload form
+        $('.moduleImport input:file').on('change', function () {
+            var input = $(this),
+                numFiles = input.get(0).files ? input.get(0).files.length : 1,
+                label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+            input.trigger('fileselect', [numFiles, label]);
+        });
+
+        $('.moduleImport input:file').on('fileselect', function (event, numFiles, label) {
+            var input = $(this).parents('.input-group').find(':text'),
+                log = numFiles > 1 ? numFiles + ' files selected' : label;
+
+            if (input.length) {
+                input.val(log);
+            } else {
+                if (log) alert(log);
+            }
+        });
+    </script>
+{% endblock %}

@@ -171,6 +171,14 @@ class Project(models.Model):
 
         return data
 
+    @property
+    def language_lists(self):
+        data = []
+        for item in Language.objects.filter(project=self):
+            data.append(item.name)
+
+        return data
+
 
 class Module(models.Model):
     """

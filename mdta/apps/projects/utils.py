@@ -1,6 +1,6 @@
 from mdta.apps.graphs.forms import NodeTypeNewForm, EdgeTypeNewForm
 from mdta.apps.graphs.models import NodeType, EdgeType
-from mdta.apps.projects.forms import ProjectConfigForm, TestHeaderForm, LanguageNewForm
+from mdta.apps.projects.forms import ProjectConfigForm, TestHeaderForm, LanguageNewForm, UploadForm
 from mdta.apps.projects.models import Project, Module, TestRailConfiguration, Language
 from mdta.apps.testcases.forms import TestrailConfigurationForm
 
@@ -20,6 +20,7 @@ def context_project_dashboard(request):
     node_type_new_form = NodeTypeNewForm()
     edge_type_new_form = EdgeTypeNewForm()
     language_new_form = LanguageNewForm(initial={'project': project})
+    module_import_form = UploadForm()
 
     context = {
         'project': project,
@@ -36,6 +37,7 @@ def context_project_dashboard(request):
         'node_type_new_form': node_type_new_form,
         'edge_type_new_form': edge_type_new_form,
         'language_new_form': language_new_form,
+        'module_import_form': module_import_form,
     }
 
     return context
