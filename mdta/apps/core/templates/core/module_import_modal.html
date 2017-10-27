@@ -74,6 +74,10 @@
                             {% endfor %}
                         </ul>
                         {{ language_new_form }}
+                        <div style="padding-top: 20px;">
+                            <a href="{% url 'help:help' %}" class="pull-left">Help</a>
+                            <button id="language_add" type="button" class="btn btn-default btn-sm pull-right">Add</button>
+                        </div>
                         <br>
                         <div class="row">
                             <div class="col-xs-12">
@@ -172,5 +176,37 @@
                 if (log) alert(log);
             }
         });
+
+        $('#language_add').click(function () {
+            var lan_list = {{ user.humanresource.project.language_lists|safe }},
+                name = $('#module-import-modal-2 #id_name').val();
+
+            if (name === ''){
+                showErrMsg('#newLanguageErrMessage', 'Language is Empty');
+                return false;
+            } else if (lan_list.indexOf(name) >= 0){
+                showErrMsg('#newLanguageErrMessage', 'Language is Duplicated');
+                return false;
+            } else{
+                var lan = {
+                    'project_id': $('#module-import-modal-2 #id_project').val(),
+                    'name': name,
+                    'root_path': $('#module-import-modal-2 #id_root_path').val()
+                },
+                data = {
+                    'lan': JSON.stringify(lan),
+                    'csrfmiddlewaretoken': '{{csrf_token}}'
+                };
+                $.ajax({
+                    type: 'POST',
+                    data: data,
+                    url: '{% url "projects:language_new_from_module_import" %}',
+                    dataType: 'json'
+                }).done(function (data) {
+                    console.log(data)
+                })
+            }
+
+        })
     </script>
 {% endblock %}
