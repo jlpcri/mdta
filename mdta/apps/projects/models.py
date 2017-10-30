@@ -175,7 +175,10 @@ class Project(models.Model):
     def language_lists(self):
         data = []
         for item in Language.objects.filter(project=self):
-            data.append(item.name)
+            data.append({
+                'lan_id': item.id,
+                'lan_name': item.name
+            })
 
         return data
 
