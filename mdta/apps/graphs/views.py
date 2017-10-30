@@ -14,7 +14,7 @@ from mdta.apps.projects.utils import context_project_dashboard
 from mdta.apps.users.views import user_is_staff, user_is_superuser
 from .models import NodeType, EdgeType, Node, Edge
 from .forms import NodeTypeNewForm, NodeNewForm, EdgeTypeNewForm, EdgeAutoNewForm
-from mdta.apps.projects.forms import ModuleForm, UploadForm
+from mdta.apps.projects.forms import ModuleForm, UploadForm, LanguageNewForm
 from mdta.apps.testcases.constant_names import *
 from mdta.apps.testcases.tasks import create_testcases_celery
 from mdta.apps.testcases.models import TestCaseResults
@@ -250,6 +250,8 @@ def project_detail(request, project_id):
 
         'module_new_form': ModuleForm(project_id=project.id),
         'module_import_form': UploadForm(),
+        'language_new_form': LanguageNewForm(initial={'project': project}),
+
         'edge_types': EdgeType.objects.all(),
         'edge_priority': Edge.PRIORITY_CHOICES,
 

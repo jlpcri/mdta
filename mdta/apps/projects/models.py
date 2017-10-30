@@ -99,7 +99,8 @@ class Project(models.Model):
 
     language = models.ForeignKey(Language, blank=True, null=True,
                                  related_name='project_language',
-                                 on_delete=models.SET_NULL)
+                                 on_delete=models.SET_NULL,
+                                 help_text='Selected Language under test')
 
     version = models.TextField(help_text='Sections of TestRail-Project')  # relate to TestRail-TestSuites
     testrail = models.ForeignKey(TestRailConfiguration,
@@ -167,6 +168,14 @@ class Project(models.Model):
         for node in self.nodes:
             if node.type.name == NODE_START_NAME[0]:
                 data.append(node)
+
+        return data
+
+    @property
+    def language_lists(self):
+        data = []
+        for item in Language.objects.filter(project=self):
+            data.append(item.name)
 
         return data
 

@@ -182,8 +182,6 @@ function create_cy_object(cy_nodes, cy_edges) {
         ],
         layout: cy_layout_options,
         userZoomingEnabled: true,
-        minZoom: .5,
-        maxZoom: 2,
         boxSelectionEnabled: true
     });
 
