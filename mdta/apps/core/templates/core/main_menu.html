@@ -174,7 +174,9 @@
                             <li><a href="{% url 'projects:project_new' %}">Add New Project</a></li>
                             <li><a href="{% url 'testcases:tcs_project' %}">TestCases</a></li>
                             <li><a href="{% url 'runner:dashboard' %}">TCs Execution</a></li>
-                            <li><a href="#" data-toggle="modal" data-target="#module-import-modal">Import Prompts</a></li>
+                            {%  if module_import_form %}
+                                <li><a href="#" data-toggle="modal" data-target="#module-import-modal-1">Import Prompts</a></li>
+                            {% endif %}
                         </ul>
                     </li>
                     {% if user.is_superuser %}
