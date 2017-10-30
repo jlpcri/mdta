@@ -68,7 +68,7 @@
                 <div class="form-group">
                     <div class="modal-body">
                         <p>Languages currently set in your project</p>
-                        <ul>
+                        <ul class="projectLanguages">
                             {% for lan in user.humanresource.project.language_lists %}
                                 <li>{{ lan }}</li>
                             {% endfor %}
@@ -113,7 +113,7 @@
                 <div class="modal-body">
                     {% csrf_token %}
                     <p>Languages currently set in your project</p>
-                        <ul>
+                        <ul class="projectLanguages">
                             {% for lan in user.humanresource.project.language_lists %}
                                 <li>{{ lan }}</li>
                             {% endfor %}
@@ -178,8 +178,13 @@
         });
 
         $('#language_add').click(function () {
-            var lan_list = {{ user.humanresource.project.language_lists|safe }},
-                name = $('#module-import-modal-2 #id_name').val();
+            var name = $('#module-import-modal-2 #id_name').val(),
+                root_path = $('#module-import-modal-2 #id_root_path').val(),
+                lan_list = [];
+
+            $('#module-import-modal-2 .projectLanguages li').each(function () {
+                lan_list.push($(this).text())
+            });
 
             if (name === ''){
                 showErrMsg('#newLanguageErrMessage', 'Language is Empty');
@@ -187,7 +192,10 @@
             } else if (lan_list.indexOf(name) >= 0){
                 showErrMsg('#newLanguageErrMessage', 'Language is Duplicated');
                 return false;
-            } else{
+            } else if (!isURL(root_path)) {
+                showErrMsg('#newLanguageErrMessage', 'Root Path is not valid');
+                return false
+            }else{
                 var lan = {
                     'project_id': $('#module-import-modal-2 #id_project').val(),
                     'name': name,
@@ -203,10 +211,27 @@
                     url: '{% url "projects:language_new_from_module_import" %}',
                     dataType: 'json'
                 }).done(function (data) {
-                    console.log(data)
+                    var html = '';
+                    $.each(data, function (idx, value) {
+                        html += '<li>{0}</li>'.format(value);
+                    });
+                    $('.projectLanguages').html(html);
+                    $('#module-import-modal-2 #id_name').val('');
+                    $('#newLanguageErrMessage').html('');
                 })
             }
+        });
 
-        })
+        function isURL(str) {
+            var pattern = new RegExp(
+                '^(https?:\\/\\/)?'+ // protocol
+{#                '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|'+ // domain name#}
+{#                '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address#}
+                '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+                '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+                '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+            return pattern.test(str);
+        }
+
     </script>
 {% endblock %}
