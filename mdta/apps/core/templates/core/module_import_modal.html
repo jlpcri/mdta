@@ -30,8 +30,8 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
                 <div class="row">
-                    <div class="col-xs-6">
-                        <h4 class="modal-title">Project Module Import Opt</h4>
+                    <div class="col-xs-12">
+                        <h4 class="modal-title">Step 1 - Project Module Import Opt</h4>
                     </div>
                 </div>
             </div>
@@ -46,7 +46,7 @@
             <div class="modal-footer">
                 <a href="{% url 'help:help' %}" class="pull-left">Help</a>
                 <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
-                <button id="module_import_step_1" type="button" class="btn btn-default" data-dismiss="modal">Yes</button>
+                <button id="import_to_step_2" type="button" class="btn btn-default importToStep2" data-dismiss="modal">Yes</button>
             </div>
         </div>
     </div>
@@ -61,7 +61,7 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
                     <div class="row">
                         <div class="col-xs-12">
-                            <h4 class="modal-title">Project Modules Import Language Set</h4>
+                            <h4 class="modal-title">Step 2 - Project Modules Import Language Set</h4>
                         </div>
                     </div>
                 </div>
@@ -70,7 +70,8 @@
                         <p>Languages currently set in your project</p>
                         <ul class="projectLanguages">
                             {% for lan in user.humanresource.project.language_lists %}
-                                <li>{{ lan }}</li>
+                                <li><a href="#import-language-edit-modal" data-toggle="modal"
+                                data-dismiss="modal" data-language-id="{{ lan.lan_id }}">{{ lan.lan_name }}</a></li>
                             {% endfor %}
                         </ul>
                         {{ language_new_form }}
@@ -89,7 +90,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <button id="module_import_step_2" type="button" class="btn btn-default" data-dismiss="modal">Import Modules</button>
+                    <button id="import_to_step_3" type="button" class="btn btn-default" data-dismiss="modal">Import Modules</button>
                 </div>
             </div>
         </form>
@@ -105,7 +106,7 @@
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
                     <div class="row">
                         <div class="col-xs-12">
-                            <h4 class="modal-title">Project Modules Import Promptlist</h4>
+                            <h4 class="modal-title">Step 3 - Project Modules Import Promptlist</h4>
                         </div>
                     </div>
                 </div>
@@ -115,7 +116,7 @@
                     <p>Languages currently set in your project</p>
                         <ul class="projectLanguages">
                             {% for lan in user.humanresource.project.language_lists %}
-                                <li>{{ lan }}</li>
+                                <li>{{ lan.lan_name }}</li>
                             {% endfor %}
                         </ul>
                     <label class="control-label">Upload Prompt List .xlsx File</label>
@@ -135,7 +136,64 @@
             </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button id="back_to_step_2" type="button" class="btn btn-default importToStep2" data-dismiss="modal">Back</button>
                     <input id="module_import" class="btn btn-primary" type="submit" value="Import">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Language Edit Modal -->
+<div class="modal fade editLanguage" id="import-language-edit-modal">
+    <div class="modal-dialog">
+        <form action="{% url 'projects:language_edit' %}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <h4 class="modal-title">Language Edit</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+					<div class="row">
+                        <div class="col-xs-12">
+                            <label for="editLanguageProject">Project:</label>
+                            <select class="form-control" name="editLanguageProject" id="editLanguageProject">
+								{% for project in projects%}
+									<option value="{{project.id}}">{{project.name}}</option>
+								{% endfor %}
+							</select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="editLanguageName">Language:</label>
+                            <input type="text" class="form-control input-sm" name="editLanguageName" id="editLanguageName">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <label for="editLanguageRootPath">RootPath:</label>
+                            <input type="text" class="form-control input-sm" name="editLanguageRootPath" id="editLanguageRootPath">
+                        </div>
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-xs-10">
+                            <div id="editLanguageErrMessage">&nbsp;</div>
+                        </div>
+                        <div class="col-xs-1">
+                            <input type="hidden" name="editLanguageId">
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input id="language_edit" class="btn btn-primary" type="submit" value="Save Language">
                 </div>
             </div>
         </form>
@@ -144,94 +202,6 @@
 
 {% block footer %}
     <script>
-        //Three steps for project imports modules from prompt lists excel
-        $('#module-import-modal-1').on('show.bs.modal', function () {
-            $("#mySideBar").toggleClass("sidebar-nav-toggled");
-            $(".backdrop").toggle();
-        });
-
-        $('#module_import_step_1').click(function () {
-            $('#module-import-modal-2').modal('show')
-        });
-
-        $('#module_import_step_2').click(function () {
-            $('#module-import-modal-3').modal('show')
-        });
-
-        //File upload form
-        $('.moduleImport input:file').on('change', function () {
-            var input = $(this),
-                numFiles = input.get(0).files ? input.get(0).files.length : 1,
-                label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-            input.trigger('fileselect', [numFiles, label]);
-        });
-
-        $('.moduleImport input:file').on('fileselect', function (event, numFiles, label) {
-            var input = $(this).parents('.input-group').find(':text'),
-                log = numFiles > 1 ? numFiles + ' files selected' : label;
-
-            if (input.length) {
-                input.val(log);
-            } else {
-                if (log) alert(log);
-            }
-        });
-
-        $('#language_add').click(function () {
-            var name = $('#module-import-modal-2 #id_name').val(),
-                root_path = $('#module-import-modal-2 #id_root_path').val(),
-                lan_list = [];
-
-            $('#module-import-modal-2 .projectLanguages li').each(function () {
-                lan_list.push($(this).text())
-            });
-
-            if (name === ''){
-                showErrMsg('#newLanguageErrMessage', 'Language is Empty');
-                return false;
-            } else if (lan_list.indexOf(name) >= 0){
-                showErrMsg('#newLanguageErrMessage', 'Language is Duplicated');
-                return false;
-            } else if (!isURL(root_path)) {
-                showErrMsg('#newLanguageErrMessage', 'Root Path is not valid');
-                return false
-            }else{
-                var lan = {
-                    'project_id': $('#module-import-modal-2 #id_project').val(),
-                    'name': name,
-                    'root_path': $('#module-import-modal-2 #id_root_path').val()
-                },
-                data = {
-                    'lan': JSON.stringify(lan),
-                    'csrfmiddlewaretoken': '{{csrf_token}}'
-                };
-                $.ajax({
-                    type: 'POST',
-                    data: data,
-                    url: '{% url "projects:language_new_from_module_import" %}',
-                    dataType: 'json'
-                }).done(function (data) {
-                    var html = '';
-                    $.each(data, function (idx, value) {
-                        html += '<li>{0}</li>'.format(value);
-                    });
-                    $('.projectLanguages').html(html);
-                    $('#module-import-modal-2 #id_name').val('');
-                    $('#newLanguageErrMessage').html('');
-                })
-            }
-        });
-
-        function isURL(str) {
-            var pattern = new RegExp(
-                '^(https?:\\/\\/)?'+ // protocol
-{#                '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|'+ // domain name#}
-{#                '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address#}
-                '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-                '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-                '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-            return pattern.test(str);
-        }
-
+        {% include 'core/module_import_modal.js' %}
     </script>
 {% endblock %}

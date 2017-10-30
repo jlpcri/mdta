@@ -483,3 +483,17 @@ def language_new_from_module_import(request):
         data = project.language_lists
 
     return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@user_passes_test(user_is_staff)
+def get_language_detail_for_import_module(request):
+    data = []
+    if request.method == 'GET':
+        lan_id = request.GET.get('lan_id', '')
+        lan = get_object_or_404(Language, pk=lan_id)
+        data = {
+            'lan_name': lan.name,
+            'root_path': lan.root_path
+        }
+
+    return HttpResponse(json.dumps(data), content_type='application/json')
