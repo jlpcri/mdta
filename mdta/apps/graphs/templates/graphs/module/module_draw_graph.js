@@ -56,7 +56,7 @@ $.each(cy_data_edges, function(key, value){
 });
 
 var cy_edges_length = cy_edges_default.length;
-console.log(cy_edges_length);
+
 
 if (cy_layout_flag){
     cy_layout_options = {
@@ -182,6 +182,9 @@ function create_cy_object(cy_nodes, cy_edges) {
         ],
         layout: cy_layout_options,
         userZoomingEnabled: true,
+        minZoom: 1,
+        maxZoom: 2,
+        wheelSensitivity: 0.1,
         boxSelectionEnabled: true
     });
 

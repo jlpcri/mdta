@@ -32,9 +32,9 @@
             </div>
             <div class="col-xs-4">
                 {% if module.project %}
-                    <h4>Project: <a href="{% url 'graphs:project_detail' module.project.id %}">{{ module.project.name }}</a> - Module: {{ module.name }}</h4>
+                    <h3>Project: <a href="{% url 'graphs:project_detail' module.project.id %}">{{ module.project.name }}</a> - Module: {{ module.name }}</h3>
                 {% else %}
-                    <h4>Test Header - {{ module.name }}</h4>
+                    <h3>Test Header - {{ module.name }}</h3>
                 {% endif %}
             </div>
             <div class="col-xs-7 text-right">
