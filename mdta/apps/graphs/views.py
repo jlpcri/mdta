@@ -329,15 +329,21 @@ def project_module_detail(request, module_id):
 
         # Add languages in JSON format for Language select node.
         if node.type.name == NODE_LANGUAGE_SELECT:
-            print(node.properties[LANGUAGE])
-            node.properties[LANGUAGE] = eval(str(node.properties[LANGUAGE]))
+            print(node.properties)
+            if node.properties[LANGUAGE]:
+                try:
+                    node.properties[LANGUAGE] = eval(node.properties[LANGUAGE])
+                except TypeError:
+                    node.properties[LANGUAGE] = eval(str(node.properties[LANGUAGE]))
+
             temp = {}
             for key in language_hashmap:
-                if key not in node.properties[LANGUAGE]:
-                    temp[key] = language_hashmap[key]
-                else:
-                    temp[key] = node.properties[LANGUAGE][key]
+                 if key not in node.properties[LANGUAGE]:
+                     temp[key] = language_hashmap[key]
+                 else:
+                     temp[key] = node.properties[LANGUAGE][key]
             node.properties[LANGUAGE] = temp
+            node.save()
 
 
     # for module level graph

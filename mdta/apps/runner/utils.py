@@ -126,8 +126,7 @@ class TestRailCase(TestRailORM):
             if PLAY_BACK in step[TR_CONTENT]:
                 step[TR_CONTENT], present_step_playback = step[TR_CONTENT].split(PLAY_BACK)
                 present_step_playback = True if present_step_playback == 'True' else False
-                if present_step_playback:
-                    self.playback = True
+
             else:
                 present_step_playback = False
 
@@ -135,6 +134,7 @@ class TestRailCase(TestRailORM):
 
             if (playback_switch):
                 self.script.body += '\nSTARTRECORDING {0} \n'.format('static_hat/recordings/'+self.get_title()+'.wav')
+                self.playback = True
             if(not(playback_switch) and previous_step_playback and not(present_step_playback)):
                 self.script.body += 'PAUSE 10 \n'
                 self.script.body += 'ENDRECORDING \n\n'
