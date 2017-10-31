@@ -23,7 +23,7 @@
             top: 0;
             left: -250px;
             height: 100vh;
-            z-index: 10001;
+            z-index: 100001;
             background: #afc0d1;
             color: #fff;
             transition: all 0.3s;
@@ -65,7 +65,7 @@
             height: 100vh;
             background: #D1D1D1;
             opacity: 0.1;
-            z-index: 10000;
+            z-index: 100000;
             top: 0;
             left: 0;
             display: none;
@@ -76,7 +76,7 @@
         }
 
         #sidebar .sidebar-header {
-            padding: 20px;
+            padding: 22px 10px;
             background: #d1d1d1;
         }
 
@@ -91,7 +91,7 @@
 
         #sidebar ul li a {
             padding: 10px;
-            font-size: 1.1em;
+            font-size: 1.2em;
             display: block;
         }
 
@@ -114,7 +114,7 @@
             display: block;
             position: absolute;
             right: 20px;
-            font-size: 0.6em;
+            font-size: 0.7em;
         }
 
         a[aria-expanded="true"]::before {
@@ -122,22 +122,22 @@
         }
 
         ul ul a {
-            font-size: 0.9em !important;
+            font-size: 1em !important;
             padding-left: 30px !important;
             background: #d1d1d1;
         }
 
-        ul.CTAs {
-            padding: 20px;
-        }
-
-        ul.CTAs a {
-            text-align: center;
-            font-size: 0.9em !important;
-            display: block;
-            border-radius: 5px;
-            margin-bottom: 5px;
-        }
+{#        ul.CTAs {#}
+{#            padding: 20px;#}
+{#        }#}
+{##}
+{#        ul.CTAs a {#}
+{#            text-align: center;#}
+{#            font-size: 0.9em !important;#}
+{#            display: block;#}
+{#            border-radius: 5px;#}
+{#            margin-bottom: 5px;#}
+{#        }#}
 
     </style>
 {% endblock%}
@@ -145,7 +145,7 @@
 {% block body %}
     <div class="row" role="navigation">
         <a id="sidebarCollapse" class="navbar-brand">
-            <i style="font-size:1.75em; color:black; margin-top:.3em; margin-left:.5em;" class="glyphicon glyphicon-menu-hamburger"
+            <i style="font-size:1.75em; color:black; margin-top:.3em; margin-left:.6em;" class="glyphicon glyphicon-menu-hamburger"
                aria-hidden="true"></i>
         </a>
        <a class="navbar-brand"></a>
@@ -159,10 +159,9 @@
                     <i class="sideBarCloseIcon glyphicon glyphicon-remove" aria-hidden="true"></i>
                 </div>
                 <div class="sidebar-header">
-                    <h3>MDTA</h3>
+                    <h2>MDTA</h2>
                 </div>
                 <ul class="list-unstyled components">
-{#                    <p>Main Menu</p>#}
                     <li><a href="{% url 'home' %}">Home</a></li>
                     <li>
                         <a href="#projectSubmenu" data-toggle="collapse" aria-expanded="false">Project Configurations</a>

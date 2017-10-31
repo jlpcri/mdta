@@ -61,7 +61,6 @@ var cy_edges_length = cy_edges_default.length;
 if (cy_layout_flag){
     cy_layout_options = {
         name: 'preset',
-        fit: true,
         padding: 10
 
     }
@@ -69,14 +68,12 @@ if (cy_layout_flag){
 } else if (!cy_layout_flag && cy_edges_length === 0) {
      cy_layout_options = {
         name: 'circle',
-        fit: true,
         padding: 10
     }
 
 } else {
     cy_layout_options = {
         name: 'breadthfirst',
-        fit: true,
         directed: true,
         padding: 10
     }
@@ -182,11 +179,13 @@ function create_cy_object(cy_nodes, cy_edges) {
         ],
         layout: cy_layout_options,
         userZoomingEnabled: true,
-        minZoom: 1,
+        minZoom: .5,
         maxZoom: 2,
         wheelSensitivity: 0.1,
         boxSelectionEnabled: true
     });
+
+    obj.panzoom();
 
     module_context_menu(obj);
     module_click_event(obj);
