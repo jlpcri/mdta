@@ -10,6 +10,7 @@
         <div class="row" style="margin-top: 10px;">
             <ul id="subnav-tabs" class="nav nav-tabs">
                 <li><a href="#project" data-toggle="tab">Project</a> </li>
+                <li><a href="#data_center" data-toggle="tab">DataCenter</a> </li>
                 <li><a href="#test_headers" data-toggle="tab">TestHeaders</a> </li>
                 <li><a href="#test_rails" data-toggle="tab">TestRails</a></li>
                 <li><a href="#node_types" data-toggle="tab">NodeTypes</a> </li>
@@ -24,6 +25,9 @@
     <div class="tab-content">
         <div class="tab-pane" id="project">
             {% include 'projects/pd_project.html' %}
+        </div>
+        <div class="tab-pane" id="data_center">
+            {% include 'projects/pd_datacenter.html' %}
         </div>
         <div class="tab-pane" id="test_headers">
             {% include 'projects/pd_testheaders.html' %}

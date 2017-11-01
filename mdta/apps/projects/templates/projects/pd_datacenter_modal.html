@@ -1,0 +1,31 @@
+<!-- DbSet Database New Modal -->
+<div class="modal fade newTestRail" id="dbset-db-new-modal">
+    <div class="modal-dialog">
+        <form action="{% url 'projects:project_dbset_db_new' project.id%}" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span> </button>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <h4 class="modal-title">Project New Database</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    {{ project_dbset_db_new_form }}
+                    <br>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div id="dbSetDbNewErrMessage">&nbsp;</div>
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input id="dbset_db_new" class="btn btn-primary" type="submit" value="New Database">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

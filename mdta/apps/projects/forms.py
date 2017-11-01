@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from mdta.apps.users.models import HumanResource
 from mdta.apps.runner.models import TestServers
 
-from .models import Project, Module, CatalogItem, Language
+from .models import Project, Module, CatalogItem, Language, ProjectDatabaseSet
 
 
 class ProjectForm(ModelForm):
@@ -170,3 +170,13 @@ class UploadForm(forms.Form):
 
     class Meta:
         model = Module
+
+
+class ProjectDatabaseSetNewForm(ModelForm):
+    class Meta:
+        model = ProjectDatabaseSet
+        fields = ['project', 'name']
+        widgets = {
+            'project': forms.Select(attrs={'class': 'form-control', 'readonly': True}),
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+        }
