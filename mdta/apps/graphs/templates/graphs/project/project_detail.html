@@ -8,6 +8,11 @@
         #module_in_project_cy {
             width: auto;
         }
+        hr {
+            color: #ddd;
+            height: 1px;
+            margin: 0px -10px 0px -10px;
+        }
     </style>
 {% endblock%}
 
@@ -32,8 +37,9 @@
                 </div>
             </div>
         </div>
+        <hr/>
         <div class="row">
-            <div id="module_in_project_cy" style="margin-top: 10px;"></div>
+            <div id="module_in_project_cy"></div>
         </div>
 
         {% include 'graphs/project/project_detail_modal.html' %}
@@ -52,7 +58,7 @@
             cy_data_edges = {{ network_edges|safe }},
             image_url = "{% static 'common/brand_icons/turnpost-png-graphics/' %}";
 
-        {% include 'graphs/project/project_detail.js' %}
+{#        {% include 'graphs/project/project_detail.js' %}#}
         {% include 'graphs/node_edge_properties.js' %}
 
         {% include 'graphs/project/project_draw_graph.js' %}

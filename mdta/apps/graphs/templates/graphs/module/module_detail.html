@@ -11,15 +11,13 @@
     <script src="{% static 'common/cytoscape/extensions/cytoscape-edgehandles/lodash.js' %}"></script>
 
     <style type="text/css">
-{#        .pre-scrollable {#}
-{#            max-height: 1024px;#}
-{#            overflow-y: auto;#}
-{#        }#}
-{#        .ui-autocomplete{#}
-{#            z-index: 1050;#}
-{#        }#}
         #node_in_module_cy {
             width: auto;
+        }
+        hr {
+            color: #ddd;
+            height: 1px;
+            margin: 0px -10px 0px -10px;
         }
     </style>
 {% endblock%}
@@ -52,8 +50,9 @@
                 {% endif %}
             </div>
         </div>
+        <hr/>
         <div class="row">
-            <div id="node_in_module_cy" style="margin-top: 10px;"></div>
+            <div id="node_in_module_cy"></div>
         </div>
        <div class="row"></div>
     </div>

@@ -12,6 +12,13 @@
             text-decoration: none;
             transition: all 0.3s;
         }
+        .activatehamburger {
+            font-size:1.75em;
+            color:black;
+            margin-top:.5em;
+            margin-left:.6em;
+            z-index:9999;
+        }
 
         /* ---------------------------------------------------
                         SIDEBAR STYLE
@@ -127,25 +134,13 @@
             background: #d1d1d1;
         }
 
-{#        ul.CTAs {#}
-{#            padding: 20px;#}
-{#        }#}
-{##}
-{#        ul.CTAs a {#}
-{#            text-align: center;#}
-{#            font-size: 0.9em !important;#}
-{#            display: block;#}
-{#            border-radius: 5px;#}
-{#            margin-bottom: 5px;#}
-{#        }#}
-
     </style>
 {% endblock%}
 
 {% block body %}
     <div class="row" role="navigation">
         <a id="sidebarCollapse" class="navbar-brand">
-            <i style="font-size:1.75em; color:black; margin-top:.3em; margin-left:.6em;" class="glyphicon glyphicon-menu-hamburger"
+            <i class="glyphicon glyphicon-menu-hamburger activatehamburger"
                aria-hidden="true"></i>
         </a>
        <a class="navbar-brand"></a>
