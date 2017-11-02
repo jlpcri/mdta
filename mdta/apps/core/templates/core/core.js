@@ -12,7 +12,7 @@ function calculate_graph_height() {
             graph_height = 800;
             break;
         case (screen_avail_height >= 900):
-            graph_height = 680;
+            graph_height = 750;
             break;
         case (screen_avail_height > 850):
             graph_height = 650;

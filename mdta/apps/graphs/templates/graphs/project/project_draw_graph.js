@@ -6,10 +6,11 @@ var cy_nodes_default = [],
     cy_nodes_gap = [],
     cy_edges_default = [],
     image_default = image_url + 'blue-infrastructure-graphics_11435264594_o.png',
-    image_start = image_url + 'west-ivr-graphic_11435724503_o.png',
+    image_start = image_url + 'green-infrastructure-graphics_11435449795_o.png',
     image_new = image_url + 'green-infrastructure-graphics_11435449795_o.png',
     cy_layout_options = '',
     cy_layout_flag = true;  // all modules have positions
+
 
 $.each(cy_data_nodes, function(key, value){
     var posx = 0,
@@ -43,21 +44,6 @@ $.each(cy_data_nodes, function(key, value){
     })
 });
 
-if (cy_layout_flag){
-    cy_layout_options = {
-        name: 'preset',
-        fit: false,
-        padding: 30
-    }
-} else {
-    cy_layout_options = {
-        name: 'breadthfirst',
-        fit: true,
-        directed: true,
-        padding: 30
-    }
-}
-
 $.each(cy_data_edges, function(key, value){
     cy_edges_default.push({
         'data': {
@@ -68,7 +54,29 @@ $.each(cy_data_edges, function(key, value){
         }
     })
 });
-//console.log(cy_nodes, cy_edges_default)
+
+var cy_edges_length = cy_edges_default.length;
+
+if (cy_layout_flag){
+    cy_layout_options = {
+        name: 'preset',
+        padding: 10
+
+    }
+
+} else if (!cy_layout_flag && cy_edges_length === 0) {
+     cy_layout_options = {
+        name: 'circle',
+        padding: 10
+    }
+
+} else {
+    cy_layout_options = {
+        name: 'breadthfirst',
+        directed: true,
+        padding: 10
+    }
+}
 
 var cy = create_cy_object(cy_nodes_default, cy_edges_default);
 
@@ -97,9 +105,10 @@ function create_cy_object(cy_nodes, cy_edges) {
                     'background-image': 'data(image)',
                     'background-fit': 'contain',
                     'background-clip': 'node',
-                    // 'shape': 'rectangle',
-                    // 'height': '40px',
-                    // 'width': '40px',
+                    'background-color': 'white',
+                    'shape': 'rectangle',
+                    'height': '30px',
+                    'width': '30px',
                     'label': 'data(label)',
                     'text-valign': 'bottom'
                 }
@@ -130,8 +139,13 @@ function create_cy_object(cy_nodes, cy_edges) {
             }
         ],
         layout: cy_layout_options,
-        userZoomingEnabled: true
+        minZoom: .5,
+        maxZoom: 3,
+        wheelSensitivity: 0.1,
+        userZoomingEnabled: false
     });
+
+    obj.panzoom();
 
     // project_draw_fixed_eles(obj);
 
@@ -373,7 +387,7 @@ function project_draw_fixed_eles(obj) {
 
         bottomLayer.resetTransform(ctx);
         ctx.save();
-        ctx.font = "24px Helvetica";
+        ctx.font = "22px Helvetica";
         ctx.fillStyle = "red";
         ctx.fillText("This text is fixed", 200, graph_height);
 
@@ -416,3 +430,5 @@ function check_project_has_testrail() {
         }
     })
 }
+
+

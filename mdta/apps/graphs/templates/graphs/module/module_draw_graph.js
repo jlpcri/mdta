@@ -43,22 +43,7 @@ $.each(cy_data_nodes, function(key, value){
     })
 });
 
-if (cy_layout_flag){
-    cy_layout_options = {
-        name: 'preset',
-        fit: false
-    }
-} else {
-    cy_layout_options = {
-        name: 'grid',
-        fit: true,
-        directed: true,
-        padding: 30
-    }
-}
-
 $.each(cy_data_edges, function(key, value){
-    //console.log(value),
     cy_edges_default.push({
         'data': {
             'id': value['id'],
@@ -69,6 +54,30 @@ $.each(cy_data_edges, function(key, value){
         }
     })
 });
+
+var cy_edges_length = cy_edges_default.length;
+
+
+if (cy_layout_flag){
+    cy_layout_options = {
+        name: 'preset',
+        fit: true
+
+    }
+
+} else if (!cy_layout_flag && cy_edges_length === 0) {
+     cy_layout_options = {
+        name: 'circle',
+         fit: true
+    }
+
+} else {
+    cy_layout_options = {
+        name: 'breadthfirst',
+        fit: true,
+        directed: true
+    }
+}
 
 var cy = create_cy_object(cy_nodes_default, cy_edges_default);
 
@@ -93,11 +102,10 @@ function create_cy_object(cy_nodes, cy_edges) {
                 selector: 'node[id > 0]',
                 style: {
                     'background-image': 'data(image)',
-                    // 'background-color': 'data(color)',
                     'background-fit': 'contain',
                     'shape': 'rectangle',
-                    'height': '40px',
-                    'width': '40px',
+                    'height': '30px',
+                    'width': '30px',
                     'label': 'data(label)',
                     'text-valign': 'bottom',
                     // 'text-wrap': 'ellipsis',
@@ -169,9 +177,14 @@ function create_cy_object(cy_nodes, cy_edges) {
 
         ],
         layout: cy_layout_options,
-        userZoomingEnabled: true,
+        userZoomingEnabled: false,
+        // minZoom: .5,
+        // maxZoom: 1.5,
+        wheelSensitivity: 0.1,
         boxSelectionEnabled: true
     });
+
+    obj.panzoom();
 
     module_context_menu(obj);
     module_click_event(obj);
@@ -363,7 +376,7 @@ if (is_testheader !== 'None'){
 }
 
 function savePositionToNode(obj){
-    var nodes = obj.elements('node[id > 0]'),
+    var nodes = obj.elements('node'),
         positions = [],
         module_id = get_current_module_id();
 
@@ -651,10 +664,10 @@ function add_new_icons_shape_to_graph(nodes, th) {
                 'image': image_url +'mdta-shapes/{0}.png'.format(item['node_image']),
                 'color': 'white'
             },
-            'renderedPosition': {
-                x: pos_x_initial + idx * 80,
-                y: graph_height - 30
-            }
+            // 'renderedPosition': {
+            //     x: pos_x_initial + idx * 60,
+            //     y: graph_height
+            // }
         })
     });
 

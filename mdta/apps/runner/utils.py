@@ -123,13 +123,15 @@ class TestRailCase(TestRailORM):
                       'DIAL': self.script.start_of_call,
                       'DIALEDNUMBER': self.script.start_of_call,
                       'APN': self.script.start_of_call,
+                      'HOLLYBROWSER': self.script.start_of_call,
                       'PRESS': self.script.dtmf_step,
                       'WAIT': self.script.no_input,
                        }
-        try:
-            action_map[action](step)
-        except KeyError:
-            pass
+        action_map[action](step)
+        # try:
+        #     action_map[action](step)
+        # except KeyError:
+        #     pass
 
     def _expected_routing(self, step):
         if not step:
@@ -141,7 +143,7 @@ class TestRailCase(TestRailORM):
         if prompt == '[TTS]':
             self.script.body += 'EXPECT prompt\n'
         else:
-            self.script.body += 'EXPECT prompt URI=audio/' + prompt + '.wav\n'
+            self.script.body += 'EXPECT prompt URI=.*/' + prompt + '.wav\n'
 
 
 def get_testrail_steps(instance, case_id):
@@ -373,7 +375,7 @@ class HATScript(AutomationScript):
             self.dialed_number = step[5:].strip()
         assert (len(self.body) == 0)
         self.body = 'IGNORE answer asr_session document_dump document_transition fetch grammar_activation license ' + \
-                    'log note prompt recognition_start recognition_end redux severe sip_session system_response ' + \
+                    'log note prompt recognition_start nuance recognition_end redux severe sip_session system_response ' + \
                     'transfer_start transfer_end vxml_event vxml_trace warning\n' + \
                     'EXPECT call_start\n'
 

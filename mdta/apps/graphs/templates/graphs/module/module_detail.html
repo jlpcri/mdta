@@ -11,16 +11,13 @@
     <script src="{% static 'common/cytoscape/extensions/cytoscape-edgehandles/lodash.js' %}"></script>
 
     <style type="text/css">
-        .pre-scrollable {
-            max-height: 1024px;
-            overflow-y: auto;
-        }
-        .ui-autocomplete{
-            z-index: 1050;
-        }
         #node_in_module_cy {
             width: auto;
-            height: 800px;
+        }
+        hr {
+            color: #ddd;
+            height: 1px;
+            margin: 0px -10px 0px -10px;
         }
     </style>
 {% endblock%}
@@ -32,9 +29,9 @@
             </div>
             <div class="col-xs-4">
                 {% if module.project %}
-                    <h4>Project: <a href="{% url 'graphs:project_detail' module.project.id %}">{{ module.project.name }}</a> - Module: {{ module.name }}</h4>
+                    <h3>Project: <a href="{% url 'graphs:project_detail' module.project.id %}">{{ module.project.name }}</a> - Module: {{ module.name }}</h3>
                 {% else %}
-                    <h4>Test Header - {{ module.name }}</h4>
+                    <h3>Test Header - {{ module.name }}</h3>
                 {% endif %}
             </div>
             <div class="col-xs-7 text-right">
@@ -53,11 +50,13 @@
                 {% endif %}
             </div>
         </div>
+        <hr/>
         <div class="row">
-            <div id="node_in_module_cy" style="margin-top: 10px;"></div>
+            <div id="node_in_module_cy"></div>
         </div>
-
+       <div class="row"></div>
     </div>
+
 
     {% include 'graphs/module/module_detail_modal.html' %}
     {% include 'graphs/project/notifications_modal.html' %}
