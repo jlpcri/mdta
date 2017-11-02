@@ -9,13 +9,13 @@ function calculate_graph_height() {
         screen_avail_height = window.screen.availHeight;
     switch (true) {
         case (screen_avail_height >= 999):
-            graph_height = 900;
+            graph_height = 800;
             break;
         case (screen_avail_height >= 900):
-            graph_height = 850;
+            graph_height = 750;
             break;
         case (screen_avail_height > 850):
-            graph_height = 800;
+            graph_height = 650;
             break;
         default:
             graph_height = 500;

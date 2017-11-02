@@ -102,7 +102,6 @@ function create_cy_object(cy_nodes, cy_edges) {
                 selector: 'node[id > 0]',
                 style: {
                     'background-image': 'data(image)',
-                    // 'background-color': 'data(color)',
                     'background-fit': 'contain',
                     'shape': 'rectangle',
                     'height': '30px',
@@ -665,10 +664,10 @@ function add_new_icons_shape_to_graph(nodes, th) {
                 'image': image_url +'mdta-shapes/{0}.png'.format(item['node_image']),
                 'color': 'white'
             },
-            'renderedPosition': {
-                x: pos_x_initial + idx * 80,
-                y: graph_height - 30
-            }
+            // 'renderedPosition': {
+            //     x: pos_x_initial + idx * 60,
+            //     y: graph_height
+            // }
         })
     });
 

@@ -24,7 +24,7 @@
                         SIDEBAR STYLE
         ----------------------------------------------------- */
 
-        #sidebar {
+        #mainsidebar {
             width: 250px;
             position: fixed;
             top: 0;
@@ -38,11 +38,11 @@
             box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.6);
         }
 
-        #sidebar.active {
+        #mainsidebar.active {
             left: 0;
         }
 
-        #sidebarCollapse {
+        #mainsidebarCollapse {
             cursor: pointer;
         }
 
@@ -82,41 +82,41 @@
             transition: all 0.5s ease;
         }
 
-        #sidebar .sidebar-header {
+        #mainsidebar .mainsidebar-header {
             padding: 22px 10px;
             background: #d1d1d1;
         }
 
-        #sidebar ul.components {
+        #mainsidebar ul.components {
             padding: 20px 0;
         }
 
-        #sidebar ul p {
+        #mainsidebar ul p {
             color: #fff;
             padding: 10px;
         }
 
-        #sidebar ul li a {
+        #mainsidebar ul li a {
             padding: 10px;
             font-size: 1.2em;
             display: block;
         }
 
-        #sidebar ul li a:hover {
+        #mainsidebar ul li a:hover {
             color: #7386D5;
             background: #fff;
         }
 
-        #sidebar ul li.active > a, a[aria-expanded="true"] {
-            color: #fff;
-            background: #d1d1d1;
-        }
+{#        #mainsidebar ul li.active > a, a[aria-expanded="true"] {#}
+{#            color: #fff;#}
+{#            background: #d1d1d1;#}
+{#        }#}
 
         a[data-toggle="collapse"] {
             position: relative;
         }
 
-        a[aria-expanded="false"]::before, a[aria-expanded="true"]::before {
+        a[aria-labelledby="false"]::before, a[aria-labelledby="true"]::before {
             content: '\e259';
             display: block;
             position: absolute;
@@ -124,7 +124,7 @@
             font-size: 0.7em;
         }
 
-        a[aria-expanded="true"]::before {
+        a[aria-labelledby="true"]::before {
             content: '\e260';
         }
 
@@ -139,7 +139,7 @@
 
 {% block body %}
     <div class="row" role="navigation">
-        <a id="sidebarCollapse" class="navbar-brand">
+        <a id="mainsidebarCollapse" class="navbar-brand">
             <i class="glyphicon glyphicon-menu-hamburger activatehamburger"
                aria-hidden="true"></i>
         </a>
@@ -149,17 +149,17 @@
             <div class="overlay"></div>
         </div>
 
-     <div id="sidebar">
+     <div id="mainsidebar">
                 <div id="dismiss">
                     <i class="sideBarCloseIcon glyphicon glyphicon-remove" aria-hidden="true"></i>
                 </div>
-                <div class="sidebar-header">
+                <div class="mainsidebar-header">
                     <h2>MDTA</h2>
                 </div>
                 <ul class="list-unstyled components">
                     <li><a href="{% url 'home' %}">Home</a></li>
                     <li>
-                        <a href="#projectSubmenu" data-toggle="collapse" aria-expanded="false">Project Configurations</a>
+                        <a href="#projectSubmenu" data-toggle="collapse" aria-labelledby="false">Project Configurations</a>
                         <ul class="collapse list-unstyled" id="projectSubmenu">
                             <li><a href="{% url 'projects:project_dashboard' %}">Project Dashboard</a>
                             {% if request.user.humanresource.project %}
@@ -175,7 +175,7 @@
                     </li>
                     {% if user.is_superuser %}
                         <li>
-                            <a href="#mdtaSubmenu" data-toggle="collapse" aria-expanded="false">MDTA Configurations</a>
+                            <a href="#mdtaSubmenu" data-toggle="collapse" aria-labelledby="false">MDTA Configurations</a>
                             <ul class="collapse list-unstyled" id="mdtaSubmenu">
                                 <li><a href="{% url 'projects:projects' %}"></i> Previous Projects</a></li>
                                 <li><a href="{% url 'graphs:graphs' %}">Previous Graphs</a></li>
@@ -183,7 +183,7 @@
                             </ul>
                         </li>
                        <li>
-                           <a href="#adminSubmenu" data-toggle="collapse" aria-expanded="false">Admin Configurations</a>
+                           <a href="#adminSubmenu" data-toggle="collapse" aria-labelledby="false">Admin Configurations</a>
                            <ul class="collapse list-unstyled" id="adminSubmenu">
                                <li><a href="{% url 'users:management' %}">User Management</a></li>
                                <li><a href="{% url 'admin:index' %}" target="_blank">Django Admin</a></li>
@@ -200,22 +200,22 @@
 {% block footer %}
     <script>
         $(document).ready(function () {
-            $("#sidebar").niceScroll({
+            $("#mainsidebar").niceScroll({
                 cursorcolor: '#53619d',
                 cursorwidth: 4,
                 cursorborder: 'none'
             });
 
             $('#dismiss, .overlay').on('click', function () {
-                $('#sidebar').removeClass('active');
+                $('#mainsidebar').removeClass('active');
                 $('.overlay').fadeOut();
             });
 
-            $('#sidebarCollapse').on('click', function () {
-                $('#sidebar').addClass('active');
+            $('#mainsidebarCollapse').on('click', function () {
+                $('#mainsidebar').addClass('active');
                 $('.overlay').fadeIn();
                 $('.collapse.in').toggleClass('in');
-                $('a[aria-expanded=true]').attr('aria-expanded', 'false');
+                $('a[aria-labelledby=true]').attr('aria-labelledby', 'false');
             });
         });
     </script>

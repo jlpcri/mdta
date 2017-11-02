@@ -387,7 +387,7 @@ function project_draw_fixed_eles(obj) {
 
         bottomLayer.resetTransform(ctx);
         ctx.save();
-        ctx.font = "24px Helvetica";
+        ctx.font = "22px Helvetica";
         ctx.fillStyle = "red";
         ctx.fillText("This text is fixed", 200, graph_height);
 
