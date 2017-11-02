@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.conf.urls import url, include
 
 from mdta.apps.projects import views
 
@@ -16,9 +16,13 @@ urlpatterns = [
     url(r'^test_header_edit/$', views.test_header_edit, name='test_header_edit'),
 
     url(r'^language_new/$', views.language_new, name='language_new'),
+    url(r'^language_new_from_module_import/$', views.language_new_from_module_import, name='language_new_from_module_import'),
+    url(r'^get_language_detail_for_import_module/$', views.get_language_detail_for_import_module, name='get_language_detail_for_import_module'),
     url(r'^language_edit/$', views.language_edit, name='language_edit'),
 
     url(r'^fetch_project_catalogs_members', views.fetch_project_catalogs_members, name='fetch_project_catalogs_members'),
 
     url(r'^project_data_migrate/(?P<project_id>\d+)/$', views.project_data_migrate, name='project_data_migrate'),
+
+    url(r'^', include('mdta.apps.projects.urls_dbset')),
 ]

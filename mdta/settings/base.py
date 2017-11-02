@@ -66,6 +66,9 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+    # WebSocket needed packages
+    'channels',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -108,7 +111,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'mdta.apps.core.views.get_active_top_link',
+                'django.template.context_processors.static',
             ],
         },
     },
@@ -176,4 +179,15 @@ STATIC_URL = 'http://apps.qaci01.wic.west.com/static/'
 from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {
     messages.ERROR: 'danger'
+}
+
+# Used for WebSocket channel package
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'asgi_redis.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('localhost', 6379)],
+        },
+        'ROUTING': 'mdta.ws_routing.channel_routing',
+    },
 }

@@ -1,0 +1,222 @@
+{% block extrahead %}
+    <style type="text/css">
+        p {
+            font-size: 1.5em;
+            font-weight: 500;
+            line-height: 1.7em;
+            color: #999;
+        }
+
+        a, a:hover, a:focus {
+            color: inherit;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .activatehamburger {
+            font-size:1.75em;
+            color:black;
+            margin-top:.5em;
+            margin-left:.6em;
+            z-index:9999;
+        }
+
+        /* ---------------------------------------------------
+                        SIDEBAR STYLE
+        ----------------------------------------------------- */
+
+        #mainsidebar {
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: -250px;
+            height: 100vh;
+            z-index: 100001;
+            background: #afc0d1;
+            color: #fff;
+            transition: all 0.3s;
+            overflow-y: scroll;
+            box-shadow: 3px 3px 3px rgba(0, 0, 0, 0.6);
+        }
+
+        #mainsidebar.active {
+            left: 0;
+        }
+
+        #mainsidebarCollapse {
+            cursor: pointer;
+        }
+
+        #dismiss {
+            width: 35px;
+            height: 35px;
+            line-height: 35px;
+            text-align: center;
+            background: #d1d1d1;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            -webkit-transition: all 0.3s;
+            -o-transition: all 0.3s;
+            transition: all 0.3s;
+        }
+
+        #dismiss:hover {
+            background: #fff;
+            color: #d1d1d1;
+        }
+
+        .overlay {
+            position: fixed;
+            width: 100vw;
+            height: 100vh;
+            background: #D1D1D1;
+            opacity: 0.1;
+            z-index: 100000;
+            top: 0;
+            left: 0;
+            display: none;
+            -webkit-transition: all 0.5s ease;
+            -moz-transition: all 0.5s ease;
+            -o-transition: all 0.5s ease;
+            transition: all 0.5s ease;
+        }
+
+        #mainsidebar .mainsidebar-header {
+            padding: 22px 10px;
+            background: #d1d1d1;
+        }
+
+        #mainsidebar ul.components {
+            padding: 20px 0;
+        }
+
+        #mainsidebar ul p {
+            color: #fff;
+            padding: 10px;
+        }
+
+        #mainsidebar ul li a {
+            padding: 10px;
+            font-size: 1.2em;
+            display: block;
+        }
+
+        #mainsidebar ul li a:hover {
+            color: #7386D5;
+            background: #fff;
+        }
+
+{#        #mainsidebar ul li.active > a, a[aria-expanded="true"] {#}
+{#            color: #fff;#}
+{#            background: #d1d1d1;#}
+{#        }#}
+
+        a[data-toggle="collapse"] {
+            position: relative;
+        }
+
+        a[aria-labelledby="false"]::before, a[aria-labelledby="true"]::before {
+            content: '\e259';
+            display: block;
+            position: absolute;
+            right: 20px;
+            font-size: 0.7em;
+        }
+
+        a[aria-labelledby="true"]::before {
+            content: '\e260';
+        }
+
+        ul ul a {
+            font-size: 1em !important;
+            padding-left: 30px !important;
+            background: #d1d1d1;
+        }
+
+    </style>
+{% endblock%}
+
+{% block body %}
+    <div class="row" role="navigation">
+        <a id="mainsidebarCollapse" class="navbar-brand">
+            <i class="glyphicon glyphicon-menu-hamburger activatehamburger"
+               aria-hidden="true"></i>
+        </a>
+       <a class="navbar-brand"></a>
+    </div>
+        <div class="row">
+            <div class="overlay"></div>
+        </div>
+
+     <div id="mainsidebar">
+                <div id="dismiss">
+                    <i class="sideBarCloseIcon glyphicon glyphicon-remove" aria-hidden="true"></i>
+                </div>
+                <div class="mainsidebar-header">
+                    <h2>MDTA</h2>
+                </div>
+                <ul class="list-unstyled components">
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li>
+                        <a href="#projectSubmenu" data-toggle="collapse" aria-labelledby="false">Project Configurations</a>
+                        <ul class="collapse list-unstyled" id="projectSubmenu">
+                            <li><a href="{% url 'projects:project_dashboard' %}">Project Dashboard</a>
+                            {% if request.user.humanresource.project %}
+                                <li><a href="{% url 'graphs:projects_for_selection' %}">Switch Project</a></li>
+                            {% endif %}
+                            <li><a href="{% url 'projects:project_new' %}">Add New Project</a></li>
+                            <li><a href="{% url 'testcases:tcs_project' %}">TestCases</a></li>
+                            <li><a href="{% url 'runner:dashboard' %}">TCs Execution</a></li>
+                            {%  if module_import_form %}
+                                <li><a href="#" data-toggle="modal" data-target="#module-import-modal-1">Import Prompts</a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                    {% if user.is_superuser %}
+                        <li>
+                            <a href="#mdtaSubmenu" data-toggle="collapse" aria-labelledby="false">MDTA Configurations</a>
+                            <ul class="collapse list-unstyled" id="mdtaSubmenu">
+                                <li><a href="{% url 'projects:projects' %}"></i> Previous Projects</a></li>
+                                <li><a href="{% url 'graphs:graphs' %}">Previous Graphs</a></li>
+                                <li><a href="{% url 'testcases:testcases' %}">Previous TCs</a></li>
+                            </ul>
+                        </li>
+                       <li>
+                           <a href="#adminSubmenu" data-toggle="collapse" aria-labelledby="false">Admin Configurations</a>
+                           <ul class="collapse list-unstyled" id="adminSubmenu">
+                               <li><a href="{% url 'users:management' %}">User Management</a></li>
+                               <li><a href="{% url 'admin:index' %}" target="_blank">Django Admin</a></li>
+                           </ul>
+                        </li>
+                    {% endif %}
+                    <li><a href="{% url 'intro' %}"> Introduction</a></li>
+                    <li><a href="{% url 'help:help' %}"> Help</a></li>
+                    <li><a href="{% url 'users:sign_out' %}"> Sign Out</a></li>
+                </ul>
+     </div>
+{% endblock %}
+
+{% block footer %}
+    <script>
+        $(document).ready(function () {
+            $("#mainsidebar").niceScroll({
+                cursorcolor: '#53619d',
+                cursorwidth: 4,
+                cursorborder: 'none'
+            });
+
+            $('#dismiss, .overlay').on('click', function () {
+                $('#mainsidebar').removeClass('active');
+                $('.overlay').fadeOut();
+            });
+
+            $('#mainsidebarCollapse').on('click', function () {
+                $('#mainsidebar').addClass('active');
+                $('.overlay').fadeIn();
+                $('.collapse.in').toggleClass('in');
+                $('a[aria-labelledby=true]').attr('aria-labelledby', 'false');
+            });
+        });
+    </script>
+{% endblock %}

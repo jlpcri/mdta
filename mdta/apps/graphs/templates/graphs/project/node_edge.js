@@ -35,14 +35,14 @@ $('.projectNodeNew').on('submit', function(){
 /* ---------------End Project/Module Node New ---------------*/
 
 /* ---------------Start Project/Module Edge New ---------------*/
-$('#module-edge-new-modal').on('shown.bs.modal', function(){
-    var node_id = $('#select_node_id').val();
-    if (node_id > 1){
-        $('#project-edge-new-from-node').val(node_id)
-    } else {
-        $('#project-edge-new-from-node').val($('#project-edge-new-to-node').val())
-    }
-});
+// $('#module-edge-new-modal').on('shown.bs.modal', function(){
+//     var node_id = $('#select_node_id').val();
+//     if (node_id > 1){
+//         $('#project-edge-new-from-node').val(node_id)
+//     } else {
+//         $('#project-edge-new-from-node').val($('#project-edge-new-to-node').val())
+//     }
+// });
 
 $('.projectEdgeNew #id_type').on('change', function(){
     var item_id = $(this).find('option:selected').val(),
@@ -117,11 +117,15 @@ $(document).ready(function(){
 });
 
 
-function load_nodes_from_module(module_id, location){
+function load_nodes_from_module(module_id, location, node_id){
     $.getJSON("{% url 'graphs:get_nodes_from_module' %}?module_id={0}".format(module_id)).done(function(data){
         var option = '';
         $.each(data, function(k, v){
-            option += '<option value={0}>{1}</option>'.format(v['id'], v['name']);
+            if (v['id'] == node_id){
+                option += '<option value={0} selected>{1}</option>'.format(v['id'], v['name']);
+            } else {
+                option += '<option value={0}>{1}</option>'.format(v['id'], v['name']);
+            }
         });
         $(location).empty().append(option);
     });

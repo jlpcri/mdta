@@ -465,3 +465,35 @@ def project_data_migrate_edges(edges):
             # print('----------------')
             edge.properties = tmp_property
             edge.save()
+
+
+@user_passes_test(user_is_staff)
+def language_new_from_module_import(request):
+    data = []
+    if request.method == 'POST':
+        lan = json.loads(request.POST.get('lan', ''))
+        project_id = lan['project_id']
+        project = get_object_or_404(Project, pk=project_id)
+
+        lan_obj = Language.objects.create(
+            name=lan['name'],
+            root_path=lan['root_path'],
+            project=project
+        )
+        data = project.language_lists
+
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@user_passes_test(user_is_staff)
+def get_language_detail_for_import_module(request):
+    data = []
+    if request.method == 'GET':
+        lan_id = request.GET.get('lan_id', '')
+        lan = get_object_or_404(Language, pk=lan_id)
+        data = {
+            'lan_name': lan.name,
+            'root_path': lan.root_path
+        }
+
+    return HttpResponse(json.dumps(data), content_type='application/json')

@@ -2,14 +2,14 @@
  * Created by sliu on 6/7/16.
  */
 
-$('.editModule').on('show.bs.modal', function(e){
-    var module_id = $(e.relatedTarget).data('module-id'),
-        module_name = $(e.relatedTarget).data('module-name');
-
-    $(e.currentTarget).find('input[name="editModuleId"]').val(module_id);
-    $(e.currentTarget).find('input[name="editModuleName"]').val(module_name);
-    $('.editModule .modal-title').html('Module Edit/Delete');
-});
+// $('.editModule').on('show.bs.modal', function(e){
+//     var module_id = $(e.relatedTarget).data('module-id'),
+//         module_name = $(e.relatedTarget).data('module-name');
+//
+//     $(e.currentTarget).find('input[name="editModuleId"]').val(module_id);
+//     $(e.currentTarget).find('input[name="editModuleName"]').val(module_name);
+//     $('.editModule .modal-title').html('Module Edit/Delete');
+// });
 
 $('.editModule form').on('submit', function(){
     var module_name = $('#editModuleName').val();
@@ -134,7 +134,7 @@ function draw_project_graph() {
 
 $(document).ready(function(){
     $('a[href="#projectModules"]').click();
-    draw_project_graph();
+    //draw_project_graph();
 });
 
 $('.list-group-item').click(function(){
@@ -150,24 +150,24 @@ $('.back-to-edges-between-modules').click(function(){
 });
 
 
-$(document).on('change', ':file', function () {
-    var input = $(this),
-        numFiles = input.get(0).files ? input.get(0).files.length : 1,
-        label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-    input.trigger('fileselect', [numFiles, label]);
-});
-
-$(document).ready(function () {
-    $(':file').on('fileselect', function (event, numFiles, label) {
-
-        var input = $(this).parents('.input-group').find(':text'),
-            log = numFiles > 1 ? numFiles + ' files selected' : label;
-
-        if (input.length) {
-            input.val(log);
-        } else {
-            if (log) alert(log);
-        }
-
-    });
-});
+// $(document).on('change', ':file', function () {
+//     var input = $(this),
+//         numFiles = input.get(0).files ? input.get(0).files.length : 1,
+//         label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+//     input.trigger('fileselect', [numFiles, label]);
+// });
+//
+// $(document).ready(function () {
+//     $(':file').on('fileselect', function (event, numFiles, label) {
+//
+//         var input = $(this).parents('.input-group').find(':text'),
+//             log = numFiles > 1 ? numFiles + ' files selected' : label;
+//
+//         if (input.length) {
+//             input.val(log);
+//         } else {
+//             if (log) alert(log);
+//         }
+//
+//     });
+// });
