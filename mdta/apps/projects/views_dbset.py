@@ -57,3 +57,14 @@ def project_dbset_db_edit(request):
         context['last_db_id'] = dbset_db.id
 
         return render(request, 'projects/project_dashboard.html', context)
+
+
+@user_passes_test(user_is_staff)
+def project_dbset_data_edit(request):
+    """
+    Edit data field of ProjectDatabaseSet
+    :param request:
+    :return:
+    """
+    if request.method == 'POST':
+        pass
