@@ -66,3 +66,38 @@ function dbset_db_add_rec(db_id) {
 function dbset_db_save(db_id) {
     console.log(db_id)
 }
+
+$('.dbsetSaveData').submit(function (event) {
+    var fromArray = $(this).serializeArray(),
+        db_id = $(this).attr('id').split('-').pop(),
+        chunkArray = [];
+
+    while(fromArray.length){
+        chunkArray.push(objectifyForm(fromArray.splice(0, 2)))
+    }
+    var data = {
+        'db_id': db_id,
+        'db_data': JSON.stringify(chunkArray),
+        'csrfmiddlewaretoken': '{{csrf_token}}'
+    };
+    $.ajax({
+        type: 'POST',
+        data: data,
+        url: '{% url "projects:project_dbset_data_edit" %}',
+        dataType: 'json'
+    });
+
+    event.preventDefault();
+});
+
+function objectifyForm(formArray) {//serialize data function
+
+  var returnArray = {};
+  // for (var i = 0; i < formArray.length; i++){
+  //   returnArray[formArray[i]['name']] = formArray[i]['value'];
+  // }
+  $.each(formArray, function (idx, ele) {
+      returnArray[ele['name'].split('_')[0]] = ele['value']
+  });
+  return returnArray;
+}

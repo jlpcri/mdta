@@ -1,5 +1,8 @@
+import json
+
 from django.contrib import messages
 from django.db import IntegrityError
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import user_passes_test
 
@@ -67,4 +70,15 @@ def project_dbset_data_edit(request):
     :return:
     """
     if request.method == 'POST':
-        pass
+        db_id = request.POST.get('db_id', '')
+        data = json.loads(request.POST.get('db_data'))
+
+        for item in data:
+            if len(item) == 1:
+                data.remove(item)
+
+        project_dbset = get_object_or_404(ProjectDatabaseSet, pk=db_id)
+        project_dbset.data = data
+        project_dbset.save()
+
+        return JsonResponse({'message': 'success'})
