@@ -1,6 +1,10 @@
-from django.test import TestCase
+from django.test import TestCase, Client, RequestFactory
+from mdta.apps.projects.models import TestRailInstance, TestRailConfiguration, CatalogItem, Project, Module, User
+from mdta.apps.testcases.views import create_testcases
 
-from mdta.apps.projects.models import TestRailInstance, TestRailConfiguration, CatalogItem, Project, Module
+from django.core.urlresolvers import resolve, reverse
+from mdta.apps.users.models import HumanResource
+
 
 
 class TestRailInstanceTest(TestCase):
@@ -87,3 +91,26 @@ class ModuleModelTest(TestCase):
         self.assertEqual(str(Module._meta.verbose_name_plural), 'modules')
 
 
+class ProjectDatabaseTest(TestCase):
+    fixtures = ['test_project']
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.get(username='admin')
+        self.user_account = {
+            'username': 'admin',
+            'password': 'redacted'
+        }
+        self.hr = HumanResource.objects.get(user=User.objects.get(username='admin'))
+        self.client.login(
+            username=self.user_account['username'],
+            password=self.user_account['password']
+        )
+
+        self.project = Project.objects.get(name='Test Project')
+        self.module = Module.objects.get(name='Test Module')
+
+
+    def test_create_testcases(self):
+        url = reverse('testcases:create_testcases',args=[self.module.id]) + "?level=module"
+        response = self.client.get(url)
+        self.assertContains(response, "1. Route from &#39;Start&#39; to &#39;testnode&#39;: <br>")
