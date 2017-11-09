@@ -49,7 +49,7 @@ function deleteRow(row){
 }
 
 function dbset_db_add_rec(db_id) {
-    var keys = ['Inputs', 'Outputs'],
+    var keys = ['inputs', 'outputs'],
         location = '#dbset-db-table-{0}'.format(db_id),
         newRow = '',
         rowCounter = parseInt($('{0} tr:last'.format(location)).attr('id')) + 1;
@@ -85,6 +85,12 @@ $('.dbsetSaveData').submit(function (event) {
         data: data,
         url: '{% url "projects:project_dbset_data_edit" %}',
         dataType: 'json'
+    }).done(function (data) {
+        var msg = 'SaveDb success';
+        if (data['message'] === 'fail'){
+            msg = 'Incorrect JSON format, SaveDB failed.'
+        }
+        alert(msg)
     });
 
     event.preventDefault();

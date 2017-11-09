@@ -1,3 +1,4 @@
+import ast
 import json
 
 from django.contrib import messages
@@ -73,12 +74,20 @@ def project_dbset_data_edit(request):
         db_id = request.POST.get('db_id', '')
         data = json.loads(request.POST.get('db_data'))
 
-        for item in data:
-            if len(item) == 1:
-                data.remove(item)
+        try:
+            for item in data:
+                if len(item) == 1:
+                    data.remove(item)
+            for item in data:
+                for key in item:
+                    item[key] = ast.literal_eval(item[key])
 
-        project_dbset = get_object_or_404(ProjectDatabaseSet, pk=db_id)
-        project_dbset.data = data
-        project_dbset.save()
+            project_dbset = get_object_or_404(ProjectDatabaseSet, pk=db_id)
+            project_dbset.data = data
+            project_dbset.save()
 
-        return JsonResponse({'message': 'success'})
+            msg = 'success'
+        except SyntaxError:
+            msg = 'fail'
+
+        return JsonResponse({'message': msg})
