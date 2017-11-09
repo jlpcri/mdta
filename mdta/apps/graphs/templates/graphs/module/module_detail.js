@@ -31,6 +31,7 @@ $('.moduleNodeEditForm').on('submit', function(e){
         showErrMsg(location, check_json['json_msg']);
         return false;
     }
+    
 
     $(e.currentTarget).find('.moduleNodeEditPropertyTable tbody tr').each(function(){
         data += this.id + ' ';
