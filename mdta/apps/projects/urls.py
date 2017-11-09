@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.conf.urls import url, include
 
 from mdta.apps.projects import views
 
@@ -24,4 +24,5 @@ urlpatterns = [
 
     url(r'^project_data_migrate/(?P<project_id>\d+)/$', views.project_data_migrate, name='project_data_migrate'),
 
+    url(r'^', include('mdta.apps.projects.urls_dbset')),
 ]
