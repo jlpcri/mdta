@@ -17,36 +17,39 @@
         <div class="tab-content">
             {% for db in project_dbset %}
                 <div class="tab-pane" id="dbset-db-{{ db.id }}">
-                    <table class="table table-striped table-hover table-condensed" id="dbset-db-table-{{ db.id }}">
-                        <thead>
-                            <tr>
-                                <th class="col-xs-4">Inputs</th>
-                                <th class="col-xs-7">Outputs</th>
-                                <th class="col-xs-1">CRUD | <a href="#" data-target="#dbset-db-edit-modal"
-                                data-toggle="modal" data-dbset-db-name="{{ db.name }}"
-                                data-dbset-db-id="{{ db.id }}"><i class="fa fa-edit fa-fw"></i> </a></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for rec in db.data %}
-                                <tr id="{{ forloop.counter0 }}">
-                                    <td>
-                                        <input name="Inputs_{{ forloop.counter0 }}" value="{{ rec.inputs }}" placeholder="" style="width: 100%">
-                                    </td>
-                                    <td>
-                                        <input name="Outputs_{{ forloop.counter0 }}" value="{{ rec.outputs }}" placeholder="" style="width: 100%">
-                                    </td>
-                                    <td class="text-center">
-                                        <a href="#" onclick="deleteRow(this);"><i class="fa fa-trash-o fa-lg"></i> </a>
-                                    </td>
+                    <form class="dbsetSaveData" id="dbset-db-form-{{ db.id }}">
+                        <table class="table table-striped table-hover table-condensed" id="dbset-db-table-{{ db.id }}">
+                            <thead>
+                                <tr>
+                                    <th class="col-xs-4">Inputs</th>
+                                    <th class="col-xs-7">Outputs</th>
+                                    <th class="col-xs-1">CRUD | <a href="#" data-target="#dbset-db-edit-modal"
+                                    data-toggle="modal" data-dbset-db-name="{{ db.name }}"
+                                    data-dbset-db-id="{{ db.id }}"><i class="fa fa-edit fa-fw"></i> </a></th>
                                 </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    <div class="row pull-right">
-                        <button id="newRecAdd" type="button" class="btn btn-default" onclick="dbset_db_add_rec({{ db.id }})">Add Data</button>
-                        <button id="dbset_db_save" type="button" class="btn btn-primary" onclick="dbset_db_save({{ db.id }})">Save DB</button>
-                    </div>
+                            </thead>
+                            <tbody>
+                                {% for rec in db.data %}
+                                    <tr id="{{ forloop.counter0 }}">
+                                        <td>
+                                            <input name="inputs_{{ forloop.counter0 }}" value="{{ rec.inputs }}" placeholder="" style="width: 100%">
+                                        </td>
+                                        <td>
+                                            <input name="outputs_{{ forloop.counter0 }}" value="{{ rec.outputs }}" placeholder="" style="width: 100%">
+                                        </td>
+                                        <td class="text-center">
+                                            <a href="#" onclick="deleteRow(this);"><i class="fa fa-trash-o fa-lg"></i> </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% csrf_token %}
+                        <div class="row pull-right">
+                            <button id="newRecAdd" type="button" class="btn btn-default" onclick="dbset_db_add_rec({{ db.id }})">Add Data</button>
+                            <button id="dbset_db_save" type="submit" class="btn btn-primary">Save DB</button>
+                        </div>
+                    </form>
                 </div>
             {% endfor %}
         </div>
