@@ -77,7 +77,7 @@ def create_testcases(request, object_id):
 
 @user_passes_test(user_is_superuser)
 def create_testcases_all(request):
-    projects = Project.objects.all()
+    projects = Project.objects.filter(archive=False)
     for project in projects:
         create_testcases_celery.delay(project.id)
 
@@ -223,7 +223,7 @@ def check_celery_task_state(request):
                 project = get_object_or_404(Project, pk=project_id)
                 return JsonResponse({'task_run': True})
     except (KeyError, TypeError):
-        return JsonResponse({'task_run': True})
+        return JsonResponse({'task_run': 'down'})
 
     return JsonResponse({'task_run': task_run})
 

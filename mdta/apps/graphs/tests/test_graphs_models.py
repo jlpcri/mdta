@@ -13,7 +13,7 @@ class NodeTypeTest(TestCase):
         )
         self.type_prompt = NodeType.objects.create(
             name='Menu Prompt',
-            keys=['Verbiage', 'TranslateVerbiage', 'NonStandardFail'],
+            keys=['Verbiage', 'TranslateVerbiage', 'NonStandardFail', 'TextToSpeech'],
             subkeys=['OnFailGoTo', 'NM1', 'NI1']
         )
         self.type_transfer = NodeType.objects.create(
@@ -88,7 +88,7 @@ class NodeTest(TestCase):
         )
         self.node_type_prompt = NodeType.objects.create(
             name='Menu Prompt',
-            keys=['Verbiage', 'TranslateVerbiage', 'NonStandardFail'],
+            keys=['Verbiage', 'TranslateVerbiage', 'NonStandardFail', 'TextToSpeech'],
             subkeys=['OnFailGoTo', 'NM1', 'NI1']
         )
 

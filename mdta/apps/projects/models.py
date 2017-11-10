@@ -1,4 +1,4 @@
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, JSONField
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
@@ -92,26 +92,32 @@ class Project(models.Model):
     """
     Entry of each project which will be represented to Model Driven Graph
     """
-    name = models.CharField(max_length=50, unique=True, default='')
+    name = models.CharField(max_length=50, unique=True, default='', help_text='A Memorable Word or Phrase')
     test_header = models.ForeignKey('Module', null=True, blank=True,
-                                    related_name='test_header', on_delete=models.SET_NULL)
+                                    related_name='test_header', on_delete=models.SET_NULL,
+                                    help_text='Part of Test Environment')
 
     language = models.ForeignKey(Language, blank=True, null=True,
                                  related_name='project_language',
-                                 on_delete=models.SET_NULL)
+                                 on_delete=models.SET_NULL,
+                                 help_text='Selected Language under test')
 
-    version = models.TextField()  # relate to TestRail-TestSuites
+    version = models.TextField(help_text='Sections of TestRail-Project')  # relate to TestRail-TestSuites
     testrail = models.ForeignKey(TestRailConfiguration,
                                  models.SET_NULL,
                                  blank=True,
-                                 null=True,)
+                                 null=True,
+                                 help_text='Configuration connects to TestRail')
     catalog = models.ManyToManyField(CatalogItem, blank=True)
 
     lead = models.ForeignKey(HumanResource, related_name='project_lead', null=True, blank=True)
-    members = models.ManyToManyField(HumanResource, related_name='project_members', blank=True)
+    members = models.ManyToManyField(HumanResource, related_name='project_members', blank=True,
+                                     help_text='People work on current project')
 
     created = models.DateTimeField(auto_now_add=True, db_index=True)
     updated = models.DateTimeField(auto_now=True, db_index=True)
+
+    archive = models.BooleanField(default=False)  # project is archived or not
 
     class Meta:
         ordering = ['name']
@@ -165,14 +171,28 @@ class Project(models.Model):
 
         return data
 
+    @property
+    def language_lists(self):
+        data = []
+        for item in Language.objects.filter(project=self):
+            data.append({
+                'lan_id': item.id,
+                'lan_name': item.name
+            })
+
+        return data
+
 
 class Module(models.Model):
     """
     Modules per project
     """
-    name = models.CharField(max_length=50, default='')
+    name = models.CharField(max_length=50, default='', help_text='A Memorable Word or Phrase')
     project = models.ForeignKey(Project, null=True, blank=True)  # if null, then it's Test Header
     catalog = models.ManyToManyField(CatalogItem, blank=True)
+
+    # Property for the Module to store position to draw
+    properties = JSONField(null=True, blank=True)
 
     class Meta:
         ordering = ['name']
@@ -180,9 +200,9 @@ class Module(models.Model):
 
     def __str__(self):
         if self.project:
-            return '{0}: {1}'.format(self.project.name, self.name)
+            return '{0}: {1}'.format(self.name, self.project.name)
         else:
-            return '{0}: {1}'.format('TestHeader', self.name)
+            return '{0}: {1}'.format(self.name, 'TestHeader')
 
     @property
     def nodes(self):
@@ -280,6 +300,16 @@ class Module(models.Model):
 
         return data
 
+    @property
+    def start_module(self):
+        flag = False
+        for node in self.nodes:
+            if node.type.name == NODE_START_NAME[0]:
+                flag = True
+                break
+
+        return flag
+
 
 class ProjectVariable(models.Model):
     """
@@ -325,3 +355,19 @@ class VUID(models.Model):
 
     def __str__(self):
         return '{0}: {1}: {2}'.format(self.filename, self.project.name, localtime(self.upload_date))
+
+
+class ProjectDatabaseSet(models.Model):
+    """
+    Represent Database API to store query set data for route strategy
+    """
+    project = models.ForeignKey(Project)
+    name = models.TextField()  # Could be different DB for project
+    data = JSONField(default=[])
+
+    class Meta:
+        ordering = ['name']
+        unique_together = ('project', 'name',)
+
+    def __str__(self):
+        return '{0}: {1}'.format(self.project.name, self.name)

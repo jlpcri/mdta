@@ -1,0 +1,37 @@
+<!--Notification TestHeader Modal -->
+<div class="modal fade " id="notifyTestHeaderModal" tabindex="-1" role="dialog" aria-labelledby="notifyTestHeaderModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h3>Notification - TestHeader Missing</h3>
+            </div>
+            <div class="modal-body">
+                <p>The MDTA project isn't associated with a TestHeader. Would you like to configure it now?</p>
+                <p><a href="{% url 'projects:project_dashboard' %}">Go to project dashboard to add TestHeader</a></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" data-dismiss="modal" id="project_undelete">Ignore</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Notification TestRail Modal -->
+<div class="modal fade " id="notifyTestRailModal" tabindex="-1" role="dialog" aria-labelledby="notifyTestRailModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h3>Notification - TestRail Missing</h3>
+            </div>
+            <div class="modal-body">
+                <p>The MDTA project isn't associated with a TestRail. Would you like to configure it now?</p>
+                <p><a href="{% url 'projects:project_dashboard' %}">Go to project dashboard to add TestRail</a></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" data-dismiss="modal" id="project_undelete">Ignore</button>
+            </div>
+        </div>
+    </div>
+</div>

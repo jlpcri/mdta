@@ -6,7 +6,7 @@
                     <table class="table table-striped table-hover table-condensed testHeadersTable">
                         <thead>
                             <tr>
-                                <th class="col-xs-2">Name</th>
+                                <th class="col-xs-2">Name | <a href="{% url 'projects:project_data_migrate' 0 %}?type=th" title="Migrate All TestHeaders"><i class="fa fa-database fa-fw"></i></a></th>
                                 <th class="col-xs-2">Projects</th>
                             </tr>
                         </thead>
@@ -14,7 +14,7 @@
                             {% for test_header in test_headers %}
                                 <tr>
                                     <td>
-                                        <a href="#" >{{ test_header.name }} </a>
+                                        <a href="{% url 'graphs:project_module_detail' test_header.id%}" >{{ test_header.name }} </a>
                                     </td>
                                     <td>
                                         {% for p in test_header.th_related_projects %}

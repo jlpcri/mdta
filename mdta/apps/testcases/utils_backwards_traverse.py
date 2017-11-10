@@ -155,7 +155,7 @@ def path_traverse_backwards(path, th_path=None, language=None):
 
     if tcs_cannot_route_flag:
         data = {
-            'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + ': ' + tcs_cannot_route_msg
+            'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + tcs_cannot_route_msg
         }
     else:
         for tc in tcs:
@@ -490,6 +490,8 @@ def get_item_properties(item):
     data = ''
     for key in item.properties:
         try:
+            if key == NODE_POSITIONS_KEY:
+                continue
             data += key + ': ' + item.properties[key] + ', '
         except (KeyError, TypeError):
             data += key
@@ -571,7 +573,10 @@ def non_data_edge_has_higher_priority(step):
 
 def get_verbiage_from_prompt_node(node, language, verbiage_key, hint=''):
     try:
-        data = "{0}{1}: {2}".format(node.name, hint, node.verbiage[language][verbiage_key])
+        if node.properties[TTS] == '':
+            data = "{0}{1}: {2}".format(node.name, hint, node.verbiage[language][verbiage_key])
+        else:
+            data = '[TTS]'
     except (TypeError, KeyError):
         data = "{0}{1}: ".format(node.name, hint)
 

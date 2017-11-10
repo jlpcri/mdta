@@ -163,30 +163,33 @@ class TestRailCase(TestRailORM):
                       'PRESS': self.script.dtmf_step,
                       'WAIT': self.script.no_input,
                        }
-        try:
-            action_map[action](step)
-        except KeyError:
-            pass
+        action_map[action](step)
+        # try:
+        #     action_map[action](step)
+        # except KeyError:
+        #     pass
 
     def _expected_routing(self, step, playback_switch):
         if not step:
             return
         # The following should be moved to HATScript, but because there is no real branching at this point yet,
         # I'm leaving it as-is for now.
-        prompt = step.split(':')[0]
-        if prompt[:2] == DEFAULT_PATH:
-            path = self.custom_default_audio_path
-            prompt = prompt[2:]
+        # 7/21/2017: read the above comment, put in a branch, still didn't move the code.prompt = step.split(':')[0].strip()
+        prompt = step.split(':')[0].strip()
+        if prompt == '[TTS]':
+            self.script.body += 'EXPECT prompt\n'
         else:
-            path = self.custom_call_language_audio_path
+            if prompt[:2] == DEFAULT_PATH:
+                path = self.custom_default_audio_path
+                prompt = prompt[2:]
+            else:
+                path = self.custom_call_language_audio_path
 
-        if path and path[len(path)-1] == '/':
-            path = path[:len(path)-1]
-            self.script.body += 'EXPECT prompt URI='+path+'/' + prompt + '.wav\n'
-        else:
-            self.script.body += 'EXPECT prompt URI=audio/' + prompt + '.wav\n'
-
-
+            if path and path[len(path)-1] == '/':
+                path = path[:len(path)-1]
+                self.script.body += 'EXPECT prompt URI='+path+'/' + prompt + '.wav\n'
+            else:
+                self.script.body += 'EXPECT prompt URI=.*/' + prompt + '.wav\n'
 
 
 def get_testrail_steps(instance, case_id):
@@ -428,7 +431,7 @@ class HATScript(AutomationScript):
             self.dialed_number = step[5:].strip()
         assert (len(self.body) == 0)
         self.body = 'IGNORE answer asr_session document_dump document_transition fetch grammar_activation license ' + \
-                    'log note prompt recognition_start recognition_end redux severe sip_session system_response ' + \
+                    'log note prompt recognition_start nuance recognition_end redux severe sip_session system_response ' + \
                     'transfer_start transfer_end vxml_event vxml_trace warning\n' + \
                     'EXPECT call_start\n'
 

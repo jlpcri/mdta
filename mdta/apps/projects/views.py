@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
+import socket
 
 from mdta.apps.projects.utils import context_project_dashboard, context_projects, check_testheader_duplicate
 from mdta.apps.users.views import user_is_staff, user_is_superuser
@@ -106,8 +107,14 @@ def project_edit(request, project_id):
         return render(request, 'projects/project_edit.html', context)
     elif request.method == 'POST':
         form = ProjectForm(request.POST, instance=project)
+        # print(request.POST)
         try:
-            project = form.save()
+            if 'project_edit' in request.POST:
+                project = form.save()
+            elif socket.gethostname() == 'sliu-OptiPlex-GX520' and 'project_delete' in request.POST:
+                project.humanresource_set.clear()
+                project.save()
+                project.delete()
             return redirect('projects:projects')
         except ValueError as e:
             messages.error(request, str(e))
@@ -336,7 +343,7 @@ def project_data_migrate(request, project_id):
     :param project_id:
     :return:
     """
-    if request.user.username != 'sliu':
+    if request.user.username not in ['sliu', 'mambati']:
         return redirect('intro')
 
     type_migrate = request.GET.get('type', '')
@@ -458,3 +465,35 @@ def project_data_migrate_edges(edges):
             # print('----------------')
             edge.properties = tmp_property
             edge.save()
+
+
+@user_passes_test(user_is_staff)
+def language_new_from_module_import(request):
+    data = []
+    if request.method == 'POST':
+        lan = json.loads(request.POST.get('lan', ''))
+        project_id = lan['project_id']
+        project = get_object_or_404(Project, pk=project_id)
+
+        lan_obj = Language.objects.create(
+            name=lan['name'],
+            root_path=lan['root_path'],
+            project=project
+        )
+        data = project.language_lists
+
+    return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+@user_passes_test(user_is_staff)
+def get_language_detail_for_import_module(request):
+    data = []
+    if request.method == 'GET':
+        lan_id = request.GET.get('lan_id', '')
+        lan = get_object_or_404(Language, pk=lan_id)
+        data = {
+            'lan_name': lan.name,
+            'root_path': lan.root_path
+        }
+
+    return HttpResponse(json.dumps(data), content_type='application/json')

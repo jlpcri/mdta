@@ -1,10 +1,16 @@
 __author__ = 'sliu'
+import socket
 from mdta.settings.base import *
 
 DEBUG = True
-INSTALLED_APPS += ['debug_toolbar', ]
+INSTALLED_APPS += [
+    'debug_toolbar',
+]
 MIDDLEWARE_CLASSES += ['debug_toolbar.middleware.DebugToolbarMiddleware', ]
-INTERNAL_IPS = ['127.0.0.1', '10.6.20.127', '10.27.170.225']
+INTERNAL_IPS = ['127.0.0.1', '10.6.20.59', '10.27.170.241']
+
+if socket.gethostname() == 'OM1960L1':
+    CHANNEL_LAYERS['default']['CONFIG']['hosts'] = [('10.6.20.91', 6379)]
 
 DB_QACI01 = {
     'default': {
@@ -50,4 +56,5 @@ DB_DOCKER = {
     }
 }
 
-DATABASES = DB_QACI01
+DATABASES = DB_6437
+

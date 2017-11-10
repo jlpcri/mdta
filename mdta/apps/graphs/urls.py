@@ -35,4 +35,7 @@ urlpatterns = [
     url(r'^get_nodes_from_module/$', views.get_nodes_from_module, name='get_nodes_from_module'),
     url(r'^get_module_id_from_node_id/$', views.get_module_id_from_node_id, name='get_module_id_from_node_id'),
 
+    url(r'^node_save_positions/$', views.node_save_positions, name='node_save_positions'),
+    url(r'^check_object_has_tr_th/$', views.check_object_has_tr_th, name='check_object_has_tr_th'),
+
 ]

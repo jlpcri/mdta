@@ -22,8 +22,8 @@
                     {% csrf_token %}
                 </div>
                 <div class="modal-footer">
-                    <input id="project_config" class="btn btn-primary" type="submit" value="Save">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input id="project_config" class="btn btn-primary" type="submit" value="Save">
                 </div>
             </div>
         </form>
@@ -54,8 +54,8 @@
                     {% csrf_token %}
                 </div>
                 <div class="modal-footer">
-                    <input id="testheader_new" class="btn btn-primary" type="submit" value="New TestHeader">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input id="testheader_new" class="btn btn-primary" type="submit" value="New TestHeader">
                 </div>
             </div>
         </form>
@@ -92,11 +92,11 @@
                     <input type="hidden" name="editTestHeaderId" value="">
                 </div>
                 <div class="modal-footer">
-                    <input name="test_header_save" class="btn btn-primary" type="submit" value="Save">
                     {% if user.is_superuser %}
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                         <input name="test_header_delete" class="btn btn-danger" type="submit" value="Delete">
                     {% endif %}
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input name="test_header_save" class="btn btn-primary" type="submit" value="Save">
                 </div>
             </div>
         </form>
@@ -127,8 +127,8 @@
                     {% csrf_token %}
                 </div>
                 <div class="modal-footer">
-                    <input id="testrail_new" class="btn btn-primary" type="submit" value="New TestRail">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input id="testrail_new" class="btn btn-primary" type="submit" value="New TestRail">
                 </div>
             </div>
         </form>
@@ -159,8 +159,8 @@
                     {% csrf_token %}
                 </div>
                 <div class="modal-footer">
-                    <input id="node_type_new" class="btn btn-primary" type="submit" value="New Node Type">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input id="node_type_new" class="btn btn-primary" type="submit" value="New Node Type">
                 </div>
             </div>
         </form>
@@ -218,8 +218,8 @@
                     {% csrf_token %}
                 </div>
                 <div class="modal-footer">
-                    <input id="node_type_edit" class="btn btn-primary" type="submit" value="Save Node Type">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input id="node_type_edit" class="btn btn-primary" type="submit" value="Save Node Type">
                 </div>
             </div>
         </form>
@@ -251,8 +251,8 @@
                     {% csrf_token %}
                 </div>
                 <div class="modal-footer">
-                    <input id="edge_type_new" class="btn btn-primary" type="submit" value="New Edge Type">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input id="edge_type_new" class="btn btn-primary" type="submit" value="New Edge Type">
                 </div>
             </div>
         </form>
@@ -304,8 +304,8 @@
                     {% csrf_token %}
                 </div>
                 <div class="modal-footer">
-                    <input id="edge_type_edit" class="btn btn-primary" type="submit" value="Save Edge Type">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input id="edge_type_edit" class="btn btn-primary" type="submit" value="Save Edge Type">
                 </div>
             </div>
         </form>
@@ -336,8 +336,8 @@
                     {% csrf_token %}
                 </div>
                 <div class="modal-footer">
-                    <input id="language_new" class="btn btn-primary" type="submit" value="New Language">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input id="language_new" class="btn btn-primary" type="submit" value="New Language">
                 </div>
             </div>
         </form>
@@ -392,8 +392,8 @@
                     {% csrf_token %}
                 </div>
                 <div class="modal-footer">
-                    <input id="language_edit" class="btn btn-primary" type="submit" value="Save Language">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <input id="language_edit" class="btn btn-primary" type="submit" value="Save Language">
                 </div>
             </div>
         </form>
