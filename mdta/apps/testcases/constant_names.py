@@ -9,6 +9,7 @@ NODE_TRANSFER_NAME = 'Transfer'
 NODE_LANGUAGE_SELECT_NAME = 'Language Select'
 NODE_COMMENT_NAME = 'Comment'
 NODE_DECISION_NAME = 'Decision Check'
+NODE_LANGUAGE_SELECT =  'Language Select'
 
 # Node DataQueries inputs
 NODE_DATA_INPUTS = 'Inputs'
@@ -31,10 +32,14 @@ EDGE_TYPES_INVISIBLE_KEY = 'Invisible'
 # MenuPrompt property key name
 ON_FAIL_GO_TO_KEY = 'OnFailGoTo'
 NON_STANDARD_FAIL_KEY = 'NonStandardFail'
+PLAY_BACK = 'Playback'
 TTS = 'TextToSpeech'
 MP_OUTPUTS = 'Outputs'
 MP_DEFAULT = 'Default'
 MP_NC = 'NoneConfirm'
+MONOLINGUAL = 'Monolingual'
+LANGUAGE = 'Language'
+DEFAULT_PATH = '**'
 
 # MenuPrompt verbiage key name
 MP_VER = 'InitialPrompt'
@@ -60,6 +65,7 @@ TESTCASE_NOT_ROUTE_MESSAGE = 'This edge cannot be routed, no test case published
 
 NEGATIVE_TESTS_LIST = ['NIR', 'NMR', 'NIF', 'NMF', 'NINMF']
 NEGATIVE_CONFIRM_TESTS_LIST = ['CNIR', 'CNMR', 'CNIF', 'CNMF', 'CNINMF']
+
 
 # TestRail tcs key name
 TR_CONTENT = 'content'

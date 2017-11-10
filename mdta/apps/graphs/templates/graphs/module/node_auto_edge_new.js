@@ -156,6 +156,7 @@ function load_keys_from_type_contents_node_auto(item_id, location, type, call_fr
                 //contents += '<div class=\'col-xs-3\'><label>{0}: </label></div>'.format(keys[k]);
                 //contents += '</div>';
 
+
                 contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
                 contents += '<div class=\'col-xs-1\'></div>';
                 contents += '<div class=\'col-xs-11\'>';

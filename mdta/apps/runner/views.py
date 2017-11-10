@@ -1,5 +1,5 @@
 import json
-
+import requests
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -7,10 +7,11 @@ from django.contrib.auth.decorators import login_required
 
 from mdta.apps.projects.forms import TestRunnerForm
 from mdta.apps.projects.models import TestRailInstance, Project, TestRailConfiguration
-from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, bulk_hatit_file_generator, HATScript
+from mdta.apps.runner.utils import get_testrail_project, get_testrail_steps, bulk_remote_hat_execute, bulk_hatit_file_generator, HATScript, temp_method_wait_untile_test_run_iscomplete
 from mdta.apps.runner.models import TestRun, AutomatedTestCase, TestServers
 from mdta.apps.runner.tasks import poll_result_loop
 
+from mdta.apps.testcases.testrail import APIClient
 
 def display_project_suites(request, project_id):
     p = Project.objects.get(id=project_id)
@@ -27,16 +28,48 @@ def display_testrail_steps(request, mdta_project_id):
     return JsonResponse({'steps': case.custom_steps_separated})
 
 
+##Old code that is not using Frank's API.
+'''def execute_test(request, mdta_project_id):
+    p = Project.objects.get(id=mdta_project_id)
+    tri = p.testrail.instance
+    case = get_testrail_steps(tri, request.GET['case_id'])
+    case.generate_hat_script()case.script.remote_user = 'wicqacip'
+    case.script.remote_password = 'LogFiles'
+    result = case.script.remote_hat_execute()
+    return JsonResponse(result)
+'''
+
+## Fix to single run testcase execution.
 def execute_test(request, mdta_project_id):
     p = Project.objects.get(id=mdta_project_id)
     tri = p.testrail.instance
     case = get_testrail_steps(tri, request.GET['case_id'])
-    case.generate_hat_script()
-    case.script.remote_user = 'wicqacip'
-    case.script.remote_password = 'LogFiles'
-    result = case.script.remote_hat_execute()
-    return JsonResponse(result)
+    title = case.get_title()
+    case.script.csvfile = bulk_hatit_file_generator([case])
+    domain = case.script.hatit_server
+    case.script.hatit_server = "http://"+case.script.hatit_server+"/hatit/"
+    testserver = case.script.hatit_server
+    recordings = 'http://'+domain+'/static_hat/recordings'
+    hollytrace_url = TestServers.objects.values_list('hollytrace_url', flat=True).get(server=testserver)
+    result = case.script.hatit_execute()
+    result_json = result.json()
+    complete = result_json['complete']
+    no_error = True if int(result_json['error']) == 0 else False
 
+    if  (no_error and (not complete)):
+        result = temp_method_wait_untile_test_run_iscomplete(case, result_json['runid'])
+
+    jobject = result.json()
+    jobject['tr_host'] = tri.host
+    jobject['hollytrace_url']= hollytrace_url
+    jobject['title'] = title
+    jobject['script'] = case.script.body
+    jobject['record_present'] = case.playback
+    jobject['recordings'] = recordings
+
+    print (jobject['record_present'])
+
+    return JsonResponse(jobject)
 
 def run_test_suite(request):
     """Probably dead code. Check and refactor."""
@@ -76,6 +109,7 @@ def run_all_modal(request):
         hs.hatit_server = testserver
         hs.holly_server = browser
         response = hs.hatit_execute()
+        recordings = 'http://linux6351.wic.west.com:8080/static_hat/recordings/'
         mdta_test_run = TestRun.objects.create(hat_run_id=json.loads(response.text)['runid'],
                                                hat_server=TestServers.objects.get(server=testserver),
                                                testrail_project_id=testrail_project_id,
