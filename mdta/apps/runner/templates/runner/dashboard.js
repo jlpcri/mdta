@@ -66,7 +66,7 @@ function runAll() {
                 $(location).attr('href', '#');
                 var cases = data;
                 var div = $("#testcase");
-                var table_draw = '<table class="table table-bordered"><tr><th>Title</th><th>Status</th><th>Holly</th><th>Call ID & TestRail ID</th><th>Failure reason</th></tr>';
+                var table_draw = '<table class="table table-bordered"><tr><th>Title</th><th>Status</th><th>Holly</th><th>Call ID & TestRail ID</th><th>Failure reason</th><th>Recordings</th></tr>';
                 $.each(cases.cases, function (index, value) {
                     var script = value.script;
                     script = script.replace(/\n/g,'<br/>');
@@ -75,7 +75,8 @@ function runAll() {
                     "<td class='status col-xs-1'><i class='fa fa-spin fa-spinner'></i><span> Running...</span></td>" +
                     "<td class='holly col-xs-1'>" + cases.holly + "</td>" +
                     "<td class='call-id col-xs-1'></td>" +
-                    "<td class='reason col-xs-2'></td></tr>";
+                    "<td class='reason col-xs-2'></td></tr>"+
+                    "<td class='record col-xs-2'></td></tr>";
 
                     $('body').on('click', function (e) {
                         $('[data-toggle="popover"]').each(function () {
@@ -93,7 +94,8 @@ function runAll() {
                     var run_id = parseInt(cases.run);
                     var hollytrace_url = cases.hollytrace_url;
                     var tr_host = cases.tr_host;
-                    checkCase(cases.cases[counter], run_id, tr_host, hollytrace_url);
+                    var recordings = cases.recordings;
+                    checkCase(cases.cases[counter], run_id, tr_host, hollytrace_url, recordings);
                     counter++;
                     if (counter >= cases.cases.length) {
                         if (checkCompletion()) {
@@ -120,7 +122,7 @@ function checkCompletion(cases){
     return done
 }
 
-function checkCase(cases, run, tr_host, hollytrace_url) {
+function checkCase(cases, run, tr_host, hollytrace_url, recordings) {
     $.ajax('{% url "runner:check_result" %}' + "?run_id=" + run, {
         success: function (data, textStatus, jqXHR) {
             console.log(data);
@@ -131,7 +133,7 @@ function checkCase(cases, run, tr_host, hollytrace_url) {
                         console.log(value.title, value.call_id, value.reason, value.testrail_case_id, tr_host, hollytrace_url, value.tr_test_id);
                     }
                     else {
-                        markSuccess(value.title, value.call_id, value.testrail_case_id, tr_host, hollytrace_url, value.tr_test_id);
+                        markSuccess(value.title, value.call_id, value.testrail_case_id, tr_host, hollytrace_url, value.tr_test_id, recordings);
                         console.log(value.title, value.call_id, value.testrail_case_id, tr_host, hollytrace_url, value.tr_test_id);
 
                     }
@@ -141,9 +143,11 @@ function checkCase(cases, run, tr_host, hollytrace_url) {
     })
 }
 
-function markSuccess(title, callId, tc_id, tr_host, hollytrace_url, tr_test_id){
+function markSuccess(title, callId, tc_id, tr_host, hollytrace_url, tr_test_id, recordings){
     updateStatusClassAndText(title, "fa fa-check-square text-success", "Pass");
     updateCallID(title, callId, tc_id, tr_host, hollytrace_url, tr_test_id)
+    cosole.log(recordings);
+    //updateRecordings(title, recordings)
 }
 
 function markFailure(title, callId, failureReason, tc_id, tr_host, hollytrace_url, tr_test_id){
@@ -167,8 +171,18 @@ function updateCallID(title, callId, tc_id, tr_host, hollytrace_url, tr_test_id)
 
 function updateFailureReason(title, failureReason) {
     var reason_td = $("#testcase table").find('td.title:contains("' + title + '")').siblings(".reason");
-    reason_td.html(failureReason)
+    reason_td.html(failureReason);
 }
+
+/*function updateRecordings(title, recordings){
+ var rec = "<audio controls preload='none'> <source src='"+recordings+"/"+title+".wav' type = 'audio/wav'> </audio>";
+ var record_td = $("#testcase table").find('td.title:contains("' + title + '")').siblings(".record");
+ console.log(record_td);
+ console.log(rec);
+ record_td.html(rec);
+}*/
+
+
 
 function populateSteps(){
     var case_id = this.getAttribute('data-case');
@@ -176,7 +190,7 @@ function populateSteps(){
     $("#testcase").html("");
     $("#result").html("");
     button.siblings(".fa-spin").removeClass("hidden");
-    $.ajax('{% url "runner:steps" project.id %}?case_id=' + case_id, {
+    /*$.ajax('{% url "runner:steps" project.id %}?case_id=' + case_id, {
         success: function(data, textStatus, jqXHR){
             var div = $("#testcase");
             var table_draw = '<table class="table table-bordered"><thead><tr><th class="col-md-4">Content</th><th class="col-md-8">Expected Result</th></tr></thead>';
@@ -187,20 +201,36 @@ function populateSteps(){
             table_draw += "</table>";
             div.html(table_draw)
         }
-    });
+    });*/
     $.ajax('{% url "runner:run" project.id %}?case_id=' + case_id, {
         success: function(data, textStatus, jqXHR){
-            console.log(data.result);
+            console.log('result:',data);
+            console.log(data.calls);
+            console.log(data.script);
+            var callid = data.calls[0].callseq;
+            var callurl = "<a href=" + 'http://' + data.hollytrace_url + '/call/' + callid +" target='_blank'>" + callid + "</a>";
+
             button.siblings(".fa-spin").addClass("hidden");
-            var result_table = "<table class='table table-bordered'><tr><th>Result</th><td>" + data.result + "</td></tr>";
-            result_table += "<tr><th>Call ID</th><td>" + data.call_id + "</td></tr>";
-            result_table += "<tr><th>Fail Reason</th><td>" + data.reason + "</td></tr></table>";
+            var script = data.script.replace(/\n/g,'<br/>');
+            var popupControl = "<a href='#' onclick='myFunction()' data-toggle='popover' data-placement='bottom' data-content='"+script+"' title='HAT Script'>"+data.title+" </a>";
+            var result_table = "<table class='table table-bordered'><tr><th>Title</th><td>" + popupControl + "</td></tr>";
+            result_table += "<tr><th>Result</th><td>" + data.calls[0].status + "</td></tr>";
+            result_table += "<tr><th>Call ID</th><td>" + callurl + "</td></tr>";
+            result_table += "<tr><th>Holly</th><td>" + data.calls[0].uri + "</td></tr>";
+
+            if(data.record_present){
+            //var rec = "<a href='"+data.recordings+'/'+data.title+".wav'> Download</a>";
+            var rec = "<audio controls preload='none'> <source src='"+data.recordings+"/"+data.title+".wav' type = 'audio/wav'> </audio>";
+            result_table += "<tr><th>Recordings</th><td>" + rec + "</td></tr>";
+            }
+
+            result_table += "<tr><th>Fail Reason</th><td>" + data.calls[0].err_str + "</td></tr></table>";
             $("#result").html(result_table);
-            if(data.result === 'PASS') {
+            if(data.calls[0].status === 'PASS') {
                 button.siblings(".text-success").removeClass("hidden");
                 button.siblings(".text-danger").addClass("hidden");
             }
-            else if(data.result === 'FAIL') {
+            else if(data.calls[0].status === 'FAIL') {
                 console.log("Calling FAIL");
                 window.needit = button;
                 button.siblings(".text-danger").removeClass("hidden");
@@ -222,3 +252,4 @@ function populateSteps(){
     });
 
 }
+
