@@ -23,6 +23,7 @@ def tcs_project(request):
         project = request.user.humanresource.project
         try:
             testcases = project.testcaseresults_set.latest('updated').results
+
         except TestCaseResults.DoesNotExist:
             testcases = []
     else:
