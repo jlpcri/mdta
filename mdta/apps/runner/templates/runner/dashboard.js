@@ -66,7 +66,7 @@ function runAll() {
                 $(location).attr('href', '#');
                 var cases = data;
                 var div = $("#testcase");
-                var table_draw = '<table class="table table-bordered"><tr><th>Title</th><th>Status</th><th>Holly</th><th>Call ID & TestRail ID</th><th>Failure reason</th><th>Recordings</th></tr>';
+                var table_draw = '<table class="table table-bordered"><tr><th>Title</th><th>Status</th><th>Holly</th><th>Call ID & TestRail ID</th><th>Failure reason</th></tr>';
                 $.each(cases.cases, function (index, value) {
                     var script = value.script;
                     script = script.replace(/\n/g,'<br/>');
@@ -75,8 +75,7 @@ function runAll() {
                     "<td class='status col-xs-1'><i class='fa fa-spin fa-spinner'></i><span> Running...</span></td>" +
                     "<td class='holly col-xs-1'>" + cases.holly + "</td>" +
                     "<td class='call-id col-xs-1'></td>" +
-                    "<td class='reason col-xs-2'></td></tr>"+
-                    "<td class='record col-xs-2'></td></tr>";
+                    "<td class='reason col-xs-2'></td></tr>";
 
                     $('body').on('click', function (e) {
                         $('[data-toggle="popover"]').each(function () {
@@ -94,8 +93,8 @@ function runAll() {
                     var run_id = parseInt(cases.run);
                     var hollytrace_url = cases.hollytrace_url;
                     var tr_host = cases.tr_host;
-                    var recordings = cases.recordings;
-                    checkCase(cases.cases[counter], run_id, tr_host, hollytrace_url, recordings);
+                    //var recordings = cases.recordings;
+                    checkCase(cases.cases[counter], run_id, tr_host, hollytrace_url);
                     counter++;
                     if (counter >= cases.cases.length) {
                         if (checkCompletion()) {
@@ -122,7 +121,7 @@ function checkCompletion(cases){
     return done
 }
 
-function checkCase(cases, run, tr_host, hollytrace_url, recordings) {
+function checkCase(cases, run, tr_host, hollytrace_url) {
     $.ajax('{% url "runner:check_result" %}' + "?run_id=" + run, {
         success: function (data, textStatus, jqXHR) {
             console.log(data);
@@ -133,7 +132,7 @@ function checkCase(cases, run, tr_host, hollytrace_url, recordings) {
                         console.log(value.title, value.call_id, value.reason, value.testrail_case_id, tr_host, hollytrace_url, value.tr_test_id);
                     }
                     else {
-                        markSuccess(value.title, value.call_id, value.testrail_case_id, tr_host, hollytrace_url, value.tr_test_id, recordings);
+                        markSuccess(value.title, value.call_id, value.testrail_case_id, tr_host, hollytrace_url, value.tr_test_id);
                         console.log(value.title, value.call_id, value.testrail_case_id, tr_host, hollytrace_url, value.tr_test_id);
 
                     }
@@ -143,10 +142,10 @@ function checkCase(cases, run, tr_host, hollytrace_url, recordings) {
     })
 }
 
-function markSuccess(title, callId, tc_id, tr_host, hollytrace_url, tr_test_id, recordings){
+function markSuccess(title, callId, tc_id, tr_host, hollytrace_url, tr_test_id){
     updateStatusClassAndText(title, "fa fa-check-square text-success", "Pass");
     updateCallID(title, callId, tc_id, tr_host, hollytrace_url, tr_test_id)
-    cosole.log(recordings);
+    //cosole.log(recordings);
     //updateRecordings(title, recordings)
 }
 
