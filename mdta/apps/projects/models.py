@@ -355,3 +355,19 @@ class VUID(models.Model):
 
     def __str__(self):
         return '{0}: {1}: {2}'.format(self.filename, self.project.name, localtime(self.upload_date))
+
+
+class ProjectDatabaseSet(models.Model):
+    """
+    Represent Database API to store query set data for route strategy
+    """
+    project = models.ForeignKey(Project)
+    name = models.TextField()  # Could be different DB for project
+    data = JSONField(default=[])
+
+    class Meta:
+        ordering = ['name']
+        unique_together = ('project', 'name',)
+
+    def __str__(self):
+        return '{0}: {1}'.format(self.project.name, self.name)
