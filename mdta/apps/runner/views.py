@@ -120,7 +120,7 @@ def run_all_modal(request):
             AutomatedTestCase.objects.create(test_run=mdta_test_run, testrail_case_id=case.id, case_title=case.title, case_script=case.script.body)
 
         return JsonResponse({'run': mdta_test_run.pk, 'holly': browser, 'tr_p_id': testrail_project_id, 'tr_host': testrail_host,
-                             'hollytrace_url': hollytrace_url,'recordings':recordings, 'cases': [{'testrail_case_id': c.testrail_case_id, 'status': c.status,
+                             'hollytrace_url': hollytrace_url, 'cases': [{'testrail_case_id': c.testrail_case_id, 'status': c.status,
                                                                           'title': c.case_title, 'script': c.case_script} for c in mdta_test_run.automatedtestcase_set.all()]})
     else:
         return JsonResponse({'error': request.errors})
