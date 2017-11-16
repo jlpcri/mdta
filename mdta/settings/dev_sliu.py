@@ -9,8 +9,15 @@ INSTALLED_APPS += [
 MIDDLEWARE_CLASSES += ['debug_toolbar.middleware.DebugToolbarMiddleware', ]
 INTERNAL_IPS = ['127.0.0.1', '10.6.20.59', '10.27.170.241']
 
-if socket.gethostname() == 'OM1960L1':
-    CHANNEL_LAYERS['default']['CONFIG']['hosts'] = [('10.6.20.91', 6379)]
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'asgi_rabbitmq.RabbitmqChannelLayer',
+#         'CONFIG': {
+#             'url': 'amqp://guest:guest@localhost:5672/%2F'
+#         },
+#         'ROUTING': 'mdta.ws_routing.channel_routing',
+#     },
+# }
 
 DB_QACI01 = {
     'default': {
