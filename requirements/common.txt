@@ -6,6 +6,7 @@ django-auth-ldap==1.2.8
 django-debug-toolbar==1.6
 gevent==1.2.2
 greenlet==0.4.12
+hiredis==0.2.0
 ldap3==1.2.2
 jira==1.0.3
 pandas==0.20.3
