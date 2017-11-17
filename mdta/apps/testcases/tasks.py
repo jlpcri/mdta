@@ -51,7 +51,6 @@ def create_testcases_celery(self, project_id):
         except (ValueError, ValidationError) as e:
             print(str(e))
     msg = push_testcases_to_testrail_celery(project.id)
-    print(msg)
 
     return msg
 
@@ -74,13 +73,11 @@ def push_testcases_to_testrail_celery(self, project_id):
         testrail_contents = client.send_get('get_project/' + project.testrail.project_id)
 
         tr_suites = client.send_get('get_suites/' + project.testrail.project_id)
-
         testcases = project.testcaseresults_set.latest('updated').results
 
         # Find or Create TestSuites in TestRail
         try:
             tr_suite = (suite for suite in tr_suites if suite['name'] == project.version).__next__()
-
         except StopIteration as e:
             print('Suite: ', e)
             tr_suite = add_testsuite_to_project(client,
@@ -102,14 +99,16 @@ def push_testcases_to_testrail_celery(self, project_id):
                                                       project.testrail.project_id,
                                                       tr_suite['id'],
                                                       item['module'])
-                add_testcase_to_section(client, section_id, item['data'], project)
+
+                add_testcase_to_section(client, section_id, item['data'])
+
             except StopIteration as e:
                 print('Section: ', e)
                 section_id = add_section_to_testsuite(client,
                                                       project.testrail.project_id,
                                                       tr_suite['id'],
                                                       item['module'])
-                add_testcase_to_section(client, section_id, item['data'], project)
+                add_testcase_to_section(client, section_id, item['data'])
 
     except AttributeError:
         testrail_contents = {
@@ -120,6 +119,5 @@ def push_testcases_to_testrail_celery(self, project_id):
         testrail_contents = {
             'error': e
         }
-
     return testrail_contents
 

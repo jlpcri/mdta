@@ -2,10 +2,10 @@
  * Created by sliu on 6/8/16.
  */
 
-
 $('#module-node-new-modal').draggable();
 $('#module-edge-new-modal').draggable();
 //$('.modal').draggable();
+
 /* Start Module Node Edit Code */
 $('.moduleNodeEditForm #moduleNodeEditType').on('change', function(e){
     var type_id = $(this).find('option:selected').val(),
@@ -447,7 +447,6 @@ function node_property_js_load(){
 }
 
 function get_properties_contents(node_keys, properties, node_id, node_in){
-console.log(node_keys, properties, node_id, node_in);
     var tmp_index = 0,
         object_length = 0,
         properties_contents = '',
@@ -519,7 +518,7 @@ console.log(node_keys, properties, node_id, node_in);
             if (!((k == 'Default') && (node_in == 'module'))) {
                 properties_contents += '<div class=\'row\' style=\'margin-top: 5px;\'>';
                 properties_contents += '<div class=\'col-xs-4\'><label>{0}:</label></div>'.format(k);
-                if (toggle_style_key_list.indexOf(k) >= 0 ) {
+                if (toggle_style_key_list.indexOf(k) >= 0) {
                     properties_contents += '<div class=\'col-xs-8\'>';
                     if (properties[k] == 'on') {
                         properties_contents += '<input name=\'{0}\' type=\'checkbox\' checked class=\'myToggle\' data-on=\'True\' data-width=\'100\' data-onstyle=\'success\' data-off=\'False\' >'.format(k);
@@ -611,7 +610,6 @@ $('.moduleNodeEdit').on('submit', function(e){
 /* Start Node Name for OnFailGoTo of MenuPrompt Code */
 
 function autocomplete_nodename_and_edgekeys(call_from) {
-
     var myToggle = $('.myToggle'),
         project_node_new_fail = $('.projectNodeNew input[name="OnFailGoTo"]'),
         module_node_edit_fail = $('.moduleNodeEditForm input[name="OnFailGoTo"]'),
@@ -644,7 +642,6 @@ function autocomplete_nodename_and_edgekeys(call_from) {
             data_edge_keys.autocomplete({
                 source: data_edge_keys_autocomplete
             });
-
             break;
         case 'auto_node':
             myToggle.bootstrapToggle();

@@ -9,5 +9,4 @@ workon mdta
 ./manage.py loaddata dumpdata/projects.json
 ./manage.py loaddata dumpdata/graphs.json
 ./manage.py loaddata dumpdata/testcases.json
-./manage.py loaddata dumpdata/runner.json
 deactivate

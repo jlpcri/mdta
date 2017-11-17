@@ -24,11 +24,10 @@ def path_traverse_backwards(path, th_path=None, language=None):
     path.reverse()
 
     result_found_all = []
-    #print("Path:", path)
+
     # sibling_edges_key_in_th_menuprompt = []
-### Temporary Mark to continue code analysis.....
+
     for index, step in enumerate(path):
-        #print("step:", step)
         if index < len(path) - 1:
             if isinstance(step, Node):
                 if step.type.name not in NODE_DATA_NAME:
@@ -158,30 +157,11 @@ def path_traverse_backwards(path, th_path=None, language=None):
             'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + tcs_cannot_route_msg
         }
     else:
-        for tc in tcs:
-            if PLAY_BACK in tc :
-                try:
-                    tc[TR_CONTENT] += PLAY_BACK+str(tc[PLAY_BACK])
-                except KeyError:
-                    tc[TR_CONTENT] = PLAY_BACK+str(tc[PLAY_BACK])
-                del tc[PLAY_BACK]
-
-            if MONOLINGUAL in tc:
-                if tc[MONOLINGUAL]:
-                    try:
-                        tc[TR_EXPECTED] = DEFAULT_PATH+tc[TR_EXPECTED]
-                    except KeyError:
-                        tc[TR_EXPECTED] = DEFAULT_PATH
-                del tc[MONOLINGUAL]
-
-        print(tcs)
-
         tcs.reverse()
         data = {
             'pre_conditions': pre_conditions,
             'tc_steps': tcs,
         }
-
     return data
 
 
@@ -399,13 +379,8 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None, language=
     """
     if node.type.name in [NODE_START_NAME[0], 'Transfer']:  # Start with Dial Number
         add_step(node_start(node), tcs)
-    elif node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME, NODE_SET_VARIABLE, NODE_LANGUAGE_SELECT]:
-        if node.type.name == NODE_LANGUAGE_SELECT:
-            match_constraint = eval(str(node.properties[LANGUAGE]))[language]
-            add_step(node_prompt(node, None, match_constraint, language=language), tcs)
-        else:
-            add_step(node_prompt(node, preceding_edge, language=language), tcs)
-
+    elif node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME]:
+        add_step(node_prompt(node, preceding_edge, language=language), tcs)
 
     if node.type.name == NODE_MP_NAME[1] and following_edge:
         flag = True
@@ -429,34 +404,6 @@ def traverse_node(node, tcs, preceding_edge=None, following_edge=None, language=
                     'expected': get_verbiage_from_prompt_node(node, language, MPC_VER)
                 })
 
-    #   check if node has Play back and Monolingual property
-    if node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME, NODE_LANGUAGE_SELECT]:
-        #   monolingual property
-        if node.type.name == NODE_LANGUAGE_SELECT:
-            if len(tcs) == 0:
-                tcs.append({})
-            tcs[len(tcs)-1][MONOLINGUAL] = True
-        else:
-            flag = False
-            try:
-                if node.properties[MONOLINGUAL] == 'on':
-                    flag = True
-            except KeyError:
-                pass
-            tcs[len(tcs)-1][MONOLINGUAL] = flag
-
-        #   playback property
-        flag = False
-
-        try:
-            if node.properties[PLAY_BACK] == 'on':
-                flag = True
-        except KeyError:
-            pass
-        tcs[len(tcs)-1][PLAY_BACK] = flag
-
-
-    #print(tcs)
 
 def node_start(node):
     return {
@@ -495,7 +442,7 @@ def get_item_properties(item):
             data += key + ': ' + item.properties[key] + ', '
         except (KeyError, TypeError):
             data += key
-    #print("get_item_properties:", data)
+
     return data
 
 
