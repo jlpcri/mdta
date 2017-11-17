@@ -15,17 +15,3 @@ DATABASES = {
         'PORT': '5433',
     }
 }
-
-'''DB_6437 = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'mdta',
-        'USER': 'ceeq',
-        'PASSWORD': 'FkhfDhPx%A=-?h_snCMuQ$&%5crcx%tpxw24pVVp+U-UrXs4q6=uK=8^-evN-RxA',
-        'HOST': 'linux6437.wic.west.com',
-        'PORT': '5433'   # posgtres 9.4 instance
-    }
-}
-
-DATABASES = DB_6437
-'''

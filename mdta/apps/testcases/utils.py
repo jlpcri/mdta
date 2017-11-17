@@ -1,8 +1,8 @@
 import collections
 from django.http import JsonResponse
-import re
+
 from mdta.apps.graphs.models import Node, Edge
-from mdta.apps.projects.models import Project, TestRailConfiguration, Language
+from mdta.apps.projects.models import Project, TestRailConfiguration
 from mdta.apps.testcases.testrail import APIClient, APIError
 from mdta.apps.testcases.utils_backwards_traverse import path_traverse_backwards
 from mdta.apps.testcases.utils_negative_testcases import negative_testcase_generation, rejected_testcase_generation
@@ -35,31 +35,21 @@ def create_routing_test_suite(project=None, modules=None):
     shortest_set = []  # found shortest set from Start to node, key is 'Start + node', value is list of nodes
 
     if project:
-        data = create_routing_test_suite_module(project.modules, get_languages(project), shortest_set)
+        if project.language:
+            language = project.language.name
+        else:
+            language = LANGUAGE_DEFAULT_NAME
+        # start = time.time()
+        data = create_routing_test_suite_module(project.modules, language, shortest_set)
         # print(project.name, time.time() - start)
     elif modules:
-        data = create_routing_test_suite_module(modules, get_languages(modules[0].project), shortest_set)
-
-    print('Data :::::::::::::::::::::::::::::', data, len(data))
+        if modules[0].project.language:
+            language = modules[0].project.language.name
+        else:
+            language = LANGUAGE_DEFAULT_NAME
+        data = create_routing_test_suite_module(modules, language, shortest_set)
 
     return data
-
-def get_languages(project=None):
-    languages = Language.objects.filter(project=project)
-    if languages:
-        language = [language.name for language in languages if language.name]
-    else:
-        language = [LANGUAGE_DEFAULT_NAME]
-
-    return language
-
-def get_project_language_rootpath(project = None, language = None):
-    languages = Language.objects.filter(project=project)
-    for lang in languages:
-        if lang.name ==  language:
-            return lang.root_path
-
-    return Language.objects.filter(name=LANGUAGE_DEFAULT_NAME).root_path
 
 
 def create_routing_test_suite_module(modules, language, shortest_set):
@@ -69,7 +59,6 @@ def create_routing_test_suite_module(modules, language, shortest_set):
     :return:
     """
     test_suites = []
-    data = []
 
     if len(modules) > 0 and modules[0].project.test_header:
         th_module = modules[0].project.test_header
@@ -112,35 +101,31 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
     :return:
     """
     th_paths = get_paths_from_test_header(th_module)
-    #print(th_paths)
+    # print(th_paths)
+
     data = []
+    if th_paths:
+        for th_path in th_paths:
+            for edge in edges:
+                path = routing_path_to_edge(edge, shortest_set)
 
-    for language in language:
-
-        if th_paths:
-            for th_path in th_paths:
-                for edge in edges:
-                    path = routing_path_to_edge(edge, shortest_set)
-
-                    if path:
-                        path_data = path_traverse_backwards(path, th_path=th_path, language=language)
+                if path:
+                    title = 'Route from \'' + edge.from_node.name +\
+                                    '\' to \'' + edge.to_node.name + '\''
+                    path_data = path_traverse_backwards(path, th_path=th_path, language=language)
+                    if edge.to_node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME]:
                         if 'tcs_cannot_route' in path_data.keys():
                             data.append({
                                 'tcs_cannot_route': path_data['tcs_cannot_route'],
                                 'id': edge.id,
-                                'title': 'Route from \'' +
-                                         edge.from_node.name +
-                                         '\' to \'' +
-                                         edge.to_node.name + '\''+' ('+language+')'
+                                'title': title
                             })
                         else:
-                            title = 'Route from \'' + edge.from_node.name +\
-                                        '\' to \'' + edge.to_node.name + '\''+' ('+language+')'
                             data.append({
                                     'pre_conditions': path_data['pre_conditions'],
                                     'tc_steps': path_data['tc_steps'],
                                     'id': edge.id,
-                                    'title': title
+                                    'title': title,
                                 })
 
                             if edge.to_node.type.name in NODE_MP_NAME:
@@ -156,26 +141,22 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                             'gap_color': 'default'  # display normal color in data gaps of module graph
                         })
 
-        else:
-            for edge in edges:
-                path = routing_path_to_edge(edge, shortest_set)
+    else:
+        for edge in edges:
+            path = routing_path_to_edge(edge, shortest_set)
 
-                if path:
-                    path_data = path_traverse_backwards(path, language=language)
+            if path:
+                title = 'Route from \'' + edge.from_node.name +\
+                                    '\' to \'' + edge.to_node.name + '\''
+                path_data = path_traverse_backwards(path, language=language)
+                if edge.to_node.type.name in NODE_MP_NAME + [NODE_PLAY_PROMPT_NAME]:
                     if 'tcs_cannot_route' in path_data.keys():
                         data.append({
                             'tcs_cannot_route': path_data['tcs_cannot_route'],
                             'id': edge.id,
-                            'title': 'Route from \'' +
-                                     edge.from_node.name +
-                                     '\' to \'' +
-                                     edge.to_node.name + '\''+' ('+language+')'
+                            'title': title
                         })
-                        # print(edge.id)
                     else:
-                        title = 'Route from \'' + edge.from_node.name +\
-                                        '\' to \'' + edge.to_node.name + '\''+' ('+language+')'
-                        # edge_id = edge.id,
                         data.append({
                                 'pre_conditions': path_data['pre_conditions'],
                                 'tc_steps': path_data['tc_steps'],
@@ -188,7 +169,14 @@ def get_paths_through_all_edges(edges, th_module=None, language=None, shortest_s
                             if edge.to_node.type.name == NODE_MP_NAME[1]:
                                 negative_testcase_generation(data, path_data, title, NEGATIVE_CONFIRM_TESTS_LIST, edge, language=language)
                                 rejected_testcase_generation(data, path_data, title, edge.to_node, edge, language=language)
-    #print(data)
+                else:
+                    data.append({
+                        'tcs_cannot_route': TESTCASE_NOT_ROUTE_MESSAGE + 'End node is not Prompt.',
+                        'id': edge.id,
+                        'title': title,
+                        'gap_color': 'default'  # display normal color in data gaps of module graph
+                    })
+
     return data
 
 
@@ -204,7 +192,7 @@ def routing_path_to_edge(edge, shortest_set=None):
         data.append(edge)
         data.append(edge.to_node)
 
-    #print(data)
+    # print(data)
     return data
 
 
@@ -220,7 +208,7 @@ def routing_path_to_node(node, shortest_set=None):
     if check_node_connect_to_start_node(node):
         path = backwards_search(node, visited_nodes, shortest_set)
 
-    #print(path)
+    # print(path)
     return path
 
 
@@ -284,7 +272,7 @@ def backwards_search(node, visited_nodes, shortest_set=None):
                 path.append(edge)
                 path.append(node)
 
-    #print('path: ',  path)
+    # print('path: ',  path)
     return path
 
 
@@ -449,6 +437,7 @@ def add_section_to_testsuite(client, project_id, suite_id, section_name):
         'suite_id': suite_id,
         'name': section_name
     }
+
     section = client.send_post('add_section/' + project_id, data)
 
     return str(section['id'])
@@ -463,20 +452,17 @@ def remove_section_from_testsuite(client, section_id):
     """
     client.send_post('delete_section/' + section_id, None)
 
-def add_testcase_to_section(client, section_id, data, project = None):
+
+def add_testcase_to_section(client, section_id, data):
     """
     Add Testcases to TestRail.Project.TestSuites.Section
     :param client:
     :param section_id: Section Id == MDTA.project.module
     :param data: TestCases
     :return:
-
     """
     try:
         for each_tc in data:
-            test_language = re.findall('\((.*?)\)', each_tc['title'])[0]
-            custom_default_audio_path = project.language.root_path
-            custom_call_language_audio_path =  get_project_language_rootpath(project, test_language)
             if 'tcs_cannot_route' not in each_tc.keys():
                 custom_preconds = ''
                 for pre_cond in each_tc['pre_conditions']:
@@ -485,11 +471,9 @@ def add_testcase_to_section(client, section_id, data, project = None):
                 tc_data = {
                     'title': each_tc['title'],
                     'custom_preconds': custom_preconds,
-                    'custom_steps_seperated': each_tc['tc_steps'],
-                    'custom_default_audio_path': custom_default_audio_path,
-                    'custom_call_language_audio_path': custom_call_language_audio_path
+                    'custom_steps_seperated': each_tc['tc_steps']
                 }
-                print(client.send_post('add_case/' + section_id, tc_data))
+                client.send_post('add_case/' + section_id, tc_data)
     except APIError as e:
         print('Add TestCase to Section error: ', e)
 

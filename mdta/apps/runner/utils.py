@@ -14,8 +14,8 @@ from paramiko.client import AutoAddPolicy
 from paramiko import SSHClient, SFTPClient, Transport
 
 import mdta.settings.base as base
-from mdta.apps.testcases.constant_names import *
-from mdta.apps.testcases.testrail import APIClient
+
+import mdta.apps.testcases.testrail as testrail
 
 
 if os.name == 'posix' and sys.version_info[0] < 3:
@@ -39,7 +39,7 @@ class TestRailORM(object):
             raise e
 
     def client(self):
-        client = APIClient(self.instance.host)
+        client = testrail.APIClient(self.instance.host)
         client.user = self.instance.username
         client.password = self.instance.password
         return client
@@ -96,8 +96,6 @@ class TestRailCase(TestRailORM):
     def __init__(self, instance, api_return, parent=None):
         super(TestRailCase, self).__init__(instance, api_return, parent)
         self.script = None
-        self.playback = False
-
 
     @property
     def custom_steps_separated(self):
@@ -107,47 +105,13 @@ class TestRailCase(TestRailORM):
         else:
             return self.__dict__['custom_steps_separated']
 
-    def get_title(self):
-        if 'title' not in self.__dict__.keys():
-            return self.title
-        else:
-            title = self.__dict__['title']
-            for k,v in {"'":'', ' ':'_'}.items():
-                title = title.replace(k,v)
-            return title
-
     def generate_hat_script(self):
         if not self.script:
             self.script = HATScript()
-        previous_step_playback = False
+        for step in self.custom_steps_separated:
 
-        for index, step in enumerate(self.custom_steps_separated):
-
-            if PLAY_BACK in step[TR_CONTENT]:
-                step[TR_CONTENT], present_step_playback = step[TR_CONTENT].split(PLAY_BACK)
-                present_step_playback = True if present_step_playback == 'True' else False
-
-            else:
-                present_step_playback = False
-
-            playback_switch = True if (present_step_playback and not(previous_step_playback)) else False
-
-            if (playback_switch):
-                self.script.body += '\nSTARTRECORDING {0} \n'.format('static_hat/recordings/'+self.get_title()+'.wav')
-                self.playback = True
-            if(not(playback_switch) and previous_step_playback and not(present_step_playback)):
-                self.script.body += 'PAUSE 10 \n'
-                self.script.body += 'ENDRECORDING \n\n'
-
-            self._content_routing(step[TR_CONTENT])
-            self._expected_routing(step[TR_EXPECTED], playback_switch)
-
-            if present_step_playback and index == len(self.custom_steps_separated) - 1:
-                self.script.body += 'PAUSE 10 \n'
-                self.script.body += 'ENDRECORDING \n\n'
-
-            previous_step_playback = present_step_playback
-
+            self._content_routing(step['content'])
+            self._expected_routing(step['expected'])
         self.script.end_of_call()
 
     def _content_routing(self, step):
@@ -169,31 +133,21 @@ class TestRailCase(TestRailORM):
         # except KeyError:
         #     pass
 
-    def _expected_routing(self, step, playback_switch):
+    def _expected_routing(self, step):
         if not step:
             return
         # The following should be moved to HATScript, but because there is no real branching at this point yet,
         # I'm leaving it as-is for now.
-        # 7/21/2017: read the above comment, put in a branch, still didn't move the code.prompt = step.split(':')[0].strip()
+        # 7/21/2017: read the above comment, put in a branch, still didn't move the code.
         prompt = step.split(':')[0].strip()
         if prompt == '[TTS]':
             self.script.body += 'EXPECT prompt\n'
         else:
-            if prompt[:2] == DEFAULT_PATH:
-                path = self.custom_default_audio_path
-                prompt = prompt[2:]
-            else:
-                path = self.custom_call_language_audio_path
-
-            if path and path[len(path)-1] == '/':
-                path = path[:len(path)-1]
-                self.script.body += 'EXPECT prompt URI='+path+'/' + prompt + '.wav\n'
-            else:
-                self.script.body += 'EXPECT prompt URI=.*/' + prompt + '.wav\n'
+            self.script.body += 'EXPECT prompt URI=.*/' + prompt + '.wav\n'
 
 
 def get_testrail_steps(instance, case_id):
-    client = APIClient(instance.host)
+    client = testrail.APIClient(instance.host)
     client.user = instance.username
     client.password = instance.password
 
@@ -216,7 +170,7 @@ def get_testrail_project(instance, identifier):
 
 
 def _get_testrail_project_by_id(instance, identifier):
-    client = APIClient(instance.host)
+    client = testrail.APIClient(instance.host)
     client.user = instance.username
     client.password = instance.password
 
@@ -241,10 +195,10 @@ class AutomationScript(object):
 
 class HATScript(AutomationScript):
 
-    def __init__(self, apn='4061702', body='', dialed_number='', csvfile='',
+    def __init__(self, apn='', body='', dialed_number='', csvfile='',
                  holly_server='', sonus_server='10.27.138.136',
-                 hatit_server='linux6351.wic.west.com:8080',
-                 remote_server='led00098.wic.west.com:8080', remote_user='wicqacip', remote_password='LogFiles'):
+                 hatit_server='',
+                 remote_server='qaci01.wic.west.com', remote_user='wicqacip', remote_password='LogFiles'):
 
         self.csvfile = csvfile
         self.hatscript = ''
@@ -280,8 +234,6 @@ class HATScript(AutomationScript):
         browser = requests.session()
         qaci = browser.get('http://{0}/hatit'.format(self.remote_server))
         print(self.hatit_server)
-        if not self.holly_server:
-            self.holly_server = 'linux5578'
         data = {'apn': self.apn,
                 'browser': self.holly_server,
                 'port': '5060'}
@@ -295,7 +247,6 @@ class HATScript(AutomationScript):
         result = browser.get("{0}".format(self.hatit_server) + "api/check_run/?runid={0}".format(self.runID))
         browser.close()
         return result
-
 
     def local_hat_execute(self):
         """
@@ -330,7 +281,6 @@ class HATScript(AutomationScript):
         file_client = SFTPClient.from_transport(transport)
 
         script_file = NamedTemporaryFile(mode='w', delete=False)
-        #print(self.body)
         script_file.write(self.body)
         script_file.close()
         moveable_script_name = script_file.name + '_'
@@ -346,6 +296,7 @@ class HATScript(AutomationScript):
         client.connect(self.remote_server, username=self.remote_user, password=self.remote_password)
         command = 'hat -s /tmp/{0} -p {1} -i /var/mdta/report/ -o /var/mdta/log/{0}.log -b {2}:4080'.format(
             self.filename, self.sip_string(), self.holly_server)
+        print(command)
         channel = client.get_transport().open_session()
         channel.exec_command(command)
         channel.recv_exit_status()
@@ -413,16 +364,9 @@ class HATScript(AutomationScript):
         return False
 
     def start_of_call(self, step):
+        print("start_of_call: {0}".format(step))
         if step[:3].upper() == 'APN':
             self.apn = step[4:].strip()
-            self.apn, self.holly_server = self.apn.split(', HollyBrowser: ')
-            if self.holly_server:
-                self.holly_server =self.holly_server[:len(self.holly_server)-1]
-        elif step[:12].upper() == 'HOLLYBROWSER':
-            self.holly_server = step[13:].strip()
-            self.holly_server, self.apn = self.holly_server.split(', APN: ')
-            if self.apn:
-                self.apn =self.apn[:len(self.apn)-1]
         elif step[:4].upper() == 'DNIS':
             self.apn = step[5:].strip()
         elif step[:13].upper() == 'DIALEDNUMBER:':
@@ -438,11 +382,8 @@ class HATScript(AutomationScript):
     def dtmf_step(self, step):
         self.body += 'EXPECT recognition_start\nPAUSE 1\nDTMF ' + step[6:] + '\n'
 
-
-
     def no_input(self, step):
         self.body += 'EXPECT recognition_end\n'
-
 
     def end_of_call(self):
         """Previously used to append ENDCALL. Todo: refactor out"""
@@ -506,16 +447,3 @@ def bulk_hatit_file_generator(case_list):
 
 
 
-def temp_method_wait_untile_test_run_iscomplete(case, run_id):
-    complete = False
-    noerror = True
-    import time
-    browser = requests.session()
-    while ((not complete) and noerror):
-        time.sleep(2) # delay for 2 secs
-        result = browser.get("{0}".format(case.script.hatit_server) + "api/check_run/?runid={0}".format(run_id))
-        complete = result.json()['complete']
-        noerror = True if int(result.json()['error']) == 0 else False
-
-    browser.close()
-    return result
