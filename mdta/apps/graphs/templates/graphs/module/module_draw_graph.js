@@ -201,8 +201,8 @@ function module_context_menu(obj){
         menuItems: [
             {
                 id: 'verbiages',
-                content: 'Verbiages',
-                tooltipText: 'Prompt Verbiages',
+                content: 'Node Data',
+                tooltipText: 'General Info, Properties, & Verbiage (if applicable)',
                 selector: 'node[id > 0]',
                 onClickFunction: function (event) {
                     var node = event.target;
